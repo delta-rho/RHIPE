@@ -24,7 +24,6 @@ doc:
 	mkdir -p dist
 	cd build/latex/ && make all-pdf
 	cp build/latex/rhipe.pdf dist/doc/rhipe.doc.pdf
-	cd ../../
 	mv build/html dist/doc
 	rm -rf build
 
