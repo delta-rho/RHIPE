@@ -1,5 +1,5 @@
-;; (load "/Users/yanger/Library/Preferences/Aquamacs Emacs/customizations.el")
-;; (load "/Users/yanger/Library/Preferences/Aquamacs Emacs/Preferences.el") 
+;;; (load "/Users/yanger/Library/Preferences/Aquamacs Emacs/customizations.el")
+;;; (load "/Users/yanger/Library/Preferences/Aquamacs Emacs/Preferences.el") 
 (setq org-publish-project-alist
       '(
 	("rhipe-notes"

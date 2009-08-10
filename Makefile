@@ -22,6 +22,7 @@ doc:
 	make  -f Makefile.doc html
 	rm -rf docbuild
 	mkdir -p dist
+
 	rm -rf dist/doc/html
 	mv build/html dist/doc
 	rm -rf build
