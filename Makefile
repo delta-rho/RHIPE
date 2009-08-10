@@ -1,5 +1,5 @@
 VER=0.45
-FILES=Makefile conf ec2 java rhipe rhipe.jar 
+FILES=build.xml conf ec2 java rhipe rhipe.jar 
 # all: code dist
 
 .PHONY : doc code 
@@ -28,16 +28,18 @@ doc:
 	rm -rf build
 
 code: 	
-	rm -rf dist/dnm
+	rm -rf dist/dn
 	make --directory code	VER=${VER}
 	rm -rf code/build
 	mkdir -p dist/dn
 	mkdir dist/dn/rhipe.${VER}
 	for x in ${FILES}; do     cp -r code/$$x dist/dn/rhipe.${VER}; done
-	tar cfz dist/dn/rhipe.${VER}.tgz dist/dn/rhipe.${VER}
+	echo 'VER=${VER}' > dist/dn/rhipe.${VER}/Makefile
+	cat code/Makefile >> dist/dn/rhipe.${VER}/Makefile
+	cd dist/dn && tar cfz rhipe.${VER}.tgz rhipe.${VER}
 	rm -rf dist/dn/rhipe.${VER}
 	rm -rf dist/dn/rhipe.tgz
-	ln -s dist/dn/rhipe.${VER} dist/dn/rhipe.tgz
+	cp dist/dn/rhipe.${VER}.tgz dist/dn/rhipe.tgz
 
 clean:
 	rm -rf dist
