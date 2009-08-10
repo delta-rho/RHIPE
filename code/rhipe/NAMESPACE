@@ -1,0 +1,10 @@
+## useDynLib(qtutils, .registration = FALSE)
+##useDynLib(rhipe)
+export("...rdrbytes")
+export("...rdrbyteslength")
+export("...types")
+export("...what")
+export("...one")
+exportPattern("^\\rh")
+exportPattern("^\\sq")
+

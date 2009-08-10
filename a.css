@@ -1,0 +1,124 @@
+body {
+    width:100%;
+    height:100%;
+    padding:0;
+    font-size: 85%;
+    line-height:1.3em; 
+    background-color: #bed577;
+    background-color: white;
+    background-image: url(../img/green-background.png);
+    background-repeat: repeat-x;
+    font-family:Helvetica ,sans-serif;
+    color: rgb(51, 51, 51);
+}
+h1,h2,h3,h4,h5,h6 {font-family:sans-serif;}
+table {
+font-size:80%;font-family:serif;
+/* border-collapse: collapse; */
+}
+table th {
+border-width: 1px 1px 2px 1px;
+padding: 3px 3px 3px 3px;
+border-style: solid solid solid solid;
+border-color: black black black black;
+}
+table td {
+border-width: 1px 1px 1px 1px;
+padding: 2px 2px 2px 2px;
+border-style: solid solid solid solid;
+border-color: black black black black;
+background-color: #dddddd;
+}
+
+#table-of-contents li{
+    list-style:none;
+}
+#table-of-contents a{
+    text-decoration: none;
+    color:#000000;
+    font-weight:lighter;
+}
+#table-of-contents a:hover{
+    color:#992313;
+}
+
+.sitemap li,a,href{
+    text-decoration: none;
+    color:#000000;
+    list-style:none;
+}
+.sitemap a:hover{
+    color:#aa0000;
+}
+#content {
+    width:70%;
+    height:100%;
+    min-height:100%;  
+    padding:0;
+    margin:10%;
+    position:absolute;
+    margin-top:2%;
+}
+.sitemap {
+    font-size: 11px;
+    width:170px;
+    float:left;
+    margin-right:10px;
+    position:absolute;
+}
+.thickofit{
+    left:170px;
+    float:left;
+    width:800px;
+    position:absolute;
+    /* background: #ffffff; */
+    padding:1em;
+    /* border: 0.1em solid #222222; */
+}
+a {
+    font-weight:bold;
+}
+.thickofit a:hover {
+    color:#aa0000;
+}
+
+#postamble {
+    width:100%;
+    float:left;
+    font-size: 65%;
+    font-style: italic;
+}
+#postamble p{
+    display:inline-block;
+}
+#postamble p:after{
+    content:" | ";
+}
+#postamble .date {
+    font-weight:bold;
+}
+
+/* 
+ * sup { vertical-align: baseline } 
+ * sup:before { content: " ["; } sup:after {content: "]" } 
+ */
+
+.src {
+    font-family:Andale Mono, monospace;
+    font-size: 80%;
+    border:0;
+    border-top: 2pt solid #397D02;
+}
+
+.src-r-example {
+    font-family:Andale Mono, monospace;
+    font-size: 80%;
+    background-color: #eeeeee;
+    border:0;
+    border-bottom: 2pt solid #f0c722;
+}
+
+.linenr {
+    font-family: Helvetica;
+}
+

@@ -1,0 +1,75 @@
+#+AUTHOR: Saptarshi Guha
+#+EMAIL: sguha@purdue.edu
+#+SHOW: all
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t *:t TeX:t LaTeX:nil
+#+STYLE: <link rel="stylesheet" type="text/css" href="a.css" />
+#+TITLE: RHIPE - R and Hadoop Integrated Processing Environment 
+
+
+RHIPE(phonetic spelling: hree-pay' [1]) is a java package that integrates the R environment with [[http://hadoop.apache.org/core/][Hadoop]], the open source implementation
+of Google's mapreduce.  Using RHIPE it is possible to code map-reduce algorithms in R e.g
+[1] This is greek for /a moment in time/. See here for pronunciation:
+[[http://www.searchgodsword.org/lex/grk/view.cgi?number=4493][Greek Lexicon]]
+#+BEGIN_SRC R-example
+m <- function(key,val){
+  words <- strsplit(val," +")[[1]]
+  wc <- table(words)
+  cln <- names(wc)
+  names(wc)<-NULL; names(cln)<-NULL;
+  return(sapply(1:length(wc),function(r) list(key=cln[r],value=wc[[r]]),simplify=F))
+}
+r <- function(key,value){
+  value <- do.call("rbind",value)
+  return(list(list(key=key,value=sum(value))))
+}
+rhmr(map=m,reduce=r,combiner=T,input.folder="X",output.folder="Y")
+#+END_SRC
+
+* Download
+*Source*
+
+The source code is present on Git, go here [[http://github.com/saptarshiguha/RHIPE/][http://github.com/saptarshiguha/RHIPE/]]
+
+To check out the current version, install =git=
+#+BEGIN_SRC sh
+git clone git://github.com/saptarshiguha/RHIPE.git
+#+END_SRC
+
+To download version =vX= e.g =v0.45=
+#+BEGIN_SRC sh
+git clone git://github.com/saptarshiguha/RHIPE.git
+git checkout v0.45
+#+END_SRC
+
+
+
+*Versions*
+
+
+Read the documentation for installation. Current is _VER_
+
+| Version | Download        |
+|---------+-----------------|
+| Current | [[file:./dn/rhipe.tgz][rhipe.tgz]]       |
+| _VER_   | [[file:./dn/rhipe._VER_.tgz][rhipe._VER_.tgz]] |
+|---------+-----------------|
+
+
+* EC2
+To run this on EC2, download these scripts and read the documentation.
+
+* Documentation
+The documentation can be found [[file:./doc/index.html][here]] .
+* News
+** Fri Aug  7 2009, Version 0.45
+- Web site revamped. Beginning with the current version, the entire
+  manual is in PDF or can be accessed  at the [[./documentation/][documentation]] link.
+- Source code is available on Git, go to the download page for instructions.
+- We have moved to Hadoop 0.20, and there are now a few changes to the
+  way RHIPE works. 
+- Maps now get batches of key,value pairs (see documentation)
+- Stopped seeding via secure random generator, so the user will have
+  to seed it to avoid correlated streams. On RHEL linux
+ when running =rhlapply= on 145K+ tasks,  =/dev/random= would block.
+
+
