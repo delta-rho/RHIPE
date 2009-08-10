@@ -61,7 +61,7 @@ Read the documentation for installation. Current is _VER_
 To run this on EC2, download these scripts and read the documentation.
 
 * Documentation
-The documentation can be found [[file:./doc/index.html][here]] .
+The documentation can be found [[file:./doc/index.html][here]]. PDF version can be found [[file:./doc/rhipe.doc.pdf][here]]
 * News
 ** Fri Aug  7 2009, Version 0.45
 - Web site revamped. Beginning with the current version, the entire

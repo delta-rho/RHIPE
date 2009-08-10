@@ -2,7 +2,7 @@ VER=0.45
 FILES=Makefile conf ec2 java rhipe rhipe.jar 
 # all: code dist
 
-.PHONY : doc code
+.PHONY : doc code 
 
 all: code doc web
 
@@ -14,16 +14,17 @@ web:
 	rm index.org
 	cp a.css dist/
 doc: 
-	rm -rf dist/html
+	rm -rf dist/doc/html
 	rm -rf docbuild
 	mkdir docbuild
 	cp -r doc/* docbuild/
 	sed  's/_VER_/${VER}/' doc/conf.py > docbuild/conf.py
-	make  -f Makefile.doc html
+	make  -f Makefile.doc html latex
 	rm -rf docbuild
 	mkdir -p dist
-
-	rm -rf dist/doc/html
+	cd build/latex/ && make all-pdf
+	cp build/latex/rhipe.pdf dist/doc/rhipe.doc.pdf
+	cd ../../
 	mv build/html dist/doc
 	rm -rf build
 
