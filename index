@@ -41,6 +41,8 @@ git clone git://github.com/saptarshiguha/RHIPE.git
 git checkout v0.45
 #+END_SRC
 
+The current version is *always* the master. Only previous versions will have
+tags on Git.
 
 
 *Versions*
@@ -63,7 +65,7 @@ The documentation can be found [[file:./doc/index.html][here]] .
 * News
 ** Fri Aug  7 2009, Version 0.45
 - Web site revamped. Beginning with the current version, the entire
-  manual is in PDF or can be accessed  at the [[./documentation/][documentation]] link.
+  manual is in PDF or can be accessed  at the [[./doc/index.html/][documentation]] link.
 - Source code is available on Git, go to the download page for instructions.
 - We have moved to Hadoop 0.20, and there are now a few changes to the
   way RHIPE works. 
