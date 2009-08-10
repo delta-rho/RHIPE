@@ -11,5 +11,7 @@ Documentation for RHIPE
    rhmisc.rst
    ec2.rst
    examples.rst
+   FAQ.rst
+
 
 

@@ -16,7 +16,7 @@ working directory and side effect files will not be copied back.
 
 Not so good. A lot of data is transferred and because of R's serialization and
 my effort to allow *any* R data type to be transferred, about 6 times more data
-is transferred in RHIPE wordcount example(see `Mainpage <../index.html>`_ )
+is transferred in the RHIPE wordcount example(see `Mainpage <../index.html>`_ )
 compared to the Java version. As such, this was about 5 times slower for 9MM
 lines.
 
@@ -26,5 +26,5 @@ lines.
 - Also, I will just settle for raw,numeric, complex, character vectors and lists
   (whose elements are one of the aforementioned types) in conjunction with
   Protocol Buffers. This does reduce the transparency to the R user in that
-  he/she will have now serialize other structures (e.g objects like ``xyplot``
+  he/she will now have to serialize other structures (e.g objects like ``xyplot``
   objects or objects with special attributes
