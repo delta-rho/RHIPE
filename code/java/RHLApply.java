@@ -100,9 +100,9 @@ public class RHLApply extends Configured implements Tool {
 	try{
 
 	    re =  new RConnection("127.0.0.1",job.getInt("rhipejob.lapply.rport",8888));
-	    re.assign("v___",new REXPInteger(10)); //Utils.sdd()));
+// 	    re.assign("v___",new REXPInteger(10)); //Utils.sdd()));
 	    re.assign("simplifychar",new REXPInteger(job.getInt("rhipejob.charsxp.short",0)));
-	    re.voidEval("set.seed(v___)");
+// 	    re.voidEval("set.seed(v___)");
 	    byte[] lapplfunc, sconfig;
 	    uniWritable b= new uniWritable();
 	    MapFile.Reader mrd = new MapFile.Reader( FileSystem.get(job),job.get("rhipejob.lapply.mapfile"),job);

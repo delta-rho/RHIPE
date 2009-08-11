@@ -114,8 +114,8 @@ public class RHMRReducer extends MapReduceBase implements Reducer<Object,Object,
 		    .getBytes();
 		mrd.close();
 	    }
-	    re.assign("v___",new REXPInteger(Utils.sdd()));
-	    re.voidEval("set.seed(v___)");
+// 	    re.assign("v___",new REXPInteger(Utils.sdd()));
+// 	    re.voidEval("set.seed(v___)");
 	    Utils.loadFuncs(re);
 	    re.assign("red.func",new REXPRaw( RHMRReducer.reducef ));
 	    re.voidEval("red.func=unserialize(red.func)");

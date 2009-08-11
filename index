@@ -67,9 +67,6 @@ The documentation can be found [[file:./doc/index.html][here]]. PDF version can 
 - Web site revamped. Beginning with the current version, the entire
   manual is in PDF or can be accessed  at the [[./doc/index.html/][documentation]] link.
 - Source code is available on Git, go to the download page for instructions.
-- We have moved to Hadoop 0.20, and there are now a few changes to the
-  way RHIPE works. 
-- Maps now get batches of key,value pairs (see documentation)
 - Stopped seeding via secure random generator, so the user will have
   to seed it to avoid correlated streams. On RHEL linux
  when running =rhlapply= on 145K+ tasks,  =/dev/random= would block.

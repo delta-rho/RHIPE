@@ -113,8 +113,8 @@ public class RHMRMapper extends MapReduceBase implements Mapper<Object,Object,RX
 
 		mrd.close();
 	    }
-	    re.assign("v___",new REXPInteger(Utils.sdd()));
-	    re.voidEval("set.seed(v___)");
+// 	    re.assign("v___",new REXPInteger(Utils.sdd()));
+// 	    re.voidEval("set.seed(v___)");
 	    Utils.loadFuncs(re);
 
 	    re.assign("map.function",new REXPRaw( RHMRMapper.mapperfunc ));
