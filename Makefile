@@ -1,7 +1,7 @@
 VER=0.44
 FILES=build.xml conf ec2 java rhipe rhipe.jar 
 # all: code dist
-
+#s
 .PHONY : doc code 
 
 all: code doc web
