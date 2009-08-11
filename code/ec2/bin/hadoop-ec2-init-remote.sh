@@ -310,12 +310,14 @@ rm -rf s3sync.tar.gza
 ##Ideally, should just run in MASTER
 ##SLAVES copy this user_r.r from MASTER
 mkdir -p /opt/rhipe/etc
-wget -q http://ml.stat.purdue.edu/rhipe/rsrc/rhipe.tgz -P /opt
-wget -q http://www.rforge.net/rJava/snapshot/rJava_0.6-4.tar.gz -P /opt
-cd /opt && tar zxf /opt/rhipe.tgz
-R CMD Rserve --no-save --RS-conf /opt/rhipe/etc/rserve.conf $RSOPTS 2>&1 1>/tmp/rserve.log
-R CMD INSTALL  /opt/rhipe/rhipe4r
-R CMD INSTALL rJava_0.6-4.tar.gz
+mkdir -p /opt/rJava
+wget -q http://ml.stat.purdue.edu/rhipe/dn/rhipe.tgz -P /opt/rhipe/
+wget -q http://www.rforge.net/rJava/snapshot/rJava_0.6-4.tar.gz -P /opt/rJava
+
+R CMD Rserve --no-save --RS-conf /opt/rhipe/conf/rserve.conf $RSOPTS 2>&1 1>/tmp/rserve.log
+R CMD INSTALL  /opt/rhipe/rhipe
+R CMD INSTALL /opt/rJava/rJava_0.6-4.tar.gz
+
 case "$R_USER_FILE_IS_PUBLIC" in
     "0" )
 	cd /root/
