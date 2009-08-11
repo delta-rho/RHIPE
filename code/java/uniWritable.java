@@ -80,6 +80,6 @@ class uniWritable implements Writable {
     double getDouble() {return( ((DoubleWritable)wble).get());}
     String getString() { return(((Text)wble).toString());}
     String[] getStrings() { return(((ArrayWritable)wble).toStrings());}
-    byte[] getBytes() { return(((BytesWritable)wble).getBytes());}
+    byte[] getBytes() { return(((BytesWritable)wble).get());}
     MapWritable getMap(){ return((MapWritable)wble);}
 }

@@ -17,25 +17,23 @@
  *
  * Saptarshi Guha sguha@purdue.edu
  */
-package org.saptarshiguha.rhipe.utils;
+package org.saptarshiguha.rhipe.utils;;
 import java.lang.StringBuilder;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.io.SequenceFile.Writer;
-import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.SequenceFile.CompressionType;
 import java.util.Random;
 import java.util.Vector;
+import java.security.SecureRandom;
 import org.rosuda.REngine.*;
 import org.rosuda.REngine.Rserve.*;
 import java.io.*;
 import java.net.*;
 import org.saptarshiguha.rhipe.hadoop.RXWritableRAW;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Iterator;
-
+import org.apache.hadoop.io.SequenceFile.Writer;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 
 public class Utils {
     public Utils(){}
@@ -45,19 +43,6 @@ public class Utils {
 	byte[] x = (byte[])k;
 	return(x);
     }
-    public static void assignConfVars(Configuration c, RConnection r) throws RserveException{
-	Iterator<Map.Entry<String,String>> it = c.iterator();
-	RList rl = new RList();
-	int i=0;
-	while(it.hasNext()){
-	    Map.Entry<String,String> v = it.next();
-	    rl.add(  new REXPString(v.getValue()));
-	    rl.setKeyAt(i,v.getKey());i++;
-	}
-	REXPGenericVector rv = new REXPGenericVector(rl);
-	r.assign("mapred.opts",rv);
-    }
-
     public static String prettyPrintHex(byte[] data){
 	return(prettyPrintHex(data,0,data.length));
     }
@@ -74,7 +59,7 @@ public class Utils {
 		String ve = build(re.eval("capture.output(head(red.value))").asStrings(),"\n");
 		body="Offending head(KEY):\n"+ke+"\nOffending head(VALUE):\n"+ve;
 	    }else if(et==ERRTYPE.LAPPLY){
-		String ke = build(re.eval("capture.output(head(mapdata))").asStrings(),"\n");
+		String ke = build(re.eval("capture.output(head(lapply.input))").asStrings(),"\n");
 		body="Offending head(INDEX):\n"+ke;
 	    }
 
@@ -121,25 +106,118 @@ public class Utils {
 	re.voidEval(b.toString());
     }
 
+//     public static String parseSTRSXP(byte[] x,char sep,String logicalTrue,String logicalFalse,String intlogNA) throws IOException{
+//    	int howmany=0;
+// 	boolean readhowmany=false;
+// 	int pos;
+// 	System.out.println("first = "+x[0]);
+// 	if(x[0]== -16) {
+// 	    howmany=1;pos=4;
+// 	}else {
+// 	    readhowmany=true;
+// 	    pos=8;
+// 	}
+// 	if(readhowmany) howmany = (((x[4] & 0xff) << 24) | ((x[5] & 0xff) << 16) |  ((x[6] & 0xff) << 8) | (x[7] & 0xff));
+// 	StringBuilder builder = new StringBuilder();
+// 	String s=null;
+// 	switch(x[3]){
+// 	case 0x10:
+// 	    for(int i=0;i<howmany-1;i++){
+// 		pos = pos + 4 ; //skip CHARSXP info, by moving past size of int
+// 		int ln = (((x[pos] & 0xff) << 24) | ((x[pos+1] & 0xff) << 16) |  ((x[pos+2] & 0xff) << 8) | (x[pos+3] & 0xff));
+// 		if(ln>0){
+// 		    pos = pos + 4;
+// 		    s = new String(x, pos, ln);
+// 		    pos = pos + ln;
+// 		}else {
+// 		    s="NA";pos=pos+4;
+// 		}
+// 		builder.append(s);
+// 		builder.append(sep);
+// 	    }
+// 	    //The last one now,
+// 	    pos = pos + 4;
+// 	    int ln = (((x[pos] & 0xff) << 24) | ((x[pos+1] & 0xff) << 16) |  ((x[pos+2] & 0xff) << 8) | (x[pos+3] & 0xff));
+// 	    if(ln>0){
+// 		pos = pos + 4;
+// 		s = new String(x, pos, ln);
+// 	    }else {
+// 		s="NA";
+// 	    }
+// 	    builder.append(s);
+// 	    break;
+// 	case 0x0e:
+// 	    long l;
+// 	    double d;
+// 	    for(int i=0;i<howmany-1;i++){
+// 		l= (((long)(x[pos] & 0xff) << 56) |  ((long)(x[pos+1] & 0xff) << 48) |  ((long)(x[pos+2] & 0xff) << 40) |  ((long)(x[pos+3] & 0xff) << 32) |
+// 		 ((long)(x[pos+4] & 0xff) << 24) |  ((long)(x[pos+5] & 0xff) << 16) |  ((long)(x[pos+6] & 0xff) <<  8) |  ((long)(x[pos+7] & 0xff)));
+// 		s=(new Double(Double.longBitsToDouble(l))).toString();
+// 		builder.append(s);
+// 		builder.append(sep);
+// 		pos=pos+8;
+// 	    }
+// 	    //The last one now,
+// 	    l= (((long)(x[pos] & 0xff) << 56) |  ((long)(x[pos+1] & 0xff) << 48) |  ((long)(x[pos+2] & 0xff) << 40) |  ((long)(x[pos+3] & 0xff) << 32) |
+// 		((long)(x[pos+4] & 0xff) << 24) |  ((long)(x[pos+5] & 0xff) << 16) |  ((long)(x[pos+6] & 0xff) <<  8) |  ((long)(x[pos+7] & 0xff)));
+// 	    s=(new Double(Double.longBitsToDouble(l))).toString();
+// 	    builder.append(s);
+// 	    break;
+// 	case 0x0d:
+// 	    int j;
+// 	    if( x[2] == 0x03) throw new IOException("Is this a factor? Sorry, can't parse");
+// 	    for(int i=0;i<howmany-1;i++){
+// 		j =  (((x[pos] & 0xff) << 24) | ((x[pos+1] & 0xff) << 16) |  ((x[pos+2] & 0xff) << 8) | (x[pos+3] & 0xff));
+// 		if (j==Integer.MIN_VALUE) s=intlogNA; else s=(new Integer(j)).toString();
+// 		pos=pos+4;
+// 		builder.append(s);
+// 		builder.append(sep);
+// 	    }
+// 	    //The last one now,
+// 	    j =  (((x[pos] & 0xff) << 24) | ((x[pos+1] & 0xff) << 16) |  ((x[pos+2] & 0xff) << 8) | (x[pos+3] & 0xff));
+// 	    if (j==Integer.MIN_VALUE) s=intlogNA; else s=(new Integer(j)).toString();
+// 	    builder.append(s);
+// 	    break;
+// 	case 0x0a:
+// 	    int k;
+// 	    for(int i=0;i<howmany-1;i++){
+// 		k =  (((x[pos] & 0xff) << 24) | ((x[pos+1] & 0xff) << 16) |  ((x[pos+2] & 0xff) << 8) | (x[pos+3] & 0xff));
+// 		if (k==Integer.MIN_VALUE) s=intlogNA; else if (k==1) s=logicalTrue ; else if (k==0) s=logicalFalse;
+// 		builder.append(s);
+// 		builder.append(sep);
+// 		pos=pos+4;
+// 	    }
+// 	    //The last one now,
+// 	    k =  (((x[pos] & 0xff) << 24) | ((x[pos+1] & 0xff) << 16) |  ((x[pos+2] & 0xff) << 8) | (x[pos+3] & 0xff));
+// 	    if (k==Integer.MIN_VALUE) s=intlogNA; else if (k==1) s=logicalTrue ; else if (k==0) s=logicalFalse;
+// 	    builder.append(s);
+// 	    break;
+// 	default:
+// 	    throw new IOException("Not a recognizable format, only char,numeric,integer,logical allowed");
+// 	}
+// 	return builder.toString();
+//     }
 
     public static int sdd(){
-// 	byte[] sd = SecureRandom.getSeed(8);
-// 	long sdi = (((long)(sd[0] & 0xff) << 56) |
-// 		    ((long)(sd[1] & 0xff) << 48) |
-// 		    ((long)(sd[2] & 0xff) << 40) |
-// 		    ((long)(sd[3] & 0xff) << 32) |
-// 		    ((long)(sd[4] & 0xff) << 24) |
-// 		    ((long)(sd[5] & 0xff) << 16) |
-// 		    ((long)(sd[6] & 0xff) <<  8) |
-// 		    ((long)(sd[7] & 0xff)));
-	Random r = new Random();
+	byte[] sd = SecureRandom.getSeed(8);
+	long sdi = (((long)(sd[0] & 0xff) << 56) |
+		    ((long)(sd[1] & 0xff) << 48) |
+		    ((long)(sd[2] & 0xff) << 40) |
+		    ((long)(sd[3] & 0xff) << 32) |
+		    ((long)(sd[4] & 0xff) << 24) |
+		    ((long)(sd[5] & 0xff) << 16) |
+		    ((long)(sd[6] & 0xff) <<  8) |
+		    ((long)(sd[7] & 0xff)));
+	Random r = new Random(sdi);
 	int d=  r.nextInt( Integer.MAX_VALUE );
 	return(d);
     }
     public static void deleteFonDFS(String file,int loc){
 	try{
 	    Configuration defaults = new Configuration();
-	    FileSystem.get(defaults).delete(new Path(file), true);
+	    JobConf conf = new JobConf(defaults);
+	    conf.addResource(new Path(System.getenv("HADOOP_CONF_DIR")+"/hadoop-site.xml"));
+	    FileSystem.get(conf).delete(new Path(file), true);
 	}catch(Exception e){
 	    e.printStackTrace();
 	}

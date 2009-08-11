@@ -18,43 +18,53 @@
  * Saptarshi Guha sguha@purdue.edu
  */
 package org.saptarshiguha.rhipe.hadoop;
-import java.util.*;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
+import java.util.Enumeration;
+import java.util.Set;
 import java.net.URISyntaxException;
-
+import java.util.Iterator;
+import java.net.URI;
+import java.io.IOException;
+import java.io.File;
+import java.util.Random;
+import java.security.SecureRandom;
+import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.BytesWritable;
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.MapFile.Reader;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.SequenceFile.Writer;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.filecache.DistributedCache;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapred.lib.NullOutputFormat;
+import org.apache.hadoop.mapred.FileOutputFormat;
+import org.apache.hadoop.mapred.RunningJob;
+import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
-import org.apache.hadoop.util.GenericOptionsParser;
-
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.MapReduceBase;
+import org.apache.hadoop.mapred.Mapper;
+import org.apache.hadoop.mapred.OutputCollector;
+import org.apache.hadoop.mapred.Reducer;
+import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.hadoop.conf.Configured;
 
 import org.apache.hadoop.io.BytesWritable;
 import org.rosuda.REngine.*;
@@ -65,65 +75,73 @@ import org.rosuda.REngine.Rserve.protocol.REXPFactory;
 import org.saptarshiguha.rhipe.utils.*;
     
 
-public class RHLApply  {
+public class RHLApply extends Configured implements Tool {
     public RHLApply(){}
-    static class LApplyMapper
-	extends Mapper<RXWritable,RXWritable,RXWritableRAW,RXWritableRAW> {
+    //Given a random int, between 0 and B (inclusive)
+    //Convert to 0,B-1 without generating another number.
+
+    static class LApplyMapper extends MapReduceBase
+	implements Mapper<RXWritable,RXWritable,RXWritableRAW,RXWritableRAW> {
+	LongWritable thekey = new LongWritable(1L);
+	BytesWritable val = new BytesWritable();
 	RConnection re;
+	int numreduce;
 	FileSystem dstFS = null;
 	String temppfx = null;
 	File tempdir = null;
 	Path dstPath= null;
+	REXP onekey;
 	RXWritableRAW onekeyasWritable = null;
+	boolean isfromsqfile= false;
 	boolean copystuff;
-	RXWritableRAW rw ;
-	public void setup(Context ctx) throws IOException, InterruptedException{
+    public void configure(JobConf job){
+	REXP cmderrex = null;
+	String[] rout = null;
 	try{
-	    Configuration cfg = ctx.getConfiguration();
-	    re =  new RConnection("127.0.0.1",cfg.getInt("rhipejob.lapply.rport",8888));
-	    re.assign("v___",new REXPInteger(Utils.sdd()));
-	    re.voidEval("set.seed(v___);rm(v___)");
+
+	    re =  new RConnection("127.0.0.1",job.getInt("rhipejob.lapply.rport",8888));
+	    re.assign("v___",new REXPInteger(10)); //Utils.sdd()));
+	    re.assign("simplifychar",new REXPInteger(job.getInt("rhipejob.charsxp.short",0)));
+	    re.voidEval("set.seed(v___)");
 	    byte[] lapplfunc, sconfig;
 	    uniWritable b= new uniWritable();
-	    MapFile.Reader mrd = new MapFile.Reader( FileSystem.get(cfg),
-						     cfg.get("rhipejob.lapply.mapfile"),cfg);
-	    lapplfunc =( (uniWritable)mrd.get(new Text("rhipejob.lapply.serializedfunction"), b)).
-		getBytes();
-	    sconfig = ( (uniWritable)mrd.get(new Text("rhipejob.lapply.serializedconfig"), b)).
-		getBytes();
+	    MapFile.Reader mrd = new MapFile.Reader( FileSystem.get(job),job.get("rhipejob.lapply.mapfile"),job);
+	    lapplfunc =( (uniWritable)mrd.get(new Text("rhipejob.lapply.serializedfunction"), b)).getBytes();
+	    sconfig = ( (uniWritable)mrd.get(new Text("rhipejob.lapply.serializedconfig"), b)).getBytes();
+	    if(lapplfunc == null || sconfig ==null) throw new Exception("[RHIPE]: serialized bytes for lapply function or configure are null");
 	    mrd.close();
-
+	    isfromsqfile = job.getInt("rhipejob.lapply.listneeded",0)==0? true: false;
 	    re.assign("lapply.function",new REXPRaw( lapplfunc ));
 	    re.voidEval("lapply.function=unserialize(lapply.function)");
 	    re.assign("configbytes",new REXPRaw( sconfig ));
 	    Utils.loadFuncs(re);
 	    
-	    REXP onekey =  re.eval("rhsz(1)");
+	    onekey =  re.eval("rhsz(1)");
 	    onekeyasWritable = new RXWritableRAW();
 	    onekeyasWritable.set(onekey);
-
-	    dstFS =FileSystem.get(cfg);
+	    dstFS = FileOutputFormat.getOutputPath(job).getFileSystem(job);
 	    String fsep= System.getProperty("file.separator");
-	    dstPath = new Path(cfg.get("rhipejob.lapply.routput"));
+	    dstPath = new Path(job.get("rhipejob.lapply.routput"));
 	    temppfx =System.getProperty("java.io.tmpdir");
 	    re.voidEval("setwd('"+temppfx+fsep+".."+"')");
-	    copystuff = cfg.getInt("rhipejob.copy.to.dfs",1) == 1? true : false;
+	    copystuff = job.getInt("rhipejob.copy.to.dfs",1) == 1? true : false;
 
 	    if ( !temppfx.endsWith(fsep))
 		temppfx = temppfx +fsep;
 	    tempdir = new File(temppfx);
 
-	    re.voidEval("configure=unserialize(configbytes);rm(configbytes)");
+	    re.voidEval("configure=unserialize(configbytes);");
+// 	    re.voidEval("for(x... in ls(preload$env)) assign(x...,get(x...,envir=preload$env),envir=.GlobalEnv)");
 	    RList rl = re.eval("tryCatch(list(s=capture.output(ret <-eval(configure,envir=.GlobalEnv)),v=ret),error=function(ex){ list(e=paste(ex))})").asList();
 	    Utils.showError(re,rl,"==== CONFIGURE ERROR ====",Utils.ERRTYPE.CONFIG);
 	    Utils.showStdout(rl,"==== CONFIGURE STANDARD OUTPUT ====");
-	    re.voidEval("..srhuz=function(r) if(is.raw(r)) return(rhuz(r)) else return(r)");
 	    re.assign("...lapplyexp...",
-		      "tryCatch(list(s=capture.output(ret<-lapply(lapply(mapdata,function(r){ do.call('lapply.function',list(..srhuz(r)))}),rhsz)),v=ret),error=function(ex){ list(e=paste(ex))})");
+			  "tryCatch(list(s=capture.output(ret<-rhsz(lapply.function(lapply.input))),v=ret)"+
+			  ",error=function(ex){ list(e=paste(ex))})");
 	    re.voidEval("...lapplyexp...=parse(text=...lapplyexp...)");
-	    rw = new RXWritableRAW(); 
+
 	}catch (Exception e) {
-	    throw new IOException(e);
+	    throw new RuntimeException(e);
 	}
     }
     /********************************************************
@@ -132,7 +150,7 @@ public class RHLApply  {
      * and i would have to pass a variable to the R code
      * indicating name of the 'tmp' folder.
      *******************************************************/
-	public void cleanup(Context ctx) throws IOException,InterruptedException{
+    public void close() throws IOException{
 	try{
 	    if(copystuff){
 		ArrayList<Path> lop = new ArrayList<Path>();
@@ -150,100 +168,75 @@ public class RHLApply  {
 	}
     }
 
-    public void run(Context context)
-         throws IOException,
-	InterruptedException{
-	setup(context);
-	REXPGenericVector keyVector,valueVector;
-	REXP rkey,rvalue;
-	ArrayList<REXP> keyCollector =  new ArrayList<REXP>(),
-	    valueCollector = new ArrayList<REXP>();
-	keyCollector.ensureCapacity(100000);
-	valueCollector.ensureCapacity(100000);
-	while (context.nextKeyValue()) {
-	    rkey = ((RXWritable)(context.getCurrentKey())).getREXP();
-	    rvalue = ((RXWritable)(context.getCurrentValue())).getREXP();
-	    keyCollector.add( rkey );
-	    valueCollector.add( rkey );
-	}
-	keyCollector.trimToSize();
-	valueCollector.trimToSize();
+    public void map(RXWritable key, RXWritable value,
+		    OutputCollector<RXWritableRAW,RXWritableRAW> output, 
+		    Reporter reporter)  throws IOException {
 	try{
-	    RList lapplyList = new RList(valueCollector);
-	    REXPGenericVector lapplyVector = new REXPGenericVector(lapplyList);
-	    re.assign("mapdata",lapplyVector);
-	    RList resultsList = re.eval("eval(...lapplyexp...)").asList();
-	    Utils.showError(re,resultsList,"==== LAPPLY ERROR ====",Utils.ERRTYPE.LAPPLY);
-	    Utils.showStdout(resultsList,"==== LAPPLY STANDARD OUTPUT ====");
-	    RXWritableRAW tk = new RXWritableRAW();
-	    RXWritableRAW tv = new RXWritableRAW();
-	    RList valuesList = resultsList.at("v").asList();
-	    REXP v;
-	    for(int i=0;i< valuesList.size(); i++){
-		v = valuesList.at(i);
-		tv.set(v);
-		tk.set(keyCollector.get(i));
-		context.write(tk,tv);
-	    }
-	}catch(RserveException e) {
-	    e.printStackTrace();
+	    re.assign("lapply.input",value.getREXP());
+	    if(value.getREXP().isRaw()) re.voidEval("lapply.input=rhuz(lapply.input)");
+	    RList rl = re.eval("eval(...lapplyexp...)").asList();
+	    Utils.showError(re,rl,"==== LAPPLY ERROR ====",Utils.ERRTYPE.LAPPLY);
+	    Utils.showStdout(rl,"==== LAPPLY STANDARD OUTPUT ====");
+	    RXWritableRAW rw = new RXWritableRAW(); rw.set(rl.at("v"));
+	    if(key instanceof RXWritableLong)
+		output.collect(onekeyasWritable,rw);
+	    else
+		output.collect((RXWritableRAW)key,rw);
+	    reporter.progress();
+	} catch(RserveException e) {
 	    throw new IOException(e);
-	}catch(REXPMismatchException e) {
-	    e.printStackTrace();
+	} catch(REXPMismatchException e) {
 	    throw new IOException(e);
 	}
-	cleanup(context);
     }
-    
     }
 
-    static class LApplyReducer extends  Reducer<RXWritableRAW, RXWritableRAW, RXWritableRAW, 
+    static class LApplyReducer extends MapReduceBase 
+	implements Reducer<RXWritableRAW, RXWritableRAW, RXWritableRAW, 
 		   RXWritableRAW> {
-	public void setup(Context ctx) throws IOException,InterruptedException {}
+	public void configure(JobConf job){}
 
-	public void cleanup(Context ctx) throws IOException,InterruptedException {}
+	public void close() throws IOException{}
 
 	public void reduce(RXWritableRAW key, Iterator<RXWritableRAW> values,
-			   Context ctx) 
-	    throws IOException,InterruptedException {
+			   OutputCollector<RXWritableRAW, 
+			   RXWritableRAW> output, Reporter reporter) 
+	    throws IOException {
 		while(values.hasNext()) {
-		    ctx.write( key, values.next());
-		    ctx.progress();
+		    output.collect( key, values.next());
+		    reporter.progress();
 		}
 	}
     }
 
-    public static Job createJob(Configuration defaults,String mapfile,String tmpinput,String local) 
+    public static JobConf createConf(Configuration defaults,String mapfile,String tmpinput,String local) 
 	throws URISyntaxException,IOException
     {
-
+	JobConf jobConf = new JobConf(defaults, RHLApply.class);
+	if(local.equals("local")){
+	    //	    jobConf.set("fs.file.impl", "org.apache.hadoop.fs.LocalFileSystem");
+	}
 	try{
-	    MapFile.Reader mrd = new MapFile.Reader( FileSystem.get(defaults),mapfile,defaults);
+	    MapFile.Reader mrd = new MapFile.Reader( FileSystem.get(jobConf),mapfile,jobConf);
 	    uniWritable a = new uniWritable();
-	    int listlength = ((uniWritable)mrd.get(new Text("rhipejob.lapply.lengthofinput"),a))
-		.getInt();
-	    int listobjectneeded = ((uniWritable)mrd.get(new Text("rhipejob.lapply.listneeded"), a))
-		.getInt();
-	    MapWritable mapredopts =  ((uniWritable)mrd.get(new Text("rhipejob.lapply.mapredopts"), a))
-		.getMap();
+	    int listlength = ((uniWritable)mrd.get(new Text("rhipejob.lapply.lengthofinput"),a)).getInt();
+	    int listobjectneeded = ((uniWritable)mrd.get(new Text("rhipejob.lapply.listneeded"), a)).getInt();
+	    MapWritable mapredopts =  ((uniWritable)mrd.get(new Text("rhipejob.lapply.mapredopts"), a)).getMap();
 	    int rport =((uniWritable) mrd.get(new Text("rhipejob.lapply.rport"),a)).getInt();
-	    String output_folder = ((uniWritable)mrd.get(new Text("rhipejob.lapply.routput"),a))
-		.getString();
-	    String[] sharedfiles = ((uniWritable) mrd.get(new Text("rhipejob.lapply.shared.files"), a))
-		.getStrings();
-	    String uid = ((uniWritable)mrd.get(new Text("rhipejob.lapply.uid"), a)).
-		getString();
+	    String output_folder = ((uniWritable)mrd.get(new Text("rhipejob.lapply.routput"),a)).getString();
+	    String[] sharedfiles = ((uniWritable) mrd.get(new Text("rhipejob.lapply.shared.files"), a)).getStrings();
+	    String uid = ((uniWritable)mrd.get(new Text("rhipejob.lapply.uid"), a)).getString();
 	    int delOutOnEnd = ((uniWritable)mrd.get(new Text("rhipejob.lapply.wdelout"),a)).getInt();
-
-	    defaults.set("rhipejob.lapply.uid",uid);
-	    defaults.set("rhipejob.lapply.mapfile",mapfile);
-	    defaults.setInt("rhipejob.lapply.lengthofinput",listlength);
-	    defaults.setInt("rhipejob.lapply.listneeded",listobjectneeded ) ;
-	    defaults.setInt("rhipejob.lapply.rport",rport);
-	    defaults.setInt("rhipejob.lapply.wdelout",delOutOnEnd);
+	    jobConf.setJobName("LAPPLY:"+uid);
+	    jobConf.set("rhipejob.lapply.uid",uid);
+	    jobConf.set("rhipejob.lapply.mapfile",mapfile);
+	    jobConf.setInt("rhipejob.lapply.lengthofinput",listlength);
+	    jobConf.setInt("rhipejob.lapply.listneeded",listobjectneeded ) ;
+	    jobConf.setInt("rhipejob.lapply.rport",rport);
+	    jobConf.setInt("rhipejob.lapply.wdelout",delOutOnEnd);
 	    if(sharedfiles ==null) sharedfiles=new String[]{};
 	    for(String p : sharedfiles){
-		if(p.length()>1) DistributedCache.addCacheFile(new URI(p),defaults);
+		if(p.length()>1) DistributedCache.addCacheFile(new URI(p),jobConf);
 	    }
 
 	    Set<Writable> keySet = mapredopts.keySet();
@@ -251,36 +244,31 @@ public class RHLApply  {
 	    while( it!=null && it.hasNext()){
 		Text k = (Text)it.next();
 		Text v = (Text) mapredopts.get(k);
-		defaults.set(k.toString(), v.toString());
+		jobConf.set(k.toString(), v.toString());
 	    }
-	    defaults.setInt("mapred.task.timeout",0);
-	    DistributedCache.createSymlink(defaults);
-	    if(output_folder!=null && !output_folder.equals(""))
-		defaults.set("rhipejob.lapply.routput", output_folder+"/");
-
-	    Job job = new Job(defaults);
-	    job.setJarByClass(RHLApply.class);
-	    job.setJobName("LAPPLY:"+uid);
 	    if(output_folder!=null && !output_folder.equals("")){
 		Path pp = new Path(output_folder);
-		org.apache.hadoop.fs.FileSystem srcFs = org.apache.hadoop.fs.FileSystem.get(defaults);
-		srcFs.delete(new Path(output_folder+System.getProperty("file.separator")), true);
-		FileOutputFormat.setOutputPath(job,pp );
+		org.apache.hadoop.fs.FileSystem srcFs = (new Path(output_folder+System.getProperty("file.separator"))).getFileSystem(jobConf);
+		srcFs.delete(pp, true);
+		FileOutputFormat.setOutputPath(jobConf,pp );
+		jobConf.set("rhipejob.lapply.routput", output_folder+"/"); 
 	    }
+// 	    jobConf.setInt("mapred.task.timeout",0);
+	    DistributedCache.createSymlink(jobConf);
 	    if(listobjectneeded!=0) 
-		job.setInputFormatClass(LApplyInputFormat.class);
+		jobConf.setInputFormat(LApplyInputFormat.class);
 	    else{
-		FileInputFormat.setInputPaths(job,tmpinput);
-		job.setInputFormatClass(SequenceFileInputFormat.class);
+		FileInputFormat.setInputPaths(jobConf,tmpinput);
+		jobConf.setInputFormat(SequenceFileInputFormat.class);
 	    }
-	    job.setMapperClass(LApplyMapper.class);
-	    job.setReducerClass(LApplyReducer.class);
-	    job.setOutputFormatClass(SequenceFileOutputFormat.class);
-	    job.setMapOutputKeyClass(RXWritableRAW.class);
-	    job.setMapOutputValueClass(RXWritableRAW.class);
-	    job.setOutputKeyClass(RXWritableRAW.class);
-	    job.setOutputValueClass(RXWritableRAW.class);
-	    return(job);
+	    jobConf.setMapperClass(LApplyMapper.class);
+	    jobConf.setReducerClass(LApplyReducer.class);
+	    jobConf.setOutputFormat(SequenceFileOutputFormat.class);
+	    jobConf.setMapOutputKeyClass(RXWritableRAW.class);
+	    jobConf.setMapOutputValueClass(RXWritableRAW.class);
+	    jobConf.setOutputKeyClass(RXWritableRAW.class);
+	    jobConf.setOutputValueClass(RXWritableRAW.class);
+	    return(jobConf);
 	}catch(Exception ex){
 	    ex.printStackTrace();
 	    return(null);
@@ -292,6 +280,9 @@ public class RHLApply  {
 				byte[] config, String output_folder,
 				String[] shared_files, Hashtable hadoop_options0,
 				int rport){
+// 	Configuration defaults = new Configuration();
+//	JobConf jobConf = new JobConf(defaults);
+// 	jobConf.addResource(new Path(System.getenv("HADOOP_CONF_DIR")+"/hadoop-site.xml"));
 	String uid =  UUID.randomUUID().toString();
 	String dirName = new String("/tmp/"+uid+".mapfile");
 	MapWritable m = new MapWritable();
@@ -336,34 +327,39 @@ public class RHLApply  {
     public int run(String[] args) throws Exception {
 	if (args.length < 4) {
 	    System.out.println("rhlapply mapfile verbose inputfile local");
-	    System.exit(-1);
+	    ToolRunner.printGenericCommandUsage(System.out);
+	    return -1;
 	}
-	int k;
-	Configuration conf = new Configuration();
-	Job job;
+	Configuration conf = getConf();
+	boolean verb = Boolean.valueOf(args[1]);
+	JobConf jc = RHLApply.createConf(conf,args[0],args[2],args[3]);
+	int k=0;
+	RunningJob rjb=null;
+	int delWonOut = jc.getInt("rhipejob.lapply.wdelout",0);
 	try{
-	    job = RHLApply.createJob(conf,args[0],args[2],args[3]);
-	    k = job.waitForCompletion(true) ? 115 : 120;
-	}catch(Exception e){
-	    k=-2;
-	    e.printStackTrace();
-	}finally{
-	    try{
-		org.apache.hadoop.fs.FileSystem srcFs = org.apache.hadoop.fs.FileSystem.get(conf);
-		srcFs.delete(new Path(args[0]), true);
-	    }catch(Exception e){
-		k=-3;
-		e.printStackTrace();
+	    if(verb) {
+		rjb = JobClient.runJob(jc);
+	    }else{
+		JobClient jcl = new JobClient(jc);
+		rjb = jcl.submitJob(jc);
+		System.out.println("[RHIPE] Job ID: "+rjb.getID().toString());
+		System.out.println("[RHIPE] Job Name: "+rjb.getJobName());
+		System.out.println("[RHIPE] Job URL: "+rjb.getTrackingURL());
+		rjb.waitForCompletion();
 	    }
+	    k = rjb.isSuccessful() ? 115: 120;
+	}catch(Exception e){
+	    throw new Exception(e);
+	}finally{
+	    //FileSystem.get(jc).delete(new Path(args[0]), true);
+	    //if(delWonOut==1) FileSystem.get(jc).delete(new Path(jc.get("rhipejob.lapply.routput")),true);
 	}
 	return(k);
     }
-
     public static void main(String[] args)  {
-
 	int res;
 	try{
-	    res = (new RHLApply()).run(args);
+	    res = ToolRunner.run(new Configuration(), new RHLApply(), args);
 	}catch(Exception ex){
 	    ex.printStackTrace();
 	    res=101;
@@ -371,10 +367,8 @@ public class RHLApply  {
 	System.exit(res);
     }
 
+    
 }
-
-
-
     
 
 

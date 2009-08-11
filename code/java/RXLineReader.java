@@ -26,7 +26,7 @@ import org.apache.hadoop.conf.Configuration;
 
 
 public class RXLineReader {
-  private static final int DEFAULT_BUFFER_SIZE = 128 * 1024;
+  private static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
   private int bufferSize = DEFAULT_BUFFER_SIZE;
   private InputStream in;
   private byte[] buffer;

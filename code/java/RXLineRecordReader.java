@@ -18,38 +18,25 @@
  * Saptarshi Guha sguha@purdue.edu
  */
 package org.saptarshiguha.rhipe.hadoop;
-import java.io.IOException;
-
+import java.io.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.io.compress.*;
+import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.compress.CompressionCodec;
-import org.apache.hadoop.io.compress.CompressionCodecFactory;
-import org.apache.hadoop.mapreduce.InputSplit;
-import org.apache.hadoop.mapreduce.lib.input.FileSplit;
-import org.apache.hadoop.mapreduce.RecordReader;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
-import org.apache.hadoop.util.LineReader;
 
 
-
-public class RXLineRecordReader extends RecordReader<RXWritableLong, RXWritableText> {
+public class RXLineRecordReader implements RecordReader<RXWritableLong, RXWritableText> {
   private CompressionCodecFactory compressionCodecs = null;
   private long start;
   private long pos;
   private long end;
   private RXLineReader in;
-  private int maxLineLength;
-  private RXWritableLong key = null;
-  private RXWritableText value = null;
+  int maxLineLength;
 
-  public void initialize(InputSplit genericSplit,
-                         TaskAttemptContext context) throws IOException {
-    FileSplit split = (FileSplit) genericSplit;
-    Configuration job = context.getConfiguration();
+
+  public RXLineRecordReader(Configuration job, 
+                          FileSplit split) throws IOException {
     this.maxLineLength = job.getInt("mapred.linerecordreader.maxlength",
                                     Integer.MAX_VALUE);
     start = split.getStart();
@@ -80,43 +67,56 @@ public class RXLineRecordReader extends RecordReader<RXWritableLong, RXWritableT
     this.pos = start;
   }
   
-  public boolean nextKeyValue() throws IOException {
-    if (key == null) {
-      key = new RXWritableLong();
-    }
-    key.set(pos);
-    if (value == null) {
-      value = new RXWritableText();
-    }
-    int newSize = 0;
+  public RXLineRecordReader(InputStream in, long offset, long endOffset,
+                          int maxLineLength) {
+    this.maxLineLength = maxLineLength;
+    this.in = new RXLineReader(in);
+    this.start = offset;
+    this.pos = offset;
+    this.end = endOffset;    
+  }
+
+  public RXLineRecordReader(InputStream in, long offset, long endOffset, 
+                          Configuration job) 
+    throws IOException{
+    this.maxLineLength = job.getInt("mapred.linerecordreader.maxlength",
+                                    Integer.MAX_VALUE);
+    this.in = new RXLineReader(in, job);
+    this.start = offset;
+    this.pos = offset;
+    this.end = endOffset;    
+  }
+  
+  public RXWritableLong createKey() {
+    return new RXWritableLong();
+  }
+  
+  public RXWritableText createValue() {
+    return new RXWritableText();
+  }
+  
+  /** Read a line. */
+  public synchronized boolean next(RXWritableLong key, RXWritableText value)
+    throws IOException {
+
     while (pos < end) {
-      newSize = in.readLine(value, maxLineLength,
-                            Math.max((int)Math.min(Integer.MAX_VALUE, end-pos),
-                                     maxLineLength));
+      key.set(pos);
+
+      int newSize = in.readLine(value, maxLineLength,
+                                Math.max((int)Math.min(Integer.MAX_VALUE, end-pos),
+                                         maxLineLength));
       if (newSize == 0) {
-        break;
+        return false;
       }
       pos += newSize;
       if (newSize < maxLineLength) {
-        break;
+        return true;
       }
 
+      // line too long. try again
     }
-    if (newSize == 0) {
-      key = null;
-      value = null;
-      return false;
-    } else {
-      return true;
-    }
-  }
 
-  public RXWritableLong getCurrentKey() {
-    return key;
-  }
-
-  public RXWritableText getCurrentValue() {
-    return value;
+    return false;
   }
 
   /**
@@ -130,6 +130,10 @@ public class RXLineRecordReader extends RecordReader<RXWritableLong, RXWritableT
     }
   }
   
+  public  synchronized long getPos() throws IOException {
+    return pos;
+  }
+
   public synchronized void close() throws IOException {
     if (in != null) {
       in.close(); 

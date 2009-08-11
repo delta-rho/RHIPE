@@ -18,53 +18,45 @@
  * Saptarshi Guha sguha@purdue.edu
  */
 package org.saptarshiguha.rhipe.hadoop;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.FSDataOutputStream;
-
-import org.apache.hadoop.io.NullWritable;
+import java.io.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.compress.CompressionCodec;
-import org.apache.hadoop.io.compress.GzipCodec;
-import org.apache.hadoop.mapreduce.OutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-
-import org.apache.hadoop.mapreduce.RecordWriter;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
-import org.apache.hadoop.util.*;
-
-
+import org.apache.hadoop.io.compress.*;
+import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.Progressable;
 
 import org.saptarshiguha.rhipe.utils.*;
 
 public class RXTextOutputFormat extends TextOutputFormat<RXWritable,RXWritable> {
 
-  static class RXTextRecordWriter extends RecordWriter<RXWritable,RXWritable> {
+  static class RXTextRecordWriter extends LineRecordWriter<RXWritable,RXWritable> {
     private static final byte[] newLine = "\r\n".getBytes();
     private static  byte[] keyvaluesep = " ".getBytes();
     private static final String utf8 = "UTF-8";
-    protected DataOutputStream out;
 
     public RXTextRecordWriter(DataOutputStream out,
-			      String keyValueSeparator) {
-	this.out=out;
-	try{
-	    keyvaluesep =keyValueSeparator.getBytes(utf8);;
-	}catch (UnsupportedEncodingException uee) {
-	    throw new IllegalArgumentException("can't find " + utf8 + " encoding");
-	}
-
+                            JobConf conf) {
+	super(out);
+	keyvaluesep = conf.get("mapred.textoutputformat.separator"," ").getBytes();
     }
 
     public synchronized void write(RXWritable key, 
                                    RXWritable value) throws IOException {
-
+// 	    boolean nullKey = key == null || key instanceof RXWritableNull;
+// 	    boolean nullValue = value == null || value instanceof RXWritableNull;
+// 	    if (nullKey && nullValue) {
+// 		return;
+// 	    }
+// 	    if (!nullKey) {
+// 		writeObject(key);
+// 	    }
+// 	    if (!(nullKey || nullValue)) {
+// 		out.write(keyvaluesep);
+// 	    }
+// 	    if (!nullValue) {
+// 		writeObject(value);
+// 	    }
 	    writeObject(key);
 	    out.write(keyvaluesep);
 	    writeObject(value);
@@ -79,40 +71,20 @@ public class RXTextOutputFormat extends TextOutputFormat<RXWritable,RXWritable> 
 	}
     }
 
-    public synchronized 
-	void close(TaskAttemptContext context) throws IOException {
-	    out.close();
-    }
+    public void close() throws IOException {
 
+      super.close(null);
+    }
   }
 
-
-  public RecordWriter<RXWritable,RXWritable>
-      getRecordWriter(TaskAttemptContext job
-		      ) throws IOException, InterruptedException {
-      Configuration conf = job.getConfiguration();
-      boolean isCompressed = getCompressOutput(job);
-      String keyValueSeparator= conf.get("mapred.textoutputformat.separator",
-					 "\t");
-      CompressionCodec codec = null;
-      String extension = "";
-      if (isCompressed) {
-	  Class<? extends CompressionCodec> codecClass = 
-	      getOutputCompressorClass(job, GzipCodec.class);
-	  codec = (CompressionCodec) ReflectionUtils.newInstance(codecClass, conf);
-	  extension = codec.getDefaultExtension();
-      }
-      Path file = getDefaultWorkFile(job, extension);
-      FileSystem fs = file.getFileSystem(conf);
-      if (!isCompressed) {
-	  FSDataOutputStream fileOut = fs.create(file, false);
-	  return new RXTextRecordWriter(fileOut, keyValueSeparator);
-      } else {
-	  FSDataOutputStream fileOut = fs.create(file, false);
-	  return new RXTextRecordWriter(new DataOutputStream
-					    (codec.createOutputStream(fileOut)),
-					    keyValueSeparator);
-    }
-
+  public RecordWriter<RXWritable,RXWritable> getRecordWriter(FileSystem ignored,
+                                                 JobConf job,
+                                                 String name,
+                                                 Progressable progress
+                                                 ) throws IOException {
+    Path dir = getWorkOutputPath(job);
+    FileSystem fs = dir.getFileSystem(job);
+    FSDataOutputStream fileOut = fs.create(new Path(dir, name), progress);
+    return new RXTextRecordWriter(fileOut, job);
   }
 }

@@ -1,0 +1,41 @@
+<project name="rhipe" basedir="." default="main">
+  <property name="src.dir"     value="./"/>
+  <property name="build.dir"   value="build"/>
+  <property name="classes.dir" value="${build.dir}/classes"/>
+  <property name="jar.dir"     value="${build.dir}/jar"/>
+  <property name="lib.dir"     value="lib"/>
+  <property environment="env"/>
+  <path id="classpath">
+    <fileset dir="./" includes="**/*.jar"/>
+    <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    <fileset dir="${env.HADOOP}" includes="*.jar"/>
+    <fileset dir="${env.HADOOP}/lib/" includes="**/*.jar"/>
+  </path>
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+  </target>
+  <target name="compile">
+    <mkdir dir="${classes.dir}"/>
+    <javac srcdir="${src.dir}" includes="*.java" destdir="${classes.dir}" classpathref="classpath" debug="on" debuglevel="lines,vars,source">
+<!--      <compilerarg  value="-Xlint" /> -->
+    </javac>
+    <unjar dest="${classes.dir}" src="${lib.dir}/Rserve.jar"/>
+    <unjar dest="${classes.dir}" src="${lib.dir}/REngine.jar"/>
+    <copy file="rstuff.txt" todir="${classes.dir}">
+    </copy>
+  </target>
+  <target name="jar" depends="compile">
+    <property name="version.num" value="0.1"/>
+    <buildnumber file="build.num"/>
+    <jar destfile="${ant.project.name}.jar" basedir="${classes.dir}">
+      <manifest>
+	<attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Implementation-Version"   value="${version.num}-b${build.number}"/> 
+      </manifest>
+    </jar>
+  </target>
+  <target name="clean-build" depends="clean,jar"/>
+  <target name="main" depends="clean,jar"/>
+</project>
+
+

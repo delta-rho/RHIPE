@@ -18,33 +18,32 @@
  * Saptarshi Guha sguha@purdue.edu
  */
 package org.saptarshiguha.rhipe.hadoop;
-import org.apache.hadoop.fs.Path;
+import java.io.*;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import java.io.IOException;
-import org.apache.hadoop.io.compress.CompressionCodec;
-import org.apache.hadoop.io.compress.CompressionCodecFactory;
-import org.apache.hadoop.mapreduce.InputFormat;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.InputSplit;
-import org.apache.hadoop.mapreduce.JobContext;
-import org.apache.hadoop.mapreduce.RecordReader;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.io.compress.*;
+import org.apache.hadoop.mapred.*;
 
 
-public class RXTextInputFormat extends 
-				   FileInputFormat<RXWritableLong, RXWritableText>
-{
-  protected boolean isSplitable(JobContext context, Path file) {
-    CompressionCodec codec = 
-      new CompressionCodecFactory(context.getConfiguration()).getCodec(file);
-    return codec == null;
+public class RXTextInputFormat extends FileInputFormat<RXWritableLong, RXWritableText>
+  implements JobConfigurable {
+
+  private CompressionCodecFactory compressionCodecs = null;
+  
+  public void configure(JobConf conf) {
+    compressionCodecs = new CompressionCodecFactory(conf);
+  }
+  
+  protected boolean isSplitable(FileSystem fs, Path file) {
+    return compressionCodecs.getCodec(file) == null;
   }
 
-  public RecordReader<RXWritableLong, RXWritableText> 
-      createRecordReader(InputSplit split,TaskAttemptContext context) throws
-      IOException {
-      context.setStatus(split.toString());
-      return new RXLineRecordReader();
+  public RecordReader<RXWritableLong, RXWritableText> getRecordReader(
+                                          InputSplit genericSplit, JobConf job,
+                                          Reporter reporter)
+    throws IOException {
+      reporter.setStatus(genericSplit.toString());
+      return new RXLineRecordReader(job, (FileSplit) genericSplit);
   }
 }
