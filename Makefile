@@ -1,4 +1,4 @@
-VER=20
+VER=20.1
 FILES=build.xml conf ec2 java rhipe rhipe.jar 
 # all: code dist
 
@@ -23,8 +23,8 @@ doc:
 	rm -rf docbuild
 	mkdir -p dist
 	cd build/latex/ && make all-pdf
-	cp build/latex/rhipe.pdf dist/doc/rhipe.doc.pdf
 	mv build/html dist/doc
+	cp build/latex/rhipe.pdf dist/doc/rhipe.doc.pdf
 	rm -rf build
 
 code: 	
