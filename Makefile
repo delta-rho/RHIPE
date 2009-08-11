@@ -1,4 +1,4 @@
-VER=20.1
+VER=0.44
 FILES=build.xml conf ec2 java rhipe rhipe.jar 
 # all: code dist
 
