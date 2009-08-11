@@ -2,3 +2,9 @@ This is the integration of Hadoop and R to provide a seamless
 mapreduce environment.
 
 See http://ml.stat.purdue.edu/rhipe for more details
+
+
+About this version
+
+This is RHIPE updated to use the Hadoop 0.20 API
+Unfortunately it runs extremely slowly to the point of being unusable.
