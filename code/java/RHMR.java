@@ -82,7 +82,6 @@ public class RHMR extends Configured implements Tool {
 	throws URISyntaxException,IOException
     {
 	JobConf jobConf = new JobConf(defaults, RHMR.class);
-	jobConf.setJar(System.getenv("RHIPE")+"/rhipe.jar");
 	jobConf.addResource(new Path(System.getenv("HADOOP_CONF_DIR")+"/hadoop-site.xml"));
 	try{
 	    MapFile.Reader mrd = new MapFile.Reader( FileSystem.get(jobConf),mapfile,jobConf);
@@ -112,7 +111,7 @@ public class RHMR extends Configured implements Tool {
 		for(String p : sharedfiles)
 		    if(p.length()>1) DistributedCache.addCacheFile(new URI(p),jobConf);
 	    }
-	    System.out.println("DD");
+
 	    FileInputFormat.setInputPaths(jobConf,jobConf.get("rhipejob.input.folder"));
 	    String output_folder = jobConf.get("rhipejob.output.folder");
 	    if(output_folder!=null && !output_folder.equals("")){

@@ -17,7 +17,7 @@
   <target name="compile">
     <mkdir dir="${classes.dir}"/>
     <javac srcdir="${src.dir}" includes="*.java" destdir="${classes.dir}" classpathref="classpath" debug="on" debuglevel="lines,vars,source">
-     <compilerarg value="-Xlint:unchecked,deprecation" />
+<!--      <compilerarg  value="-Xlint" /> -->
     </javac>
     <unjar dest="${classes.dir}" src="${lib.dir}/Rserve.jar"/>
     <unjar dest="${classes.dir}" src="${lib.dir}/REngine.jar"/>
