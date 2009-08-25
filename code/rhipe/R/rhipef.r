@@ -255,7 +255,7 @@ rhmr <- function (map, reduce = NA,combiner = F, input.folder, output.folder = "
                   close = list(map=expression(), reduce=expression()),
                   shared.files = c(), 
                   inputformat = "TextInputFormat", outputformat = "TextOutputFormat", 
-                  hadoop.mapreduce = list(), verbose = T, step=F,libjars = "") 
+                  hadoop.mapreduce = list(), verbose = T, step=F,libjars = "",debug=F) 
 {
     payload <- list()
     local = "notlocal"
@@ -406,6 +406,7 @@ rhmr <- function (map, reduce = NA,combiner = F, input.folder, output.folder = "
         collapse = ""), "jar", jar, "org.saptarshiguha.rhipe.hadoop.RHMR", 
         libjars, mapfile, redir, local, collapse = " ")
     print(cmd)
+    if(debug) return(payload)
     ret = system(command = cmd, wait = T)
     ret = as.numeric(ret)/256
     ret
