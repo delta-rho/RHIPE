@@ -1,5 +1,5 @@
 all: R java
-
+VER=0.44
 .PHONY: build R java
 
 R: build transform

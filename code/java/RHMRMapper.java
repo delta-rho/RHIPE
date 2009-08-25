@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.FileSplit;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -80,6 +82,8 @@ import org.saptarshiguha.rhipe.utils.*;
 
 public class RHMRMapper extends MapReduceBase implements Mapper<Object,Object,RXWritable,RXWritable> {
 	RConnection re;
+	final static Log LOG = LogFactory.getLog(RHMRMapper.class);
+
 	FileSystem dstFS = null;
 	String temppfx = null;
 	Path dstPath= null;
@@ -98,7 +102,9 @@ public class RHMRMapper extends MapReduceBase implements Mapper<Object,Object,RX
 	String[] rout = null;
 	//	FileSplit myfileSplit = null;
 	//	String myfileName = null;
+	System.out.println("HELLLO");
 	try{
+	    LOG.info("Configuring Mapper");
 	    re =  new RConnection("127.0.0.1",job.getInt("rhipejob.rport",8888));
 	    re.assign("simplifychar",new REXPInteger(job.getInt("rhipejob.charsxp.short",0)));
 	    uniWritable b= new uniWritable();
@@ -158,13 +164,17 @@ public class RHMRMapper extends MapReduceBase implements Mapper<Object,Object,RX
 			  "tryCatch(list(s=capture.output(ret<-lapply(map.function(mapdata$key,mapdata$value),lapply, rhsz)),v=ret)"+
 			  ",error=function(ex){ list(e=paste(ex))})");
 	    re.voidEval("...mapexp...=parse(text=...mapexp...)");
-
+	    re.voidEval("print(c('ls',ls()))");
 	}catch (Exception e) {
 	    throw new RuntimeException(e);
 	}
     }
     public void close() throws IOException{
+	    LOG.info("Closing Mapper");
+
 	try{
+	    re.voidEval("print(c('ls',ls()))");
+	    re.voidEval("print(cloze)");
 	    RList rl = re.eval("tryCatch(list(s=capture.output(ret <-eval(cloze$map,envir=.GlobalEnv)),v=ret),error=function(ex){ list(e=paste(ex))})").asList();
 	    Utils.showError(re,rl,"==== MAP CLOSE ERROR ====",Utils.ERRTYPE.CONFIG);
 	    Utils.showStdout(rl,"==== MAP CLOSE STANDARD OUTPUT ====");
@@ -193,6 +203,7 @@ public class RHMRMapper extends MapReduceBase implements Mapper<Object,Object,RX
 	    //re.assign("rhfilename",fileName);
 	    REXP rkey = ((RXWritable)key).getREXP();
 	    REXP rvalue = ((RXWritable)value).getREXP();
+	    LOG.info(rkey.toDebugString());
 	    if(rvalue.isString()){
 		String k = rvalue.asString(); 
 		//What happens on blank lines? is k== null?
@@ -215,7 +226,7 @@ public class RHMRMapper extends MapReduceBase implements Mapper<Object,Object,RX
 	    **/
 	    rl = re.eval("eval(...mapexp...)").asList();
 	    Utils.showError(re,rl,"==== MAP ERROR ====",Utils.ERRTYPE.MAP);
-	    Utils.showStdout(rl,"==== MAP STANDARD OUTPUT ====");
+	    Utils.showStdout(rl,"==== MAP's STANDARD OUTPUT ====");
 	    rl = rl.at("v").asList();
 	    RList rl2;
 	    REXP k,v;
