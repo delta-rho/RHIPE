@@ -1,0 +1,85 @@
+#+AUTHOR: Saptarshi Guha
+#+EMAIL: sguha@purdue.edu
+#+SHOW: all
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t *:t TeX:t LaTeX:nil
+#+STYLE: <link rel="stylesheet" type="text/css" href="a.css" />
+#+TITLE: RHIPE - R and Hadoop Integrated Processing Environment 
+
+
+RHIPE(phonetic spelling: hree-pay' [1]) is a java package that integrates the R environment with [[http://hadoop.apache.org/core/][Hadoop]], the open source implementation
+of Google's mapreduce.  Using RHIPE it is possible to code map-reduce algorithms in R e.g
+[1] This is greek for /a moment in time/. See here for pronunciation:
+[[http://www.searchgodsword.org/lex/grk/view.cgi?number=4493][Greek Lexicon]]
+#+BEGIN_SRC R-example
+m <- expression({
+  words <- strsplit(map.value," +")[[1]]
+  for(w in words){
+    rhcollect(w,T)
+  }
+}
+r.pre <- expression({
+  counter <- 0
+})
+r <- expression({
+  counter <- counter+reduce.value
+})
+r.post <- expression({
+  rhcollect(reduce.key,counter)
+})
+z <- rhmr(map=m,reduce=list(pre=r.pre,reduce=r,post=r.post),combiner=T,
+            ifolder="X",ofolder="Y")
+rhex(z)
+#+END_SRC
+
+* Download
+*Source*
+
+The source code is present on Git, go here [[http://github.com/saptarshiguha/RHIPE/][http://github.com/saptarshiguha/RHIPE/]]
+
+To check out the current version, install =git=
+#+BEGIN_SRC sh
+git clone git://github.com/saptarshiguha/RHIPE.git
+#+END_SRC
+
+To download version =X= e.g =0.45=
+#+BEGIN_SRC sh
+git clone git://github.com/saptarshiguha/RHIPE.git
+git checkout 0.45
+#+END_SRC
+
+The current version is *always* the master. 
+
+
+*Versions*
+
+
+Read the documentation for installation. Current is the latest version.
+
+| Version | Download       |
+|---------+----------------|
+| Current | [[file:./dn/rhipe.tgz][rhipe.tgz]]      |
+|     0.5 | [[file:./dn/rhipe.0.5.tgz][rhipe.0.5.tgz]]  |
+|    0.44 | [[./dn/rhipe.0.44.tgz][rhipe.0.44.tgz]] |
+
+
+
+* EC2
+To run this on EC2, download these scripts and read the documentation.
+
+* Documentation
+The documentation can be found [[file:./doc/html/index.html][here]]. PDF version can be found [[file:./doc/rhipe.pdf][here]]
+* News
+** Tue Sep  1 01:55:29 EDT 2009
+- Moved to Hadoop 0.20
+- Uses protobuf for serialization, fewer R types allowed
+- Does not depend on Rserve, single R package to install
+
+** Fri Aug  7 2009, Version 0.45
+- Web site revamped. Beginning with the current version, the entire
+  manual is in PDF or can be accessed  at the [[./doc/index.html/][documentation]] link.
+- Source code is available on Git, go to the download page for instructions.
+- Stopped seeding via secure random generator, so the user will have
+  to seed it to avoid correlated streams. On RHEL linux
+ when running =rhlapply= on 145K+ tasks,  =/dev/random= would block.
+
+

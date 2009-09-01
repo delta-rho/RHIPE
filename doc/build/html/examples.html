@@ -1,0 +1,503 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Examples &mdash; rhipe v0.5 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="rhipe v0.5 documentation" href="index.html" />
+    <link rel="next" title="FAQ" href="FAQ.html" />
+    <link rel="prev" title="Using RHIPE on EC2" href="ec2.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="FAQ.html" title="FAQ"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ec2.html" title="Using RHIPE on EC2"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">Examples</a><ul>
+<li><a class="reference external" href="#rhlapply"><tt class="docutils literal"><span class="pre">rhlapply</span></tt></a><ul>
+<li><a class="reference external" href="#simple-example">Simple Example</a></li>
+<li><a class="reference external" href="#using-shared-files-and-side-effects">Using Shared Files and Side Effects</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#rhmr"><tt class="docutils literal"><span class="pre">rhmr</span></tt></a><ul>
+<li><a class="reference external" href="#word-count">Word Count</a></li>
+<li><a class="reference external" href="#subset-a-file">Subset a file</a></li>
+<li><a class="reference external" href="#covariance-matrix">Covariance Matrix</a></li>
+<li><a class="reference external" href="#naive-k-means-clustering">Naive K-Means Clustering</a></li>
+<li><a class="reference external" href="#using-a-step-true">Using a step == TRUE</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="ec2.html"
+                                  title="previous chapter">Using RHIPE on EC2</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="FAQ.html"
+                                  title="next chapter">FAQ</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/examples.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="rhlapply">
+<h2><tt class="docutils literal"><span class="pre">rhlapply</span></tt><a class="headerlink" href="#rhlapply" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="simple-example">
+<h3>Simple Example<a class="headerlink" href="#simple-example" title="Permalink to this headline">¶</a></h3>
+<p>Take a sample of 100 iid observations Xi from N(0,1). Compute the mean of the eight closest neighbours to X1. This is repeated 1,000,000 times.</p>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre>1
+2
+3
+4
+5
+6</pre></td><td class="code"><div class="highlight"><pre>nbrmean <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>r<span class="p">){</span>
+  d <span class="o">&lt;-</span> matrix<span class="p">(</span>rnorm<span class="p">(</span><span class="m">200</span><span class="p">),</span>ncol<span class="o">=</span><span class="m">2</span><span class="p">)</span>
+  orig <span class="o">&lt;-</span> d<span class="p">[</span><span class="m">1</span><span class="p">,]</span>
+  ds <span class="o">&lt;-</span> sort<span class="p">(</span>apply<span class="p">(</span>d<span class="p">,</span><span class="m">1</span><span class="p">,</span><span class="kr">function</span><span class="p">(</span>r<span class="p">)</span> sqrt<span class="p">(</span>sum<span class="p">((</span>r<span class="o">-</span>orig<span class="p">)</span><span class="o">^</span><span class="m">2</span><span class="p">)))[</span><span class="m">-1</span><span class="p">])[</span><span class="m">1</span>:<span class="m">8</span><span class="p">]</span>
+  mean<span class="p">(</span>ds<span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p><strong>One Machine</strong></p>
+<p><tt class="docutils literal"><span class="pre">trials</span></tt> is 1,000,000</p>
+<div class="highlight-r"><div class="highlight"><pre>system.time<span class="p">({</span>r <span class="o">&lt;-</span> sapply<span class="p">(</span><span class="m">1</span>:trials<span class="p">,</span> nbrmean<span class="p">)})</span>
+ user   system  elapsed
+ <span class="m">1603.414</span>    <span class="m">0.127</span> <span class="m">1603.789</span>
+</pre></div>
+</div>
+<p><strong>Distributed, output to file</strong></p>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre>1
+2
+3
+4
+5
+6
+7</pre></td><td class="code"><div class="highlight"><pre>system.time<span class="p">({</span>
+  r <span class="o">&lt;-</span> rhlapply<span class="p">(</span>
+                trials<span class="p">,</span> func<span class="o">=</span>nbrmean<span class="p">,</span>
+                output.folder<span class="o">=</span><span class="s">&quot;/test/one&quot;</span><span class="p">)</span>
+<span class="p">})</span>
+user  system  elapsed
+ <span class="m">63.117</span>  <span class="m">2.330</span> <span class="m">179.747</span>
+</pre></div>
+</td></tr></table></div>
+<p>A <strong>9x speed bump</strong>. Note, the outputs are compressed, so Hadoop needs to decompress them. If native decompression libraries are not found, Hadoop uses java to decompress.</p>
+</div>
+<div class="section" id="using-shared-files-and-side-effects">
+<h3>Using Shared Files and Side Effects<a class="headerlink" href="#using-shared-files-and-side-effects" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11</pre></td><td class="code"><div class="highlight"><pre>h<span class="o">=</span>rhlapply<span class="p">(</span>length<span class="p">(</span>simlist<span class="p">)</span>
+  <span class="p">,</span>func<span class="o">=</span><span class="kr">function</span><span class="p">(</span>r<span class="p">){</span>
+    <span class="c1">## do something from data loaded from session.Rdata</span>
+    pdf<span class="p">(</span><span class="s">&quot;tmp/a.pdf&quot;</span><span class="p">)</span>
+    plot<span class="p">(</span>animage<span class="p">)</span>
+    dev.off<span class="p">()},</span>
+  configure<span class="o">=</span>expression<span class="p">({</span>
+    load<span class="p">(</span><span class="s">&quot;session.Rdata&quot;</span><span class="p">)</span>
+  <span class="p">}),</span>
+  hadoop<span class="o">=</span>list<span class="p">(</span>mapred.map.tasks<span class="o">=</span><span class="m">1000</span><span class="p">),</span>
+  shared.files<span class="o">=</span><span class="p">(</span><span class="s">&quot;/tmp/session.Rdata&quot;</span><span class="p">))</span>
+</pre></div>
+</td></tr></table></div>
+<p>Here <tt class="docutils literal"><span class="pre">session.Rdata</span></tt> is copied from HDFS to local temporary directories (making for faster reads). This
+is a useful idiom for loading code that the <tt class="docutils literal"><span class="pre">rhlapply</span></tt> function might depend on. For example, assuming the image is not <em>huge</em></p>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre>1
+2
+3
+4
+5</pre></td><td class="code"><div class="highlight"><pre>rhsave.image<span class="p">(</span><span class="s">&quot;/tmp/myimage.Rdata&quot;</span><span class="p">)</span>
+rhlapply<span class="p">(</span>N<span class="p">,</span><span class="kr">function</span><span class="p">(</span>r<span class="p">)</span> <span class="p">{</span>
+  object <span class="o">&lt;-</span> dataset<span class="p">[[</span>r<span class="p">]]</span>
+  G<span class="p">(</span>object<span class="p">)</span>
+<span class="p">},</span>configure<span class="o">=</span>expression<span class="p">({</span>load<span class="p">(</span><span class="s">&quot;myimage.Rdata&quot;</span><span class="p">)}))</span>
+</pre></div>
+</td></tr></table></div>
+<p>In the above example, I wish to apply the <tt class="docutils literal"><span class="pre">G</span></tt> to every element in <tt class="docutils literal"><span class="pre">dataset</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="rhmr">
+<h2><tt class="docutils literal"><span class="pre">rhmr</span></tt><a class="headerlink" href="#rhmr" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="word-count">
+<h3>Word Count<a class="headerlink" href="#word-count" title="Permalink to this headline">¶</a></h3>
+<p>Generate the words, 1 word every line</p>
+<div class="highlight-r"><div class="highlight"><pre>rhlapply<span class="p">(</span><span class="m">10000</span><span class="p">,</span><span class="kr">function</span><span class="p">(</span>r<span class="p">)</span> paste<span class="p">(</span>sample<span class="p">(</span>letters<span class="p">[</span><span class="m">1</span>:<span class="m">10</span><span class="p">],</span><span class="m">5</span><span class="p">),</span>collapse<span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">),</span>output.folder<span class="o">=</span>&#39;<span class="o">/</span>tmp<span class="o">/</span>words&#39;<span class="p">)</span>
+</pre></div>
+</div>
+<p>Word count using the sequence file</p>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre>1
+2
+3
+4
+5
+6
+7</pre></td><td class="code"><div class="highlight"><pre>m <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>key<span class="p">,</span>word<span class="p">){</span>
+   list<span class="p">(</span>list<span class="p">(</span>key<span class="o">=</span>word<span class="p">,</span>value<span class="o">=</span><span class="m">1</span><span class="p">))</span>
+   <span class="p">}</span>
+ r <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>key<span class="p">,</span>value<span class="p">){</span>
+   value <span class="o">&lt;-</span> do.call<span class="p">(</span><span class="s">&quot;sum&quot;</span><span class="p">,</span>value<span class="p">)</span>
+   <span class="kr">return</span><span class="p">(</span>list<span class="p">(</span>list<span class="p">(</span>key<span class="o">=</span>key<span class="p">,</span>value<span class="o">=</span>value<span class="p">)))</span>
+  <span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>Run it</p>
+<div class="highlight-r"><div class="highlight"><pre>rhmr<span class="p">(</span>map<span class="o">=</span>m<span class="p">,</span>reduce<span class="o">=</span>r<span class="p">,</span>input.folder<span class="o">=</span><span class="s">&quot;/tmp/words&quot;</span><span class="p">,</span>output.folder<span class="o">=</span>&#39;<span class="o">/</span>tmp<span class="o">/</span>words.cnt&#39;
+   <span class="p">,</span>inputformat<span class="o">=</span>&#39;SequenceFileInputFormat&#39;<span class="p">,</span>outputformat<span class="o">=</span>&#39;SequenceFileOutputFormat&#39;<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="subset-a-file">
+<h3>Subset a file<a class="headerlink" href="#subset-a-file" title="Permalink to this headline">¶</a></h3>
+<p>We can use this RHIPE to subset files.</p>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre>1
+2
+3
+4
+5
+6
+7</pre></td><td class="code"><div class="highlight"><pre>m <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>key<span class="p">,</span>val<span class="p">){</span>
+  <span class="kr">if</span><span class="p">(</span>condition.is.true<span class="p">(</span>val<span class="p">))</span>
+    <span class="kr">return</span><span class="p">(</span>list<span class="p">(</span>list<span class="p">(</span>key<span class="o">=</span>&#39;&#39;<span class="p">,</span>value<span class="o">=</span>val<span class="p">)))</span>
+<span class="p">}</span>
+rhmr<span class="p">(</span>mapper<span class="o">=</span>m<span class="p">,</span>reduce<span class="o">=</span><span class="kr">function</span><span class="p">(){},</span>
+     input.folder<span class="o">=</span>inf<span class="p">,</span>output.folder<span class="o">=</span>opf<span class="p">,</span>
+     hadoop<span class="o">=</span>list<span class="p">(</span>mapred.reduce.tasks<span class="o">=</span><span class="m">0</span><span class="p">))</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="covariance-matrix">
+<h3>Covariance Matrix<a class="headerlink" href="#covariance-matrix" title="Permalink to this headline">¶</a></h3>
+<p>First create a file of 50 million rows with 100 columns.</p>
+<div class="highlight-r"><div class="highlight"><pre>f <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>k<span class="p">){</span>
+  <span class="kr">return</span><span class="p">(</span>rnorm<span class="p">(</span><span class="m">100</span><span class="p">,</span><span class="m">0</span><span class="p">,</span><span class="m">1</span><span class="p">))</span>
+<span class="p">}</span>
+rhlapply<span class="p">(</span><span class="m">50</span>e6<span class="p">,</span>f<span class="p">,</span>output.folder<span class="o">=</span><span class="s">&quot;/tmp/bigd&quot;</span><span class="p">,</span>takeAll<span class="o">=</span>F<span class="p">)</span>
+</pre></div>
+</div>
+<p>Now calculate the column sums, sum of squares and dot products which is sufficient to calculate correlations, for the first 100 columns.</p>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24</pre></td><td class="code"><div class="highlight"><pre>m <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>k<span class="p">,</span>v<span class="p">){</span>
+  v <span class="o">&lt;-</span> v<span class="p">[</span><span class="m">1</span>:<span class="m">100</span><span class="p">]</span>
+  coln <span class="o">&lt;-</span> <span class="m">1</span>:<span class="p">(</span>length<span class="p">(</span>v<span class="p">)</span><span class="o">-</span><span class="m">1</span><span class="p">)</span>
+  tl <span class="o">&lt;-</span> length<span class="p">(</span>v<span class="p">)</span>
+  ret <span class="o">&lt;-</span> sapply<span class="p">(</span>coln<span class="p">,</span><span class="kr">function</span><span class="p">(</span>i<span class="p">){</span>
+    w <span class="o">&lt;-</span> v<span class="p">[</span>i:tl<span class="p">]</span>
+    sums <span class="o">&lt;-</span> w<span class="p">[</span><span class="m">1</span><span class="p">]</span>
+    ssq <span class="o">&lt;-</span> w<span class="p">[</span><span class="m">1</span><span class="p">]</span><span class="o">^</span><span class="m">2</span>
+    dotprod <span class="o">&lt;-</span> w<span class="p">[</span><span class="m">1</span><span class="p">]</span><span class="o">*</span>w<span class="p">[</span><span class="m">2</span>:length<span class="p">(</span>w<span class="p">)]</span>
+    list<span class="p">(</span>key<span class="o">=</span>as.integer<span class="p">(</span>i<span class="p">),</span>value<span class="o">=</span>list<span class="p">(</span>sums<span class="o">=</span>sums<span class="p">,</span>ssq<span class="o">=</span>ssq<span class="p">,</span>dotprod<span class="o">=</span>dotprod<span class="p">))</span>
+  <span class="p">},</span>simplify<span class="o">=</span>F<span class="p">)</span>
+  <span class="kr">return</span><span class="p">(</span>ret<span class="p">)</span>
+<span class="p">}</span>
+
+r <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>k<span class="p">,</span>v<span class="p">){</span>
+  summs <span class="o">&lt;-</span> sum<span class="p">(</span>do.call<span class="p">(</span><span class="s">&quot;rbind&quot;</span><span class="p">,</span> lapply<span class="p">(</span>v<span class="p">,</span><span class="kr">function</span><span class="p">(</span>r<span class="p">)</span> r<span class="p">$</span>sums<span class="p">)))</span>
+  ssq <span class="o">&lt;-</span> sum<span class="p">(</span>do.call<span class="p">(</span><span class="s">&quot;rbind&quot;</span><span class="p">,</span> lapply<span class="p">(</span>v<span class="p">,</span><span class="kr">function</span><span class="p">(</span>r<span class="p">)</span> r<span class="p">$</span>ssq<span class="p">)))</span>
+  dotprod <span class="o">&lt;-</span> apply<span class="p">(</span>do.call<span class="p">(</span><span class="s">&quot;rbind&quot;</span><span class="p">,</span> lapply<span class="p">(</span>v<span class="p">,</span><span class="kr">function</span><span class="p">(</span>r<span class="p">)</span> r<span class="p">$</span>dotprod<span class="p">)),</span><span class="m">2</span><span class="p">,</span>sum<span class="p">)</span>
+  ret <span class="o">=</span> list<span class="p">(</span>list<span class="p">(</span>key<span class="o">=</span>k<span class="p">,</span>value<span class="o">=</span>list<span class="p">(</span>sums<span class="o">=</span>summs<span class="p">,</span>ssq<span class="o">=</span>ssq<span class="p">,</span>dotprod<span class="o">=</span>dotprod<span class="p">)))</span>
+  <span class="kr">return</span><span class="p">(</span>ret<span class="p">)</span>
+<span class="p">}</span>
+
+rhmr<span class="p">(</span>map<span class="o">=</span>m<span class="p">,</span>reduce<span class="o">=</span>r<span class="p">,</span>combiner<span class="o">=</span>T<span class="p">,</span>input.folder<span class="o">=</span><span class="s">&quot;/tmp/bigd&quot;</span><span class="p">,</span>output.folder<span class="o">=</span><span class="s">&quot;/tmp/bigo&quot;</span><span class="p">,</span>
+     inputformat<span class="o">=</span><span class="s">&quot;SequenceFileInputFormat&quot;</span><span class="p">,</span>outputformat<span class="o">=</span><span class="s">&quot;SequenceFileOutputFormat&quot;</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>The keys in the sequence file are the column numbers, each entry will have a contain value with the names sums,/ssq/ and dotprod which is enough to calculate correlations.</p>
+<div class="highlight-r"><div class="highlight"><pre>suff <span class="o">&lt;-</span> rhsqallKV<span class="p">(</span><span class="s">&quot;/tmp/bigo&quot;</span><span class="p">,</span>ignore<span class="o">=</span>F<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="naive-k-means-clustering">
+<h3>Naive K-Means Clustering<a class="headerlink" href="#naive-k-means-clustering" title="Permalink to this headline">¶</a></h3>
+<p>Is there a need to cluster a billion row data set. Take a large sample, estimate the variances(of means) of the concerned columns and then take another sample controlling for the variance and cluster on the sample.</p>
+<p>However, if you must,</p>
+<p>Find the number of rows, we assume text input format.</p>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9</pre></td><td class="code"><div class="highlight"><pre>m <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>key<span class="p">,</span>value<span class="p">){</span>
+  <span class="c1">## we use as.integer to save on the bytes sent.</span>
+  <span class="kr">return</span><span class="p">(</span>list<span class="p">(</span>list<span class="p">(</span>key<span class="o">=</span>as.integer<span class="p">(</span><span class="m">1</span><span class="p">),</span>value<span class="o">=</span><span class="m">1</span><span class="p">)))</span>
+<span class="p">}</span>
+r <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>key<span class="p">,</span>value<span class="p">){</span>
+  value <span class="o">&lt;-</span> sum<span class="p">(</span>unlist<span class="p">(</span>value<span class="p">))</span>
+  <span class="kr">return</span><span class="p">(</span>list<span class="p">(</span>list<span class="p">(</span>key<span class="o">=</span>&#39;count&#39;<span class="p">,</span> value<span class="o">=</span>value<span class="p">)))</span>
+<span class="p">}</span>
+rhmr<span class="p">(</span>map<span class="o">=</span>m<span class="p">,</span>reducer<span class="o">=</span>r<span class="p">,</span> combiner<span class="o">=</span>T<span class="p">,</span> input.folder<span class="o">=</span>X<span class="p">,</span>output.folder<span class="o">=</span>Y<span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>Read in the text file (broken up in part* files inside Y on the HDFS), there will be 1 row with key equal to count and the value is the number of rows.</p>
+<p>Sample k values and makes these the centers c0</p>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14</pre></td><td class="code"><div class="highlight"><pre> <span class="c1">##Only approximate sample, so increase it to get enough.</span>
+ pct <span class="o">&lt;-</span> ncols <span class="o">/</span> nrows_of_dataset<span class="o">*</span><span class="m">2</span>
+m <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>key<span class="p">,</span>value<span class="p">){</span>
+  y <span class="o">&lt;-</span> runif<span class="p">(</span><span class="m">1</span><span class="p">)</span>
+  <span class="kr">if</span><span class="p">(</span>y <span class="o">&lt;</span> pct<span class="p">)</span>
+    <span class="kr">return</span><span class="p">(</span>list<span class="p">(</span>list<span class="p">(</span>key<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>value<span class="o">=</span>value<span class="p">)))</span>
+<span class="p">}</span>
+rhmr<span class="p">(</span>map<span class="o">=</span>m<span class="p">,</span>reducer<span class="o">=</span><span class="kr">function</span><span class="p">(){},</span>preload<span class="o">=</span>list<span class="p">(</span>env<span class="o">=</span>c<span class="p">(</span>&#39;pct&#39;<span class="p">)),</span>
+     input.folder<span class="o">=</span>X<span class="p">,</span>output.folder<span class="o">=</span>Y<span class="p">,</span>
+     hadoop<span class="o">=</span>list<span class="p">(</span>mapred.reduce.tasks<span class="o">=</span><span class="m">0</span><span class="p">,</span>rhipejob.kvsep<span class="o">=</span>&#39;&#39;<span class="p">))</span>
+system<span class="p">(</span><span class="s">&quot;$HADOOP/bin/hadoop dfs -cat /Y/p* &gt; /tmp/centers.txt&quot;</span><span class="p">)</span>
+read.table<span class="p">(</span><span class="s">&quot;/tmp/centers.txt&quot;</span><span class="p">)</span>
+<span class="c1">## Create a matrix centers which has many columns as there are in there dataset</span>
+<span class="c1">## and k rows</span>
+</pre></div>
+</td></tr></table></div>
+<p>Find the distance of every point to the centers and emit the the center to which it is closest.</p>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16</pre></td><td class="code"><div class="highlight"><pre> m <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>r<span class="p">){</span>
+   r <span class="o">&lt;-</span> as.numeric<span class="p">(</span>r<span class="p">)</span>
+   ret <span class="o">&lt;-</span> sapply<span class="p">(</span><span class="m">1</span>:nrow<span class="p">(</span>centers<span class="p">),</span><span class="kr">function</span><span class="p">(</span>k<span class="p">){</span>
+     m<span class="o">=</span>centers<span class="p">[</span>k<span class="p">,]</span>
+     c<span class="p">(</span>k<span class="p">,(</span>r<span class="p">[</span><span class="m">2</span><span class="p">]</span><span class="o">-</span>m<span class="p">[</span><span class="m">2</span><span class="p">])</span><span class="o">^</span><span class="m">2</span><span class="o">+</span><span class="p">(</span>r<span class="p">[</span><span class="m">1</span><span class="p">]</span><span class="o">-</span>m<span class="p">[</span><span class="m">1</span><span class="p">])</span><span class="o">^</span><span class="m">2</span><span class="p">)</span>
+   <span class="p">},</span>simplify<span class="o">=</span>T<span class="p">)</span>
+   u <span class="o">&lt;-</span> which.min<span class="p">(</span>ret<span class="p">[</span><span class="m">2</span><span class="p">,])</span>
+   ret <span class="o">&lt;-</span> list<span class="p">(</span> list<span class="p">(</span> key<span class="o">=</span>ret<span class="p">[</span><span class="m">1</span><span class="p">,</span>u<span class="p">],</span> value <span class="o">=</span> c<span class="p">(</span>r<span class="p">,</span><span class="m">1</span><span class="p">)))</span>
+   <span class="kr">return</span><span class="p">(</span>ret<span class="p">)</span>
+ <span class="p">}</span>
+ r <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>key<span class="p">,</span>value<span class="p">){</span>
+   value <span class="o">&lt;-</span> do.call<span class="p">(</span><span class="s">&quot;rbind&quot;</span><span class="p">,</span>value<span class="p">)</span>
+   l <span class="o">&lt;-</span> list<span class="p">(</span> list<span class="p">(</span>key<span class="o">=</span>key<span class="p">,</span> value<span class="o">=</span>apply<span class="p">(</span>value<span class="p">,</span><span class="m">2</span><span class="p">,</span>sum<span class="p">)))</span>
+   <span class="kr">return</span><span class="p">(</span>l<span class="p">)</span>
+ <span class="p">}</span>
+rhmr<span class="p">(</span>map<span class="o">=</span>m<span class="p">,</span>reduce<span class="o">=</span>r<span class="p">,</span>input.folder<span class="o">=</span><span class="s">&quot;X&quot;</span><span class="p">,</span>output.folder<span class="o">=</span><span class="s">&quot;Y&quot;</span><span class="p">,</span>combiner<span class="o">=</span>T<span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>Read in the centers and see update centers (unless there is no change)</p>
+<p>If finished iterating, assign rows to centers.</p>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13</pre></td><td class="code"><div class="highlight"><pre>assgn <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>key<span class="p">,</span>value<span class="p">){</span>
+  r <span class="o">&lt;-</span> as.numeric<span class="p">(</span>value<span class="p">)</span>
+  ret <span class="o">&lt;-</span> sapply<span class="p">(</span><span class="m">1</span>:nrow<span class="p">(</span>centers<span class="p">),</span><span class="kr">function</span><span class="p">(</span>k<span class="p">){</span>
+    m <span class="o">&lt;-</span> centers<span class="p">[</span>k<span class="p">,]</span>
+    c<span class="p">(</span>k<span class="p">,(</span>r<span class="p">[</span><span class="m">2</span><span class="p">]</span><span class="o">-</span>m<span class="p">[</span><span class="m">2</span><span class="p">])</span><span class="o">^</span><span class="m">2</span><span class="o">+</span><span class="p">(</span>r<span class="p">[</span><span class="m">1</span><span class="p">]</span><span class="o">-</span>m<span class="p">[</span><span class="m">1</span><span class="p">])</span><span class="o">^</span><span class="m">2</span><span class="p">)</span>
+  <span class="p">},</span>simplify<span class="o">=</span>T<span class="p">)</span>
+  u <span class="o">&lt;-</span> which.min<span class="p">(</span>ret<span class="p">[</span><span class="m">2</span><span class="p">,])</span>
+  fret <span class="o">&lt;-</span> c<span class="p">(</span>r<span class="p">,</span>ret<span class="p">[</span><span class="m">1</span><span class="p">,</span>u<span class="p">])</span>
+  <span class="kr">if</span> <span class="p">(</span>runif<span class="p">(</span><span class="m">1</span><span class="p">)</span><span class="o">&lt;</span><span class="m">0.2</span><span class="p">)</span> <span class="kr">return</span><span class="p">(</span>list<span class="p">((</span>list<span class="p">(</span>key<span class="o">=</span>key<span class="p">,</span>value<span class="o">=</span>fret<span class="p">)))</span>
+                         <span class="p">}</span>
+  rhmr<span class="p">(</span>map<span class="o">=</span>assgn<span class="p">,</span>red<span class="o">=</span><span class="kr">function</span><span class="p">(){},</span>input.folder<span class="o">=</span><span class="s">&quot;X&quot;</span><span class="p">,</span>output.folder<span class="o">=</span><span class="s">&quot;Y&quot;</span><span class="p">,</span>
+       preload<span class="o">=</span>list<span class="p">(</span>env<span class="o">=</span>&#39;centers&#39;<span class="p">),</span>
+       hadoop<span class="o">=</span>list<span class="p">(</span>mapred.reduce.tasks<span class="o">=</span><span class="m">0</span><span class="p">))</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="using-a-step-true">
+<h3>Using a step == TRUE<a class="headerlink" href="#using-a-step-true" title="Permalink to this headline">¶</a></h3>
+<p>Like <tt class="docutils literal"><span class="pre">tapply</span></tt>, this calculates the sum of the second column in a text file</p>
+<p>One can use a combiner, but my file is small and I did not bother.</p>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14</pre></td><td class="code"><div class="highlight"><pre>mapper <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>key<span class="p">,</span>r<span class="p">){</span>
+  x <span class="o">&lt;-</span> strsplit<span class="p">(</span>r<span class="p">,</span><span class="s">&quot; +&quot;</span><span class="p">)[[</span><span class="m">1</span><span class="p">]]</span>
+  ret <span class="o">&lt;-</span> list<span class="p">()</span>
+  ret<span class="p">[[</span><span class="m">1</span><span class="p">]]</span> <span class="o">&lt;-</span> list<span class="p">(</span>key <span class="o">=</span> x<span class="p">[</span><span class="m">1</span><span class="p">],</span> value <span class="o">=</span> as.numeric<span class="p">(</span>x<span class="p">[</span><span class="m">2</span><span class="p">]))</span>
+  <span class="kr">return</span><span class="p">(</span>ret<span class="p">)</span>
+<span class="p">}</span>
+reducer <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>key<span class="p">,</span>r<span class="p">){</span>
+  r <span class="o">&lt;-</span> do.call<span class="p">(</span><span class="s">&quot;rbind&quot;</span><span class="p">,</span>r<span class="p">)</span>
+  v<span class="o">=</span>apply<span class="p">(</span>r<span class="p">,</span><span class="m">2</span><span class="p">,</span>sum<span class="p">)</span>
+  ret <span class="o">&lt;-</span> list<span class="p">()</span>
+  ret<span class="p">[[</span><span class="m">1</span><span class="p">]]</span> <span class="o">&lt;-</span> list<span class="p">(</span>key<span class="o">=</span>key<span class="p">,</span>value<span class="o">=</span>v<span class="p">)</span>
+  ret
+<span class="p">}</span>
+rhmr<span class="p">(</span>input.folder<span class="o">=</span><span class="s">&quot;/tmp/wc&quot;</span><span class="p">,</span>output.folder<span class="o">=</span><span class="s">&quot;/tmp/rand.out&quot;</span><span class="p">,</span>map<span class="o">=</span>mapper<span class="p">,</span>reduce<span class="o">=</span>reduce<span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>Doing the same with <tt class="docutils literal"><span class="pre">step</span></tt> equal to TRUE</p>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12</pre></td><td class="code"><div class="highlight"><pre>reduce <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>key<span class="p">,</span>value<span class="p">){</span>
+<span class="c1">##Note the global assignment, the assignment is now permanent</span>
+<span class="c1">##which is required since this function will be called repeatedly</span>
+  <span class="kr">if</span><span class="p">(</span>red.status<span class="o">==</span><span class="m">1</span><span class="p">)</span> sums <span class="o">&lt;&lt;-</span> <span class="m">1</span>
+  <span class="kr">else</span> <span class="kr">if</span> <span class="p">(</span>red.status<span class="o">==</span><span class="m">0</span><span class="p">){</span>
+    sums <span class="o">&lt;&lt;-</span> sums<span class="o">+</span>value
+  <span class="p">}</span>else<span class="p">{</span>
+    <span class="c1">##red.status==-1</span>
+    list<span class="p">(</span>list<span class="p">(</span>key<span class="o">=</span>key<span class="p">,</span>value<span class="o">=</span>sums<span class="p">))</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+rhmr<span class="p">(</span>input.folder<span class="o">=</span><span class="s">&quot;/tmp/rand2&quot;</span><span class="p">,</span>output.folder<span class="o">=</span><span class="s">&quot;/tmp/rand.out&quot;</span><span class="p">,</span>map<span class="o">=</span>mapper<span class="p">,</span>reduce<span class="o">=</span>reduce<span class="p">,</span>step<span class="o">=</span>T<span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="FAQ.html" title="FAQ"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ec2.html" title="Using RHIPE on EC2"
+             >previous</a> |</li>
+        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009, Saptarshi Guha.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+    </div>
+  </body>
+</html>

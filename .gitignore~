@@ -1,10 +1,8 @@
-website
+dist
 togit.sh
 code/java/build
-code/
+code/build
 .DS_Store
 *.o
 ._*
-*.class
-
 

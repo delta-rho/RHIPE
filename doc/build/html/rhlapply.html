@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The rhlapply Command &mdash; rhipe v0.5 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="rhipe v0.5 documentation" href="index.html" />
+    <link rel="next" title="The rhmr Command" href="rhmr.html" />
+    <link rel="prev" title="Setting up RHIPE" href="installation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="rhmr.html" title="The rhmr Command"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Setting up RHIPE"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">The <tt class="docutils literal"><span class="pre">rhlapply</span></tt> Command</a><ul>
+<li><a class="reference external" href="#introduction">Introduction</a></li>
+<li><a class="reference external" href="#return-value">Return Value</a></li>
+<li><a class="reference external" href="#function-usage">Function Usage</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="installation.html"
+                                  title="previous chapter">Setting up RHIPE</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="rhmr.html"
+                                  title="next chapter">The <tt class="docutils literal"><span class="pre">rhmr</span></tt> Command</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/rhlapply.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="the-rhlapply-command">
+<h1>The <tt class="docutils literal"><span class="pre">rhlapply</span></tt> Command<a class="headerlink" href="#the-rhlapply-command" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">rhapply</span></tt> applies a user defined function to the elements of a given
+R list or the function can be run over the set of numbers from 1 to
+n. In the former case the list is written to a sequence file, the
+default is to write <em>one sequence file</em> per item, which can be grossly
+inefficient. This can be controlled by setting <tt class="docutils literal"><span class="pre">mapred.max.tasks</span></tt> in
+the <tt class="docutils literal"><span class="pre">hadoop.options</span></tt> paramater of <tt class="docutils literal"><span class="pre">rhlapply</span></tt>.</p>
+<p>Running a hundreds of thousadands of seperate trials
+can be terribly inefficient, instead consider grouping them, i.e set
+<tt class="docutils literal"><span class="pre">mapred.max.tasks</span></tt> to a value much smaller than the length of the
+list.</p>
+</div>
+<div class="section" id="return-value">
+<h2>Return Value<a class="headerlink" href="#return-value" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">rhlapply</span></tt> returns a list, the names of which is equal to the names
+of the input list (if given).</p>
+</div>
+<div class="section" id="function-usage">
+<h2>Function Usage<a class="headerlink" href="#function-usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre>1
+2
+3
+4
+5
+6
+7
+8</pre></td><td class="code"><div class="highlight"><pre>rhlapply <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span> list.object<span class="p">,</span>
+                     func<span class="p">,</span>
+                     configure<span class="o">=</span>expression<span class="p">(),</span>
+                     output.folder<span class="o">=</span>&#39;&#39;<span class="p">,</span>
+                     shared.files<span class="o">=</span>c<span class="p">(),</span>
+                     hadoop.mapreduce<span class="o">=</span>list<span class="p">(),</span>
+                     verbose<span class="o">=</span>T<span class="p">,</span>
+                     takeAll<span class="o">=</span>T<span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>Description of the options follows.</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">list.object</span></tt></dt>
+<dd>Either an R list or a scalar number, N. In the former case, the
+user function gets the value. In the latter, the function gets
+the iteration number (from 1 to N)</dd>
+<dt><tt class="docutils literal"><span class="pre">func</span></tt></dt>
+<dd>A user supplied R function, which can return any R object.</dd>
+<dt><tt class="docutils literal"><span class="pre">configure</span></tt></dt>
+<dd>An expression which can be used to setup the environment. Run
+once for every <em>task</em>. So if the user has 100K tasks, it is run
+100K times.</dd>
+<dt><tt class="docutils literal"><span class="pre">output.folder</span></tt></dt>
+<dd>Save the results in an output folder, not required, but this
+output folder can be used <tt class="docutils literal"><span class="pre">rhmr</span></tt> or to <tt class="docutils literal"><span class="pre">rhlapply</span></tt></dd>
+<dt><tt class="docutils literal"><span class="pre">shared.files</span></tt></dt>
+<dd>A character vector of files located on the HDFS. The files are
+copied to a working folder on the cluster machines, thus
+speeding up reads. To load the filename, use the trailing part
+of the filename, e.g</dd>
+</dl>
+<div class="highlight-r"><div class="highlight"><pre>rhlapply<span class="p">(</span>...<span class="p">,</span>shared.files<span class="o">=</span>c<span class="p">(</span>&#39;<span class="o">/</span>tmp<span class="o">/</span>file1.Rdata&#39;<span class="p">,</span>&#39;<span class="o">/</span>user<span class="o">/</span>me<span class="o">/</span>obj.Rdata&#39;<span class="p">))</span>
+</pre></div>
+</div>
+<p>Then e.g. in R,</p>
+<div class="highlight-r"><div class="highlight"><pre>configure <span class="o">&lt;-</span> expression<span class="p">({</span>
+        load<span class="p">(</span>&#39;obj.Rdata&#39;<span class="p">)</span>
+        load<span class="p">(</span>&#39;file1.Rdata&#39;<span class="p">)</span>
+        <span class="p">})</span>
+</pre></div>
+</div>
+<p>Note, the files are copied to R&#8217;s working directory.</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">hadoop.mapreduce</span></tt></dt>
+<dd>A list, keys are hadoop options. Use this to set all of the
+Hadoop options.</dd>
+<dt><tt class="docutils literal"><span class="pre">verbose</span></tt></dt>
+<dd>If True, the progress of the job appears in the R terminal,
+else a web url is provided for the user to inspect. Also in
+the latter, control returns immediately to the user</dd>
+<dt><tt class="docutils literal"><span class="pre">takeAll</span></tt></dt>
+<dd>Get back all the results from the temporary output file.</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="rhmr.html" title="The rhmr Command"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Setting up RHIPE"
+             >previous</a> |</li>
+        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009, Saptarshi Guha.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+    </div>
+  </body>
+</html>

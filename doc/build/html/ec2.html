@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Using RHIPE on EC2 &mdash; rhipe v0.5 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="rhipe v0.5 documentation" href="index.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Miscellaneous Commands" href="rhmisc.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rhmisc.html" title="Miscellaneous Commands"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">Using RHIPE on EC2</a><ul>
+<li><a class="reference external" href="#introduction">Introduction</a></li>
+<li><a class="reference external" href="#usage">Usage</a></li>
+<li><a class="reference external" href="#some-launch-commands">Some launch commands</a></li>
+<li><a class="reference external" href="#useful-tools">Useful tools</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="rhmisc.html"
+                                  title="previous chapter">Miscellaneous Commands</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="examples.html"
+                                  title="next chapter">Examples</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/ec2.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="using-rhipe-on-ec2">
+<h1>Using RHIPE on EC2<a class="headerlink" href="#using-rhipe-on-ec2" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>We have release two AMIs(32 and 64bit). Both are based on Fedora 8 and have
+Hadoop 0.19.1,R 2.8 and RIPE (latest) installed. <a class="reference external" href="http://s3sync.net/wiki">s3sync</a> is also present.</p>
+<dl class="docutils">
+<dt>32 bit</dt>
+<dd>ami-4b678122</dd>
+<dt>64 bit</dt>
+<dd>ami-9f7492f6</dd>
+</dl>
+<p>The following describes the usage of the EC2 scripts.</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Get an Amazon EC2 account and confirm the ability to start and instance from the command line (using ec2-tools).</li>
+<li>Unzip the rhipe-ec2 distribution (see the downloads page)</li>
+<li>OPTIONS</li>
+</ul>
+<p>In <tt class="docutils literal"><span class="pre">bin/hadoop-ec2-env.sh</span></tt> template there are several options:</p>
+<dl class="docutils">
+<dt>AWS_ACCOUNT_ID</dt>
+<dd>fill this from the Amazon Account Identifiers</dd>
+<dt>AWS_ACCESS_KEY_ID</dt>
+<dd>same as above</dd>
+<dt>AWS_SECRET_ACCESS_KEY</dt>
+<dd>same as above</dd>
+<dt>RSOPTS</dt>
+<dd>options to Rserve, default:</dd>
+</dl>
+<div class="highlight-sh"><div class="highlight"><pre>-max-nsize<span class="o">=</span>1G --max-ppsize<span class="o">=</span>100000 --RS-port 8888
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>R_USER_FILE</dt>
+<dd>a URL to an R script. This file is executed on machine boot up. Useful to install R packages. Read <tt class="docutils literal"><span class="pre">bin/hadoop-ec2-env.sh.template</span></tt> for details.</dd>
+<dt>INSTANCE_TYPE</dt>
+<dd>choose the Amazon machine instance type. For details, go to
+<a class="reference external" href="http://aws.amazon.com/ec2/instance-types/">http://aws.amazon.com/ec2/instance-types/</a></dd>
+</dl>
+<ul class="simple">
+<li>Save the file as <tt class="docutils literal"><span class="pre">bin/hadoop-ec2-env.sh</span></tt></li>
+</ul>
+</div>
+<div class="section" id="some-launch-commands">
+<h2>Some launch commands<a class="headerlink" href="#some-launch-commands" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>launch</li>
+</ul>
+<div class="highlight-sh"><div class="highlight"><pre>bin/hadoop-ec2 launch-cluster clustername number-of-workers
+</pre></div>
+</div>
+<p>Replace clustername with the name of the cluster and number-of-workers with the number of workers. Use Elasticfox to check all the instances are running, this can some time.</p>
+<ul class="simple">
+<li>login</li>
+</ul>
+<div class="highlight-sh"><div class="highlight"><pre>bin/hadoop-ec2 login clustername
+</pre></div>
+</div>
+<ul class="simple">
+<li>terminate</li>
+</ul>
+<div class="highlight-sh"><div class="highlight"><pre>bin/hadoop-ec2 terminate-cluster clustername
+</pre></div>
+</div>
+<ul class="simple">
+<li>You can check the status of jobs at masterip:50030 in your web browser.</li>
+</ul>
+</div>
+<div class="section" id="useful-tools">
+<h2>Useful tools<a class="headerlink" href="#useful-tools" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><a class="reference external" href="http://www.s3fox.net/">s3fox</a></dt>
+<dd>A S3 file browser that works within Firefox.</dd>
+<dt><a class="reference external" href="http://sourceforge.net/projects/elasticfox/">Elasticfox</a></dt>
+<dd>EC2 management tools, a Firefox add-on.</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="rhmisc.html" title="Miscellaneous Commands"
+             >previous</a> |</li>
+        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009, Saptarshi Guha.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The rhmr Command &mdash; rhipe v0.5 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="rhipe v0.5 documentation" href="index.html" />
+    <link rel="next" title="Miscellaneous Commands" href="rhmisc.html" />
+    <link rel="prev" title="The rhlapply Command" href="rhlapply.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="rhmisc.html" title="Miscellaneous Commands"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rhlapply.html" title="The rhlapply Command"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">The <tt class="docutils literal"><span class="pre">rhmr</span></tt> Command</a><ul>
+<li><a class="reference external" href="#introduction">Introduction</a></li>
+<li><a class="reference external" href="#return-value">Return Value</a></li>
+<li><a class="reference external" href="#function">Function</a></li>
+<li><a class="reference external" href="#hadoop-mapreduce-options"><tt class="docutils literal"><span class="pre">hadoop.mapreduce</span></tt> Options</a></li>
+<li><a class="reference external" href="#custom-formats-or-writables">Custom Formats or Writables</a></li>
+<li><a class="reference external" href="#side-effect-files">Side Effect files</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="rhlapply.html"
+                                  title="previous chapter">The <tt class="docutils literal docutils literal docutils literal"><span class="pre">rhlapply</span></tt> Command</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="rhmisc.html"
+                                  title="next chapter">Miscellaneous Commands</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/rhmr.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="the-rhmr-command">
+<h1>The <tt class="docutils literal"><span class="pre">rhmr</span></tt> Command<a class="headerlink" href="#the-rhmr-command" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">rhmr</span></tt> command runs a general mapreduce program using user supplied map
+and reduce commands.</p>
+</div>
+<div class="section" id="return-value">
+<h2>Return Value<a class="headerlink" href="#return-value" title="Permalink to this headline">¶</a></h2>
+<p>In general a set of files on the Hadoop Distributed File System. It can be of
+Text Format or a Sequence file format. In case of the latter, the key and values
+can be any R data structure.</p>
+</div>
+<div class="section" id="function">
+<h2>Function<a class="headerlink" href="#function" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre>1
+2
+3
+4
+5
+6</pre></td><td class="code"><div class="highlight"><pre>rhmr <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>map<span class="p">,</span>reduce<span class="p">,</span>input.folder<span class="p">,</span>configure<span class="o">=</span>list<span class="p">(</span>map<span class="o">=</span>expression<span class="p">(),</span>reduce<span class="o">=</span>expression<span class="p">()),</span>
+        close<span class="o">=</span>list<span class="p">(</span>map<span class="o">=</span>expression<span class="p">(),</span>reduce<span class="o">=</span>expression<span class="p">())</span>
+         output.folder<span class="o">=</span>&#39;&#39;<span class="p">,</span>combiner<span class="o">=</span>F<span class="p">,</span>step<span class="o">=</span>F<span class="p">,</span>
+         shared.files<span class="o">=</span>c<span class="p">(),</span>inputformat<span class="o">=</span><span class="s">&quot;TextInputFormat&quot;</span><span class="p">,</span>
+         outputformat<span class="o">=</span><span class="s">&quot;TextOutputFormat&quot;</span><span class="p">,</span>
+         hadoop.mapreduce<span class="o">=</span>list<span class="p">(),</span>verbose<span class="o">=</span>T<span class="p">,</span>libjars<span class="o">=</span>c<span class="p">())</span>
+</pre></div>
+</td></tr></table></div>
+<dl class="docutils">
+<dt>input.folder</dt>
+<dd>A folder on the DFS containing the files to process. Can be a vector.</dd>
+<dt>output.folder</dt>
+<dd>A folder on the DFS where output will go to.</dd>
+<dt>inputformat</dt>
+<dd>Either of <tt class="docutils literal"><span class="pre">TextInputFormat</span></tt> or <tt class="docutils literal"><span class="pre">SequenceFileInputFormat</span></tt>. Use the former
+for text files and the latter for sequence files created from within R or as
+outputs from RHIPE(e.g <tt class="docutils literal"><span class="pre">rhlapply</span></tt> or <tt class="docutils literal"><span class="pre">rhmr</span></tt>).</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">one can&#8217;t use any sequence file, they must have been created via a RHIPE function. Custom Input formats are also possible. Download the source and look at <tt class="docutils literal"><span class="pre">code/java/RXTextInputFormat.java</span></tt></p>
+</div>
+<dl class="docutils">
+<dt>outputformat</dt>
+<dd>Either of <tt class="docutils literal"><span class="pre">TextOutputFormat</span></tt> or <tt class="docutils literal"><span class="pre">SequenceFileOutputFormat</span></tt>. In case of the former, the return value from the mapper or reducer is converted to character and written to disk. The following code is used to convert to character.</dd>
+</dl>
+<div class="highlight-r"><div class="highlight"><pre>paste<span class="p">(</span>key<span class="p">,</span>sep<span class="o">=</span>&#39;&#39;<span class="p">,</span>collapse<span class="o">=</span>field_separator<span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom output formats are also possible. Download the source and look at <tt class="docutils literal"><span class="pre">code/java/RXTextOutputFormat.java</span></tt></p>
+<p>If custom formats implement their own writables, it must subclass RXWritable or use one of the writables presents in RHIPE</p>
+<dl class="docutils">
+<dt>shared.files</dt>
+<dd>same as in <tt class="docutils literal"><span class="pre">rhlapply</span></tt>, see that for documentation.</dd>
+<dt>verbose</dt>
+<dd>If T, the job progress is displayed. If false, then the job URL is displayed.</dd>
+</dl>
+<p>At any time in the configure, close, map or reduce function/expression, the variable <tt class="docutils literal"><span class="pre">mapred.task.is.map</span></tt> will be equal to TRUE if it is map task,FALSE otherwise (both strings) Also, <tt class="docutils literal"><span class="pre">mapred.iswhat</span></tt> is &#8220;mapper&#8221;, &#8220;reducer&#8221;, &#8220;combiner&#8221; in their respective environments.</p>
+<dl class="docutils">
+<dt>configure</dt>
+<dd><p class="first">A list with either one element (an expression) or two attributes &#8220;map&#8221; and &#8220;reduce&#8221; both of which must be expressions. These expressions are called in their respective environments, i.e the map expression is called during the map configure and similarly for the reduce expression. The reduce expression is called for the combiner configure method.</p>
+<p class="last">If only one list element, the expression is used for both the map and reduce</p>
+</dd>
+<dt>close</dt>
+<dd>Same as configure .</dd>
+<dt>map</dt>
+<dd>a function that takes two values key and value. Should return a list of
+lists. Each list entry must contain two elements, the first one is the key
+and second the value (they do not have to be named), e.g.</dd>
+</dl>
+<div class="highlight-r"><div class="highlight"><pre>ret <span class="o">&lt;-</span> list<span class="p">()</span>
+ret<span class="p">[[</span><span class="m">1</span><span class="p">]]</span> <span class="o">&lt;-</span>  list<span class="p">(</span>key<span class="o">=</span>c<span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="m">2</span><span class="p">),</span> value<span class="o">=</span>c<span class="p">(</span>&#39;x&#39;<span class="p">,</span>&#39;b&#39;<span class="p">))</span>
+<span class="kr">return</span><span class="p">(</span>ret<span class="p">)</span>
+</pre></div>
+</div>
+<p>If any of key/value are missing the output is not collected, e.g. return NULL
+to skip this record. If the input format is a <tt class="docutils literal"><span class="pre">TextInputFormat</span></tt>, the input
+value is the entire line and the input key is probably useless to the user( it is a number indicating bytes into the file). If the input format is <tt class="docutils literal"><span class="pre">SequenceFileInputFormat</span></tt>, the key and value are taken from the sequence file.</p>
+<dl class="docutils">
+<dt>reduce</dt>
+<dd>Not needed if <tt class="docutils literal"><span class="pre">mapred.reduce.tasks</span></tt> is 0. Takes a key and a list of
+values( all values emitted from the maps that share the same map output key
+). If <tt class="docutils literal"><span class="pre">step</span></tt> is True, then not a list. Must return a list of lists each
+element of which must have two elements key and value. This collects all the
+values and sends them to function. If NULL is returned nothing is collected
+by the Hadoop collector</dd>
+<dt>step</dt>
+<dd><p class="first">If step is TRUE, then the reduce function is called every batch of values
+(the size of the batch is user configurable) corresponding to a key</p>
+<blockquote class="last">
+<ul>
+<li><p class="first">The variable <tt class="docutils literal"><span class="pre">red.status</span></tt> is equal to 1 on the first call.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">red.status</span></tt> is equal to 0 for every subsequent calls including the last value</p>
+</li>
+<li><p class="first">The reducer function is called one last time with <tt class="docutils literal"><span class="pre">red.status</span></tt> equal to -1. The value is NULL.</p>
+<p>Anything returned at any of these stages is written to disk. The
+<tt class="docutils literal"><span class="pre">close</span></tt> function is called once every value for a given key has been
+processed, but returning anything has no effect. To assign to the
+global environment use the <tt class="docutils literal"><span class="pre">&lt;&lt;-</span></tt> operator. To bail out at any time
+(i.e after the third value you do not want to process anymore) and
+move onto the next key, return a list with the attribute <tt class="docutils literal"><span class="pre">stop</span></tt> and
+set it to 1.</p>
+</li>
+</ul>
+</blockquote>
+</dd>
+<dt>combiner</dt>
+<dd><p class="first">TRUE or FALSE, to use the reducer as a combiner. Using a combiner makes computation more efficient. If combiner is true, the reduce function will be called as a combiner (0 or more times, it may never be called during the combine stage even if combiner is T) .</p>
+<p>The value of <tt class="docutils literal"><span class="pre">mapred.task.is.map</span></tt> is &#8220;true&#8221; or &#8220;false&#8221; FALSE (both strings) if the combiner is being executed as part of the map stage or reduce stage respectively.</p>
+<p class="last">Whether knowledge of this is useful or not is something I&#8217;m not sure
+of. However, if combiner is TRUE , keep in mind,your reduce function must be
+able to handle inputs sent from the map or inputs sent from the reduce
+function(itself).</p>
+</dd>
+<dt>libjars</dt>
+<dd>If specifying a custom input/output format, the user might need to specify
+jar files here.</dd>
+<dt>hadoop.mapreduce</dt>
+<dd>set RHIPE and Hadoop options via this.</dd>
+</dl>
+</div>
+<div class="section" id="hadoop-mapreduce-options">
+<h2><tt class="docutils literal"><span class="pre">hadoop.mapreduce</span></tt> Options<a class="headerlink" href="#hadoop-mapreduce-options" title="Permalink to this headline">¶</a></h2>
+<p>All the options that can be set for Hadoop can be set via
+<tt class="docutils literal"><span class="pre">hadoop.mapreduce</span></tt>. Here is a list of some options RHIPE uses</p>
+<dl class="docutils">
+<dt>rhipejob.rport</dt>
+<dd><p class="first">The port on which Rserve runs.</p>
+<p class="last"><em>default:</em> 8888</p>
+</dd>
+<dt>rhipejob.outfmt.is.text</dt>
+<dd><p class="first">1 if the output format is textual.</p>
+<p class="last"><em>default:</em> 1</p>
+</dd>
+<dt>rhipejob.textoutput.fieldsep</dt>
+<dd><p class="first">The output field seperator.</p>
+<p class="last"><em>default:</em> &#8216;&#8217;</p>
+</dd>
+<dt>rhipejob.textinput.comment</dt>
+<dd><p class="first">If the input is textual and a line begins with this, it is skipped.</p>
+<p class="last"><em>default:</em> &#8216;#&#8217;</p>
+</dd>
+<dt>rhipejob.combinerspill</dt>
+<dd><p class="first">This number of items are collected by the combiner before being sent to Rserve.</p>
+<p class="last"><em>default:</em> 100,000</p>
+</dd>
+<dt>rhipejob.tom</dt>
+<dd><p class="first">Number of map key,values collated before being sent to the mapper (on Rserve).</p>
+<p class="last"><em>default:</em> 200,000</p>
+</dd>
+<dt>rhipejob.frommap</dt>
+<dd><p class="first">Number of map output key,values to bring from Rserve in one go.</p>
+<p class="last"><em>default:</em> 200,000</p>
+</dd>
+<dt>rhipejob.tor.batch</dt>
+<dd><p class="first">Number of reduce values to be sent to Reducer (batching).</p>
+<p class="last"><em>default:</em> 200,000</p>
+</dd>
+<dt>rhipejob.copy.to.dfs</dt>
+<dd><p class="first">Copy side effect files from local to DFS?</p>
+<p class="last"><em>default:</em> 1</p>
+</dd>
+<dt>rhipejob.inputformat.keyclass</dt>
+<dd><p class="first">Provide the full Java URL to the keyclass e.g <tt class="docutils literal"><span class="pre">org.saptarshiguha.rhipe.hadoop.RXWritableText</span></tt>, when using a Custom InputFormat implement RXWritable and implement the methods.</p>
+<p class="last"><em>default:</em> The default is chosen depending on TextInputFormat or SequenceFileInputFormat.</p>
+</dd>
+<dt>rhipejob.inputformat.valueclass</dt>
+<dd><p class="first">Provide the full Java URL to the valueclass e.g <tt class="docutils literal"><span class="pre">org.saptarshiguha.rhipe.hadoop.RXWritableText</span></tt> when using a Custom InputFormat implement RXWritable and implement the methods.</p>
+<p class="last"><em>default:</em>      The default is chosen depending on TextInputFormat or SequenceFileInputFormat.</p>
+</dd>
+<dt>rhipejob.input.format.class</dt>
+<dd><p class="first">Specify yours here.</p>
+<p class="last"><em>default:</em>      As above, the default is either <tt class="docutils literal"><span class="pre">org.saptarshiguha.rhipe.hadoop.RXTextInputFormat</span></tt> or <tt class="docutils literal"><span class="pre">org.apache.hadoop.mapred.SequenceFileInputFormat</span></tt></p>
+</dd>
+<dt>rhipejob.outputformat.keyclass</dt>
+<dd><p class="first">Provide the full Java URL to the value e.g <tt class="docutils literal"><span class="pre">org.saptarshiguha.rhipe.hadoop.RXWritableText</span></tt> , also the valueclass must implement RXWritable.</p>
+<p class="last"><em>default:</em> The default is chosen depending on TextInputFormat or SequenceFileInputFormat</p>
+</dd>
+<dt>rhipejob.outputformat.valueclass</dt>
+<dd><p class="first">Provide the full Java URL to the value e.g <tt class="docutils literal"><span class="pre">org.saptarshiguha.rhipe.hadoop.RXWritableText</span></tt> , also the valueclass must implement RXWritable.</p>
+<p class="last"><em>default:</em> The default is chosen depending on TextInputFormat or SequenceFileInputFormat</p>
+</dd>
+<dt>rhipejob.output.format.class</dt>
+<dd><p class="first">Specify yours here, provide libjars if required.</p>
+<p class="last"><em>default:</em> As above, the default is either <tt class="docutils literal"><span class="pre">org.saptarshiguha.rhipe.hadoop.RXTextOutputFormat</span></tt> or <tt class="docutils literal"><span class="pre">org.apache.hadoop.mapred.SequenceFileInputFormat</span></tt></p>
+</dd>
+</dl>
+</div>
+<div class="section" id="custom-formats-or-writables">
+<h2>Custom Formats or Writables<a class="headerlink" href="#custom-formats-or-writables" title="Permalink to this headline">¶</a></h2>
+<p>You can specify your own Input/Output Formats and Writables. See the source in
+<tt class="docutils literal"><span class="pre">code/java/</span></tt> for a <tt class="docutils literal"><span class="pre">RXTextInputFormat</span></tt> which implements
+<tt class="docutils literal"><span class="pre">TextInputFormat</span></tt>. The reason this was re implemented is because RHIPE
+requires that all Writables (for the Key and Value) must implement RXWritable or
+use one of the Writables in RHIPE e.g RXWritableLong, RXWritableText,
+RXWritableDouble,RXWritableRAW</p>
+</div>
+<div class="section" id="side-effect-files">
+<h2>Side Effect files<a class="headerlink" href="#side-effect-files" title="Permalink to this headline">¶</a></h2>
+<p>Files written to <tt class="docutils literal"><span class="pre">tmp/</span></tt> (no leading slash !) e.g <tt class="docutils literal"><span class="pre">pdf(&quot;tmp/x.pdf&quot;)</span></tt> will be copied to the output folder.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="rhmisc.html" title="Miscellaneous Commands"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="rhlapply.html" title="The rhlapply Command"
+             >previous</a> |</li>
+        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009, Saptarshi Guha.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>FAQ &mdash; rhipe v0.5 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="rhipe v0.5 documentation" href="index.html" />
+    <link rel="prev" title="Examples" href="examples.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="examples.html"
+                                  title="previous chapter">Examples</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/FAQ.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="faq">
+<h1>FAQ<a class="headerlink" href="#faq" title="Permalink to this headline">¶</a></h1>
+<ol class="arabic simple">
+<li>Local Testing?</li>
+</ol>
+<p>Easily enough. In <tt class="docutils literal"><span class="pre">rhmr</span></tt> or <tt class="docutils literal"><span class="pre">rhlapply</span></tt>, set <tt class="docutils literal"><span class="pre">mapred.job.tracker</span></tt> to
+&#8216;local&#8217; in the <tt class="docutils literal"><span class="pre">hadoop.options</span></tt> option of the respective command. This will
+use the local jobtracker to run your commands.</p>
+<p>However keep in mind,
+<tt class="docutils literal"><span class="pre">shared.files</span></tt> will not work, i.e those files will not be copied to the
+working directory and side effect files will not be copied back.</p>
+<ol class="arabic simple" start="2">
+<li>Speed?</li>
+</ol>
+<p>Not so good. A lot of data is transferred and because of R&#8217;s serialization and
+my effort to allow <em>any</em> R data type to be transferred, about 6 times more data
+is transferred in the RHIPE wordcount example(see <a class="reference external" href="../index.html">Mainpage</a> )
+compared to the Java version. As such, this was about 5 times slower for 9MM
+lines.</p>
+<ol class="arabic simple" start="3">
+<li>Other Approaches?</li>
+</ol>
+<ul class="simple">
+<li>I will try using Unix pipes to feed data to R instead of Rserve.</li>
+<li>Also, I will just settle for raw,numeric, complex, character vectors and lists
+(whose elements are one of the aforementioned types) in conjunction with
+Protocol Buffers. This does reduce the transparency to the R user in that
+he/she will now have to serialize other structures (e.g objects like <tt class="docutils literal"><span class="pre">xyplot</span></tt>
+objects or objects with special attributes</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             >previous</a> |</li>
+        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009, Saptarshi Guha.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+    </div>
+  </body>
+</html>

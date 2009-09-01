@@ -3,6 +3,7 @@ mapreduce environment.
 
 See http://ml.stat.purdue.edu/rhipe for more details
 
-ABout This Version
+About This Version
 -------------------
-Uses Hadoop 0.19.1
+Uses Hadoop 0.20
+

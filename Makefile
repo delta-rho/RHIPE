@@ -1,48 +1,36 @@
-VER=0.44
-FILES=build.xml conf ec2 java rhipe rhipe.jar 
-# all: code dist
-#s
+VER=0.5
+
 .PHONY : doc code 
 
-all: code doc web
+all: doc updateweb
 
-web: 
-	cp index index.org
-	sed -i "" 's/_VER_/${VER}/g' index.org 
-	/Applications/Aquamacs\ Emacs.app/Contents/MacOS/Aquamacs\ Emacs  -l make.el
-	mv index.html dist/
-	rm index.org
-	cp a.css dist/
+updateweb: doc
+	/Applications/Aquamacs.app/Contents/MacOS/Aquamacs  -l index2html.el
+	mv index.html website/
+
+code:
+	sed  -i ""  "s/Version: [0-9]*\.*[0-9]*/Version: ${VER}/" code/R/DESCRIPTION 
+	sed  -i ""  "s/version=\"[0-9]*\.*[0-9]*\"/version=\"${VER}\"/" code/R/R/zzz.R
+	ant -f code/build.xml clean
+	rm -rf code/R/a.out.dSYM/ code/R/config.log code/R/config.status code/R/src/*.o
+	cd ..
+	mkdir rhipe.${VER} 
+	rsync -a code/R/ rhipe.${VER}
+	tar czf rhipe.${VER}.tgz  rhipe.${VER}
+	rm -rf rhipe.${VER}
+	rsync rhipe.${VER}.tgz website/dn/
+	cp rhipe.${VER}.tgz website/dn/rhipe.tgz
+	rm -rf rhipe.${VER}.tgz
+
 doc: 
-	rm -rf dist/doc/html
-	rm -rf docbuild
-	mkdir docbuild
-	cp -r doc/* docbuild/
-	sed  's/_VER_/${VER}/' doc/conf.py > docbuild/conf.py
-	make  -f Makefile.doc html latex
-	rm -rf docbuild
-	mkdir -p dist
-	cd build/latex/ && make all-pdf
-	mv build/html dist/doc
-	cp build/latex/rhipe.pdf dist/doc/rhipe.doc.pdf
-	rm -rf build
-
-code: 	
-	rm -rf dist/dn
-	make --directory code	VER=${VER}
-	rm -rf code/build
-	mkdir -p dist/dn
-	mkdir dist/dn/rhipe.${VER}
-	for x in ${FILES}; do     cp -r code/$$x dist/dn/rhipe.${VER}; done
-	echo 'VER=${VER}' > dist/dn/rhipe.${VER}/Makefile
-	cat code/Makefile >> dist/dn/rhipe.${VER}/Makefile
-	cd dist/dn && tar cfz rhipe.${VER}.tgz rhipe.${VER}
-	rm -rf dist/dn/rhipe.${VER}
-	rm -rf dist/dn/rhipe.tgz
-	cp dist/dn/rhipe.${VER}.tgz dist/dn/rhipe.tgz
+	sed -i "" "/^[(version)|(release)]/ s/\"[0-9]*\.*[0-9]*\"/\"${VER}\"/" doc/conf.py
+	make -C doc -f Makefile html latex
+	make -C doc/build/latex -f Makefile all-pdf
+	rsync -av doc/build/html/ website/doc/html/
+	rsync -av doc/build/latex/rhipe.pdf website/doc/
 
 clean:
-	rm -rf dist
+	rm -rf doc/build
 
 
 

@@ -1,0 +1,31 @@
+\BOOKMARK [0][-]{chapter.1}{Setting up RHIPE}{}
+\BOOKMARK [1][-]{section.1.1}{Requirements}{chapter.1}
+\BOOKMARK [1][-]{section.1.2}{Installation}{chapter.1}
+\BOOKMARK [0][-]{chapter.2}{The rhlapply Command}{}
+\BOOKMARK [1][-]{section.2.1}{Introduction}{chapter.2}
+\BOOKMARK [1][-]{section.2.2}{Return Value}{chapter.2}
+\BOOKMARK [1][-]{section.2.3}{Function Usage}{chapter.2}
+\BOOKMARK [0][-]{chapter.3}{The rhmr Command}{}
+\BOOKMARK [1][-]{section.3.1}{Introduction}{chapter.3}
+\BOOKMARK [1][-]{section.3.2}{Return Value}{chapter.3}
+\BOOKMARK [1][-]{section.3.3}{Function}{chapter.3}
+\BOOKMARK [1][-]{section.3.4}{hadoop.mapreduce Options}{chapter.3}
+\BOOKMARK [1][-]{section.3.5}{Custom Formats or Writables}{chapter.3}
+\BOOKMARK [1][-]{section.3.6}{Side Effect files}{chapter.3}
+\BOOKMARK [0][-]{chapter.4}{Miscellaneous Commands}{}
+\BOOKMARK [1][-]{section.4.1}{Introduction}{chapter.4}
+\BOOKMARK [1][-]{section.4.2}{HDFS Related}{chapter.4}
+\BOOKMARK [1][-]{section.4.3}{Hadoop Job Related}{chapter.4}
+\BOOKMARK [1][-]{section.4.4}{Saving R Datasets}{chapter.4}
+\BOOKMARK [1][-]{section.4.5}{Creating Sequence FIles}{chapter.4}
+\BOOKMARK [1][-]{section.4.6}{Low Level Functions}{chapter.4}
+\BOOKMARK [1][-]{section.4.7}{Example}{chapter.4}
+\BOOKMARK [0][-]{chapter.5}{Using RHIPE on EC2}{}
+\BOOKMARK [1][-]{section.5.1}{Introduction}{chapter.5}
+\BOOKMARK [1][-]{section.5.2}{Usage}{chapter.5}
+\BOOKMARK [1][-]{section.5.3}{Some launch commands}{chapter.5}
+\BOOKMARK [1][-]{section.5.4}{Useful tools}{chapter.5}
+\BOOKMARK [0][-]{chapter.6}{Examples}{}
+\BOOKMARK [1][-]{section.6.1}{rhlapply}{chapter.6}
+\BOOKMARK [1][-]{section.6.2}{rhmr}{chapter.6}
+\BOOKMARK [0][-]{chapter.7}{FAQ}{}
