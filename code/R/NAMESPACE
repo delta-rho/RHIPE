@@ -1,0 +1,7 @@
+## useDynLib(qtutils, .registration = FALSE)
+useDynLib(sipe)
+## export("...rdrbytes")
+##importFrom(rhipe,rhsz,rhuz)
+exportPattern("^\\rh")
+
+

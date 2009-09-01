@@ -1,0 +1,105 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.godhuli.rhipe;
+
+import java.io.*;
+import java.net.URLDecoder;
+import org.apache.hadoop.mapreduce.MapContext;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+public class RHMRMapper extends Mapper<RHBytesWritable,
+				RHBytesWritable,RHBytesWritable,RHBytesWritable>{
+    protected static final Log LOG = LogFactory.getLog(RHMRMapper.class.getName());
+    boolean copyFile=false;
+    String getPipeCommand(Configuration cfg) {
+	String str = cfg.get("rhipe_command");
+	if (str == null) {
+	    return str;
+	}
+	try {
+	    return URLDecoder.decode(str, "UTF-8");
+	}
+	catch (UnsupportedEncodingException e) {
+	    System.err.println("rhipe_command in configuration not found");
+	    return null;
+	}
+    }
+    
+    boolean getDoPipe() {
+	return true;
+    }
+    
+    public void run(Context context) throws IOException, 
+	InterruptedException {
+	helper = new RHMRHelper();
+	setup(context);
+	helper.startOutputThreads(context);
+	while (context.nextKeyValue()) {
+	    map(context.getCurrentKey(), context.getCurrentValue(), context);
+	}
+	cleanup(context);
+    }								  
+								  
+								  
+    public void setup(Context context) {
+	Configuration cfg = context.getConfiguration();
+	cfg.set("RHIPEWHAT","0");
+	helper.setup(cfg, getPipeCommand(cfg), getDoPipe());
+	copyFile=cfg.get("rhipe_copy_file").equals("TRUE")? true: false;
+	try{
+	    helper.writeCMD(RHTypes. EVAL_SETUP_MAP);
+	}catch(IOException e){
+	    e.printStackTrace();
+	    helper.mapRedFinished(context);
+	    throw new RuntimeException(e);
+	}
+    }
+
+
+    public void map(RHBytesWritable key, RHBytesWritable value, Context ctx) 
+	throws IOException,InterruptedException {
+	helper.checkOuterrThreadsThrowable();
+	try {
+	    helper.write(key);
+	    helper.write(value);
+	} catch (IOException io) {
+	    LOG.info("QUIIIITING");
+	    io.printStackTrace();
+	    helper.mapRedFinished(ctx);
+	    throw new IOException(io);
+	}
+    }
+
+    public void cleanup(Context ctx) {
+	try{
+	    helper.writeCMD(RHTypes. EVAL_CLEANUP_MAP);
+	    helper.mapRedFinished(ctx);
+	    helper.copyFiles(System.getProperty("java.io.tmpdir"));
+	}catch(IOException e){
+	    e.printStackTrace();
+	    throw new RuntimeException(e);
+	}
+    }
+
+    private RHMRHelper helper;
+}
+	
