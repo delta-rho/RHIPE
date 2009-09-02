@@ -63,7 +63,7 @@ void logg(int level,const char *fmt, ...)
       s[i]='\0';
       va_list args;
       va_start(args,fmt);
-      fprintf(LOG,"%s[%02d]: ",s,level);
+      fprintf(LOG,"%s[%02d]<%d>: ",s,level,_STATE_);
       vfprintf(LOG,fmt,args);
       va_end(args);
       fflush(LOG);
@@ -125,7 +125,6 @@ void sendToHadoop(SEXP k){
   oiinfo->rxp->Clear();
   rexp2message(oiinfo->rxp,k);
   size = oiinfo->rxp->ByteSize();
-  LOGG(-100,"Sending this to hadoop %s", oiinfo->rxp->DebugString().c_str());
   writeVInt64ToFileDescriptor( size , CMMNC->BSTDOUT);
   if (size < PSIZE){
     oiinfo->rxp_s->clear();

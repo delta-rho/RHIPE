@@ -6,6 +6,7 @@ using namespace std;
 
 Streams *CMMNC;
 FILE* LOG;
+int _STATE_;
 
 int embedR(int argc, char *argv){
   structRstart rp;
@@ -49,6 +50,10 @@ int embedR(int argc, char *argv){
 }
 
 int main(int argc,char *argv){
+  char *rhipewhat;
+  if (rhipewhat=getenv("RHIPEWHAT"))
+    _STATE_ = (int)strtol(rhipewhat,NULL,10);
+
   LOG=fopen("/tmp/logger","a");
   fprintf(LOG,"\n.....................\n");
   LOGG(10,"Starting Up\n");
@@ -85,14 +90,10 @@ int main(int argc,char *argv){
 
 
 
-  char *rhipewhat;
-  int state=0;
-  if (rhipewhat=getenv("RHIPEWHAT"))
-    state = (int)strtol(rhipewhat,NULL,10);
   int ret=0;
 
-  LOGG(10,"Running in STATE=%d\n",state);
-  switch(state){
+  LOGG(10,"Running in STATE=%d\n",_STATE_);
+  switch(_STATE_){
   case 0: 
     {
       if ((ret=mapper_setup())!=0){
@@ -106,11 +107,12 @@ int main(int argc,char *argv){
     }
     break;
   case 1:
+  case 2:
     {
-      if ((ret=reducer_setup())!=0){
-	merror("Error while running reducer setup: %d\n",ret);
-	exit(4);
-      }
+      // if ((ret=reducer_setup())!=0){
+      // 	merror("Error while running reducer setup: %d\n",ret);
+      // 	exit(4);
+      // }
       if ((ret=reducer_run()!=0)){
 	merror("Error while running reducer: %d\n",ret);
 	exit(5);
@@ -118,7 +120,7 @@ int main(int argc,char *argv){
     }
     break;
   default:
-    merror("Bad value for RHIPEWHAT: %d\n",state);
+    merror("Bad value for RHIPEWHAT: %d\n",_STATE_);
     break;
   }
   free(CMMNC);

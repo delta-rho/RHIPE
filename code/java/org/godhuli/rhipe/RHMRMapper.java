@@ -50,7 +50,7 @@ public class RHMRMapper extends Mapper<RHBytesWritable,
     
     public void run(Context context) throws IOException, 
 	InterruptedException {
-	helper = new RHMRHelper();
+	helper = new RHMRHelper("Mapper");
 	setup(context);
 	helper.startOutputThreads(context);
 	while (context.nextKeyValue()) {

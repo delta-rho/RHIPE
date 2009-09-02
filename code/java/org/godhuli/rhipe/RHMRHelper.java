@@ -37,15 +37,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class RHMRHelper {
-    private final static int BUFFER_SIZE = 10 * 1024;
+    private  static int BUFFER_SIZE = 10*1024;
     protected static final Log LOG = LogFactory.getLog(RHMRHelper.class.getName());
     public boolean copyFile;
     static private Environment env_;
-    static class TaskId {
-        boolean mapTask;
-        String jobid;
-        int taskid;
-        int execid;
+    private String callID;
+
+    public RHMRHelper(String fromWHo){
+	callID=fromWHo;
     }
     void addEnvironment(Properties env, String nameVals) {
 	if (nameVals == null) return;
@@ -69,6 +68,7 @@ public class RHMRHelper {
     }
     void setup(Configuration cfg, String argv,boolean doPipe){     
 	try {
+	    BUFFER_SIZE = cfg.getInt("rhipe_stream_buffer",10*1024);
 	    joinDelay_ = cfg.getLong("rhipe_joindelay_milli", 100);
 	    nonZeroExitIsFailure_ = cfg.getBoolean("rhipe_non_zero_exit_is_failure", true);
 	    doPipe_ = doPipe;
@@ -93,9 +93,9 @@ public class RHMRHelper {
 						BUFFER_SIZE));
 	    clientErr_ = new DataInputStream(new BufferedInputStream(sim.getErrorStream()));
 	    startTime_ = System.currentTimeMillis();
-	    LOG.info("Started external program:"+argv);
+	    LOG.info(callID+":"+"Started external program:"+argv);
 	    errThread_ = new MRErrorThread();
-	    LOG.info("Started Error Thread");
+	    LOG.info(callID+":"+"Started Error Thread");
 	    errThread_.start();
 	} catch (Exception e) {
 	    e.printStackTrace();
@@ -104,12 +104,19 @@ public class RHMRHelper {
     }
     void startOutputThreads(TaskInputOutputContext<RHBytesWritable,RHBytesWritable,
 			    RHBytesWritable,RHBytesWritable> ctx) {
-	outThread_ = new MROutputThread(ctx);
+	startOutputThreads(ctx,true);
+    }
+
+    void startOutputThreads(TaskInputOutputContext<RHBytesWritable,RHBytesWritable,
+			    RHBytesWritable,RHBytesWritable> ctx,boolean isD) {
+	outThread_ = new MROutputThread(ctx,isD);
 	outThread_.start();
 	errThread_.setContext(ctx);
-	LOG.info("Started Output Thread");
+	LOG.info(callID+":"+"Started Output Thread");
     }
     
+ 
+
     public void mapRedFinished(TaskInputOutputContext<RHBytesWritable,RHBytesWritable,
 			       RHBytesWritable,RHBytesWritable> ctx) {
 	try {
@@ -118,11 +125,11 @@ public class RHMRHelper {
 	    }
 	    try {
 		if (clientOut_ != null) {
-		    clientOut_.flush();
 		    clientOut_.close();
 		}
 	    } catch (IOException io) {
 	    }
+	    
 	    waitOutputThreads(ctx);
 	    if (sim != null) sim.destroy();
 	} catch (RuntimeException e) {
@@ -131,12 +138,25 @@ public class RHMRHelper {
 	}
     }
 
+
+
+    public void funfun(){
+	try{
+	    if (outThread_ != null) 
+		outThread_.join(250);
+	    if (errThread_ != null) 
+		errThread_.join(250);
+	} catch (InterruptedException e) {
+	    e.printStackTrace();
+	}	    
+    }
+	
     
     void waitOutputThreads(TaskInputOutputContext<RHBytesWritable,RHBytesWritable
 			   ,RHBytesWritable,RHBytesWritable> ctx) {
 	try {
 	    if (outThread_ == null) {
-		startOutputThreads(new DummyContext(ctx));
+		startOutputThreads(new DummyContext(ctx)); //will fail
 	    }
 	    int exitVal = sim.waitFor();
 	    if (exitVal != 0) {
@@ -177,7 +197,7 @@ public class RHMRHelper {
 			       RHBytesWritable,RHBytesWritable> {
 	DummyContext(TaskInputOutputContext<RHBytesWritable,RHBytesWritable,
 		     RHBytesWritable,RHBytesWritable>ctx){
-	    super(null, null, null, null, null);
+	    super(null, null, null, null, null); //wont work
 	}
 	public RHBytesWritable getCurrentKey() throws IOException, InterruptedException {
 	    return null;
@@ -198,6 +218,7 @@ public class RHMRHelper {
 
     public void writeCMD(int s) throws IOException{
 	WritableUtils.writeVInt(clientOut_,s);
+	clientOut_.flush();
     }
 	
     public void write(RHBytesWritable c) throws IOException{
@@ -207,13 +228,13 @@ public class RHMRHelper {
 	
  
     class MROutputThread extends Thread {
-	TaskInputOutputContext <RHBytesWritable,RHBytesWritable,
+	volatile TaskInputOutputContext <RHBytesWritable,RHBytesWritable,
 	    RHBytesWritable,RHBytesWritable> ctx;
 	long lastStdoutReport = 0;
-	
+
 	MROutputThread(TaskInputOutputContext<RHBytesWritable,RHBytesWritable,
-		       RHBytesWritable,RHBytesWritable> ctx) {
-	    setDaemon(true);
+		       RHBytesWritable,RHBytesWritable> ctx,boolean isD) {
+	    setDaemon(isD);
 	    this.ctx = ctx;
 	}
 	boolean readRecord(RHBytesWritable k, RHBytesWritable v) {
@@ -245,13 +266,13 @@ public class RHMRHelper {
 		if (clientIn_ != null) {
 		    clientIn_.close();
 		    clientIn_ = null;
-		    LOG.info("MROutputThread done");
+		    LOG.info(callID+":"+"MROutputThread done");
 		}
 	    }catch(EOFException e){
 		LOG.info("Acchoo");
 	    }catch (Throwable th) {
 		outerrThreadsThrowable = th;
-		LOG.warn(StringUtils.stringifyException(th));
+		LOG.warn(callID+":"+StringUtils.stringifyException(th));
 		try {
 		    if (clientIn_ != null) {
 			clientIn_.close();
@@ -323,19 +344,19 @@ public class RHMRHelper {
 			clientErr_.close();
 			clientErr_ = null;
 			
-			LOG.info("MRErrorThread done");
+			LOG.info(callID+":"+"MRErrorThread done");
 		    }
 		}
 	    } catch (Throwable th) {
 		outerrThreadsThrowable = th;
-		LOG.warn(StringUtils.stringifyException(th));
+		LOG.warn(callID+":"+StringUtils.stringifyException(th));
 		try {
 		    if (clientErr_ != null) {
 			clientErr_.close();
 			clientErr_ = null;
 		    }
 		} catch (IOException io) {
-		    LOG.info(StringUtils.stringifyException(io));
+		    LOG.info(callID+":"+StringUtils.stringifyException(io));
 		}
 	    }
 	}
@@ -395,13 +416,10 @@ public class RHMRHelper {
     Process sim;
     MROutputThread outThread_;
     MRErrorThread errThread_;
-    DataOutputStream clientOut_;
-    DataInputStream clientErr_;
-    DataInputStream clientIn_;
+    volatile DataOutputStream clientOut_;
+    volatile DataInputStream clientErr_;
+    volatile DataInputStream clientIn_;
     
-    // set in PipeMapper/PipeReducer subclasses
-    String mapredKey_;
-    int numExceptions_;
     
     protected volatile Throwable outerrThreadsThrowable;
 }

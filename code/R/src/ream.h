@@ -44,7 +44,7 @@ extern void (*ptr_R_WriteConsoleEx)(const char *, int , int );
 extern FILE* R_Consolefile;
 extern FILE* R_Outputfile; 
 extern FILE* LOG;
-
+extern int _STATE_;
 
 SEXP rexpress(const char*);
 void rexp2message(REXP *, const SEXP);

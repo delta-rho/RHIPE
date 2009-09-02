@@ -1,0 +1,24 @@
+PKG_CXXFLAGS+= -I. `pkg-config --cflags protobuf` 
+PKG_LIBS+= `pkg-config --libs protobuf`
+
+# RHOME=`echo "cat(Sys.getenv('R_HOME'))" | R --slave `
+
+##RHOME is only set when this run from R
+##otherwise I have to set it
+USERDIR = ../inst/lib
+RIN=`R CMD config --cppflags`
+RLIB=`R CMD config --ldflags`
+.PHONY: all cpy
+
+all: $(SHLIB) app
+
+
+
+app:  rexp.pb.o message.o utility.o display.o reducer.o mapper.o main.o
+	g++ -g ${PKG_CXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB} $^ -o imperious.so
+
+
+
+
+clean:
+	rm *.so *.o

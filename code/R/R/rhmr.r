@@ -162,18 +162,23 @@ rhmr <- function(map,reduce=NULL,
          })
 
   lines$rhipe_job_verbose <- "TRUE"
+  lines$rhipe_stream_buffer <- 10*1024
   ##If user does not provide
   ##a reduce function,set reduce to NULL
   ##however can be over ridden by
   ##mared.reduce.tasks
   if(!reduces) lines$mapred.reduce.tasks <- '0'
-
+  
   lines$rhipe_copy_file <- paste(copyFiles)
   if(!is.null(mapred$mapred.job.tracker) &&
      mapred$mapred.job.tracker=='local')
     lines$rhipe_copy_file <- 'FALSE'
   for(n in names(mapred)) lines[[n]] <- mapred[[n]]
+  
   lines$rhipe_combiner <- paste(combiner)
+  if(lines$rhipe_combiner=="TRUE")
+    lines$rhipe_reduce_justcollect <- "FALSE"
+  
   lines <- lapply(lines,as.character);
   conf <- tempfile(pattern='rhipe')
   conffile <- file(conf,open='wb')
@@ -186,7 +191,9 @@ rhmr <- function(map,reduce=NULL,
   }
     
   close(conffile)
-  list(lines,temp=conf)
+  h <- list(lines,temp=conf)
+  class(h)="rhmr"
+  h
 }
 
 
@@ -248,7 +255,7 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
   z <- rhmr(map=map.exp,reduce=NULL,ifolder=ifolder,combiner=F,
             setup=setup,ofolder=tempo.file,inout=inout,mapred=mapred,...)
 
-  list(z,function(){
+  h=list(z,function(){
     retdata <- NULL
       on.exit({
             if(del.o.file) rhdel(tempo.file)
@@ -257,18 +264,23 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
           })
       if(readIn)
         retdata <- rhread(paste(tempo.file,"/p*",sep=""))
-    })  
+    })
+  class(h)="rhlapply"
+  h
 }
 
 
 rhex <- function (conf) 
 {
   exitf <- NULL
-  if(is.list(conf)) {
+  ## browser()
+  if(class(conf)=="rhlapply") {
     zonf <- conf[[1]]
     exitf <- conf[[2]]
-  }else zonf <- conf
-  zonf <- zonf$temp
+  }else if(class(conf)=='rhmr'){
+    zonf <- conf$temp
+  }else
+  stop("Wrong class of list given")
   cmd <- paste("$HADOOP/bin/hadoop jar ", rhoptions()$jarloc, 
                " org.godhuli.rhipe.RHMR ", zonf, sep = "")
   cat("Running: ", cmd, "\n")

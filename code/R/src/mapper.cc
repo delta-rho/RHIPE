@@ -4,6 +4,7 @@ const char* MAPSETUPS = "unserialize(charToRaw(Sys.getenv('rhipe_setup_map')))";
 const char* MAPRUNNERS = "unserialize(charToRaw(Sys.getenv('rhipe_map')))";
 const char* MAPCLEANS = "unserialize(charToRaw(Sys.getenv('rhipe_cleanup_map')))";
 
+
 const int mapper_run(void){
 
   int32_t type=0,ret=0;
@@ -12,7 +13,6 @@ const int mapper_run(void){
 
   PROTECT(runner1=rexpress(MAPRUNNERS));
   PROTECT(runner2=Rf_lang2(Rf_install("eval"),runner1));
-
   if(runner2==NILSXP){
     merror("RHIPE ERROR: Could not create mapper\n");
     UNPROTECT(2);
@@ -35,7 +35,7 @@ const int mapper_run(void){
     default:
       {
 	PROTECT(key = readFromHadoop(type));
-	type = readVInt64FromFileDescriptor(CMMNC->BSTDIN);
+	type = readVInt64FromFileDescriptor(CMMNC->BSTDIN);//type is length
 	PROTECT(value = readFromHadoop(type));
 	Rf_defineVar(Rf_install("map.key"),key,R_GlobalEnv);
 	Rf_defineVar(Rf_install("map.value"),value,R_GlobalEnv);

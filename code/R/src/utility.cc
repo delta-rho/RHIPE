@@ -23,8 +23,14 @@ int setup_stream(Streams *s){
     fprintf(stderr,"ERROR: Could not reopen standard error in binary mode");
     return(-1);
   }
-  setvbuf(s->BSTDOUT, 0, _IOFBF , 10*1024);
-  setvbuf(s->BSTDIN,  0, _IOFBF,  10*1024);
+  char *buffsizekb;
+  int buffs=1024*10;
+  if (buffsizekb=getenv("rhipe_stream_buffer"))
+    buffs = (int)strtol(buffsizekb,NULL,10);
+
+
+  setvbuf(s->BSTDOUT, 0, _IOFBF , buffs);
+  setvbuf(s->BSTDIN,  0, _IOFBF,  buffs);
   setvbuf(s->BSTDERR, 0, _IONBF , 0);
   s->NBSTDOUT = fileno(s->BSTDOUT);
   s->NBSTDIN =  fileno(s->BSTDIN);
