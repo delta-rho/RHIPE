@@ -56,8 +56,7 @@ public class RHMRReducer extends Reducer<RHBytesWritable,
     public void run(Context context) throws IOException, InterruptedException {
 	helper = new RHMRHelper("Reduce");
 	dontjustcollect_ = context.getConfiguration().
-	    get("rhipe_reduce_justcollect").equals("TRUE")?
-	    false:true;
+	    get("rhipe_reduce_justcollect").equals("TRUE")?false:true;
 	if(dontjustcollect_){
 	    setup(context);
 	    helper.startOutputThreads(context);
@@ -134,7 +133,7 @@ public class RHMRReducer extends Reducer<RHBytesWritable,
       try{
 	  helper.writeCMD(RHTypes. EVAL_CLEANUP_REDUCE);
 	  helper.mapRedFinished(ctx);
-	  helper.copyFiles(System.getProperty("java.io.tmpdir"));
+	  if(!isAMap) helper.copyFiles(System.getProperty("java.io.tmpdir"));
       }catch(IOException e){
 	  e.printStackTrace();
 	  throw new RuntimeException(e);

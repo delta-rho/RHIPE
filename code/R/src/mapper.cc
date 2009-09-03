@@ -4,13 +4,16 @@ const char* MAPSETUPS = "unserialize(charToRaw(Sys.getenv('rhipe_setup_map')))";
 const char* MAPRUNNERS = "unserialize(charToRaw(Sys.getenv('rhipe_map')))";
 const char* MAPCLEANS = "unserialize(charToRaw(Sys.getenv('rhipe_cleanup_map')))";
 
+const int MAPBUFFER =  5;
 
 const int mapper_run(void){
 
   int32_t type=0,ret=0;
   SEXP key,value;
   SEXP runner1,runner2,cleaner;
-
+  SEXP mapbuf,maplist;
+  int bufcount = 0;
+  
   PROTECT(runner1=rexpress(MAPRUNNERS));
   PROTECT(runner2=Rf_lang2(Rf_install("eval"),runner1));
   if(runner2==NILSXP){
@@ -18,7 +21,9 @@ const int mapper_run(void){
     UNPROTECT(2);
     return(1);
   }
-
+  
+  // PROTCET(mapbuf = Rf_allocVector(VECSXP,MAPBUFFER));
+  
   for(;;){
     type=readVInt64FromFileDescriptor(CMMNC->BSTDIN);
     switch(type){
@@ -36,10 +41,21 @@ const int mapper_run(void){
       {
 	PROTECT(key = readFromHadoop(type));
 	type = readVInt64FromFileDescriptor(CMMNC->BSTDIN);//type is length
-	PROTECT(value = readFromHadoop(type));
+	// PROTECT(value = readFromHadoop(type));
 	Rf_defineVar(Rf_install("map.key"),key,R_GlobalEnv);
 	Rf_defineVar(Rf_install("map.value"),value,R_GlobalEnv);
-	Rf_eval(runner2 ,R_GlobalEnv);
+	// iff(bufcount == MAPBUFFER){
+	//   //spill
+	//   Rf_defineVar(Rf_install("map.info"),mapbuf,R_GlobalEnv);
+	  Rf_eval(runner2 ,R_GlobalEnv);
+	// }
+	
+
+	// SEXP pair = Rf_allocVector(VECSXP,2);
+	// VECTOR_SET_ELT(pair,0, key);
+	// VECTOR_SET_ELT(pair,1,value);
+	// bufcount++;
+	  
 	UNPROTECT(2);
 	break;
       }

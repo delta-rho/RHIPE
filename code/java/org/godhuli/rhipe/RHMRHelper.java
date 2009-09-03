@@ -102,14 +102,11 @@ public class RHMRHelper {
 	    throw new RuntimeException("configuration exception", e);
 	}
     }
-    void startOutputThreads(TaskInputOutputContext<RHBytesWritable,RHBytesWritable,
-			    RHBytesWritable,RHBytesWritable> ctx) {
-	startOutputThreads(ctx,true);
-    }
+
 
     void startOutputThreads(TaskInputOutputContext<RHBytesWritable,RHBytesWritable,
-			    RHBytesWritable,RHBytesWritable> ctx,boolean isD) {
-	outThread_ = new MROutputThread(ctx,isD);
+			    RHBytesWritable,RHBytesWritable> ctx) {
+	outThread_ = new MROutputThread(ctx,true);
 	outThread_.start();
 	errThread_.setContext(ctx);
 	LOG.info(callID+":"+"Started Output Thread");
@@ -138,18 +135,6 @@ public class RHMRHelper {
 	}
     }
 
-
-
-    public void funfun(){
-	try{
-	    if (outThread_ != null) 
-		outThread_.join(250);
-	    if (errThread_ != null) 
-		errThread_.join(250);
-	} catch (InterruptedException e) {
-	    e.printStackTrace();
-	}	    
-    }
 	
     
     void waitOutputThreads(TaskInputOutputContext<RHBytesWritable,RHBytesWritable
@@ -218,7 +203,6 @@ public class RHMRHelper {
 
     public void writeCMD(int s) throws IOException{
 	WritableUtils.writeVInt(clientOut_,s);
-	clientOut_.flush();
     }
 	
     public void write(RHBytesWritable c) throws IOException{

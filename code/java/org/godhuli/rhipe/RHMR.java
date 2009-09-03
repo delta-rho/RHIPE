@@ -173,7 +173,7 @@ public class RHMR  implements Tool {
 	job_.setMapperClass(RHMRMapper.class);
 	job_.setReducerClass(RHMRReducer.class);
 	if(rhoptions_.get("rhipe_combiner").equals("TRUE"))
-	    job_.setCombinerClass(RHMRCombiner.class);
+	    job_.setCombinerClass(RHMRReducer.class);
 
 
 	
