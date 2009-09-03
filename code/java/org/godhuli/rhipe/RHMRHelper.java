@@ -122,6 +122,7 @@ public class RHMRHelper {
 	    }
 	    try {
 		if (clientOut_ != null) {
+		    clientOut_.flush();
 		    clientOut_.close();
 		}
 	    } catch (IOException io) {

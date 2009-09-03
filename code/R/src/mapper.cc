@@ -41,13 +41,14 @@ const int mapper_run(void){
       {
 	PROTECT(key = readFromHadoop(type));
 	type = readVInt64FromFileDescriptor(CMMNC->BSTDIN);//type is length
-	// PROTECT(value = readFromHadoop(type));
+	PROTECT(value = readFromHadoop(type));
 	Rf_defineVar(Rf_install("map.key"),key,R_GlobalEnv);
 	Rf_defineVar(Rf_install("map.value"),value,R_GlobalEnv);
+	Rf_eval(runner2 ,R_GlobalEnv);
+
 	// iff(bufcount == MAPBUFFER){
 	//   //spill
 	//   Rf_defineVar(Rf_install("map.info"),mapbuf,R_GlobalEnv);
-	  Rf_eval(runner2 ,R_GlobalEnv);
 	// }
 	
 
