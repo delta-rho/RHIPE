@@ -65,6 +65,7 @@ public class RHMRMapper extends Mapper<RHBytesWritable,
 	copyFile=cfg.get("rhipe_copy_file").equals("TRUE")? true: false;
 	try{
 	    helper.writeCMD(RHTypes. EVAL_SETUP_MAP);
+	    helper.checkOuterrThreadsThrowable();
 	}catch(IOException e){
 	    e.printStackTrace();
 	    helper.mapRedFinished(context);
@@ -91,7 +92,7 @@ public class RHMRMapper extends Mapper<RHBytesWritable,
 	try{
 	    helper.writeCMD(RHTypes. EVAL_CLEANUP_MAP);
 	    helper.writeCMD(RHTypes.EVAL_FLUSH);
-
+	    helper.checkOuterrThreadsThrowable();
 	    helper.mapRedFinished(ctx);
 	    helper.copyFiles(System.getProperty("java.io.tmpdir"));
 	}catch(IOException e){

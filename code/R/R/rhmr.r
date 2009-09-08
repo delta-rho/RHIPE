@@ -263,6 +263,8 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
   if(inout[2]=='lapply')
     stop('inout[2] cannot be lapply')
 
+  if(is.null(mapred$mapred.reduce.tasks))
+    mapred$mapred.reduce.tasks <- 0
   mapred$class="rhlapply"
   
   z <- rhmr(map=map.exp,reduce=NULL,ifolder=ifolder,combiner=F,

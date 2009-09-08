@@ -301,13 +301,14 @@ const int mapper_run2(void){
 const int mapper_setup(void){
   int32_t type = 0;
   SEXP setupm;
-
+  int Rerr;
   type = readVInt64FromFileDescriptor(CMMNC->BSTDIN);
 
   if(type==EVAL_SETUP_MAP){
     PROTECT(setupm=rexpress(MAPSETUPS));
-    Rf_eval(Rf_lang2(Rf_install("eval"),setupm),R_GlobalEnv);
+    R_tryEval(Rf_lang2(Rf_install("eval"),setupm),NULL,&Rerr);
     UNPROTECT(1);
+    if(Rerr) return(Rerr);
   }
   else {
     merror("RHIPE ERROR: What command is this for setup: %d ?\n",type);

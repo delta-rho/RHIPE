@@ -131,8 +131,9 @@ public class RHMRReducer extends Reducer<RHBytesWritable,
   public void cleanup(Context ctx) {
       try{
 		  if(!justCollect) {
+		      if(!isAMap)
 			  helper.writeCMD(RHTypes.EVAL_CLEANUP_REDUCE);
-			  helper.writeCMD(RHTypes.EVAL_FLUSH);
+		      helper.writeCMD(RHTypes.EVAL_FLUSH);
 		  }
 
 	  helper.mapRedFinished(ctx);
