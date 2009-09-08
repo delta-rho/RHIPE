@@ -2,12 +2,12 @@ VER=0.5
 
 .PHONY : doc code  sync
 
-all: doc updateweb
+all: doc index
 
-sync: code doc updateweb
+sync:
 	rsync -av website/ sguha@altair.stat.purdue.edu:/home/www/rhipe/
 
-updateweb: doc
+index: doc
 	/Applications/Aquamacs.app/Contents/MacOS/Aquamacs  -l index2html.el
 	# mv index.html website/
 

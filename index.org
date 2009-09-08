@@ -54,11 +54,11 @@ The current version is *always* the master.
 
 Read the documentation for installation. Current is the latest version.
 
-| Version | Download       |
-|---------+----------------|
-| Current | [[file:./dn/rhipe.tgz][rhipe.tgz]]      |
-|     0.5 | [[file:./dn/rhipe.0.5.tgz][rhipe.0.5.tgz]]  |
-|    0.44 | [[./dn/rhipe.0.44.tgz][rhipe.0.44.tgz]] |
+| Version | Download         |
+|---------+------------------|
+| Current | [[file:./dn/rhipe.tar.gz][rhipe.tar.gz]]     |
+|     0.5 | [[file:./dn/rhipe.0.5.tar.gz][rhipe.0.5.tar.gz]] |
+|    0.44 | [[./dn/rhipe.0.44.tgz][rhipe.0.44.tgz]]   |
 
 
 
