@@ -136,18 +136,18 @@ batch to a large number and ``length`` to an equally large number to reduce the
 number of JNI calls and vector resizes.
 
 
-rhreadText
-^^^^^^^^^^
+.. rhreadText
+.. ^^^^^^^^^^
 
-::
+.. ::
 	
-	rhreadText <- function(filename)
+.. 	rhreadText <- function(filename)
 
-Currently when outputting to text because of a bug in the code I've been forced
-to write serialized bytes in text form. To parse such a file, copy it to the
-local filesystem and use this function on the filename.
+.. Currently when outputting to text because of a bug in the code I've been forced
+.. to write serialized bytes in text form. To parse such a file, copy it to the
+.. local filesystem and use this function on the filename.
 
-You might as well use binary output format.
+.. You might as well use binary output format.
 
 
 rhreadBin

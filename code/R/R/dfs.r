@@ -10,13 +10,13 @@
 ## 7. rhread(src=,pattern,n=) src can be a file or list of files, n is max, get list from rhls
 ## 8. rhlapply == rhmr(infile=tempfile,outfile=tempfile, ... )
 
-rhreadText <- function(file,sep="\t"){
-  d=read.table(file,header=F,sep="\t",stringsAsFactors=F,colClasses='character')
-  apply(d,1,function(r) {
-    f=lapply(strsplit(r," "),function(rr) as.raw(as.numeric(rr)))
-    l=lapply(f,rhuz);names(l)=c("key","value")
-    l
-  })}
+## rhreadText <- function(file,sep="\t"){
+##   d=read.table(file,header=F,sep="\t",stringsAsFactors=F,colClasses='character')
+##   apply(d,1,function(r) {
+##     f=lapply(strsplit(r," "),function(rr) as.raw(as.numeric(rr)))
+##     l=lapply(f,rhuz);names(l)=c("key","value")
+##     l
+##   })}
 
 rhreadBin <- function(file,maxnum=-1, readbuf=0){
   .Call("readBinaryFile",as.integer(maxnum),as.integer(readbuf))
