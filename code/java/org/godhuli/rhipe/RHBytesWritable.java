@@ -1,15 +1,11 @@
 /**
- * Copyright 2009 The Apache Software Foundation
+ * Copyright 2009 Saptarshi Guha
+ *   
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,7 +25,7 @@ import java.io.DataOutput;
 import java.util.List;
 import org.apache.hadoop.io.*;
 
-
+import org.apache.hadoop.io.BinaryComparable;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
@@ -37,295 +33,238 @@ import org.apache.hadoop.io.WritableComparator;
 
 public class RHBytesWritable
     implements WritableComparable<RHBytesWritable> {
-  protected byte[] bytes;
-  protected int offset;
-  protected int length;
-  protected REXP rexp;
-  public static String fieldSep=" ";
-  
-
-  public RHBytesWritable() {
-    super();
-  }
- 
-  public RHBytesWritable(byte[] bytes) {
-    this(bytes, 0, bytes.length);
-  }
-
-  public RHBytesWritable(final byte[] bytes, final int offset,
-      final int length) {
-    this.bytes = bytes;
-    this.offset = offset;
-    this.length = length;
-  }
-
-
-  public RHBytesWritable(final RHBytesWritable ibw) {
-    this(ibw.get(), 0, ibw.getSize());
-  }
-  
-  public static void setFieldSep(String s){
-      fieldSep=s;
-  }
-  public byte [] get() {
-    if (this.bytes == null) {
-      throw new IllegalStateException("Uninitialiized. Null constructor " +
-        "called w/o accompaying readFields invocation");
+    public static String fieldSep=" ";
+		
+    int length;
+    int offset;
+    private static final int LENGTH_BYTES = 0 ; // 4;
+    private static final byte[] EMPTY_BYTES = {};
+		
+    int size;
+    byte[] bytes;
+		
+		
+    public RHBytesWritable() {
+	this(EMPTY_BYTES);
     }
-    return this.bytes;
-  }
-  
-
-  public void set(final byte [] b) {
-    set(b, 0, b.length);
-  }
-
-
-  public void set(final byte [] b, final int offset, final int length) {
-    this.bytes = b;
-    this.offset = offset;
-    this.length = length;
-  }
-
-  public int getSize() {
-    if (this.bytes == null) {
-      throw new IllegalStateException("Uninitialiized. Null constructor " +
-        "called w/o accompaying readFields invocation");
+		
+    public RHBytesWritable(byte[] bytes) {
+	this(bytes, 0, bytes.length);
     }
-    return this.length;
-  }
- 
-
-
-  public int getLength() {
-    if (this.bytes == null) {
-      throw new IllegalStateException("Uninitialiized. Null constructor " +
-        "called w/o accompaying readFields invocation");
+		
+    public RHBytesWritable(final byte[] bytes, final int offset,
+			   final int length) {
+	this.bytes = bytes;
+	this.offset = offset;
+	this.length = length;
     }
-    return this.length;
-  }
-  
-  public void intoREXP() throws com.google.protobuf.InvalidProtocolBufferException{
-      if(bytes==null){
-      throw new IllegalStateException("Uninitialiized. Null constructor " +
-        "called w/o accompaying readFields invocation");
-      }
-      rexp =  REXP.parseFrom(bytes);
-  }
-
-  public REXP getREXP(){
-      return(rexp);
-  }
-
-  public String toDebugString() throws com.google.protobuf.InvalidProtocolBufferException{
-      intoREXP();
-      return(rexp.toString());
-  }
-
-
-  public void readFields(final DataInput in) throws IOException {
-    this.length = WritableUtils.readVInt(in);
-    // System.out.println("Read bytes="+this.length);
-    this.bytes = new byte[this.length];
-    in.readFully(this.bytes, 0, this.length);
-    this.offset = 0;
-  }
-  
-  public void write(final DataOutput out) throws IOException {
-      WritableUtils.writeVInt(out,this.length);
-      out.write(this.bytes, this.offset, this.length);
-  }
-  
-  // Below methods copied from BytesWritable
-
-  @Override
-  public int hashCode() {
-    return WritableComparator.hashBytes(bytes, this.length);
-  }
-  
-  /**
-   * Define the sort order of the BytesWritable.
-   * @param right_obj The other bytes writable
-   * @return Positive if left is bigger than right, 0 if they are equal, and
-   *         negative if left is smaller than right.
-   */
-  public int compareTo(RHBytesWritable right_obj) {
-    return compareTo(right_obj.get());
-  }
-  
-  /**
-   * Compares the bytes in this object to the specified byte array
-   * @param that
-   * @return Positive if left is bigger than right, 0 if they are equal, and
-   *         negative if left is smaller than right.
-   */
-  public int compareTo(final byte [] that) {
-    int diff = this.length - that.length;
-    return (diff != 0)?
-      diff:
-      WritableComparator.compareBytes(this.bytes, 0, this.length, that,
-        0, that.length);
-  }
-
-  /**
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
-  @Override
-  public boolean equals(Object right_obj) {
-    if (right_obj instanceof byte []) {
-      return compareTo((byte [])right_obj) == 0;
+		
+		
+    public RHBytesWritable(final RHBytesWritable ibw) {
+	this(ibw.get(), 0, ibw.getSize());
     }
-    if (right_obj instanceof RHBytesWritable) {
-      return compareTo((RHBytesWritable)right_obj) == 0;
+		
+
+    public byte [] get() {
+	if (this.bytes == null) {
+	    throw new IllegalStateException("Uninitialiized. Null constructor " +
+					    "called w/o accompaying readFields invocation");
+	}
+	return this.bytes;
     }
-    return false;
-  }
-
-  /**
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() { 
-    StringBuffer sb = new StringBuffer(3*this.bytes.length);
-    for (int idx = 0; idx < this.bytes.length; idx++) {
-      // if not the first, put a blank separator in
-      if (idx != 0) {
-        sb.append(' ');
-      }
-      String num = Integer.toHexString(bytes[idx]);
-      // if it is only one digit, add a leading 0.
-      if (num.length() < 2) {
-        sb.append('0');
-      }
-      sb.append(num);
+		
+		
+    public void set(final byte [] b) {
+	set(b, 0, b.length);
     }
-    return sb.toString();
-  }
-
-  /** A Comparator optimized for RXImmutableBytesWritable.
-   */ 
-  public static class Comparator extends WritableComparator {
-    private BytesWritable.Comparator comparator =
-      new BytesWritable.Comparator();
-
-    /** constructor */
-    public Comparator() {
-      super(RHBytesWritable.class);
+		
+    public byte []  getBytes(){
+	return(this.bytes);
     }
-
+		
+		
+    public void set(final byte [] b, final int offset, final int length) {
+	this.bytes = b;
+	this.offset = offset;
+	this.length = length;
+    }
+		
+    public int getSize() {
+	if (this.bytes == null) {
+	    throw new IllegalStateException("Uninitialiized. Null constructor " +
+					    "called w/o accompaying readFields invocation");
+	}
+	return this.length;
+    }
+		
+		
+		
+    public int getLength() {
+	if (this.bytes == null) {
+	    throw new IllegalStateException("Uninitialiized. Null constructor " +
+					    "called w/o accompaying readFields invocation");
+	}
+	return this.length;
+    }
+		
+		
+		
+		
+		
+		
+    // Below methods copied from BytesWritable
+		
+    @Override
+	public int hashCode() {
+	return WritableComparator.hashBytes(bytes, this.length);
+    }
+		
     /**
-     * @see org.apache.hadoop.io.WritableComparator#compare(byte[], int, int, byte[], int, int)
+     * Define the sort order of the BytesWritable.
+     * @param right_obj The other bytes writable
+     * @return Positive if left is bigger than right, 0 if they are equal, and
+     *         negative if left is smaller than right.
+     */
+    public int compareTo(RHBytesWritable right_obj) {
+	return compareTo(right_obj.get());
+    }
+		
+    /**
+     * Compares the bytes in this object to the specified byte array
+     * @param that
+     * @return Positive if left is bigger than right, 0 if they are equal, and
+     *         negative if left is smaller than right.
+     */
+    public int compareTo(final byte [] that) {
+	int diff = this.length - that.length;
+	return (diff != 0)?
+	    diff:
+	    WritableComparator.compareBytes(this.bytes, 0, this.length, that,
+					    0, that.length);
+    }
+		
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
-    public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
-      return comparator.compare(b1, s1, l1, b2, s2, l2);
+	public boolean equals(Object right_obj) {
+	if (right_obj instanceof byte []) {
+	    return compareTo((byte [])right_obj) == 0;
+	}
+	if (right_obj instanceof RHBytesWritable) {
+	    return compareTo((RHBytesWritable)right_obj) == 0;
+	}
+	return false;
     }
-  }
-  
-  static { // register this comparator
-    WritableComparator.define(RHBytesWritable.class, new Comparator());
-  }
-  
-
-  public static byte [][] toArray(final List<byte []> array) {
-    // List#toArray doesn't work on lists of byte [].
-    byte[][] results = new byte[array.size()][];
-    for (int i = 0; i < array.size(); i++) {
-      results[i] = array.get(i);
+		
+		
+		
+    /** A Comparator optimized for RXImmutableBytesWritable.
+     */ 
+    public static class Comparator extends WritableComparator {
+	private BytesWritable.Comparator comparator =
+	    new BytesWritable.Comparator();
+			
+	/** constructor */
+	public Comparator() {
+	    super(RHBytesWritable.class);
+	}
+			
+	/**
+	 * @see org.apache.hadoop.io.WritableComparator#compare(byte[], int, int, byte[], int, int)
+	 */
+	@Override
+	    public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+	    return comparator.compare(b1, s1, l1, b2, s2, l2);
+	}
     }
-    return results;
-  }
+		
+    static { // register this comparator
+	WritableComparator.define(RHBytesWritable.class, new Comparator());
+    }
+		
+		
+		
+    public void readFields(final DataInput in) throws IOException {
+	this.length = readVInt(in);
+	// this.length = in.readInt();
+	this.bytes = new byte[this.length];
+	in.readFully(this.bytes, 0, this.length);
+	this.offset = 0;
+    }
+		
+    public void write(final DataOutput out) throws IOException {
+	WritableUtils.writeVInt(out,this.length);
+	// out.writeInt(this.length);
+	out.write(this.bytes, this.offset, this.length);
+    }
 
-  public String writeAsString() throws IOException{
-      try{
-	  intoREXP();
-	  return(writeAsString(rexp));
-      }catch( com.google.protobuf.InvalidProtocolBufferException e){
-	  throw new IOException(e);
-      }
-  }
-  private String writeAsString(REXP r) {
-      StringBuilder sb = new StringBuilder();
-      int i;
-      REXP.RClass clz = r.getRclass();
-      switch(clz){
-      case STRING:
-	  org.godhuli.rhipe.REXPProtos.STRING ss;
-	  for(i=0;i<r.getStringValueCount()-1;i++){
-	      ss = r.getStringValue(i);
-	      if(ss.getIsNA()) sb.append("NA");
-	      else{
-		  sb.append("\"");sb.append(ss.getStrval());sb.append("\"");
-	      }
-	      sb.append(fieldSep);
-		    
-	  }
-	  ss = r.getStringValue(i);
-	  if(ss.getIsNA()) sb.append("NA");
-	  else{
-	      sb.append("\"");sb.append(ss.getStrval());sb.append("\"");
-	  }
-	  break;
-      case RAW:
-	  String num;
-	  com.google.protobuf.ByteString bs = r.getRawValue();
-	  for(i=0;i<bs.size()-1;i++){
-	      num = Integer.toHexString(bs.byteAt(i));
-	      if (num.length() < 2) sb.append('0');
-	      sb.append(num);sb.append(fieldSep);
-	  }
-	  num = Integer.toHexString(bs.byteAt(i));
-	  if (num.length() < 2) sb.append('0');
-	  sb.append(num);
-	  break;
-      case REAL:
-	  for(i=0;i< r.getRealValueCount()-1;i++){
-	      sb.append(r.getRealValue(i));
-	      sb.append(fieldSep);
-	  }
-	  sb.append(r.getRealValue(i));
-	  break;
-      case COMPLEX:
-	  CMPLX cp;
-	  for(i=0;i< r.getComplexValueCount()-1;i++){
-	      cp = r.getComplexValue(i);
-	      sb.append(cp.getReal());sb.append("+");
-	      sb.append(cp.getImag());
-	      sb.append(fieldSep);
-	  }
-	  cp = r.getComplexValue(i);
-	  sb.append(cp.getReal());sb.append("+");
-	  sb.append(cp.getImag());
-	  break;
-      case INTEGER:
-	  for(i=0;i< r.getIntValueCount()-1;i++){
-	      sb.append(r.getIntValue(i));
-	      sb.append(fieldSep);
-	  }
-	  sb.append(r.getIntValue(i));
-	  break;
-      case LIST:
-	  for(i=0;i< r.getRexpValueCount()-1;i++){
-	      sb.append( writeAsString( r.getRexpValue(i)));
-	      sb.append(fieldSep);
-	  }
-	  sb.append( writeAsString(r.getRexpValue(i)));
-	  break;
-      case LOGICAL:
-	  for(i=0;i< r.getBooleanValueCount()-1;i++){
-	      sb.append(r.getBooleanValue(i));
-	      sb.append(fieldSep);
-	  }
-	  sb.append(r.getBooleanValue(i));
-	  break;
-      case NULLTYPE:
-	  sb.append("NULL");
-	  break;
+    public void writeAsInt(final DataOutput out) throws IOException {
+	out.writeInt(this.length);
+	// out.writeInt(this.length);
+	out.write(this.bytes, this.offset, this.length);
+    }
 
-      }
-      return(sb.toString());
-      
-  }
-  
+    public static boolean isNegativeVInt(byte value) {
+	return value < -120 || (value >= -112 && value < 0);
+    }
 
+    public static int decodeVIntSize(byte value) {
+	if (value >= -112) {
+	    return 1;
+	} else if (value < -120) {
+	    return -119 - value;
+	}
+	return -111 - value;
+    }
+
+    public static int readVInt(DataInput stream) throws IOException {
+	byte firstByte = stream.readByte();
+	// System.out.println("readVInt: Got FB ="+firstByte);
+	int len = decodeVIntSize(firstByte);
+	// System.out.println("readVInt: length="+len);
+	if (len == 1) {
+	    return firstByte;
+	}
+	long i = 0;
+	for (int idx = 0; idx < len-1; idx++) {
+	    byte b = stream.readByte();
+	    // System.out.println("readVInt: Got ="+b);
+
+	    i = i << 8;
+	    i = i | (b & 0xFF);
+	}
+	return (int) ((isNegativeVInt(firstByte) ? (i ^ -1L) : i));
+    }
+    
+		
+    public String toByteString() { 
+	StringBuffer sb = new StringBuffer(3*this.bytes.length);
+	for (int idx = 0; idx < this.bytes.length; idx++) {
+	    // if not the first, put a blank separator in
+	    if (idx != 0) {
+		sb.append(" 0x");
+	    }else sb.append("0x");
+	    String num = Integer.toHexString(0xff & bytes[idx]);
+	    // if it is only one digit, add a leading 0.
+	    if (num.length() < 2) {
+		sb.append('0');
+	    }
+	    sb.append(num);
+	}
+	return sb.toString();
+    }
+		
+		
+		
+
+		
+    public String toString() {
+	String s =  REXPHelper.toString(bytes);
+	return(s);
+	// return(toByteString());
+    }
+		
+		
+		
 }

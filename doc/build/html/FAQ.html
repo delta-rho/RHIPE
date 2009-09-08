@@ -72,7 +72,7 @@
 <li>Local Testing?</li>
 </ol>
 <p>Easily enough. In <tt class="docutils literal"><span class="pre">rhmr</span></tt> or <tt class="docutils literal"><span class="pre">rhlapply</span></tt>, set <tt class="docutils literal"><span class="pre">mapred.job.tracker</span></tt> to
-&#8216;local&#8217; in the <tt class="docutils literal"><span class="pre">hadoop.options</span></tt> option of the respective command. This will
+&#8216;local&#8217; in the <tt class="docutils literal"><span class="pre">mapred</span></tt> option of the respective command. This will
 use the local jobtracker to run your commands.</p>
 <p>However keep in mind,
 <tt class="docutils literal"><span class="pre">shared.files</span></tt> will not work, i.e those files will not be copied to the
@@ -80,22 +80,8 @@ working directory and side effect files will not be copied back.</p>
 <ol class="arabic simple" start="2">
 <li>Speed?</li>
 </ol>
-<p>Not so good. A lot of data is transferred and because of R&#8217;s serialization and
-my effort to allow <em>any</em> R data type to be transferred, about 6 times more data
-is transferred in the RHIPE wordcount example(see <a class="reference external" href="../index.html">Mainpage</a> )
-compared to the Java version. As such, this was about 5 times slower for 9MM
-lines.</p>
-<ol class="arabic simple" start="3">
-<li>Other Approaches?</li>
-</ol>
-<ul class="simple">
-<li>I will try using Unix pipes to feed data to R instead of Rserve.</li>
-<li>Also, I will just settle for raw,numeric, complex, character vectors and lists
-(whose elements are one of the aforementioned types) in conjunction with
-Protocol Buffers. This does reduce the transparency to the R user in that
-he/she will now have to serialize other structures (e.g objects like <tt class="docutils literal"><span class="pre">xyplot</span></tt>
-objects or objects with special attributes</li>
-</ul>
+<p>Similar to Hadoop Streaming. The bottlenecks are writing and reading to STDIN
+pipes and R.</p>
 </div>
 
 

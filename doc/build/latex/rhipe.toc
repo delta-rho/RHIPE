@@ -6,36 +6,33 @@
 \contentsline {section}{\numberline {2.1}Introduction}{5}{section.2.1}
 \contentsline {section}{\numberline {2.2}Return Value}{5}{section.2.2}
 \contentsline {section}{\numberline {2.3}Function Usage}{5}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}RETURN}{6}{subsection.2.3.1}
 \contentsline {chapter}{\numberline {3}The \texttt {rhmr} Command}{7}{chapter.3}
 \contentsline {section}{\numberline {3.1}Introduction}{7}{section.3.1}
 \contentsline {section}{\numberline {3.2}Return Value}{7}{section.3.2}
 \contentsline {section}{\numberline {3.3}Function}{7}{section.3.3}
-\contentsline {section}{\numberline {3.4}\texttt {hadoop.mapreduce} Options}{9}{section.3.4}
-\contentsline {section}{\numberline {3.5}Custom Formats or Writables}{10}{section.3.5}
-\contentsline {section}{\numberline {3.6}Side Effect files}{10}{section.3.6}
+\contentsline {section}{\numberline {3.4}RHIPE Options}{8}{section.3.4}
+\contentsline {section}{\numberline {3.5}Status, Counters and Writing Output}{8}{section.3.5}
+\contentsline {subsection}{\numberline {3.5.1}Status}{8}{subsection.3.5.1}
+\contentsline {subsection}{\numberline {3.5.2}Counter}{8}{subsection.3.5.2}
+\contentsline {subsection}{\numberline {3.5.3}Output}{9}{subsection.3.5.3}
+\contentsline {section}{\numberline {3.6}Side Effect files}{9}{section.3.6}
 \contentsline {chapter}{\numberline {4}Miscellaneous Commands}{11}{chapter.4}
 \contentsline {section}{\numberline {4.1}Introduction}{11}{section.4.1}
-\contentsline {section}{\numberline {4.2}HDFS Related}{11}{section.4.2}
-\contentsline {subsection}{\numberline {4.2.1}rhget}{11}{subsection.4.2.1}
-\contentsline {subsection}{\numberline {4.2.2}rhput}{11}{subsection.4.2.2}
-\contentsline {subsection}{\numberline {4.2.3}rhrm}{11}{subsection.4.2.3}
-\contentsline {subsection}{\numberline {4.2.4}rhls}{12}{subsection.4.2.4}
-\contentsline {subsection}{\numberline {4.2.5}rhlsd}{12}{subsection.4.2.5}
-\contentsline {section}{\numberline {4.3}Hadoop Job Related}{12}{section.4.3}
-\contentsline {subsection}{\numberline {4.3.1}rhkill}{12}{subsection.4.3.1}
-\contentsline {section}{\numberline {4.4}Saving R Datasets}{12}{section.4.4}
-\contentsline {subsection}{\numberline {4.4.1}rhsave.image, rhsave, rhload}{12}{subsection.4.4.1}
-\contentsline {section}{\numberline {4.5}Creating Sequence FIles}{12}{section.4.5}
-\contentsline {subsection}{\numberline {4.5.1}rhnewSqfile}{12}{subsection.4.5.1}
-\contentsline {subsection}{\numberline {4.5.2}rhsqallKV}{13}{subsection.4.5.2}
-\contentsline {section}{\numberline {4.6}Low Level Functions}{13}{section.4.6}
-\contentsline {subsection}{\numberline {4.6.1}rhsqreader}{13}{subsection.4.6.1}
-\contentsline {subsection}{\numberline {4.6.2}rhsqnextKVR}{13}{subsection.4.6.2}
-\contentsline {subsection}{\numberline {4.6.3}rhsqnextpath}{13}{subsection.4.6.3}
-\contentsline {subsection}{\numberline {4.6.4}rhsqclose}{14}{subsection.4.6.4}
-\contentsline {section}{\numberline {4.7}Example}{14}{section.4.7}
-\contentsline {subsection}{\numberline {4.7.1}Reading}{14}{subsection.4.7.1}
-\contentsline {subsection}{\numberline {4.7.2}Writing}{14}{subsection.4.7.2}
+\contentsline {section}{\numberline {4.2}Serialization}{11}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}rhsz}{11}{subsection.4.2.1}
+\contentsline {subsection}{\numberline {4.2.2}rhuz}{11}{subsection.4.2.2}
+\contentsline {section}{\numberline {4.3}HDFS Related}{11}{section.4.3}
+\contentsline {subsection}{\numberline {4.3.1}rhsave}{11}{subsection.4.3.1}
+\contentsline {subsection}{\numberline {4.3.2}rhsave.image}{12}{subsection.4.3.2}
+\contentsline {subsection}{\numberline {4.3.3}rhput}{12}{subsection.4.3.3}
+\contentsline {subsection}{\numberline {4.3.4}rhget}{12}{subsection.4.3.4}
+\contentsline {subsection}{\numberline {4.3.5}rhls}{12}{subsection.4.3.5}
+\contentsline {subsection}{\numberline {4.3.6}rhdel}{12}{subsection.4.3.6}
+\contentsline {subsection}{\numberline {4.3.7}rhwrite}{12}{subsection.4.3.7}
+\contentsline {subsection}{\numberline {4.3.8}rhread}{13}{subsection.4.3.8}
+\contentsline {subsection}{\numberline {4.3.9}rhreadText}{13}{subsection.4.3.9}
+\contentsline {subsection}{\numberline {4.3.10}rhreadBin}{13}{subsection.4.3.10}
 \contentsline {chapter}{\numberline {5}Using RHIPE on EC2}{15}{chapter.5}
 \contentsline {section}{\numberline {5.1}Introduction}{15}{section.5.1}
 \contentsline {section}{\numberline {5.2}Usage}{15}{section.5.2}
@@ -48,7 +45,4 @@
 \contentsline {section}{\numberline {6.2}\texttt {rhmr}}{18}{section.6.2}
 \contentsline {subsection}{\numberline {6.2.1}Word Count}{18}{subsection.6.2.1}
 \contentsline {subsection}{\numberline {6.2.2}Subset a file}{18}{subsection.6.2.2}
-\contentsline {subsection}{\numberline {6.2.3}Covariance Matrix}{19}{subsection.6.2.3}
-\contentsline {subsection}{\numberline {6.2.4}Naive K-Means Clustering}{19}{subsection.6.2.4}
-\contentsline {subsection}{\numberline {6.2.5}Using a step == TRUE}{21}{subsection.6.2.5}
-\contentsline {chapter}{\numberline {7}FAQ}{23}{chapter.7}
+\contentsline {chapter}{\numberline {7}FAQ}{19}{chapter.7}

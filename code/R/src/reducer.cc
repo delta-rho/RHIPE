@@ -1,6 +1,10 @@
 #include "ream.h"
 #import "iostream"
-
+const int32_t EVAL_SETUP_REDUCE = -1;
+const int32_t EVAL_REDUCE_PREKEY = -2;
+const int32_t EVAL_REDUCE_POSTKEY = -3;
+const int32_t EVAL_REDUCE_THEKEY = -4;
+const int32_t EVAL_CLEANUP_REDUCE = -5;
 const char* REDUCESETUP = "unserialize(charToRaw(Sys.getenv('rhipe_setup_reduce')))";
 const char* REDUCEPREKEY = "unserialize(charToRaw(Sys.getenv('rhipe_reduce_prekey')))";
 const char* REDUCE = "unserialize(charToRaw(Sys.getenv('rhipe_reduce')))";
@@ -9,10 +13,19 @@ const char* REDUCECLEANUP = "unserialize(charToRaw(Sys.getenv('rhipe_cleanup_red
 
 const int reducer_run(void){
 
-  int32_t type=0,ret=0;
-  SEXP key,value;
-  SEXP prekey0,prekey,reduce0,reduce,postkey0,postkey,reducesetup0,reducesetup;
+  int32_t type=0;
+  int32_t redbuf_cnt=0,REDBUFFER=0;
+  SEXP key;
+  SEXP prekey0,prekey,reduce0,reduce,postkey0,postkey,vvector;
     
+  char * redbustr;
+
+  if ((redbustr=getenv("rhipe_reduce_buff_size"))){
+    REDBUFFER = (int)strtol(redbustr,NULL,10);
+  }
+  else{
+    REDBUFFER = 100;
+  }
   PROTECT(prekey0=rexpress(REDUCEPREKEY));
   PROTECT(prekey=Rf_lang2(Rf_install("eval"),prekey0));
 
@@ -23,15 +36,20 @@ const int reducer_run(void){
   PROTECT(postkey=Rf_lang2(Rf_install("eval"),postkey0));
 
 
+  PROTECT(vvector = Rf_allocVector(VECSXP,REDBUFFER));
+  Rf_defineVar(Rf_install("reduce.values"),vvector,R_GlobalEnv);
+
+  int err,Rerr;
+
 
   for(;;){
     type=readVInt64FromFileDescriptor(CMMNC->BSTDIN);
     switch(type){
     case 0:
-      UNPROTECT(6);
+      fflush(NULL);
+      UNPROTECT(7);
       return(0);
     case -10:
-      fflush(CMMNC->BSTDOUT);
       fflush(NULL);
       break;
     case EVAL_SETUP_REDUCE:
@@ -39,7 +57,8 @@ const int reducer_run(void){
 	SEXP reducesetup;
 	LOGG(9,"Got reduce setup\n");
 	PROTECT(reducesetup=rexpress(REDUCESETUP));
-	Rf_eval(Rf_lang2(Rf_install("eval"),reducesetup),R_GlobalEnv);
+	// Rf_eval(Rf_lang2(Rf_install("eval"),reducesetup),R_GlobalEnv);
+	R_tryEval(Rf_lang2(Rf_install("eval"),reducesetup),NULL,&Rerr);
 	UNPROTECT(1);
       }
       break;
@@ -47,51 +66,54 @@ const int reducer_run(void){
       {
 	SEXP reduceclean;
 	PROTECT(reduceclean=rexpress(REDUCECLEANUP));
-	Rf_eval(Rf_lang2(Rf_install("eval"),reduceclean),R_GlobalEnv);
+	R_tryEval(Rf_lang2(Rf_install("eval"),reduceclean),NULL, &Rerr);
 	UNPROTECT(1);
       }
       break;
     case EVAL_REDUCE_THEKEY:
       type = readVInt64FromFileDescriptor(CMMNC->BSTDIN); //read in size of key
-      PROTECT(key = readFromHadoop(type));
+      PROTECT(key = readFromHadoop(type,&err));
       Rf_defineVar(Rf_install("reduce.key"),key,R_GlobalEnv);
       UNPROTECT(1);
+      redbuf_cnt=0;
       break;
     case EVAL_REDUCE_PREKEY:
-      Rf_eval(prekey ,R_GlobalEnv);
+      R_tryEval(prekey,NULL,&Rerr);
       break;
     case EVAL_REDUCE_POSTKEY:
-      Rf_eval(postkey ,R_GlobalEnv);
+      if(redbuf_cnt >0){
+	if(redbuf_cnt < REDBUFFER){
+	  SEXP t1;
+	  PROTECT(t1 = Rf_allocVector(VECSXP,redbuf_cnt));	  
+	  for(int i=0;i<redbuf_cnt;i++){
+	    SET_VECTOR_ELT(t1,i, VECTOR_ELT(vvector,i));
+	  }
+	  Rf_setVar(Rf_install("reduce.values"),t1,R_GlobalEnv);
+	  R_tryEval(reduce,NULL, &Rerr);
+	  UNPROTECT(1);
+	}else{
+	  Rf_setVar(Rf_install("reduce.values"),vvector,R_GlobalEnv);
+	  R_tryEval(reduce,NULL, &Rerr);
+	}
+      }
+      R_tryEval(postkey ,NULL, &Rerr);
       break;
     default:
-      //incoming values
-      PROTECT(value = readFromHadoop(type));
-      Rf_defineVar(Rf_install("reduce.value"),value,R_GlobalEnv);
-      Rf_eval(reduce ,R_GlobalEnv);
+      if(redbuf_cnt == REDBUFFER){
+	Rf_setVar(Rf_install("reduce.values"),vvector,R_GlobalEnv);
+	R_tryEval(reduce,NULL, &Rerr);
+	redbuf_cnt=0;
+      }
+      SEXP v;
+      PROTECT(v= readFromHadoop(type,&err));
+      if(err) {
+	UNPROTECT(8);
+	return(0);
+      }
+      SET_VECTOR_ELT(vvector, redbuf_cnt, v);
       UNPROTECT(1);
-      break;
+      redbuf_cnt++;
     }
   }
-  UNPROTECT(6);
-  return(ret);
 }
-
-// const int reducer_setup(void){
-//   int32_t type = 0;
-//   SEXP reducesetup;
-
-//   type = readVInt64FromFileDescriptor(CMMNC->BSTDIN);
-
-//   if(type==EVAL_SETUP_REDUCE){
-//     PROTECT(reducesetup=rexpress(REDUCESETUP));
-//     Rf_eval(Rf_lang2(Rf_install("eval"),reducesetup),R_GlobalEnv);
-//     UNPROTECT(1);
-//     LOGG(10,"Ran reduce setup\n");
-//   }
-//   else {
-//     merror("RHIPE ERROR: What command is this for reduce setup(EVAL_SETUP_REDUCE=%d): %d ?\n",EVAL_SETUP_REDUCE,type);
-//     return(1);
-//   }
-//   return(0);
-// }
 

@@ -28,7 +28,7 @@ SEXP rexpress(const char* cmd)
 
 
 SEXP message2rexp(const REXP& rexp){
-  SEXP s;
+  SEXP s = R_NilValue;
   int length;
   static int convertLogical[3]={0,1,NA_LOGICAL};
   switch(rexp.rclass()){

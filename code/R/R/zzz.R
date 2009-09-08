@@ -18,8 +18,8 @@ assign("rhipeOptions" ,list(version="0.5") ,envir=.rhipeEnv )
   .jcall(cfg,"V","setClassLoader",.jcast(.jclassLoader(),"java/lang/ClassLoader"))
   opts <- get("rhipeOptions",envir=.rhipeEnv)
   opts$hadoop.cfg <- cfg
-  opts$jarloc <- list.files(paste(system.file(package="sipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
-  opts$runner <- list.files(paste(system.file(package="sipe"),"libs",.Platform$r_arch,
+  opts$jarloc <- list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
+  opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",.Platform$r_arch,
                                   sep=.Platform$file.sep),pattern="imperious.so",full=T)
   opts$runner <- c("R","CMD", opts$runner,"--slave","--silent","--vanilla")
   opts$fsshell <- .jnew("org/godhuli/rhipe/FileUtils",cfg)

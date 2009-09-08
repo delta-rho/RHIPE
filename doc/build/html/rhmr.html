@@ -47,8 +47,13 @@
 <li><a class="reference external" href="#introduction">Introduction</a></li>
 <li><a class="reference external" href="#return-value">Return Value</a></li>
 <li><a class="reference external" href="#function">Function</a></li>
-<li><a class="reference external" href="#hadoop-mapreduce-options"><tt class="docutils literal"><span class="pre">hadoop.mapreduce</span></tt> Options</a></li>
-<li><a class="reference external" href="#custom-formats-or-writables">Custom Formats or Writables</a></li>
+<li><a class="reference external" href="#rhipe-options">RHIPE Options</a></li>
+<li><a class="reference external" href="#status-counters-and-writing-output">Status, Counters and Writing Output</a><ul>
+<li><a class="reference external" href="#status">Status</a></li>
+<li><a class="reference external" href="#counter">Counter</a></li>
+<li><a class="reference external" href="#output">Output</a></li>
+</ul>
+</li>
 <li><a class="reference external" href="#side-effect-files">Side Effect files</a></li>
 </ul>
 </li>
@@ -101,188 +106,116 @@ can be any R data structure.</p>
 </div>
 <div class="section" id="function">
 <h2>Function<a class="headerlink" href="#function" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre>1
-2
-3
-4
-5
-6</pre></td><td class="code"><div class="highlight"><pre>rhmr <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>map<span class="p">,</span>reduce<span class="p">,</span>input.folder<span class="p">,</span>configure<span class="o">=</span>list<span class="p">(</span>map<span class="o">=</span>expression<span class="p">(),</span>reduce<span class="o">=</span>expression<span class="p">()),</span>
-        close<span class="o">=</span>list<span class="p">(</span>map<span class="o">=</span>expression<span class="p">(),</span>reduce<span class="o">=</span>expression<span class="p">())</span>
-         output.folder<span class="o">=</span>&#39;&#39;<span class="p">,</span>combiner<span class="o">=</span>F<span class="p">,</span>step<span class="o">=</span>F<span class="p">,</span>
-         shared.files<span class="o">=</span>c<span class="p">(),</span>inputformat<span class="o">=</span><span class="s">&quot;TextInputFormat&quot;</span><span class="p">,</span>
-         outputformat<span class="o">=</span><span class="s">&quot;TextOutputFormat&quot;</span><span class="p">,</span>
-         hadoop.mapreduce<span class="o">=</span>list<span class="p">(),</span>verbose<span class="o">=</span>T<span class="p">,</span>libjars<span class="o">=</span>c<span class="p">())</span>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12</pre></td><td class="code"><div class="highlight"><pre>rhmr <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>map<span class="p">,</span>reduce<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>
+         combiner<span class="o">=</span>F<span class="p">,</span> <span class="c1">#CANNOT BE CHANGED</span>
+         setup<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>
+         cleanup<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>
+         ofolder<span class="o">=</span>&#39;&#39;<span class="p">,</span>
+         ifolder<span class="o">=</span>&#39;&#39;<span class="p">,</span>
+         inout<span class="o">=</span>c<span class="p">(</span><span class="s">&quot;text&quot;</span><span class="p">,</span><span class="s">&quot;text&quot;</span><span class="p">),</span>
+         mapred<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>
+         shared<span class="o">=</span>c<span class="p">(),</span>
+         jarfiles<span class="o">=</span>c<span class="p">(),</span>
+         copyFiles<span class="o">=</span>F<span class="p">,</span>
+         opts<span class="o">=</span>rhoptions<span class="p">())</span>
 </pre></div>
 </td></tr></table></div>
 <dl class="docutils">
-<dt>input.folder</dt>
-<dd>A folder on the DFS containing the files to process. Can be a vector.</dd>
-<dt>output.folder</dt>
-<dd>A folder on the DFS where output will go to.</dd>
-<dt>inputformat</dt>
-<dd>Either of <tt class="docutils literal"><span class="pre">TextInputFormat</span></tt> or <tt class="docutils literal"><span class="pre">SequenceFileInputFormat</span></tt>. Use the former
-for text files and the latter for sequence files created from within R or as
-outputs from RHIPE(e.g <tt class="docutils literal"><span class="pre">rhlapply</span></tt> or <tt class="docutils literal"><span class="pre">rhmr</span></tt>).</dd>
+<dt><tt class="docutils literal"><span class="pre">map</span></tt></dt>
+<dd>A map expression, not a function. The map expression can expect a list of keys in <tt class="docutils literal"><span class="pre">map.keys</span></tt> and list of values in <tt class="docutils literal"><span class="pre">map.values</span></tt>.</dd>
+<dt><tt class="docutils literal"><span class="pre">reduce</span></tt></dt>
+<dd><p class="first">Can be null if only a map job. If not,reduce should be an expression with three attributes</p>
+<dl class="last docutils">
+<dt><tt class="docutils literal"><span class="pre">pre</span></tt></dt>
+<dd>Called for a new key, but no values have been read. The key is present in <tt class="docutils literal"><span class="pre">reduce.key</span></tt>.</dd>
+<dt><tt class="docutils literal"><span class="pre">reduce</span></tt></dt>
+<dd>Called for reducing the incoming values. The values are in a list called <tt class="docutils literal"><span class="pre">reduce.values</span></tt></dd>
+<dt><tt class="docutils literal"><span class="pre">post</span></tt></dt>
+<dd>Called when all the values have been sent.</dd>
 </dl>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">one can&#8217;t use any sequence file, they must have been created via a RHIPE function. Custom Input formats are also possible. Download the source and look at <tt class="docutils literal"><span class="pre">code/java/RXTextInputFormat.java</span></tt></p>
-</div>
-<dl class="docutils">
-<dt>outputformat</dt>
-<dd>Either of <tt class="docutils literal"><span class="pre">TextOutputFormat</span></tt> or <tt class="docutils literal"><span class="pre">SequenceFileOutputFormat</span></tt>. In case of the former, the return value from the mapper or reducer is converted to character and written to disk. The following code is used to convert to character.</dd>
-</dl>
-<div class="highlight-r"><div class="highlight"><pre>paste<span class="p">(</span>key<span class="p">,</span>sep<span class="o">=</span>&#39;&#39;<span class="p">,</span>collapse<span class="o">=</span>field_separator<span class="p">)</span>
-</pre></div>
-</div>
-<p>Custom output formats are also possible. Download the source and look at <tt class="docutils literal"><span class="pre">code/java/RXTextOutputFormat.java</span></tt></p>
-<p>If custom formats implement their own writables, it must subclass RXWritable or use one of the writables presents in RHIPE</p>
-<dl class="docutils">
-<dt>shared.files</dt>
-<dd>same as in <tt class="docutils literal"><span class="pre">rhlapply</span></tt>, see that for documentation.</dd>
-<dt>verbose</dt>
-<dd>If T, the job progress is displayed. If false, then the job URL is displayed.</dd>
-</dl>
-<p>At any time in the configure, close, map or reduce function/expression, the variable <tt class="docutils literal"><span class="pre">mapred.task.is.map</span></tt> will be equal to TRUE if it is map task,FALSE otherwise (both strings) Also, <tt class="docutils literal"><span class="pre">mapred.iswhat</span></tt> is &#8220;mapper&#8221;, &#8220;reducer&#8221;, &#8220;combiner&#8221; in their respective environments.</p>
-<dl class="docutils">
-<dt>configure</dt>
-<dd><p class="first">A list with either one element (an expression) or two attributes &#8220;map&#8221; and &#8220;reduce&#8221; both of which must be expressions. These expressions are called in their respective environments, i.e the map expression is called during the map configure and similarly for the reduce expression. The reduce expression is called for the combiner configure method.</p>
-<p class="last">If only one list element, the expression is used for both the map and reduce</p>
 </dd>
-<dt>close</dt>
-<dd>Same as configure .</dd>
-<dt>map</dt>
-<dd>a function that takes two values key and value. Should return a list of
-lists. Each list entry must contain two elements, the first one is the key
-and second the value (they do not have to be named), e.g.</dd>
+<dt><tt class="docutils literal"><span class="pre">combiner</span></tt></dt>
+<dd>Uses a combiner if TRUE. If so, then <tt class="docutils literal"><span class="pre">reduce.values</span></tt> present in the <tt class="docutils literal"><span class="pre">reduce$reduce</span></tt> expression will be a <em>subset</em> of values.</dd>
+<dt><tt class="docutils literal"><span class="pre">setup</span></tt></dt>
+<dd>An expression that can be called to setup the environment. Called once for every task.
+It can be a list of two attributes <tt class="docutils literal"><span class="pre">map</span></tt> and <tt class="docutils literal"><span class="pre">reduce</span></tt> which are expressions to be run in the map and reduce stage. If a single expression then that is run for both map and reduce</dd>
+<dt><tt class="docutils literal"><span class="pre">cleanup</span></tt></dt>
+<dd>Same as for <tt class="docutils literal"><span class="pre">setup</span></tt>, run when all work for a task is complete.</dd>
+<dt><tt class="docutils literal"><span class="pre">ifolder</span></tt></dt>
+<dd>A folder or file to be processed. Can be a vector of strings.</dd>
+<dt><tt class="docutils literal"><span class="pre">ofolder</span></tt></dt>
+<dd>The folder to store output in. Side effects will be copied here.</dd>
+<dt><tt class="docutils literal"><span class="pre">inout`</span></tt></dt>
+<dd><dl class="first last docutils">
+<dt>A vector of input type and output type.</dt>
+<dd><dl class="first last docutils">
+<dt><tt class="docutils literal"><span class="pre">text</span></tt></dt>
+<dd>indicates Text Format. Use <tt class="docutils literal"><span class="pre">mapred.field.separator</span></tt> to seperate the elements of a vector.</dd>
 </dl>
-<div class="highlight-r"><div class="highlight"><pre>ret <span class="o">&lt;-</span> list<span class="p">()</span>
-ret<span class="p">[[</span><span class="m">1</span><span class="p">]]</span> <span class="o">&lt;-</span>  list<span class="p">(</span>key<span class="o">=</span>c<span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="m">2</span><span class="p">),</span> value<span class="o">=</span>c<span class="p">(</span>&#39;x&#39;<span class="p">,</span>&#39;b&#39;<span class="p">))</span>
-<span class="kr">return</span><span class="p">(</span>ret<span class="p">)</span>
-</pre></div>
-</div>
-<p>If any of key/value are missing the output is not collected, e.g. return NULL
-to skip this record. If the input format is a <tt class="docutils literal"><span class="pre">TextInputFormat</span></tt>, the input
-value is the entire line and the input key is probably useless to the user( it is a number indicating bytes into the file). If the input format is <tt class="docutils literal"><span class="pre">SequenceFileInputFormat</span></tt>, the key and value are taken from the sequence file.</p>
-<dl class="docutils">
-<dt>reduce</dt>
-<dd>Not needed if <tt class="docutils literal"><span class="pre">mapred.reduce.tasks</span></tt> is 0. Takes a key and a list of
-values( all values emitted from the maps that share the same map output key
-). If <tt class="docutils literal"><span class="pre">step</span></tt> is True, then not a list. Must return a list of lists each
-element of which must have two elements key and value. This collects all the
-values and sends them to function. If NULL is returned nothing is collected
-by the Hadoop collector</dd>
-<dt>step</dt>
-<dd><p class="first">If step is TRUE, then the reduce function is called every batch of values
-(the size of the batch is user configurable) corresponding to a key</p>
-<blockquote class="last">
-<ul>
-<li><p class="first">The variable <tt class="docutils literal"><span class="pre">red.status</span></tt> is equal to 1 on the first call.</p>
-</li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">red.status</span></tt> is equal to 0 for every subsequent calls including the last value</p>
-</li>
-<li><p class="first">The reducer function is called one last time with <tt class="docutils literal"><span class="pre">red.status</span></tt> equal to -1. The value is NULL.</p>
-<p>Anything returned at any of these stages is written to disk. The
-<tt class="docutils literal"><span class="pre">close</span></tt> function is called once every value for a given key has been
-processed, but returning anything has no effect. To assign to the
-global environment use the <tt class="docutils literal"><span class="pre">&lt;&lt;-</span></tt> operator. To bail out at any time
-(i.e after the third value you do not want to process anymore) and
-move onto the next key, return a list with the attribute <tt class="docutils literal"><span class="pre">stop</span></tt> and
-set it to 1.</p>
-</li>
-</ul>
-</blockquote>
 </dd>
-<dt>combiner</dt>
-<dd><p class="first">TRUE or FALSE, to use the reducer as a combiner. Using a combiner makes computation more efficient. If combiner is true, the reduce function will be called as a combiner (0 or more times, it may never be called during the combine stage even if combiner is T) .</p>
-<p>The value of <tt class="docutils literal"><span class="pre">mapred.task.is.map</span></tt> is &#8220;true&#8221; or &#8220;false&#8221; FALSE (both strings) if the combiner is being executed as part of the map stage or reduce stage respectively.</p>
-<p class="last">Whether knowledge of this is useful or not is something I&#8217;m not sure
-of. However, if combiner is TRUE , keep in mind,your reduce function must be
-able to handle inputs sent from the map or inputs sent from the reduce
-function(itself).</p>
+<dt><tt class="docutils literal"><span class="pre">sequence</span></tt></dt>
+<dd>is a sequence format. Outputs in this form /can/ be used as an input.</dd>
+<dt><tt class="docutils literal"><span class="pre">binary</span></tt></dt>
+<dd>is a simple binary format consisting of key-length, key data, value-length, value data where the lengths are integers in network order. Though <em>much</em> faster than sequence in terms of reading in data, it <em>cannot</em> be used an input to a map reduce operation.</dd>
+</dl>
 </dd>
-<dt>libjars</dt>
-<dd>If specifying a custom input/output format, the user might need to specify
-jar files here.</dd>
-<dt>hadoop.mapreduce</dt>
-<dd>set RHIPE and Hadoop options via this.</dd>
+<dt><tt class="docutils literal"><span class="pre">shared</span></tt></dt>
+<dd>A vector of files on the HDFS that will be copied to the working directory of the R program. These files can then be loaded as easily as <tt class="docutils literal"><span class="pre">load(filename)</span></tt> (removed leading path)</dd>
+<dt><tt class="docutils literal"><span class="pre">jarfiles</span></tt></dt>
+<dd>Copy jar files if required. Experimental, probably doesn&#8217;t work.</dd>
+<dt><tt class="docutils literal"><span class="pre">copyFiles</span></tt></dt>
+<dd>For side effects to be copied back to the DFS, set this to TRUE, otherwise they wont be copied.</dd>
+<dt><tt class="docutils literal"><span class="pre">mapred</span></tt></dt>
+<dd>Set Hadoop options here and RHIPE options.</dd>
 </dl>
 </div>
-<div class="section" id="hadoop-mapreduce-options">
-<h2><tt class="docutils literal"><span class="pre">hadoop.mapreduce</span></tt> Options<a class="headerlink" href="#hadoop-mapreduce-options" title="Permalink to this headline">¶</a></h2>
-<p>All the options that can be set for Hadoop can be set via
-<tt class="docutils literal"><span class="pre">hadoop.mapreduce</span></tt>. Here is a list of some options RHIPE uses</p>
+<div class="section" id="rhipe-options">
+<h2>RHIPE Options<a class="headerlink" href="#rhipe-options" title="Permalink to this headline">¶</a></h2>
 <dl class="docutils">
-<dt>rhipejob.rport</dt>
-<dd><p class="first">The port on which Rserve runs.</p>
-<p class="last"><em>default:</em> 8888</p>
-</dd>
-<dt>rhipejob.outfmt.is.text</dt>
-<dd><p class="first">1 if the output format is textual.</p>
-<p class="last"><em>default:</em> 1</p>
-</dd>
-<dt>rhipejob.textoutput.fieldsep</dt>
-<dd><p class="first">The output field seperator.</p>
-<p class="last"><em>default:</em> &#8216;&#8217;</p>
-</dd>
-<dt>rhipejob.textinput.comment</dt>
-<dd><p class="first">If the input is textual and a line begins with this, it is skipped.</p>
-<p class="last"><em>default:</em> &#8216;#&#8217;</p>
-</dd>
-<dt>rhipejob.combinerspill</dt>
-<dd><p class="first">This number of items are collected by the combiner before being sent to Rserve.</p>
-<p class="last"><em>default:</em> 100,000</p>
-</dd>
-<dt>rhipejob.tom</dt>
-<dd><p class="first">Number of map key,values collated before being sent to the mapper (on Rserve).</p>
-<p class="last"><em>default:</em> 200,000</p>
-</dd>
-<dt>rhipejob.frommap</dt>
-<dd><p class="first">Number of map output key,values to bring from Rserve in one go.</p>
-<p class="last"><em>default:</em> 200,000</p>
-</dd>
-<dt>rhipejob.tor.batch</dt>
-<dd><p class="first">Number of reduce values to be sent to Reducer (batching).</p>
-<p class="last"><em>default:</em> 200,000</p>
-</dd>
-<dt>rhipejob.copy.to.dfs</dt>
-<dd><p class="first">Copy side effect files from local to DFS?</p>
-<p class="last"><em>default:</em> 1</p>
-</dd>
-<dt>rhipejob.inputformat.keyclass</dt>
-<dd><p class="first">Provide the full Java URL to the keyclass e.g <tt class="docutils literal"><span class="pre">org.saptarshiguha.rhipe.hadoop.RXWritableText</span></tt>, when using a Custom InputFormat implement RXWritable and implement the methods.</p>
-<p class="last"><em>default:</em> The default is chosen depending on TextInputFormat or SequenceFileInputFormat.</p>
-</dd>
-<dt>rhipejob.inputformat.valueclass</dt>
-<dd><p class="first">Provide the full Java URL to the valueclass e.g <tt class="docutils literal"><span class="pre">org.saptarshiguha.rhipe.hadoop.RXWritableText</span></tt> when using a Custom InputFormat implement RXWritable and implement the methods.</p>
-<p class="last"><em>default:</em>      The default is chosen depending on TextInputFormat or SequenceFileInputFormat.</p>
-</dd>
-<dt>rhipejob.input.format.class</dt>
-<dd><p class="first">Specify yours here.</p>
-<p class="last"><em>default:</em>      As above, the default is either <tt class="docutils literal"><span class="pre">org.saptarshiguha.rhipe.hadoop.RXTextInputFormat</span></tt> or <tt class="docutils literal"><span class="pre">org.apache.hadoop.mapred.SequenceFileInputFormat</span></tt></p>
-</dd>
-<dt>rhipejob.outputformat.keyclass</dt>
-<dd><p class="first">Provide the full Java URL to the value e.g <tt class="docutils literal"><span class="pre">org.saptarshiguha.rhipe.hadoop.RXWritableText</span></tt> , also the valueclass must implement RXWritable.</p>
-<p class="last"><em>default:</em> The default is chosen depending on TextInputFormat or SequenceFileInputFormat</p>
-</dd>
-<dt>rhipejob.outputformat.valueclass</dt>
-<dd><p class="first">Provide the full Java URL to the value e.g <tt class="docutils literal"><span class="pre">org.saptarshiguha.rhipe.hadoop.RXWritableText</span></tt> , also the valueclass must implement RXWritable.</p>
-<p class="last"><em>default:</em> The default is chosen depending on TextInputFormat or SequenceFileInputFormat</p>
-</dd>
-<dt>rhipejob.output.format.class</dt>
-<dd><p class="first">Specify yours here, provide libjars if required.</p>
-<p class="last"><em>default:</em> As above, the default is either <tt class="docutils literal"><span class="pre">org.saptarshiguha.rhipe.hadoop.RXTextOutputFormat</span></tt> or <tt class="docutils literal"><span class="pre">org.apache.hadoop.mapred.SequenceFileInputFormat</span></tt></p>
-</dd>
+<dt><strong>rhipe_stream_buffer</strong></dt>
+<dd>The size of the STDIN buffer used to write data to the R process(in bytes)
+<em>default:</em> 10*1024 bytes</dd>
+<dt><strong>mapred.textoutputformat.separator</strong></dt>
+<dd>The text that seperates the key from value when <tt class="docutils literal"><span class="pre">inout[2]</span></tt> equals text.
+<em>default:</em> Tab</dd>
+<dt><strong>mapred.field.separator</strong></dt>
+<dd>The text that seperates fields when <tt class="docutils literal"><span class="pre">inout[2]</span></tt> equals text.
+<em>default:</em> Space</dd>
+<dt><strong>rhipe_reduce_buff_size</strong></dt>
+<dd>The maximum length of <tt class="docutils literal"><span class="pre">reduce.values</span></tt>
+<em>default:</em> 10,000</dd>
+<dt><strong>rhipe_map_buff_size</strong></dt>
+<dd>The maximum length of <tt class="docutils literal"><span class="pre">map.values</span></tt> (and <tt class="docutils literal"><span class="pre">map.keys</span></tt>)
+<em>default:</em> 10,000</dd>
 </dl>
 </div>
-<div class="section" id="custom-formats-or-writables">
-<h2>Custom Formats or Writables<a class="headerlink" href="#custom-formats-or-writables" title="Permalink to this headline">¶</a></h2>
-<p>You can specify your own Input/Output Formats and Writables. See the source in
-<tt class="docutils literal"><span class="pre">code/java/</span></tt> for a <tt class="docutils literal"><span class="pre">RXTextInputFormat</span></tt> which implements
-<tt class="docutils literal"><span class="pre">TextInputFormat</span></tt>. The reason this was re implemented is because RHIPE
-requires that all Writables (for the Key and Value) must implement RXWritable or
-use one of the Writables in RHIPE e.g RXWritableLong, RXWritableText,
-RXWritableDouble,RXWritableRAW</p>
+<div class="section" id="status-counters-and-writing-output">
+<h2>Status, Counters and Writing Output<a class="headerlink" href="#status-counters-and-writing-output" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="status">
+<h3>Status<a class="headerlink" href="#status" title="Permalink to this headline">¶</a></h3>
+<p>To update the status use <tt class="docutils literal"><span class="pre">rhstatus</span></tt> which takes a single string e.g <tt class="docutils literal"><span class="pre">rhstatus(&quot;Nice&quot;)</span></tt>
+This will also indicate progress.</p>
+</div>
+<div class="section" id="counter">
+<h3>Counter<a class="headerlink" href="#counter" title="Permalink to this headline">¶</a></h3>
+<p>To update the counter C in the group G with a number N, user <tt class="docutils literal"><span class="pre">rhcounter(G,C,N)</span></tt>
+where C and G are strings and N is a number.</p>
+</div>
+<div class="section" id="output">
+<h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
+<p>To output data use <tt class="docutils literal"><span class="pre">rhcollect(KEY,VALUE)</span></tt> where KEY and VALUE are R objects that can be serialized by <tt class="docutils literal"><span class="pre">rhsz</span></tt> (see the misc page). If one needs to send across complex R objects e.g the KEY is a function, do something like <tt class="docutils literal"><span class="pre">rhcollect(serialize(KEY,NULL),VALUE)</span></tt></p>
+</div>
 </div>
 <div class="section" id="side-effect-files">
 <h2>Side Effect files<a class="headerlink" href="#side-effect-files" title="Permalink to this headline">¶</a></h2>

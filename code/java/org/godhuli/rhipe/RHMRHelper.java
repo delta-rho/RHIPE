@@ -1,13 +1,11 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Copyright 2009 Saptarshi Guha
+ *   
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,6 +55,10 @@ public class RHMRHelper {
 	    }
 	}
     }
+    int exitval(){
+	return sim.exitValue();
+    }
+
     void addJobConfToEnvironment(Configuration conf, Properties env) {
 	Iterator it = conf.iterator();
 	while (it.hasNext()) {
@@ -80,7 +82,8 @@ public class RHMRHelper {
 	    String prog = argvSplit[0];
 	    Environment childEnv = (Environment) env().clone();
 	    addJobConfToEnvironment(cfg, childEnv);
-	    childEnv.put( "TMPDIR", System.getProperty("java.io.tmpdir"));
+	    childEnv.put( "TMPDIR", 
+			  System.getProperty("java.io.tmpdir"));
 	    // Start the process
 	    ProcessBuilder builder = new ProcessBuilder(argvSplit);
 	    builder.environment().putAll(childEnv.toMap());
@@ -204,10 +207,15 @@ public class RHMRHelper {
 
     public void writeCMD(int s) throws IOException{
 	WritableUtils.writeVInt(clientOut_,s);
+	// clientOut_.writeInt(s);
     }
 	
     public void write(RHBytesWritable c) throws IOException{
 	c.write(clientOut_);
+// //	System.out.println(c.getBytes());
+// 	WritableUtils.writeVInt(clientOut_,c.getLength());
+// 	byte[] b = c.getBytes();
+// 	clientOut_.write(b,0,b.length);
     }
 
 	

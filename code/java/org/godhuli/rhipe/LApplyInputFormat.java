@@ -1,15 +1,11 @@
 /**
- * Copyright 2009 The Apache Software Foundation
+ * Copyright 2009 Saptarshi Guha
+ *   
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.godhuli.rhipe;
 import java.io.*;
 import java.util.*;
@@ -61,7 +58,7 @@ public class LApplyInputFormat extends
 	    return this.pos;
 	}
 	public float getProgress() throws IOException {
-	    return this.pos / (float) this.split.getLength();
+	    return ((float) this.pos) / (float) this.split.getLength();
 	}
 
 	public boolean nextKeyValue()
@@ -88,16 +85,20 @@ public class LApplyInputFormat extends
 	    getInt("rhipe_lapply_lengthofinput",0);
 	List<InputSplit> splits = new ArrayList<InputSplit>();
 	int numSplits  = job.getConfiguration().getInt("mapred.map.tasks",0);
-	int chunkSize ;
+	int chunkSize =0;
+	// System.out.println("a)Number of splits:"+numSplits+" chunkSize="+chunkSize);
+	// System.out.println("n="+n);
+
 	if(n <= numSplits){
 	    numSplits = n;
 	    chunkSize = 1;
 	}else{
 	    chunkSize = n / numSplits;
 	}
-// 	System.out.println("Number of splits:"+numSplits+" chunkSize="+chunkSize);
+	// System.out.println("b)Number of splits:"+numSplits+" chunkSize="+chunkSize);
 
 	for (int i = 0; i < numSplits; i++) {
+
 	    LApplyInputSplit split;
 	    if ((i + 1) == numSplits)
 		split = new LApplyInputSplit(i * chunkSize, n);
@@ -105,6 +106,7 @@ public class LApplyInputFormat extends
 		split = new LApplyInputSplit(i * chunkSize, (i * chunkSize) + chunkSize);
 	    splits.add(split);
 	}
+	// System.out.println("Generated splits");
 	return splits;
     }
 

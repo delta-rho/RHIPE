@@ -9,17 +9,13 @@
 \BOOKMARK [1][-]{section.3.1}{Introduction}{chapter.3}
 \BOOKMARK [1][-]{section.3.2}{Return Value}{chapter.3}
 \BOOKMARK [1][-]{section.3.3}{Function}{chapter.3}
-\BOOKMARK [1][-]{section.3.4}{hadoop.mapreduce Options}{chapter.3}
-\BOOKMARK [1][-]{section.3.5}{Custom Formats or Writables}{chapter.3}
+\BOOKMARK [1][-]{section.3.4}{RHIPE Options}{chapter.3}
+\BOOKMARK [1][-]{section.3.5}{Status, Counters and Writing Output}{chapter.3}
 \BOOKMARK [1][-]{section.3.6}{Side Effect files}{chapter.3}
 \BOOKMARK [0][-]{chapter.4}{Miscellaneous Commands}{}
 \BOOKMARK [1][-]{section.4.1}{Introduction}{chapter.4}
-\BOOKMARK [1][-]{section.4.2}{HDFS Related}{chapter.4}
-\BOOKMARK [1][-]{section.4.3}{Hadoop Job Related}{chapter.4}
-\BOOKMARK [1][-]{section.4.4}{Saving R Datasets}{chapter.4}
-\BOOKMARK [1][-]{section.4.5}{Creating Sequence FIles}{chapter.4}
-\BOOKMARK [1][-]{section.4.6}{Low Level Functions}{chapter.4}
-\BOOKMARK [1][-]{section.4.7}{Example}{chapter.4}
+\BOOKMARK [1][-]{section.4.2}{Serialization}{chapter.4}
+\BOOKMARK [1][-]{section.4.3}{HDFS Related}{chapter.4}
 \BOOKMARK [0][-]{chapter.5}{Using RHIPE on EC2}{}
 \BOOKMARK [1][-]{section.5.1}{Introduction}{chapter.5}
 \BOOKMARK [1][-]{section.5.2}{Usage}{chapter.5}

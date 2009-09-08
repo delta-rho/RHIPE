@@ -6,41 +6,40 @@ Setting up RHIPE
 Requirements
 ------------
 
-RHIPE requires Java (JDK 1.6, checked only with Sun's Java), and R.
-Currently, RHIPE only works on Linux, though one day it might also
-work on Windows too.
+1. *Protobuffers*
+
+   RHIPE uses Google's Protobuf library for serialization. This(the C/C++
+   libraries) must be installed on *all* machines (master/workers). Get
+   Protobuffers from http://code.google.com/p/protobuf/. RHIPE already has the
+   protobuf jar file inside it.
+
+   Non Standard Locations
+		If installing protobuf to a non standard location, update the
+		PKG_CONFIG_PATH variable, e.g 
+  ::
+
+	export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CUSTROOT/lib/pkgconfig/
+
+2. *R* , tested on 2.8
+
+3. *rJava* The R package needs rJava.
+
+
+Tested on RHEL Linux, though *may* work on Windows
+
 
 Installation
 ------------
-
-
-1. Install Java and R
-
-
-2. Install rJava, Simon Urbanek's R package to allow R to call Java libraries.
-
-3. Download the current version of RHIPE, untar and run
+On every machine
 
 ::
+	tar zxvf rhipe.VERSION.tar.gz
+	R CMD INSTALL rhipe.VERSION
 
-	make R
 
-This will build and install the R RHIPE package. There is a JAR file
-present in the ``lib/`` folder, but should you wish to build the RHIPE
-JAR file, set the environment variables ``HADOOP`` should point to the
-Hadoop distribution folder. To build the JAR file, run 
+To load it
 
 ::
+	
+	library(Rhipe)
 
-	make java
-
-To build the docs, install `sphynx <http://sphinx.pocoo.org/>`_
-
-4. Given that Hadoop is running, typing 
-
-::
-
-	[bash] R
-	>> library(rhipe)
-
-should get you started.  

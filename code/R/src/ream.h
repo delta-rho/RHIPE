@@ -105,6 +105,7 @@ ssize_t writen(int , const void *, int );
 /******************
  ** Map & Reduce
  *****************/
+const int mapper_run2(void);
 const int mapper_run(void);
 const int mapper_setup(void);
 const int reducer_run(void);
@@ -122,33 +123,18 @@ void logg(int , const char *, ...);
 /******************
  ** Counter/Collect
  *****************/
-void counter(SEXP );
-void status(SEXP );
-void collect(SEXP ,SEXP );
-SEXP readFromHadoop(uint32_t);
-static R_CallMethodDef callMethods [] = {
-  {"rh_counter",(DL_FUNC) counter,1},
-  {"rh_status",(DL_FUNC) status,1},
-  {"rh_collect",(DL_FUNC) collect,2},
-  {NULL, NULL, 0}
-};
+SEXP counter(SEXP );
+SEXP status(SEXP );
+SEXP collect(SEXP ,SEXP );
+SEXP readFromHadoop(const uint32_t,int* );
+SEXP readFromMem(void * ,uint32_t );
 
-/*******************
- ** CONSTANTS
- ******************/
-static uint8_t ERROR_MSG = 0x00;
-static uint8_t PRINT_MSG = 0x01;
-static uint8_t SET_STATUS = 0x02;
-static uint8_t SET_COUNTER = 0x03;
+extern  R_CallMethodDef callMethods[];
 
-const static int32_t  EVAL_SETUP_MAP =   -1;
-const static int32_t  EVAL_CLEANUP_MAP = -2;
 
-const static int32_t EVAL_SETUP_REDUCE = -1;
-const static int32_t EVAL_REDUCE_PREKEY = -2;
-const static int32_t EVAL_REDUCE_POSTKEY = -3;
-const static int32_t EVAL_REDUCE_THEKEY = -4;
-const static int32_t EVAL_CLEANUP_REDUCE = -5;
+
+
+
 
 
 

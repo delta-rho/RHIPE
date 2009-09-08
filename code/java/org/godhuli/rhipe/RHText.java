@@ -49,16 +49,14 @@ public class RHText extends RHBytesWritable{
 	
 	REXP.Builder b = REXP.newBuilder(template);
 	b.addStringValue(srb.build());
-	rexp=b.build();
+	REXP rexp0=b.build();
+	super.set(rexp0.toByteArray());
     }
 
-    public void write(DataOutput out) throws IOException{
-	super.set(rexp.toByteArray());
-	super.write(out);
-    }
+
     public void readFields(DataInput in) throws IOException{
 	super.readFields(in);
-	rexp = REXP.parseFrom(bytes);
-	textcontainer.set(rexp.getStringValue(0).getStrval());
+	REXP rexp0 = REXP.parseFrom(bytes);
+	textcontainer.set(rexp0.getStringValue(0).getStrval());
     }
 }

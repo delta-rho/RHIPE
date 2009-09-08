@@ -10,6 +10,18 @@
 ## 7. rhread(src=,pattern,n=) src can be a file or list of files, n is max, get list from rhls
 ## 8. rhlapply == rhmr(infile=tempfile,outfile=tempfile, ... )
 
+rhreadText <- function(file,sep="\t"){
+  d=read.table(file,header=F,sep="\t",stringsAsFactors=F,colClasses='character')
+  apply(d,1,function(r) {
+    f=lapply(strsplit(r," "),function(rr) as.raw(as.numeric(rr)))
+    l=lapply(f,rhuz);names(l)=c("key","value")
+    l
+  })}
+
+rhreadBin <- function(file,maxnum=-1, readbuf=0){
+  .Call("readBinaryFile",as.integer(maxnum),as.integer(readbuf))
+}
+
 rhsz <- function(r) .Call("serializeUsingPB",r)
 
 rhuz <- function(r) .Call("unserializeUsingPB",r)
@@ -73,11 +85,19 @@ rhdel <- function(dir){
 }
 
 
-rhwrite <- function(lo,f,n=length(lo),...){
+rhwrite <- function(lo,f,n=NULL,...){
   if(!is.list(lo))
     stop("lo must be a list")
+  .jcheck()
   namv <- names(lo)
   cfg <- rhoptions()$hadoop.cfg
+
+  if(is.null(n))
+    n <- as.numeric(.jcall(cfg,"S","get","mapred.map.tasks"))*
+      as.numeric(.jcall(cfg,"S","get", "mapred.tasktracker.map.tasks.maximum"))
+  if(n==0) n=10 ##why should it be zero????
+  .jcheck()
+  
   if(is.null(namv))
     namv=1:length(lo)
   splits.id <- split(1:length(lo), sapply(1:length(lo), "%%",n))
@@ -106,7 +126,8 @@ rhwrite <- function(lo,f,n=length(lo),...){
   }
 }
     
-rhread <- function(files,max=NA,batch=100,length=1000){
+rhread <- function(files,max=NA,batch=100,length=1000,verbose=F){
+  ## browser()
   ## reads upto max - 1
   ## batch is how many to get from java side
   ## length is initial size of vector
@@ -132,28 +153,32 @@ rhread <- function(files,max=NA,batch=100,length=1000){
       rawkv <- .jcall(reader,"[B","getKVByteArray");
       off <- 1
       for(k in 1:numread){
-        vintinfo <- .C("readVInt_from_R",rawkv[ off ], res=integer(2))$res
+        ## vintinfo <- .C("readVInt_from_R",rawkv[ off ], res=integer(2))$res
+        vintinfo <- c(4,readBin( rawkv[ off:(off+3)], "int",n=1,endian="big"))
         off <- off+vintinfo[1]
         keydata <- rawkv[  off:(off+vintinfo[2]) ]
         kee <- rhuz(keydata)
         off <- off+vintinfo[2]
-        nms[[ count+k ]] <- kee
-        
-        vintinfo <- .C("readVInt_from_R",rawkv[ off ], res=integer(2))$res
+        ## nms[[ count+k ]] <- kee
+        kee0=kee
+        ## vintinfo <- .C("readVInt_from_R",rawkv[ off ], res=integer(2))$res
+        vintinfo <- c(4,readBin( rawkv[ off:(off+3)], "int",n=1,endian="big"))
+
         off <- off+vintinfo[1]
         keydata <- rawkv[  off:(off+vintinfo[2]) ]
         kee <- rhuz(keydata)
         off <- off+vintinfo[2]
-        j[[   count+k ]] <- kee
+        j[[   count+k ]] <- list(key=kee0,value=kee)
         
       }
       count <- count+numread
+      if(verbose) cat("Read ",count," items\n")
     }
     .jcheck();.jcall(reader,"V","close");.jcheck()
     if(fin) break;
   }
   j <- j[1:count];
-  names(j) <- nms[1:count]
+  ## names(j) <- nms[1:count]
   j
 }
 

@@ -23,33 +23,16 @@ rhmr <- function(map,reduce=NULL,
     stop("'map' must be an expression")
   reduces <- T
   lines$rhipe_reduce_justcollect <- "FALSE"
-  lines$rhipe_reduce <- rawToChar(serialize(expression(),NULL,ascii=T))
-  lines$rhipe_reduce_prekey <- rawToChar(serialize(expression(),NULL,ascii=T))
-  lines$rhipe_reduce_postkey <- rawToChar(serialize(expression(),NULL,ascii=T))
+  ## lines$rhipe_reduce <- rawToChar(serialize(expression(),NULL,ascii=T))
+  ## lines$rhipe_reduce_prekey <- rawToChar(serialize(expression(),NULL,ascii=T))
+  ## lines$rhipe_reduce_postkey <- rawToChar(serialize(expression(),NULL,ascii=T))
   
   if(is.null(reduce)){
     reduces <- FALSE
   }
-  if(is.expression(reduce)){
-    lines$rhipe_reduce <- rawToChar(serialize(reduce,NULL,ascii=T))
-  }
-  if(is.list(reduce)){
-    if(!is.null(reduce$pre) && is.expression(reduce$pre)){
-      lines$rhipe_reduce_prekey <- rawToChar(serialize(reduce$pre,NULL,ascii=T))
-    }else{
-      lines$rhipe_reduce_prekey <- rawToChar(serialize(expression(),NULL,ascii=T))
-    }
-    if(!is.null(reduce$post) && is.expression(reduce$post)){
-      lines$rhipe_reduce_postkey <- rawToChar(serialize(reduce$post,NULL,ascii=T))
-    }else{
-      lines$rhipe_reduce_postkey <- rawToChar(serialize(expression(),NULL,ascii=T))
-    }
-    if(!is.null(reduce$reduce) && is.expression(reduce$reduce)){
-      lines$rhipe_reduce <- rawToChar(serialize(reduce$reduce,NULL,ascii=T))
-    }else{
-      lines$rhipe_reduce <- rawToChar(serialize(expression(),NULL,ascii=T))
-    }
-  }
+  lines$rhipe_reduce <- rawToChar(serialize(reduce$reduce,NULL,ascii=T))
+  lines$rhipe_reduce_prekey <- rawToChar(serialize(reduce$pre,NULL,ascii=T))
+  lines$rhipe_reduce_postkey <- rawToChar(serialize(reduce$post,NULL,ascii=T))
 
   
   if(combiner && is.null(reduce))
@@ -131,6 +114,7 @@ rhmr <- function(map,reduce=NULL,
   switch(inout[1],
          'text' = {
            lines$rhipe_inputformat_class <- 'org.godhuli.rhipe.RXTextInputFormat'
+           ## 'org.godhuli.rhipe.RXTextInputFormat'
            lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHNumeric'
            lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHText'
          },
@@ -145,34 +129,53 @@ rhmr <- function(map,reduce=NULL,
              'org.godhuli.rhipe.LApplyInputFormat'
            lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHNumeric'
            lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHNumeric'
+         },
+         'binary'={
+           stop("'binary' cannot be used as input format")
          })
-
          
   switch(inout[2],
          'text' = {
-           lines$rhipe_outputformat_class <- 'org.godhuli.rhipe.RXTextOutputFormat'
+           lines$rhipe_outputformat_class <-
+             ## 'org.godhuli.rhipe.RXTextOutputFormat'
+              'org.apache.hadoop.mapreduce.lib.output.TextOutputFormat'
+##'org.apache.hadoop.mapred.TextOutputFormat'
            lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
            lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
          },
          'sequence' = {
            lines$rhipe_outputformat_class <-
-             'org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat'
+##'org.apache.hadoop.mapred.SequenceFileOutputFormat'
+              'org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat'
+           lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
+           lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
+         },
+         'binary' = {
+           lines$rhipe_outputformat_class <-'org.godhuli.rhipe.RXBinaryOutputFormat'
            lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
            lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
          })
-
+  
+  lines$rhipe_reduce_buff_size <- 10000
+  lines$rhipe_map_buff_size <- 10000
   lines$rhipe_job_verbose <- "TRUE"
   lines$rhipe_stream_buffer <- 10*1024
   ##If user does not provide
   ##a reduce function,set reduce to NULL
   ##however can be over ridden by
   ##mared.reduce.tasks
-  if(!reduces) lines$mapred.reduce.tasks <- '0'
   
   lines$rhipe_copy_file <- paste(copyFiles)
   if(!is.null(mapred$mapred.job.tracker) &&
      mapred$mapred.job.tracker=='local')
     lines$rhipe_copy_file <- 'FALSE'
+
+  if(is.null(reduce)){
+    lines$rhipe_reduce_justcollect <- TRUE
+    if(!is.null(lines$mapred.reduce.tasks))
+      lines$mapred.reduce.tasks <- 0
+  }
+  lines$mapred.job.reuse.jvm.num.tasks <- -1
   for(n in names(mapred)) lines[[n]] <- mapred[[n]]
   
   lines$rhipe_combiner <- paste(combiner)
@@ -192,7 +195,10 @@ rhmr <- function(map,reduce=NULL,
     
   close(conffile)
   h <- list(lines,temp=conf)
-  class(h)="rhmr"
+  if(!is.null(mapred$class))
+    class(h)=mapred$class
+  else
+    class(h)="rhmr"
   h
 }
 
@@ -210,7 +216,8 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
     stop("cannot provide ll and ifolder at the same time, either or")
   
   if(!ok) stop("Must provide either number of iterations OR a list OR an input folder")
-  
+  if(is.numeric(ll) && ll<=0)
+    stop("if ll is numeric, must be >0")
 
   ##We create an expression that unserializes
   ##the user fun and installs it under the name userFUN...
@@ -219,15 +226,16 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
   ##      rhcollect(map.key,...result...)
   ##If the user provides a setup
   ##Insert the deserialization as the first instruction
-  usercode <- rawToChar(serialize(fun,NULL,ascii=TRUE))
+  ## usercode <- rawToChar(serialize(fun,NULL,ascii=TRUE))
   usecodeText <-
-    parse(text=paste("userFUN... <-","unserialize(charToRaw('",usercode,"'))",sep=""))
+    parse(text=paste("userFUN...=",paste(deparse(fun),collapse="\n")))
   
   if(!is.null(setup))
     setup <- append(usecodeText,setup)
   else
     setup <- usecodeText
-  map.exp <- expression({ ..r..<-userFUN...(map.value); rhcollect(map.key,..r..)})
+
+  map.exp <- expression({ for(.id. in 1:length(map.values)) { ..r..<-userFUN...(map.values[[.id.]]); rhcollect(map.keys[[.id.]],..r..) }})
 
   if(ofolder==""){
     ##One hopes this is unique
@@ -247,13 +255,18 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
     del.i.file <- T
   }
   if(is.numeric(ll)){
-      mapred$rhipe_lapply_lengthofinput <- ll
+      mapred$rhipe_lapply_lengthofinput <- as.integer(ll)
     }
   mapred$rhipe_reduce_justcollect <- "TRUE"
     
   if(ifolder!="") inout[1] <- "sequence"
+  if(inout[2]=='lapply')
+    stop('inout[2] cannot be lapply')
+
+  mapred$class="rhlapply"
+  
   z <- rhmr(map=map.exp,reduce=NULL,ifolder=ifolder,combiner=F,
-            setup=setup,ofolder=tempo.file,inout=inout,mapred=mapred,...)
+            setup=list(map=setup,reduce=expression()),ofolder=tempo.file,copyFiles=T,inout=inout,mapred=mapred,...)
 
   h=list(z,function(){
     retdata <- NULL
@@ -275,7 +288,7 @@ rhex <- function (conf)
   exitf <- NULL
   ## browser()
   if(class(conf)=="rhlapply") {
-    zonf <- conf[[1]]
+    zonf <- conf[[1]]$temp
     exitf <- conf[[2]]
   }else if(class(conf)=='rhmr'){
     zonf <- conf$temp

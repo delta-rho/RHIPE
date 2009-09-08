@@ -32,24 +32,21 @@ public class RHNumeric extends RHBytesWritable {
     public void finis(){
 	REXP.Builder b = REXP.newBuilder(template); 
 	b.addRealValue((double)l);
-	rexp=b.build();
+	REXP rexp0=b.build();
+	super.set(rexp0.toByteArray());
     }
 
     public void setAndFinis(long l){
 	this.l = l;
 	REXP.Builder b = REXP.newBuilder(template); 
 	b.addRealValue((double)l);
-	rexp=b.build();
-    }
-
-    public void write(DataOutput out) throws IOException{
-	super.set(rexp.toByteArray());
-	super.write(out);
+	REXP rexp0=b.build();
+	super.set(rexp0.toByteArray());
     }
 
     public void readFields(DataInput in) throws IOException{
 	super.readFields(in);
-	rexp = REXP.parseFrom(bytes);
-	this.l = (long)rexp.getRealValue(0);
+	REXP rexp0 = REXP.parseFrom(bytes);
+	this.l = (long)rexp0.getRealValue(0);
     }
 }

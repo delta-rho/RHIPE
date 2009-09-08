@@ -1,4 +1,5 @@
 #include "ream.h"
+#include <netinet/in.h>
 
 
 const int i___ = 1;
@@ -25,7 +26,7 @@ int setup_stream(Streams *s){
   }
   char *buffsizekb;
   int buffs=1024*10;
-  if (buffsizekb=getenv("rhipe_stream_buffer"))
+  if ((buffsizekb=getenv("rhipe_stream_buffer")))
     buffs = (int)strtol(buffsizekb,NULL,10);
 
 
@@ -35,6 +36,7 @@ int setup_stream(Streams *s){
   s->NBSTDOUT = fileno(s->BSTDOUT);
   s->NBSTDIN =  fileno(s->BSTDIN);
   s->NBSTDERR = fileno(s->BSTDERR);
+  return(0);
 }
 
 
@@ -108,9 +110,9 @@ uint32_t decodeVIntSize(const int8_t value) {
 // }
 
 void writeVInt64ToFileDescriptor( int64_t  i , FILE* fd) {
-  int8_t x ;
+  char x ;
   if (i >= -112 && i <= 127) {
-    x=(int8_t)i;
+    x=(char)i;
     fwrite(&x,sizeof(x),1,fd);
     return;
   }
@@ -124,16 +126,24 @@ void writeVInt64ToFileDescriptor( int64_t  i , FILE* fd) {
     tmp = tmp >> 8;
     len--;
   }
-  x=(int8_t)len;
+  x=(char)len;
+  // mmessage("B=%x %d",x,x);
   fwrite(&x,sizeof(x),1,fd);
   len = (len < -120) ? -(len + 120) : -(len + 112);
-  int idx;
+  int32_t idx;
   for (idx = len; idx != 0; idx--) {
     int32_t shiftbits = (idx - 1) * 8;
-    int64_t mask = 0xFFL << shiftbits;
-    x = (int8_t)((i & mask) >> shiftbits);
+    int64_t mask = 0xFFLL << shiftbits;
+    x = (char)((i & mask) >> shiftbits);
+    // mmessage("B=%x",x);
     fwrite(&x,sizeof(x),1,fd);
   }
+  
+
+  // int32_t x = (int32_t) i, tonetwork;
+  // tonetwork = reverseUInt(x);
+  // fwrite(&tonetwork,sizeof(int32_t),1,fd);
+  
 }
 
 // int64_t readVInt64FromFileDescriptor(int fd){
@@ -159,7 +169,9 @@ void writeVInt64ToFileDescriptor( int64_t  i , FILE* fd) {
 
 int64_t readVInt64FromFileDescriptor(FILE* fd){
   uint8_t  firstByte = 0 ;
-  fread(&firstByte,sizeof(uint8_t),1,fd);
+  if(fread(&firstByte,sizeof(uint8_t),1,fd)<=0) 
+    return(0);
+
   int len = decodeVIntSize((int8_t)firstByte);
   if (len == 1) {
     return (int8_t)firstByte;
@@ -176,6 +188,10 @@ int64_t readVInt64FromFileDescriptor(FILE* fd){
     i = i | (b & 0xFF);
   }
   return  (isNegativeVInt(firstByte) ? (i ^ -1L) : i);
+  // int32_t r,fromnetwork;
+  // fread(&r,sizeof(uint32_t),1,fd);
+  // fromnetwork = reverseUInt(r);
+  // return(fromnetwork);
 }
 
 /*****************************

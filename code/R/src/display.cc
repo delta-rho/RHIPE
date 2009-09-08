@@ -5,10 +5,15 @@
 
 #import "iostream"
 #define PSIZE 4096
+static uint8_t ERROR_MSG = 0x00;
+static uint8_t PRINT_MSG = 0x01;
+static uint8_t SET_STATUS = 0x02;
+static uint8_t SET_COUNTER = 0x03;
+
 
 using namespace std;
 void sendToHadoop(SEXP);
-int BSIZE= 32768;
+uint32_t BSIZE= 32768;
 class OutputInfo{
 public:
   REXP *rxp;
@@ -90,19 +95,20 @@ void mmessage(char *fmt, ...)
   Re_WriteConsoleEx(errmsg,strlen(errmsg),0);
 }
 
-void counter(SEXP grouppattern){
+SEXP counter(SEXP grouppattern){
   char *group = (char*)CHAR(STRING_ELT( grouppattern , 0));
   fwrite(&SET_COUNTER,sizeof(uint8_t),1,CMMNC->BSTDERR);
   uint32_t stle = strlen(group);
   uint32_t len_rev =  reverseUInt(stle);
   fwrite(&len_rev,sizeof(uint32_t),1,CMMNC->BSTDERR);
   fwrite(group,stle,1,CMMNC->BSTDERR);
+  return(R_NilValue);
 }
 
-void status(SEXP mess){
+SEXP status(SEXP mess){
   if(TYPEOF(mess)!=STRSXP){
     Rf_error("Must give a string");
-    return;
+    return(R_NilValue);
   }
   char *status = (char*)CHAR(STRING_ELT( mess , 0));
   fwrite(&SET_STATUS,sizeof(uint8_t),1,CMMNC->BSTDERR);
@@ -110,14 +116,20 @@ void status(SEXP mess){
   uint32_t len_rev =  reverseUInt(stle);
   fwrite(&len_rev,sizeof(uint32_t),1,CMMNC->BSTDERR);
   fwrite(status,stle,1,CMMNC->BSTDERR);
+  return(R_NilValue);
+
 }
 
-void collect(SEXP k,SEXP v){
+SEXP collect(SEXP k,SEXP v){
   // So not thread safe
   sendToHadoop(k);
   sendToHadoop(v);
-
+  return(R_NilValue);
 }
+
+
+
+
 
 void sendToHadoop(SEXP k){
 
@@ -126,16 +138,17 @@ void sendToHadoop(SEXP k){
   rexp2message(oiinfo->rxp,k);
   size = oiinfo->rxp->ByteSize();
   writeVInt64ToFileDescriptor( size , CMMNC->BSTDOUT);
-  if (size < PSIZE){
+  // if (size < PSIZE){
     oiinfo->rxp_s->clear();
     oiinfo->rxp->SerializeToString(oiinfo->rxp_s);
     fwrite( oiinfo->rxp_s->data(), size,1,CMMNC->BSTDOUT);
-  }else{
-    oiinfo->rxp->SerializeToFileDescriptor(fileno(CMMNC->BSTDOUT));
-  }
+  // }else{
+  //   oiinfo->rxp->SerializeToFileDescriptor(fileno(CMMNC->BSTDOUT));
+  // }
+  // fflush(CMMNC->BSTDOUT);
 }
 
-SEXP readFromHadoop(uint32_t nbytes){
+SEXP readFromHadoop(const uint32_t nbytes,int *err){
   SEXP r = R_NilValue;
   oiinfo->rxp->Clear();
   if (nbytes > BSIZE)
@@ -147,8 +160,32 @@ SEXP readFromHadoop(uint32_t nbytes){
       }
       BSIZE=nbytes+1024;
     }
-  fread(oiinfo->inputbuffer,nbytes,1,CMMNC->BSTDIN);
+  *err=0;
+  if(fread(oiinfo->inputbuffer,nbytes,1,CMMNC->BSTDIN)<=0){
+    *err=1;
+    return(R_NilValue);
+  }
   if (oiinfo->rxp->ParseFromArray(oiinfo->inputbuffer,nbytes)){
+    PROTECT(r = message2rexp(*(oiinfo->rxp)));
+    UNPROTECT(1);
+  }
+  return(r);
+}
+
+
+SEXP readFromMem(void * array,uint32_t nbytes){
+  SEXP r = R_NilValue;
+  oiinfo->rxp->Clear();
+  if (nbytes > BSIZE)
+    {
+      oiinfo->inputbuffer=realloc(oiinfo->inputbuffer,nbytes+1024);
+      if (!oiinfo->inputbuffer){
+	merror("Memory Exhausted, could not realloc buffer in readFromHadoop\n");
+	return(R_NilValue);
+      }
+      BSIZE=nbytes+1024;
+    }
+  if (oiinfo->rxp->ParseFromArray(array,nbytes)){
     PROTECT(r = message2rexp(*(oiinfo->rxp)));
     UNPROTECT(1);
   }

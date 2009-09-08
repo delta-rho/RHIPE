@@ -86,36 +86,43 @@
 <h1>Setting up RHIPE<a class="headerlink" href="#setting-up-rhipe" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
-<p>RHIPE requires Java (JDK 1.6, checked only with Sun&#8217;s Java), and R.
-Currently, RHIPE only works on Linux, though one day it might also
-work on Windows too.</p>
+<ol class="arabic">
+<li><p class="first"><em>Protobuffers</em></p>
+<p>RHIPE uses Google&#8217;s Protobuf library for serialization. This(the C/C++
+libraries) must be installed on <em>all</em> machines (master/workers). Get
+Protobuffers from <a class="reference external" href="http://code.google.com/p/protobuf/">http://code.google.com/p/protobuf/</a>. RHIPE already has the
+protobuf jar file inside it.</p>
+<dl class="docutils">
+<dt>Non Standard Locations</dt>
+<dd><p class="first last">If installing protobuf to a non standard location, update the
+PKG_CONFIG_PATH variable, e.g</p>
+</dd>
+</dl>
+</li>
+</ol>
+<blockquote>
+<div class="highlight-r"><div class="highlight"><pre>export PKG_CONFIG_PATH<span class="o">=</span><span class="p">$</span>PKG_CONFIG_PATH:<span class="p">$</span>CUSTROOT<span class="o">/</span>lib<span class="o">/</span>pkgconfig<span class="o">/</span>
+</pre></div>
+</div>
+</blockquote>
+<ol class="arabic simple" start="2">
+<li><em>R</em> , tested on 2.8</li>
+<li><em>rJava</em> The R package needs rJava.</li>
+</ol>
+<p>Tested on RHEL Linux, though <em>may</em> work on Windows</p>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<ol class="arabic simple">
-<li>Install Java and R</li>
-<li>Install rJava, Simon Urbanek&#8217;s R package to allow R to call Java libraries.</li>
-<li>Download the current version of RHIPE, untar and run</li>
-</ol>
-<div class="highlight-r"><div class="highlight"><pre>make R
+<p>On every machine</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd>tar zxvf rhipe.VERSION.tar.gz
+R CMD INSTALL rhipe.VERSION</dd>
+</dl>
+<p>To load it</p>
+<div class="highlight-r"><div class="highlight"><pre>library<span class="p">(</span>Rhipe<span class="p">)</span>
 </pre></div>
 </div>
-<p>This will build and install the R RHIPE package. There is a JAR file
-present in the <tt class="docutils literal"><span class="pre">lib/</span></tt> folder, but should you wish to build the RHIPE
-JAR file, set the environment variables <tt class="docutils literal"><span class="pre">HADOOP</span></tt> should point to the
-Hadoop distribution folder. To build the JAR file, run</p>
-<div class="highlight-r"><div class="highlight"><pre>make java
-</pre></div>
-</div>
-<p>To build the docs, install <a class="reference external" href="http://sphinx.pocoo.org/">sphynx</a></p>
-<ol class="arabic simple" start="4">
-<li>Given that Hadoop is running, typing</li>
-</ol>
-<div class="highlight-r"><div class="highlight"><pre><span class="p">[</span>bash<span class="p">]</span> R
-<span class="o">&gt;&gt;</span> library<span class="p">(</span>rhipe<span class="p">)</span>
-</pre></div>
-</div>
-<p>should get you started.</p>
 </div>
 </div>
 

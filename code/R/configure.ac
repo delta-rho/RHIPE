@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(sipe, 0.5, sguha@purdue.edu)
+AC_INIT(Rhipe, 0.5, sguha@purdue.edu)
 
 
 # find R home and set CC/CFLAGS

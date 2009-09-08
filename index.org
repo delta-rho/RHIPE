@@ -12,22 +12,21 @@ of Google's mapreduce.  Using RHIPE it is possible to code map-reduce algorithms
 [[http://www.searchgodsword.org/lex/grk/view.cgi?number=4493][Greek Lexicon]]
 #+BEGIN_SRC R-example
 m <- expression({
-  words <- strsplit(map.value," +")[[1]]
-  for(w in words){
-    rhcollect(w,T)
-  }
-}
-r.pre <- expression({
-  counter <- 0
+for(x in map.values){
+  y <- strsplit(x," +")[[1]]
+  for(w in y) rhcollect(w,T)
+}})
+r <- expression(pre={
+  count <- 0
+},
+reduce={
+  count <- count+sum(unlist(reduce.values))
+},
+post={
+ rhcollect(reduce.key,as.integer(count))
 })
-r <- expression({
-  counter <- counter+reduce.value
-})
-r.post <- expression({
-  rhcollect(reduce.key,counter)
-})
-z <- rhmr(map=m,reduce=list(pre=r.pre,reduce=r,post=r.post),combiner=T,
-            ifolder="X",ofolder="Y")
+=rhmr(map=m,reduce=r,comb=F,inout=c("text","sequence"),
+ifolder="/tmp/50mil",ofolder='/tmp/tof')
 rhex(z)
 #+END_SRC
 

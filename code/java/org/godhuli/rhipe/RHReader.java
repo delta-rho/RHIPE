@@ -66,7 +66,8 @@ public class RHReader {
 		return(i);
 	    }else{
 		i=i+1;
-		k.write(dos); v.write(dos);
+		// k.write(dos); v.write(dos);
+		k.writeAsInt(dos); v.writeAsInt(dos);
 		// szlist.add(new Integer(k.getLength()));
 		// szlist.add(new Integer(v.getLength()));
 	    }

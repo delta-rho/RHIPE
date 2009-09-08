@@ -43,12 +43,11 @@ import org.apache.hadoop.util.*;
 
 
 
-public class RXTextOutputFormat extends TextOutputFormat<RHBytesWritable,RHBytesWritable> {
+public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable,RHBytesWritable> {
 
-  static class RXTextRecordWriter extends RecordWriter<RHBytesWritable,RHBytesWritable> {
+  protected static class RXTextRecordWriter extends RecordWriter<RHBytesWritable,RHBytesWritable> {
     private static final byte[] newLine = "\r\n".getBytes();
     private static  byte[] keyvaluesep = " ".getBytes();
-    // private static  byte[] fsep = " ".getBytes();
     private static final String utf8 = "UTF-8";
     protected DataOutputStream out;
 
@@ -57,7 +56,7 @@ public class RXTextOutputFormat extends TextOutputFormat<RHBytesWritable,RHBytes
 	this.out=out;
 	try{
 	    keyvaluesep =keyValueSeparator.getBytes(utf8);;
-	    RHBytesWritable.setFieldSep(fieldSep);
+	    REXPHelper.setFieldSep(fieldSep);
 	}catch (UnsupportedEncodingException uee) {
 	    throw new IllegalArgumentException("can't find " + utf8 + " encoding");
 	}
@@ -66,10 +65,13 @@ public class RXTextOutputFormat extends TextOutputFormat<RHBytesWritable,RHBytes
 
     public synchronized void write(RHBytesWritable key, 
                                    RHBytesWritable value) throws IOException {
-	    out.write(key.writeAsString().getBytes(utf8));
+	    out.write(key.toString().getBytes(utf8));
 	    out.write(keyvaluesep);
-	    out.write(value.writeAsString().getBytes(utf8));
+	    out.write(value.toString().getBytes(utf8));
 	    out.write(newLine, 0, newLine.length);
+
+	    System.out.println("Key="+key.toString());
+	    System.out.println("Value="+value.toString());
 	}
  
 

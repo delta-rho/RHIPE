@@ -33,7 +33,7 @@ public class RHMRReducer extends Reducer<RHBytesWritable,
     boolean isAMap;
     RHMRHelper helper;
     boolean doPipe_;
-    boolean dontjustcollect_;
+    boolean justCollect;
     String getPipeCommand(Configuration cfg) {
 	String str = cfg.get("rhipe_command");
 	if (str == null) {
@@ -50,14 +50,14 @@ public class RHMRReducer extends Reducer<RHBytesWritable,
     boolean getDoPipe(Configuration cfg) {
 	String argv = getPipeCommand(cfg);
 	doPipe_= getPipeCommand(cfg) !=null && cfg.getInt("mapred.reduce.tasks",0)!=0;
-	return(dontjustcollect_);
+	return(!justCollect);
     }
     
     public void run(Context context) throws IOException, InterruptedException {
 	helper = new RHMRHelper("Reduce");
-	dontjustcollect_ = context.getConfiguration().
-	    get("rhipe_reduce_justcollect").equals("TRUE")?false:true;
-	if(dontjustcollect_){
+	justCollect = context.getConfiguration().
+	    get("rhipe_reduce_justcollect").equals("TRUE")?true:false;
+	if(!justCollect){
 	    setup(context);
 	    helper.startOutputThreads(context);
 	    while (context.nextKey()) {
@@ -77,12 +77,11 @@ public class RHMRReducer extends Reducer<RHBytesWritable,
       helper.setup(cfg,getPipeCommand(cfg),getDoPipe(cfg));
       isAMap = cfg.getBoolean("mapred.task.is.map",true);
       try{
-	  helper.writeCMD(RHTypes.EVAL_SETUP_REDUCE);
+	  if(!justCollect) helper.writeCMD(RHTypes.EVAL_SETUP_REDUCE);
       }catch(IOException e){
 	  e.printStackTrace();
 	  throw new RuntimeException(e);
       }
-      
   }
 
   public void pipereduce(RHBytesWritable key, Iterable<RHBytesWritable> values, 
@@ -131,7 +130,11 @@ public class RHMRReducer extends Reducer<RHBytesWritable,
 
   public void cleanup(Context ctx) {
       try{
-	  helper.writeCMD(RHTypes. EVAL_CLEANUP_REDUCE);
+		  if(!justCollect) {
+			  helper.writeCMD(RHTypes.EVAL_CLEANUP_REDUCE);
+			  helper.writeCMD(RHTypes.EVAL_FLUSH);
+		  }
+
 	  helper.mapRedFinished(ctx);
 	  if(!isAMap) helper.copyFiles(System.getProperty("java.io.tmpdir"));
       }catch(IOException e){

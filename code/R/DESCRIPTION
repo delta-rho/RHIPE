@@ -1,4 +1,4 @@
-Package: sipe
+Package: Rhipe
 Type: Package
 Title: Integrates R with Hadoop
 Version: 0.5

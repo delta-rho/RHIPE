@@ -11,17 +11,19 @@ updateweb: doc
 code:
 	sed  -i ""  "s/Version: [0-9]*\.*[0-9]*/Version: ${VER}/" code/R/DESCRIPTION 
 	sed  -i ""  "s/version=\"[0-9]*\.*[0-9]*\"/version=\"${VER}\"/" code/R/R/zzz.R
-	ant -f code/build.xml clean
-	rm -rf code/R/a.out.dSYM/ code/R/config.log code/R/config.status code/R/src/*.o
-	cd ..
-	mkdir rhipe.${VER} 
-	rsync -a code/R/ rhipe.${VER}
-	tar czf rhipe.${VER}.tgz  rhipe.${VER}
-	rm -rf rhipe.${VER}
-	rsync rhipe.${VER}.tgz website/dn/
-	cp rhipe.${VER}.tgz website/dn/rhipe.tgz
-	rm -rf rhipe.${VER}.tgz
 
+	if test -d build;then rm -rf build;else	mkdir build; fi
+	rsync -a code/ build/
+	ant -f build/build.xml clean
+	ant -f build/build.xml
+	ant -f build/build.xml clean	
+
+	mv build/R build/rhipe.${VER}
+	tar -czf rhipe.${VER}.tar.gz  -C build/  rhipe.${VER}
+	rsync  rhipe.${VER}.tar.gz website/dn/
+	rm -rf rhipe.${VER}.tar.gz
+	cp website/dn/rhipe.${VER}.tar.gz website/dn/rhipe.tar.gz
+	rm -rf build
 doc: 
 	sed -i "" "/^[(version)|(release)]/ s/\"[0-9]*\.*[0-9]*\"/\"${VER}\"/" doc/conf.py
 	make -C doc -f Makefile html latex

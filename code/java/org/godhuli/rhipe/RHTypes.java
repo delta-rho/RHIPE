@@ -29,6 +29,7 @@ public class RHTypes {
     public static final int EVAL_REDUCE_POSTKEY = -3;
     public static final int EVAL_REDUCE_THEKEY  = -4;
     public static final int EVAL_CLEANUP_REDUCE = -5;
+    public static final int EVAL_FLUSH = -10;
 
     // Reading on STDERR
 

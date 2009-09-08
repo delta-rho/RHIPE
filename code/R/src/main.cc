@@ -1,5 +1,11 @@
 #include "ream.h"
 #include <iostream>
+R_CallMethodDef callMethods [] = {
+  {"rh_counter",(DL_FUNC) counter,1},
+  {"rh_status",(DL_FUNC) status,1},
+  {"rh_collect",(DL_FUNC) collect,2},
+  {NULL, NULL, 0}
+};
 
 
 using namespace std;
@@ -51,7 +57,7 @@ int embedR(int argc, char *argv){
 
 int main(int argc,char *argv){
   char *rhipewhat;
-  if (rhipewhat=getenv("RHIPEWHAT"))
+  if ((rhipewhat=getenv("RHIPEWHAT")))
     _STATE_ = (int)strtol(rhipewhat,NULL,10);
 
   LOG=fopen("/tmp/logger","a");
@@ -100,7 +106,7 @@ int main(int argc,char *argv){
 	merror("Error while running mapper setup: %d\n",ret);
 	exit(2);
       }
-      if ((ret=mapper_run()!=0)){
+      if ((ret=mapper_run2()!=0)){
 	merror("Error while running mapper: %d\n",ret);
 	exit(3);
       }
@@ -123,6 +129,7 @@ int main(int argc,char *argv){
     merror("Bad value for RHIPEWHAT: %d\n",_STATE_);
     break;
   }
+  fflush(NULL);
   free(CMMNC);
   fclose(LOG);
   exit(0);
