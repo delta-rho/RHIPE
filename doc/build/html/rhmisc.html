@@ -59,7 +59,6 @@
 <li><a class="reference external" href="#rhdel">rhdel</a></li>
 <li><a class="reference external" href="#rhwrite">rhwrite</a></li>
 <li><a class="reference external" href="#rhread">rhread</a></li>
-<li><a class="reference external" href="#rhreadtext">rhreadText</a></li>
 <li><a class="reference external" href="#rhreadbin">rhreadBin</a></li>
 </ul>
 </li>
@@ -69,7 +68,7 @@
 
             <h4>Previous topic</h4>
             <p class="topless"><a href="rhmr.html"
-                                  title="previous chapter">The <tt class="docutils literal docutils literal"><span class="pre">rhmr</span></tt> Command</a></p>
+                                  title="previous chapter">The <tt class="docutils literal"><span class="pre">rhmr</span></tt> Command</a></p>
             <h4>Next topic</h4>
             <p class="topless"><a href="ec2.html"
                                   title="next chapter">Using RHIPE on EC2</a></p>
@@ -201,16 +200,6 @@ things faster if one is expecting to read in many items ).</p>
 <p>The latter two are important when it comes to reading sequence files with many values(100K+), set
 batch to a large number and <tt class="docutils literal"><span class="pre">length</span></tt> to an equally large number to reduce the
 number of JNI calls and vector resizes.</p>
-</div>
-<div class="section" id="rhreadtext">
-<h3>rhreadText<a class="headerlink" href="#rhreadtext" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><div class="highlight"><pre>rhreadText <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>filename<span class="p">)</span>
-</pre></div>
-</div>
-<p>Currently when outputting to text because of a bug in the code I&#8217;ve been forced
-to write serialized bytes in text form. To parse such a file, copy it to the
-local filesystem and use this function on the filename.</p>
-<p>You might as well use binary output format.</p>
 </div>
 <div class="section" id="rhreadbin">
 <h3>rhreadBin<a class="headerlink" href="#rhreadbin" title="Permalink to this headline">¶</a></h3>

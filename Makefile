@@ -2,7 +2,7 @@ VER=0.5
 
 .PHONY : doc code  sync
 
-all: doc index
+all: code doc index
 
 sync:
 	rsync -av website/ sguha@altair.stat.purdue.edu:/home/www/rhipe/
