@@ -68,7 +68,7 @@ To run this on EC2, download these scripts and read the documentation.
 * Documentation
 The documentation can be found [[file:./doc/html/index.html][here]]. PDF version can be found [[file:./doc/rhipe.pdf][here]]
 * News
-** Tue Sep  1 01:55:29 EDT 2009
+** Tue Sep  8 15:35:24 EDT 2009
 - Moved to Hadoop 0.20
 - Uses protobuf for serialization, fewer R types allowed
 - Does not depend on Rserve, single R package to install

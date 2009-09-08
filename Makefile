@@ -1,12 +1,15 @@
 VER=0.5
 
-.PHONY : doc code 
+.PHONY : doc code  sync
 
 all: doc updateweb
 
+sync: code doc updateweb
+	rsync -av website/ sguha@altair.stat.purdue.edu:/home/www/rhipe/
+
 updateweb: doc
 	/Applications/Aquamacs.app/Contents/MacOS/Aquamacs  -l index2html.el
-	mv index.html website/
+	# mv index.html website/
 
 code:
 	sed  -i ""  "s/Version: [0-9]*\.*[0-9]*/Version: ${VER}/" code/R/DESCRIPTION 

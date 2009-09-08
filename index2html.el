@@ -5,7 +5,7 @@
 	("rhipe-notes"
 	    :base-directory "."
 	    :base-extension "org"
-	    :publishing-directory "."
+	    :publishing-directory "website/"
 	    :recursive t
 	    :publishing-function org-publish-org-to-html
 	    :headline-levels 4             ; Just the default for this project.
