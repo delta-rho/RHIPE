@@ -20,7 +20,7 @@
 ## Was useful before, but not anymore
 
 rhreadBin <- function(file,maxnum=-1, readbuf=0){
-  .Call("readBinaryFile",as.integer(maxnum),as.integer(readbuf))
+  .Call("readBinaryFile",file[1],as.integer(maxnum),as.integer(readbuf))
 }
 
 rhsz <- function(r) .Call("serializeUsingPB",r)
