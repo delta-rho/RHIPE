@@ -17,6 +17,7 @@
 ##     l=lapply(f,rhuz);names(l)=c("key","value")
 ##     l
 ##   })}
+## Was useful before, but not anymore
 
 rhreadBin <- function(file,maxnum=-1, readbuf=0){
   .Call("readBinaryFile",as.integer(maxnum),as.integer(readbuf))
