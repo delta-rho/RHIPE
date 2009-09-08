@@ -25,8 +25,7 @@ reduce={
 post={
  rhcollect(reduce.key,as.integer(count))
 })
-=rhmr(map=m,reduce=r,comb=F,inout=c("text","sequence"),
-ifolder="/tmp/50mil",ofolder='/tmp/tof')
+z=rhmr(map=m,reduce=r,comb=F,inout=c("text","sequence"),ifolder="/tmp/50mil",ofolder='/tmp/tof')
 rhex(z)
 #+END_SRC
 
@@ -63,7 +62,7 @@ Read the documentation for installation. Current is the latest version.
 
 
 * EC2
-To run this on EC2, download these scripts and read the documentation.
+*coming soon*
 
 * Documentation
 The documentation can be found [[file:./doc/html/index.html][here]]. PDF version can be found [[file:./doc/rhipe.pdf][here]]
