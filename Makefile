@@ -11,6 +11,10 @@ index: doc
 	/Applications/Aquamacs.app/Contents/MacOS/Aquamacs  -l index2html.el
 	# mv index.html website/
 
+
+ec2:
+	tar  cvfz website/dn/rhipeec2.tar.gz --exclude hadoop-ec2-env.sh   -C code  rhipeEC2
+
 code:
 	sed  -i ""  "s/Version: [0-9]*\.*[0-9]*/Version: ${VER}/" code/R/DESCRIPTION 
 	sed  -i ""  "s/version=\"[0-9]*\.*[0-9]*\"/version=\"${VER}\"/" code/R/R/zzz.R

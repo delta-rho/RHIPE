@@ -11,11 +11,12 @@ assign("rhipeOptions" ,list(version="0.5") ,envir=.rhipeEnv )
           Sys.getenv("HADOOP_CONF_DIR")
           )
 
-  .jpackage(pkgname, jars="*",morePaths=cp)
+  .jpackage(pkgname, jars="*",morePaths=cp,lib.loc=libname)
 
   ## .jaddClassPath(cp)
   cfg <- .jnew("org/apache/hadoop/conf/Configuration")
   .jcall(cfg,"V","setClassLoader",.jcast(.jclassLoader(),"java/lang/ClassLoader"))
+  
   opts <- get("rhipeOptions",envir=.rhipeEnv)
   opts$hadoop.cfg <- cfg
   opts$jarloc <- list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
