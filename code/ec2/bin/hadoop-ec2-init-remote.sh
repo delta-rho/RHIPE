@@ -33,6 +33,8 @@ HADOOP_HOME=`ls -d /usr/local/hadoop-*`
 # Modify this section to customize your Hadoop cluster.
 ################################################################################
 
+echo "export HADOOP_CLASSPATH=/usr/local/hadoop-0.20.1/conf" >> /usr/local/hadoop-0.20.1/conf/hadoop-env.sh
+
 case "$INSTANCE_TYPE" in
 "m1.large")
   MAX_MAP_TASKS=2
@@ -305,18 +307,17 @@ fi
 cd /root
 wget http://s3.amazonaws.com/ServEdge_pub/s3sync/s3sync.tar.gz
 tar -xzvf s3sync.tar.gz 
-rm -rf s3sync.tar.gza
+rm -rf s3sync.tar.gz
+echo "export HADOOP_LIB=/usr/local/hadoop-0.20.1/lib" >> /root/.bash_profile
+echo "export HADOOP_CONF_DIR=/usr/local/hadoop-0.20.1/conf" >> /root/.bash_profile
+echo "export CLASSPATH=/usr/local/hadoop-0.20.1:/usr/local/hadoop-0.20.1/lib:/usr/local/hadoop-0.20.1/conf:/usr/lib/R/library/rJava/java" >> /root/.bash_profile
 
-##Ideally, should just run in MASTER
-##SLAVES copy this user_r.r from MASTER
-mkdir -p /opt/rhipe/etc
-mkdir -p /opt/rJava
-wget -q http://ml.stat.purdue.edu/rhipe/dn/rhipe.tgz -P /opt/rhipe/
-wget -q http://www.rforge.net/rJava/snapshot/rJava_0.6-4.tar.gz -P /opt/rJava
-
-R CMD Rserve --no-save --RS-conf /opt/rhipe/conf/rserve.conf $RSOPTS 2>&1 1>/tmp/rserve.log
-R CMD INSTALL  /opt/rhipe/rhipe
-R CMD INSTALL /opt/rJava/rJava_0.6-4.tar.gz
+wget -q http://ml.stat.purdue.edu/rhipe/dn/rhipe.tar.gz -P /opt/
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
+cd /opt
+tar zxvf rhipe.tar.gz
+rm -rf rhipe.tar.gz
+R CMD INSTALL rhipe*
 
 case "$R_USER_FILE_IS_PUBLIC" in
     "0" )

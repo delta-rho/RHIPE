@@ -17,9 +17,13 @@
 
 # Your Amazon Account Number, Amazon AWS access key and Amazon AWS secret access key.            
 # go in this file.   
-SECRETS=$HOME/mystuff/.rhipe.secrets
+# Your Amazon Account Number.
+AWS_ACCOUNT_ID="2491-6595-3746"
+# Your Amazon AWS access key.                                               
+AWS_ACCESS_KEY_ID="AKIAJF2LFQQBSYLI3KAQ"
+# Your Amazon AWS secret access key.                                                             
+AWS_SECRET_ACCESS_KEY="/8wpEbXh2iSn+DILXMhYTU/VPveEt+ghRVm1rUET"
 
-. $SECRETS
 
 # Location of EC2 keys..
 # The default setting is probably OK if you set up EC2 following the Amazon Getting Started guide.
@@ -33,21 +37,23 @@ KEY_NAME=gsg-keypair
 # You need to change this if you don't store this with your other EC2 keys.
 PRIVATE_KEY_PATH=`echo "$EC2_KEYDIR"/"id_rsa-$KEY_NAME"`
 
-## Rserve Options
-RSOPTS="--max-nsize=1G --max-ppsize=100000 --RS-port 8888"
+
 
 ## R user script to run on startup
-# The R script to run on instance boot.
-# If file begins with http:// wget is used
-# Thus the file can be kept on S3 provided it is public
-# If filename is of the form bucket:key(see http://developer.amazonwebservices.com/connect/entry.jspa?externalID=931)
-# s3sync tools are downloaded (from S3), installed and used to download your file
-# Examples:
-# public S3  : http://moo.s3.amazonaws.com/moo.R , uses wget
-# private S3 : moo:moo.R , uses s3 tools
-# R_USER_FILE=sguha:rhipe_user_code.R
-#R_USER_FILE=http://sguha.s3.amazonaws.com/rhipe_user_code.R
-R_USER_FILE=http://ml.stat.purdue.edu/rpackages/rhipe_user_code.R
+## The R script to run on instance boot.
+## If file begins with http:// wget is used
+## Thus the file can be kept on S3 provided it is public
+## If filename is of the form bucket:key(see 
+## http://developer.amazonwebservices.com/connect/entry.jspa?externalID=931)
+## s3sync tools are downloaded (from S3), installed and used to download your file
+## Examples:
+##
+## public S3  : http://moo.s3.amazonaws.com/moo.R , uses wget
+## private S3 : moo:moo.R , uses s3 tools
+##
+## R_USER_FILE=sguha:rhipe_user_code.R
+## R_USER_FILE=http://sguha.s3.amazonaws.com/rhipe_user_code.R
+## R_USER_FILE=http://ml.stat.purdue.edu/rpackages/rhipe_user_code.R
 
 if [ -z "$R_USER_FILE" ]
 then
@@ -67,7 +73,7 @@ fi
 SSH_OPTS=`echo -i "$PRIVATE_KEY_PATH" -o StrictHostKeyChecking=no -o ServerAliveInterval=30`
 
 # The version of Hadoop to use.
-HADOOP_VERSION=0.19.1
+HADOOP_VERSION=0.20.1
 
 # The Amazon S3 bucket where the Hadoop AMI is stored.
 # The default value is for public images, so can be left if you are using running a public image.
@@ -85,15 +91,15 @@ USER_DATA_FILE=hadoop-ec2-init-remote.sh
 # The EC2 instance type: m1.small, m1.large, m1.xlarge
 #INSTANCE_TYPE="m1.small"
 #INSTANCE_TYPE="m1.large"
-#INSTANCE_TYPE="m1.xlarge"
+INSTANCE_TYPE="m1.xlarge"
 #INSTANCE_TYPE="c1.medium"
-INSTANCE_TYPE="c1.xlarge"
+#INSTANCE_TYPE="c1.xlarge"
 
 # If you get Insufficient Resource messages change the zone
 # http://docs.amazonwebservices.com/AWSEC2/latest/CommandLineReference/index.html?ApiReference-cmd-RunInstances.html
 # e.g us-east-1x x in a/b/c/d/
 # use  --availability-zone us-east-1b
-AVAIL_ZONE="--availability-zone us-east-1d"
+#AVAIL_ZONE="--availability-zone us-east-1d"
 #AVAIL_ZONE=""
 
 # The EC2 group master name. CLUSTER is set by calling scripts
@@ -109,7 +115,7 @@ MASTER_ZONE_PATH=~/.hadooop-zone-$CLUSTER_MASTER
 #
 
 # The version number of the installed JDK.
-JAVA_VERSION=1.6.0_14
+JAVA_VERSION=1.6.0_16
 
 # SUPPORTED_ARCHITECTURES = ['i386', 'x86_64']
 # The download URL for the Sun JDK. Visit http://java.sun.com/javase/downloads/index.jsp and get the URL for the "Linux self-extracting file".
@@ -117,11 +123,11 @@ JAVA_VERSION=1.6.0_14
 if [ "$INSTANCE_TYPE" == "m1.small" -o "$INSTANCE_TYPE" == "c1.medium" ]; then
   ARCH='i386'
   BASE_AMI_IMAGE="ami-5647a33f"  
-  JAVA_BINARY_URL='jdk-6u14-linux-i586.bin'
+  JAVA_BINARY_URL='http://ml.stat.purdue.edu/rhipeimage/jdk-6u16-linux-i586.bin'
 else
   ARCH='x86_64'
   BASE_AMI_IMAGE="ami-2547a34c"  # ec2-public-images/fedora-8-x86_64-base-v1.08.manifest.xml
-  JAVA_BINARY_URL='jdk-6u14-linux-x64.bin'
+  JAVA_BINARY_URL='http://ml.stat.purdue.edu/rhipeimage/jdk-6u16-linux-x64.bin'
 fi
 
 # if [ "$INSTANCE_TYPE" == "c1.medium" ]; then

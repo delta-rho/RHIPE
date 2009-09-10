@@ -17,7 +17,8 @@ rhmr <- function(map,reduce=NULL,
                  shared=c(),
                  jarfiles=c(),
                  copyFiles=F,
-                 opts=rhoptions()){
+                 opts=rhoptions(),
+                 jobname=""){
   lines <- list();
   if(!is.expression(map))
     stop("'map' must be an expression")
@@ -34,7 +35,7 @@ rhmr <- function(map,reduce=NULL,
   lines$rhipe_reduce_prekey <- rawToChar(serialize(reduce$pre,NULL,ascii=T))
   lines$rhipe_reduce_postkey <- rawToChar(serialize(reduce$post,NULL,ascii=T))
 
-  
+  lines$rhipe_jobname=jobname
   if(combiner && is.null(reduce))
     stop("If combiner is T, give a reducer")
   if(is.null(setup)){
@@ -204,7 +205,8 @@ rhmr <- function(map,reduce=NULL,
 
 
 rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
-                    inout=c("lapply","sequence"),readIn=T,mapred=list(),...){
+                    inout=c("lapply","sequence"),readIn=T,mapred=list(),jobname="rhlapply",
+                     ...){
   del.o.file <- F
   del.i.file <- F
   

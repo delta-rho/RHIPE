@@ -19,6 +19,8 @@
 # Create a Hadoop AMI. Runs on the EC2 instance.
 
 # Import variables
+echo "LOGGED IN, BEGIN INSTALL"
+
 bin=`dirname "$0"`
 bin=`cd "$bin"; pwd`
 . "$bin"/hadoop-ec2-env.sh
@@ -27,10 +29,10 @@ bin=`cd "$bin"; pwd`
 rm -f "$bin"/hadoop-ec2-env.sh
 
 # Install Java
+echo "Download java"
+wget -nv -O /usr/local/java.bin $JAVA_BINARY_URL
 echo "Installing java binary."
-mv /mnt/java.bin /usr/local
 cd /usr/local
-#wget -nv -O java.bin $JAVA_BINARY_URL
 sh java.bin
 rm -f java.bin
 
@@ -38,19 +40,29 @@ rm -f java.bin
 yum -y update
 yum clean all
 echo "Installing packages."
-yum -y install rsync lynx screen ganglia-gmetad ganglia-gmond ganglia-web httpd php ant ant-nodeps svn lzo lzo-devel zlib zlib-devel gzip gzip-devel bzip2 bzip2-devel R
+yum -y install rsync lynx screen ganglia-gmetad ganglia-gmond ganglia-web httpd php ant ant-nodeps svn lzo lzo-devel zlib zlib-devel gzip gzip-devel bzip2 bzip2-devel R pkgconfig
 yum -y clean all
 
 
+#install protobuf
+export PROTOVER=2.2.0
+wget -nv http://protobuf.googlecode.com/files/protobuf-$PROTOVER.tar.bz2 -P /tmp
+cd /tmp
+tar jxvf protobuf-$PROTOVER.tar.bz2
+cd protobuf-$PROTOVER
+./configure
+make install
 
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
 export JAVA_HOME=/usr/local/jdk${JAVA_VERSION}
 export PATH=/usr/local/jdk${JAVA_VERSION}/bin:$PATH
 
 # Install Hadoop
 echo "Installing Hadoop $HADOOP_VERSION."
 cd /usr/local
-wget -nv http://archive.apache.org/dist/hadoop/core/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz
-[ ! -f hadoop-$HADOOP_VERSION.tar.gz ] && wget -nv http://www.apache.org/dist/hadoop/core/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz
+# wget -nv http://archive.apache.org/dist/hadoop/core/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz
+wget http://ml.stat.purdue.edu/rhipeimage/hadoop-$HADOOP_VERSION.tar.gz
+# [ ! -f hadoop-$HADOOP_VERSION.tar.gz ] && wget -nv #http://www.apache.org/dist/hadoop/core/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz
 tar xzf hadoop-$HADOOP_VERSION.tar.gz
 rm -f hadoop-$HADOOP_VERSION.tar.gz
 
@@ -68,13 +80,14 @@ echo "/etc/init.d/ec2-run-user-data" >> /etc/rc.d/rc.local
 # Setup root user bash environment
 echo 'export PATH=/usr/local/jdk$JAVA_VERSION/bin:$PATH' >>  /root/.bash_profile
 echo "export JAVA_HOME=/usr/local/jdk${JAVA_VERSION}" >> /root/.bash_profile
+echo "export HADOOP=/usr/local/hadoop-${HADOOP_VERSION}" >> /root/.bash_profile
 echo "export HADOOP_HOME=/usr/local/hadoop-${HADOOP_VERSION}" >> /root/.bash_profile
 echo 'export PATH=$JAVA_HOME/bin:$HADOOP_HOME/bin:$PATH' >> /root/.bash_profile
 echo 'export HADOOP_BIN=$HADOOP_HOME/bin' >> /root/.bash_profile
-echo 'export HADOOP_LIB=$HADOOP_HOME'>> /root/.bash_profile
+echo 'export HADOOP_LIB=$HADOOP_HOME/lib'>> /root/.bash_profile
 echo 'export HADOOP_CONF_DIR=$HADOOP_HOME/conf' >>  /root/.bash_profile
-echo 'export RHIPE=/opt/rhipe' >> /root/.bash_profile
 echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HADOOP_HOME/lib/native' >> /root/.bash_profile
+echo "export CLASSPATH=$HADOOP_CONF_DIR:$HADOOP:$HADOOP/lib:" >> /root/.bash_profile
 
 echo "Configuring R for Java"
 R CMD javareconf
@@ -91,15 +104,16 @@ R CMD javareconf
 # cp build/*jar /usr/local/hadoop-${HADOOP_VERSION}/lib/native/
 
 
-## Build native zip libsfor hadoop
-cd /usr/local/hadoop-${HADOOP_VERSION}
-ant -Dcompile.native=true compile-core-native
-cp build/native/*/lib/* /usr/local/hadoop-${HADOOP_VERSION}/lib/native/
+# ## Build native zip libsfor hadoop
+# cd /usr/local/hadoop-${HADOOP_VERSION}
+# ant -Dcompile.native=true compile-core-native
+# cp build/native/*/lib/* /usr/local/hadoop-${HADOOP_VERSION}/lib/native/
 
-## Install Rserve
-wget -q http://www.rforge.net/Rserve/snapshot/Rserve_0.6-0.tar.gz -P /tmp
-R CMD INSTALL /tmp/Rserve_0.6-0.tar.gz
-rm -rf /tmp/Rserve_0.6-0.tar.gz
+## Install rJava
+wget -q http://www.rforge.net/rJava/snapshot/rJava_0.7-1.tar.gz -P /tmp
+R CMD INSTALL /tmp/rJava_0.7-1.tar.gz
+# rm -rf /tmp/Rserve_0.6-0.tar.gz
+
 
 # Configure networking.
 # Delete SSH authorized_keys since it includes the key it was launched with. (Note that it is re-populated when an instance starts.)
@@ -111,8 +125,10 @@ echo '    StrictHostKeyChecking no' >> /etc/ssh/ssh_config
 cd ~root
 # Don't need to delete .bash_history since it isn't written until exit.
 df -h
+echo "EC2-BUNDLE"
 ec2-bundle-vol -d /mnt -k /mnt/pk*.pem -c /mnt/cert*.pem -u $AWS_ACCOUNT_ID -s 3072 -p rhipe-hadoop-$HADOOP_VERSION-$ARCH -r $ARCH
 
+echo "EC2-UPLOAD"
 ec2-upload-bundle --retry  -b $S3_BUCKET -m /mnt/rhipe-hadoop-$HADOOP_VERSION-$ARCH.manifest.xml -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY
 
 # End

@@ -69,10 +69,17 @@ scp $SSH_OPTS "$bin"/image/ec2-run-user-data "root@$HOSTNAME:/etc/init.d"
 scp $SSH_OPTS $EC2_KEYDIR/pk*.pem "root@$HOSTNAME:/mnt"
 scp $SSH_OPTS $EC2_KEYDIR/cert*.pem "root@$HOSTNAME:/mnt"
 
+
+# Copy Java Binary to Remote Session
+#scp $SSH_OPTS $JAVA_BINARY_URL "root@$HOSTNAME:/mnt/java.bin"
+
+
 # Connect to it
+echo "Connecting to Instance"
 ssh $SSH_OPTS "root@$HOSTNAME" '/mnt/create-hadoop-image-remote'
 
 # Register image
-ec2-register $S3_BUCKET/hadoop-$HADOOP_VERSION-$ARCH.manifest.xml
-
+echo "Registering image"
+# ec2-register $S3_BUCKET/rhipe-hadoop-$HADOOP_VERSION-$ARCH.manifest.xml
+ec2-register $S3-BUCKET/rhipe-hadoop-$HADOOP_VERSION-$ARCH.manifest.xml
 echo "Terminate with: ec2-terminate-instances $BOOTING_INSTANCE"

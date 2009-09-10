@@ -86,17 +86,17 @@ rhdel <- function(dir){
 }
 
 
-rhwrite <- function(lo,f,n=NULL,...){
+rhwrite <- function(lo,f,N=NULL,...){
   if(!is.list(lo))
     stop("lo must be a list")
   .jcheck()
   namv <- names(lo)
   cfg <- rhoptions()$hadoop.cfg
 
-  if(is.null(n))
-    n <- as.numeric(.jcall(cfg,"S","get","mapred.map.tasks"))*
+  if(is.null(N))
+    N <- as.numeric(.jcall(cfg,"S","get","mapred.map.tasks"))*
       as.numeric(.jcall(cfg,"S","get", "mapred.tasktracker.map.tasks.maximum"))
-  if(n==0) n=10 ##why should it be zero????
+  if(is.null(N) || N==0 ) N=length(lo) ##why should it be zero????
   .jcheck()
   
   if(is.null(namv))

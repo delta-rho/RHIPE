@@ -136,8 +136,11 @@ public class RHMR  implements Tool {
 				    URISyntaxException {
 	Calendar cal = Calendar.getInstance();
 	SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
-
-	job_.setJobName(sdf.format(cal.getTime()));
+	String jname = rhoptions_.get("rhipe_jobname");
+	if(jname.equals(""))
+	    job_.setJobName(sdf.format(cal.getTime()));
+	else
+	    job_.setJobName(jname);
 	job_.setJarByClass(RHMR.class);
 
 	Class<?> clz=config_.getClassByName(rhoptions_.get("rhipe_outputformat_class"));
