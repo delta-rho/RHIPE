@@ -13,7 +13,7 @@ index: doc
 
 
 ec2:
-	tar  cvfz website/dn/rhipeec2.tar.gz --exclude hadoop-ec2-env.sh   -C code  rhipeEC2
+	tar  cvfz website/dn/rhipeec2.tar.gz --exclude hadoop-ec2-env.sh   -C code  ec2
 
 code:
 	sed  -i ""  "s/Version: [0-9]*\.*[0-9]*/Version: ${VER}/" code/R/DESCRIPTION 
