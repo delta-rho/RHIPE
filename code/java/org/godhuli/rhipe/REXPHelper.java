@@ -21,7 +21,7 @@ import org.godhuli.rhipe.REXPProtos.REXP.RClass;
 
 
 public class REXPHelper  {
-    public static String fsep = "";
+    public static String fsep = " ";
     public static void setFieldSep(String s){ fsep=s;}
     public static String debugString(byte[] b){
 	REXP r = null;
