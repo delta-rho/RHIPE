@@ -71,7 +71,7 @@ public class RHMRHelper {
     void setup(Configuration cfg, String argv,boolean doPipe){     
 	try {
 	    BUFFER_SIZE = cfg.getInt("rhipe_stream_buffer",10*1024);
-	    joinDelay_ = cfg.getLong("rhipe_joindelay_milli", 350);
+	    joinDelay_ = cfg.getLong("rhipe_joindelay_milli", 0);
 	    nonZeroExitIsFailure_ = cfg.getBoolean("rhipe_non_zero_exit_is_failure", true);
 	    doPipe_ = doPipe;
 	    thisfs=FileSystem.get(cfg);
