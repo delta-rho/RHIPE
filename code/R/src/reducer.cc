@@ -79,6 +79,7 @@ const int reducer_run(void){
       break;
     case EVAL_REDUCE_PREKEY:
       R_tryEval(prekey,NULL,&Rerr);
+      fflush(NULL);
       break;
     case EVAL_REDUCE_POSTKEY:
       if(redbuf_cnt >0){
@@ -97,6 +98,7 @@ const int reducer_run(void){
 	}
       }
       R_tryEval(postkey ,NULL, &Rerr);
+      fflush(NULL);
       break;
     default:
       if(redbuf_cnt == REDBUFFER){
@@ -113,6 +115,7 @@ const int reducer_run(void){
       SET_VECTOR_ELT(vvector, redbuf_cnt, v);
       UNPROTECT(1);
       redbuf_cnt++;
+      fflush(NULL);
     }
   }
 }

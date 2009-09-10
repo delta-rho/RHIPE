@@ -124,11 +124,11 @@ public class REXPHelper  {
 		int length = r.getComplexValueCount();
 		for(int i=0;i<length-1;i++){
 		    org.godhuli.rhipe.REXPProtos.CMPLX ci = r.getComplexValue(i);
-		    sb.append(ci.getReal());sb.append("+i");sb.append(ci.getImag());
+		    sb.append(ci.getReal());sb.append(ci.getImag());sb.append("i");
 		    sb.append(fsep);
 		}
 		org.godhuli.rhipe.REXPProtos.CMPLX ci = r.getComplexValue(length-1);
-		sb.append(ci.getReal());sb.append("+i");sb.append(ci.getImag());
+		sb.append(ci.getReal());sb.append("+");sb.append(ci.getImag());sb.append("i");
 		sb.append(fsep);
 		return(sb.toString());
 	    }
