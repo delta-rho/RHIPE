@@ -62,7 +62,7 @@ Read the documentation for installation. Current is the latest version.
 
 
 * EC2
-*coming soon*
+Download the scripts from [[./dn/rhipeec2.tar.gz][here]], untar it. This will create a folder called =ec2= which has a =bin= folder in it. Modify =ec2/bin/hadoop-ec2-env.sh.template=
 
 * Documentation
 The documentation can be found [[file:./doc/html/index.html][here]]. PDF version can be found [[file:./doc/rhipe.pdf][here]]

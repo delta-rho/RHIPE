@@ -121,7 +121,7 @@ of the input list (if given).</p>
                      readIn<span class="o">=</span>T<span class="p">,</span>
                      inout<span class="o">=</span>c<span class="p">(</span>&#39;lapply&#39;<span class="p">,</span>&#39;sequence&#39;<span class="p">)</span>
                      mapred<span class="o">=</span>list<span class="p">()</span>
-                     setup<span class="o">=</span><span class="kc">NULL</span>
+                     setup<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>jobname<span class="o">=</span><span class="s">&quot;rhlapply&quot;</span><span class="p">,</span>...
                      <span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
@@ -150,6 +150,8 @@ is TRUE) and deleted.</dd>
 <dt><tt class="docutils literal"><span class="pre">setup</span></tt></dt>
 <dd>And expression that is called before running <tt class="docutils literal"><span class="pre">func</span></tt>. Called once per
 JVM.</dd>
+<dt><tt class="docutils literal"><span class="pre">...</span></tt></dt>
+<dd>passed onto RHMR.</dd>
 </dl>
 <div class="section" id="return">
 <h3>RETURN<a class="headerlink" href="#return" title="Permalink to this headline">¶</a></h3>

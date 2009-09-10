@@ -36,7 +36,7 @@ Function Usage
 			     readIn=T,
 			     inout=c('lapply','sequence')
 			     mapred=list()
-			     setup=NULL
+			     setup=NULL,jobname="rhlapply",...
 			     )
 
 
@@ -71,6 +71,8 @@ Description follows
 ``setup``
 	And expression that is called before running ``func``. Called once per
 	JVM.
+``...`` 
+	passed onto RHMR.
 
 
 RETURN

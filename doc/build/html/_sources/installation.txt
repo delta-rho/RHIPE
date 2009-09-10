@@ -16,9 +16,9 @@ Requirements
    Non Standard Locations
 		If installing protobuf to a non standard location, update the
 		PKG_CONFIG_PATH variable, e.g 
-  ::
+  		::
 
-	export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CUSTROOT/lib/pkgconfig/
+			export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CUSTROOT/lib/pkgconfig/
 
 2. *R* , tested on 2.8
 
@@ -33,6 +33,7 @@ Installation
 On every machine
 
 ::
+	
 	tar zxvf rhipe.VERSION.tar.gz
 	R CMD INSTALL rhipe.VERSION
 

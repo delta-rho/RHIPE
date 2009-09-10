@@ -94,31 +94,28 @@ Protobuffers from <a class="reference external" href="http://code.google.com/p/p
 protobuf jar file inside it.</p>
 <dl class="docutils">
 <dt>Non Standard Locations</dt>
-<dd><p class="first last">If installing protobuf to a non standard location, update the
+<dd><p class="first">If installing protobuf to a non standard location, update the
 PKG_CONFIG_PATH variable, e.g</p>
+<div class="last highlight-r"><div class="highlight"><pre>export PKG_CONFIG_PATH<span class="o">=</span><span class="p">$</span>PKG_CONFIG_PATH:<span class="p">$</span>CUSTROOT<span class="o">/</span>lib<span class="o">/</span>pkgconfig<span class="o">/</span>
+</pre></div>
+</div>
 </dd>
 </dl>
 </li>
-</ol>
-<blockquote>
-<div class="highlight-r"><div class="highlight"><pre>export PKG_CONFIG_PATH<span class="o">=</span><span class="p">$</span>PKG_CONFIG_PATH:<span class="p">$</span>CUSTROOT<span class="o">/</span>lib<span class="o">/</span>pkgconfig<span class="o">/</span>
-</pre></div>
-</div>
-</blockquote>
-<ol class="arabic simple" start="2">
-<li><em>R</em> , tested on 2.8</li>
-<li><em>rJava</em> The R package needs rJava.</li>
+<li><p class="first"><em>R</em> , tested on 2.8</p>
+</li>
+<li><p class="first"><em>rJava</em> The R package needs rJava.</p>
+</li>
 </ol>
 <p>Tested on RHEL Linux, though <em>may</em> work on Windows</p>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>On every machine</p>
-<dl class="docutils">
-<dt>::</dt>
-<dd>tar zxvf rhipe.VERSION.tar.gz
-R CMD INSTALL rhipe.VERSION</dd>
-</dl>
+<div class="highlight-r"><div class="highlight"><pre>tar zxvf rhipe.VERSION.tar.gz
+R CMD INSTALL rhipe.VERSION
+</pre></div>
+</div>
 <p>To load it</p>
 <div class="highlight-r"><div class="highlight"><pre>library<span class="p">(</span>Rhipe<span class="p">)</span>
 </pre></div>
