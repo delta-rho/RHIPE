@@ -32,7 +32,7 @@ Function
                  shared=c(),
                  jarfiles=c(),
                  copyFiles=F,
-                 opts=rhoptions())
+                 opts=rhoptions(),jobname="")
 
 
 ``map``
@@ -83,6 +83,8 @@ Function
 ``mapred``
 	Set Hadoop options here and RHIPE options. 
 
+``jobname``
+	the jobname, if not given, then current date and time is the job title.
 
 RHIPE Options
 -------------

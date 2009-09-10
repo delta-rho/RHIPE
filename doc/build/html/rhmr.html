@@ -128,7 +128,7 @@ can be any R data structure.</p>
          shared<span class="o">=</span>c<span class="p">(),</span>
          jarfiles<span class="o">=</span>c<span class="p">(),</span>
          copyFiles<span class="o">=</span>F<span class="p">,</span>
-         opts<span class="o">=</span>rhoptions<span class="p">())</span>
+         opts<span class="o">=</span>rhoptions<span class="p">(),</span>jobname<span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
 <dl class="docutils">
@@ -178,6 +178,8 @@ It can be a list of two attributes <tt class="docutils literal"><span class="pre
 <dd>For side effects to be copied back to the DFS, set this to TRUE, otherwise they wont be copied.</dd>
 <dt><tt class="docutils literal"><span class="pre">mapred</span></tt></dt>
 <dd>Set Hadoop options here and RHIPE options.</dd>
+<dt><tt class="docutils literal"><span class="pre">jobname</span></tt></dt>
+<dd>the jobname, if not given, then current date and time is the job title.</dd>
 </dl>
 </div>
 <div class="section" id="rhipe-options">
