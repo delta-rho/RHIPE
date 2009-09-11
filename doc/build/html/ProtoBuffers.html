@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Documentation for RHIPE &mdash; rhipe v0.5 documentation</title>
+    <title>Protobuffer and R &mdash; rhipe v0.5 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -19,8 +19,8 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="rhipe v0.5 documentation" href="" />
-    <link rel="next" title="Setting up RHIPE" href="installation.html" /> 
+    <link rel="top" title="rhipe v0.5 documentation" href="index.html" />
+    <link rel="prev" title="FAQ" href="FAQ.html" /> 
   </head>
   <body>
     <div class="related">
@@ -30,19 +30,19 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="installation.html" title="Setting up RHIPE"
-             accesskey="N">next</a> |</li>
-        <li><a href="">rhipe v0.5 documentation</a> &raquo;</li> 
+          <a href="FAQ.html" title="FAQ"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-            <h4>Next topic</h4>
-            <p class="topless"><a href="installation.html"
-                                  title="next chapter">Setting up RHIPE</a></p>
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="FAQ.html"
+                                  title="previous chapter">FAQ</a></p>
             <h3>This Page</h3>
             <ul class="this-page-menu">
-              <li><a href="_sources/index.txt"
+              <li><a href="_sources/ProtoBuffers.txt"
                      rel="nofollow">Show Source</a></li>
             </ul>
           <div id="searchbox" style="display: none">
@@ -66,19 +66,26 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="documentation-for-rhipe">
-<h1>Documentation for RHIPE<a class="headerlink" href="#documentation-for-rhipe" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="../../index.html">Mainpage</a></p>
-<ul>
-<li class="toctree-l1"><a class="reference external" href="installation.html">Setting up RHIPE</a></li>
-<li class="toctree-l1"><a class="reference external" href="rhlapply.html">The <tt class="docutils literal"><span class="pre">rhlapply</span></tt> Command</a></li>
-<li class="toctree-l1"><a class="reference external" href="rhmr.html">The <tt class="docutils literal"><span class="pre">rhmr</span></tt> Command</a></li>
-<li class="toctree-l1"><a class="reference external" href="rhmisc.html">Miscellaneous Commands</a></li>
-<li class="toctree-l1"><a class="reference external" href="ec2.html">Using RHIPE on EC2</a></li>
-<li class="toctree-l1"><a class="reference external" href="examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference external" href="FAQ.html">FAQ</a></li>
-<li class="toctree-l1"><a class="reference external" href="ProtoBuffers.html">Protobuffer and R</a></li>
-</ul>
+  <div class="section" id="protobuffer-and-r">
+<h1>Protobuffer and R<a class="headerlink" href="#protobuffer-and-r" title="Permalink to this headline">¶</a></h1>
+<p>A package called rprotos which implements a simple serialization using Googles
+protocol buffers[1].  The package also includes some miscellaneous functions for
+writing/reading variable length encoded integers, and Base64 encoding/decoding
+related functions.  The package can be downloaded from
+<a class="reference external" href="http://ml.stat.purdue.edu/rproto_1.0.tar.gz">http://ml.stat.purdue.edu/rproto_1.0.tar.gz</a> it requires one to install libproto
+(Googles protobuffer library)</p>
+<p><em>Brief Description</em></p>
+<p>The R objects that can be serialized are numerics,integers,strings, logicals,
+raw,nulls and lists.  Attributes of the aforementioned are preserved. NA is also
+preserved(for the above) As such, the objects include factors and matrices.  The proto file can be
+found in the source.</p>
+<p><em>Todo</em>:</p>
+<p>Very possible though needs some reading on my part: it is possible to
+extend this to serialize functions, expressions, environments and several
+other objects.  However that is some time in the future.</p>
+<p><em>Download</em>
+<a class="reference external" href="http://ml.stat.purdue.edu/rproto_1.0.tar.gz">http://ml.stat.purdue.edu/rproto_1.0.tar.gz</a></p>
+<p>[1] <a class="reference external" href="http://code.google.com/apis/protocolbuffers/docs/overview.html">http://code.google.com/apis/protocolbuffers/docs/overview.html</a></p>
 </div>
 
 
@@ -94,9 +101,9 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="installation.html" title="Setting up RHIPE"
-             >next</a> |</li>
-        <li><a href="">rhipe v0.5 documentation</a> &raquo;</li> 
+          <a href="FAQ.html" title="FAQ"
+             >previous</a> |</li>
+        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

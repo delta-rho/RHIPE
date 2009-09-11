@@ -317,7 +317,7 @@ wget -q http://ml.stat.purdue.edu/rhipe/dn/rhipe.tar.gz -P /opt/
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
 cd /opt
 tar zxf rhipe.tar.gz
-rm rhipe*.gz
+rm -f rhipe*.gz
 R CMD INSTALL Rhipe
 
 case "$R_USER_FILE_IS_PUBLIC" in

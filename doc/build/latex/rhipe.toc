@@ -45,3 +45,4 @@
 \contentsline {subsection}{\numberline {6.2.1}Word Count}{18}{subsection.6.2.1}
 \contentsline {subsection}{\numberline {6.2.2}Subset a file}{18}{subsection.6.2.2}
 \contentsline {chapter}{\numberline {7}FAQ}{19}{chapter.7}
+\contentsline {chapter}{\numberline {8}Protobuffer and R}{21}{chapter.8}

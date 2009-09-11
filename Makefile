@@ -25,7 +25,8 @@ code:
 	ant -f build/build.xml
 	ant -f build/build.xml clean	
 
-	R CMD BUILD code/R
+	mv build/R build/Rhipe
+	tar -czf Rhipe_${VER}.tar.gz  -C build/  Rhipe
 	rsync  Rhipe_${VER}.tar.gz website/dn/
 	rm -rf Rhipe_${VER}.tar.gz
 	cp website/dn/Rhipe_${VER}.tar.gz website/dn/rhipe.tar.gz

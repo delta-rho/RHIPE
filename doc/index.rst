@@ -12,6 +12,6 @@ Documentation for RHIPE
    ec2.rst
    examples.rst
    FAQ.rst
-
+   ProtoBuffers.rst
 
 
