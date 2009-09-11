@@ -35,7 +35,7 @@
 \contentsline {chapter}{\numberline {5}Using RHIPE on EC2}{15}{chapter.5}
 \contentsline {section}{\numberline {5.1}Introduction}{15}{section.5.1}
 \contentsline {section}{\numberline {5.2}Usage}{15}{section.5.2}
-\contentsline {section}{\numberline {5.3}Some launch commands}{16}{section.5.3}
+\contentsline {section}{\numberline {5.3}Some launch commands}{15}{section.5.3}
 \contentsline {section}{\numberline {5.4}Useful tools}{16}{section.5.4}
 \contentsline {chapter}{\numberline {6}Examples}{17}{chapter.6}
 \contentsline {section}{\numberline {6.1}\texttt {rhlapply}}{17}{section.6.1}

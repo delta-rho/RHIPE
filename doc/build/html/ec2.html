@@ -88,14 +88,7 @@
 <h1>Using RHIPE on EC2<a class="headerlink" href="#using-rhipe-on-ec2" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>We have release two AMIs(32 and 64bit). Both are based on Fedora 8 and have
-Hadoop 0.19.1,R 2.8 and RIPE (latest) installed. <a class="reference external" href="http://s3sync.net/wiki">s3sync</a> is also present.</p>
-<dl class="docutils">
-<dt>32 bit</dt>
-<dd>ami-4b678122</dd>
-<dt>64 bit</dt>
-<dd>ami-9f7492f6</dd>
-</dl>
+<p>There is one 32 bit EC2 AMI with R-2.8, Hadoop 0.21 and the latest RHIPE. <a class="reference external" href="http://s3sync.net/wiki">s3sync</a> is also present.</p>
 <p>The following describes the usage of the EC2 scripts.</p>
 </div>
 <div class="section" id="usage">
@@ -113,13 +106,6 @@ Hadoop 0.19.1,R 2.8 and RIPE (latest) installed. <a class="reference external" h
 <dd>same as above</dd>
 <dt>AWS_SECRET_ACCESS_KEY</dt>
 <dd>same as above</dd>
-<dt>RSOPTS</dt>
-<dd>options to Rserve, default:</dd>
-</dl>
-<div class="highlight-sh"><div class="highlight"><pre>-max-nsize<span class="o">=</span>1G --max-ppsize<span class="o">=</span>100000 --RS-port 8888
-</pre></div>
-</div>
-<dl class="docutils">
 <dt>R_USER_FILE</dt>
 <dd>a URL to an R script. This file is executed on machine boot up. Useful to install R packages. Read <tt class="docutils literal"><span class="pre">bin/hadoop-ec2-env.sh.template</span></tt> for details.</dd>
 <dt>INSTANCE_TYPE</dt>
