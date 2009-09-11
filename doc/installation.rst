@@ -34,8 +34,7 @@ On every machine
 
 ::
 	
-	tar zxvf rhipe.VERSION.tar.gz
-	R CMD INSTALL rhipe.VERSION
+	R CMD INSTALL Rhipe_VERSION.tar.gz
 
 
 To load it
