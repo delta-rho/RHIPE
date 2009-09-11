@@ -7,4 +7,5 @@ code/
 ._*
 *.class
 19RHIPE
+code/ec2/bin/hadoop-ec2-env.sh
 *~

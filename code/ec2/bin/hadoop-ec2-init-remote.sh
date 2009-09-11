@@ -310,7 +310,7 @@ tar -xzvf s3sync.tar.gz
 rm -rf s3sync.tar.gz
 echo "export HADOOP_LIB=/usr/local/hadoop-0.20.1/lib" >> /root/.bash_profile
 echo "export HADOOP_CONF_DIR=/usr/local/hadoop-0.20.1/conf" >> /root/.bash_profile
-echo "export LD_LIBRARY_PATH=/usr/local/lib/:/usr/local/lib64/" >> /root/.bash_prof
+echo "export LD_LIBRARY_PATH=/usr/local/lib/:/usr/local/lib64/" >> /root/.bash_profile
 echo "export CLASSPATH=/usr/local/hadoop-0.20.1:/usr/local/hadoop-0.20.1/lib:/usr/local/hadoop-0.20.1/conf:/usr/lib/R/library/rJava/java" >> /root/.bash_profile
 
 wget -q http://ml.stat.purdue.edu/rhipe/dn/rhipe.tar.gz -P /opt/
