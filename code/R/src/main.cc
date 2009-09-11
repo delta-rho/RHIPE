@@ -61,7 +61,7 @@ int main(int argc,char *argv){
     _STATE_ = (int)strtol(rhipewhat,NULL,10);
 
   LOG=fopen("/tmp/logger","a");
-  fprintf(LOG,"\n.....................\n");
+  LOGG(10,"\n.....................\n");
   LOGG(10,"Starting Up\n");
 
   CMMNC = (Streams*)malloc(sizeof(Streams));
