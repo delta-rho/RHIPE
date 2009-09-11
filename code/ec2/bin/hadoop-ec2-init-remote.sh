@@ -316,7 +316,9 @@ echo "export CLASSPATH=/usr/local/hadoop-0.20.1:/usr/local/hadoop-0.20.1/lib:/us
 wget -q http://ml.stat.purdue.edu/rhipe/dn/rhipe.tar.gz -P /opt/
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
 cd /opt
-R CMD INSTALL rhipe.tar.gz
+tar zxf rhipe.tar.gz
+rm rhipe*.gz
+R CMD INSTALL Rhipe
 
 case "$R_USER_FILE_IS_PUBLIC" in
     "0" )
