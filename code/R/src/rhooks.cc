@@ -13,7 +13,7 @@ extern "C" {
     rexp_container->Clear();
     rexp2message(rexp_container,robj);  
     int bs = rexp_container->ByteSize();
-    SEXP result ;
+    SEXP result = R_NilValue;
     PROTECT(result = Rf_allocVector(RAWSXP,bs));
     rexp_container->SerializeWithCachedSizesToArray(RAW(result));
     UNPROTECT(1);
@@ -24,7 +24,7 @@ extern "C" {
   {
     if (TYPEOF(robj)!=RAWSXP)
       Rf_error("Must pass a raw vector");
-    SEXP ans;
+    SEXP ans  = R_NilValue;
     // REXP *rexp = new REXP();
     rexp_container->Clear();
     rexp_container->ParseFromArray(RAW(robj),LENGTH(robj));
