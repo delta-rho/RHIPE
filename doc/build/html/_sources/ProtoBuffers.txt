@@ -23,6 +23,11 @@ other objects.  However that is some time in the future.
 
 
 *Download*
-http://ml.stat.purdue.edu/rprotobuf_1.0.tar.gz
+package(with source) : http://ml.stat.purdue.edu/rprotobuf_1.0.tar.gz
+
+Install ::
+    
+    R CMD INSTALL rprotobuf_1.0.tar.gz
+
 
 [1] http://code.google.com/apis/protocolbuffers/docs/overview.html
