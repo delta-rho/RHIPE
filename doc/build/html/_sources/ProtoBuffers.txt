@@ -10,7 +10,7 @@ http://ml.stat.purdue.edu/rprotobuf_1.0.tar.gz it requires one to install libpro
 
 *Brief Description*
 
-The R objects that can be serialized are numerics,integers,strings, logicals,
+The R objects that can be serialized are numerics,complex,integers,strings, logicals,
 raw,nulls and lists.  Attributes of the aforementioned are preserved. NA is also
 preserved(for the above) As such, the objects include factors and matrices.  The proto file can be
 found in the source.
