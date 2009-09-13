@@ -29,6 +29,11 @@ z=rhmr(map=m,reduce=r,comb=F,inout=c("text","sequence"),ifolder="/tmp/50mil",ofo
 rhex(z)
 #+END_SRC
 
+* ``rprotobuf``
+An R package to serialize R objects using Google's protobuffers
+See this page http://ml.stat.purdue.edu/rhipe/doc/html/ProtoBuffers.html
+
+
 * Download
 *Source*
 
