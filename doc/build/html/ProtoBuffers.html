@@ -72,13 +72,16 @@
 protocol buffers[1].  The package also includes some miscellaneous functions for
 writing/reading variable length encoded integers, and Base64 encoding/decoding
 related functions.  The package can be downloaded from
-<a class="reference external" href="http://ml.stat.purdue.edu/rprotobuf_1.1.tar.gz">http://ml.stat.purdue.edu/rprotobuf_1.1.tar.gz</a> it requires one to install <tt class="docutils literal"><span class="pre">libproto</span></tt>
+<a class="reference external" href="http://ml.stat.purdue.edu/rprotobuf_1.1.tar.gz">http://ml.stat.purdue.edu/rprotobuf_1.1.tar.gz</a> . It requires one to install <tt class="docutils literal"><span class="pre">libproto</span></tt>
 (Googles protobuffer library)</p>
+<p><strong>Requirements</strong></p>
+<p>Google&#8217;s Protocol Buffer library. See [1].</p>
 <p><strong>Brief Description</strong></p>
 <p>The R objects that can be serialized are numerics,complex,integers,strings, logicals,
 raw,nulls and lists.  Attributes of the aforementioned are preserved. NA is also
 preserved(for the above) As such, the objects include factors and matrices.  The proto file can be
 found in the source.</p>
+<p>Serialization/deserialization works perfectly for these types.</p>
 <p><strong>Extras</strong></p>
 <p>With version 1.1, <tt class="docutils literal"><span class="pre">rprotobuf</span></tt> will now serialize</p>
 <blockquote>
@@ -94,11 +97,11 @@ found in the source.</p>
 <li>EXPRSXP</li>
 </ul>
 </blockquote>
-<p>Serialization/deserialization  <em>appear</em> to work but I cannot prove that (one needs to inspect my code with a thorough knowledge of R internals). They remain undocumented in the help pages.</p>
-<p><strong>Regrets</strong>
-<tt class="docutils literal"><span class="pre">serialize.c``(in</span> <span class="pre">R</span> <span class="pre">2.9</span> <span class="pre">sources)</span> <span class="pre">uses</span> <span class="pre">Hashtable</span> <span class="pre">to</span> <span class="pre">add</span> <span class="pre">references</span> <span class="pre">to</span> <span class="pre">previously</span> <span class="pre">added</span> <span class="pre">environments</span> <span class="pre">and</span> <span class="pre">symbols(instead</span> <span class="pre">of</span> <span class="pre">adding</span> <span class="pre">them</span> <span class="pre">again).</span> <span class="pre">This</span> <span class="pre">reduces</span> <span class="pre">the</span> <span class="pre">size</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">serialized</span> <span class="pre">expresson.</span> <span class="pre">``rprotobuf</span></tt> does not do any such thing. Maybe in future it will (and should).</p>
+<p>Serialization/deserialization(for these extras SEXP types)  <em>appear</em> to work but I cannot prove that (one with a thorough knowledge of R internals needs to audit the code( <tt class="docutils literal"><span class="pre">src/message.cc</span></tt> )). They remain undocumented in the help pages.</p>
+<p><strong>Regrets</strong></p>
+<p><tt class="docutils literal"><span class="pre">serialize.c</span></tt> (in R 2.9 sources) uses a hashtable to add references to previously added environments and symbols(instead of adding them again). This reduces the size of the serialized expresson. <tt class="docutils literal"><span class="pre">rprotobuf</span></tt> does not do any such thing. It ought to and in future it will.</p>
 <p><strong>Download</strong>
-package(with source) : <a class="reference external" href="http://ml.stat.purdue.edu/rprotobuf_1.1.tar.gz">http://ml.stat.purdue.edu/rprotobuf_1.1.tar.gz</a></p>
+Package(with source) : <a class="reference external" href="http://ml.stat.purdue.edu/rprotobuf_1.1.tar.gz">http://ml.stat.purdue.edu/rprotobuf_1.1.tar.gz</a></p>
 <p>Install</p>
 <div class="highlight-python"><pre>R CMD INSTALL rprotobuf_1.0.tar.gz</pre>
 </div>
