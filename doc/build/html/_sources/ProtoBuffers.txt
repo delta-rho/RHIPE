@@ -44,11 +44,13 @@ Serialization/deserialization(for these extras SEXP types)  *appear* to work but
 
 
 **Download**
+
+
 Package(with source) : http://ml.stat.purdue.edu/rprotobuf_1.1.tar.gz
 
 Install ::
     
-    R CMD INSTALL rprotobuf_1.0.tar.gz
+    R CMD INSTALL rprotobuf_1.1.tar.gz
 
 
 [1] http://code.google.com/apis/protocolbuffers/docs/overview.html
