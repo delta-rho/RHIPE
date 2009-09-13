@@ -5,25 +5,39 @@ A package called rprotobuf which implements a simple serialization using Googles
 protocol buffers[1].  The package also includes some miscellaneous functions for
 writing/reading variable length encoded integers, and Base64 encoding/decoding
 related functions.  The package can be downloaded from
-http://ml.stat.purdue.edu/rprotobuf_1.0.tar.gz it requires one to install libproto
+http://ml.stat.purdue.edu/rprotobuf_1.1.tar.gz it requires one to install ``libproto``
 (Googles protobuffer library)
 
-*Brief Description*
+**Brief Description**
 
 The R objects that can be serialized are numerics,complex,integers,strings, logicals,
 raw,nulls and lists.  Attributes of the aforementioned are preserved. NA is also
 preserved(for the above) As such, the objects include factors and matrices.  The proto file can be
 found in the source.
 
-*Todo*: 
+**Extras**
 
-Very possible though needs some reading on my part: it is possible to
-extend this to serialize functions, expressions, environments and several
-other objects.  However that is some time in the future.
+With version 1.1, ``rprotobuf`` will now serialize
+
+     - SYMSXP,
+     - LISTSXP
+     - CLOSXP
+     - ENVSXP ( no locking )
+     - PROMSXP
+     - LANGSXP
+     - DOTSXP
+     - S4SXP
+     - EXPRSXP
+
+Serialization/deserialization  *appear* to work but I cannot prove that (one needs to inspect my code with a thorough knowledge of R internals). They remain undocumented in the help pages.   
 
 
-*Download*
-package(with source) : http://ml.stat.purdue.edu/rprotobuf_1.0.tar.gz
+**Regrets**
+``serialize.c``(in R 2.9 sources) uses Hashtable to add references to previously added environments and symbols(instead of adding them again). This reduces the size of the serialized expresson. ``rprotobuf`` does not do any such thing. Maybe in future it will (and should).
+
+
+**Download**
+package(with source) : http://ml.stat.purdue.edu/rprotobuf_1.1.tar.gz
 
 Install ::
     
