@@ -94,8 +94,12 @@ SEXP message2rexp(const REXP& rexp){
   case REXP::LIST:
       length = rexp.rexpvalue_size();
       PROTECT(s = Rf_allocVector(VECSXP,length));
-      for (int i = 0; i< length; i++)
-  	  SET_VECTOR_ELT(s, i,message2rexp(rexp.rexpvalue(i) ));
+      for (int i = 0; i< length; i++){
+	SEXP ik;
+	PROTECT(ik = message2rexp(rexp.rexpvalue(i)));
+	SET_VECTOR_ELT(s, i,ik );
+	UNPROTECT(1);
+      }
       UNPROTECT(1);
       break;
   }

@@ -132,6 +132,65 @@ extern "C" {
   //   return l;
   // }
   
+  SEXP kk_(char *d,int n){
+    SEXP v,k,k1;
+    rexp_container->Clear();
+    rexp_container->ParseFromArray(d,n);
+    PROTECT(k = message2rexp(*rexp_container));
+
+//     PROTECT(v=Rf_allocVector(VECSXP,2));
+//     PROTECT(k=Rf_allocVector(INTSXP,5));
+//     INTEGER(k)[0]=1;INTEGER(k)[1]=2;INTEGER(k)[2]=1;INTEGER(k)[3]=1;INTEGER(k)[4]=1;
+//     PROTECT(k1=Rf_allocVector(INTSXP,5));
+//     INTEGER(k1)[0]=1;INTEGER(k1)[1]=2;INTEGER(k1)[2]=1;INTEGER(k1)[3]=1;INTEGER(k1)[4]=1;
+    //     SET_VECTOR_ELT(v,0,k);
+//     SET_VECTOR_ELT(v,1,k1);
+//     UNPROTECT(3);
+//     REXP *rexp = new REXP();
+//     rexp->Clear();
+//     rexp->ParseFromArray(d,n);
+//     PROTECT(k = message2rexp(*rexp));
+//     delete(rexp);
+    UNPROTECT(1);
+    return(k);
+  }
+
+  SEXP returnListOfKV(SEXP raw,SEXP numread){
+   
+    if(TYPEOF(raw)!=RAWSXP){
+      return(R_NilValue);
+    }
+    int num = INTEGER(numread)[0];
+    char *rawdata = (char*)RAW(raw);
+    SEXP rval;
+    int r;
+    PROTECT(rval = Rf_allocVector(VECSXP, num));
+    for(int i=0;i<num;i++){
+      SEXP k = R_NilValue;
+      SEXP KV;
+      PROTECT(KV = Rf_allocVector(VECSXP, 2));
+
+      r = reverseUInt(*((int*) rawdata));
+      rawdata+=4;
+      PROTECT(k= kk_(rawdata,r));
+      rawdata+= r;
+      SET_VECTOR_ELT(KV,0, k);
+      UNPROTECT(1);
+
+      r = reverseUInt(*((int*) rawdata));
+      rawdata+=4;
+      PROTECT(k= kk_(rawdata,r));
+      rawdata+=r;
+      SET_VECTOR_ELT(KV,1, k);
+      UNPROTECT(1);
+
+      SET_VECTOR_ELT(rval,i,KV);
+      UNPROTECT(1);
+    }
+    UNPROTECT(1);
+    return(rval);
+  }
+
 
   SEXP readBinaryFile(SEXP filename0, SEXP max0,SEXP bf){
     SEXP rv = R_NilValue;

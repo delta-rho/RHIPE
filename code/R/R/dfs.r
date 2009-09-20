@@ -126,6 +126,8 @@ rhwrite <- function(lo,f,N=NULL,...){
     .jcall(writer,"V","close"); .jcheck()
   }
 }
+
+
     
 rhread <- function(files,max=NA,batch=100,length=1000,verbose=F){
   ## browser()
@@ -182,6 +184,29 @@ rhread <- function(files,max=NA,batch=100,length=1000,verbose=F){
   ## names(j) <- nms[1:count]
   j
 }
+
+
+## rhread <- function(files,verbose=T){
+##   files <- unclass(rhls(files)['file'])$file
+##   cfg <- rhoptions()$hadoop.cfg
+##   j=vector(mode='list')
+##   count <- 0
+##   for(x in files){
+##     .jcheck();reader <- .jnew("org.godhuli.rhipe.RHReader");.jcheck();
+##     .jcheck();.jcall(reader,"V","set",x,cfg);.jcheck()
+##     numread <- 1
+##     numread <- .jcall(reader,"I","readKVByteArray",-1L)
+##     .jcheck()
+##     if(numread==0) break;
+##     rawkv <- .jcall(reader,"[B","getKVByteArray");
+##     ll <- .Call("returnListOfKV", rawkv, numread)
+##     j <- append(j,ll)
+##     count <- count+numread
+##     if(verbose) cat("Read",numread,"key/value pairs from file: ",x,"total: ",count,"\n")
+##     .jcheck();.jcall(reader,"V","close");.jcheck()
+##   }
+##   return(j)
+## }
 
 
 ## rhkill <- function(w){

@@ -1,4 +1,4 @@
-PKG_CXXFLAGS+= -I.   `pkg-config --cflags protobuf` -Wall
+PKG_CXXFLAGS+= -I. -O3  `pkg-config --cflags protobuf` -Wall
 PKG_LIBS+= `pkg-config --libs protobuf`
 
 # RHOME=`echo "cat(Sys.getenv('R_HOME'))" | R --slave `
