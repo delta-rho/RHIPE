@@ -20,7 +20,9 @@
 ## Was useful before, but not anymore
 
 rhreadBin <- function(file,maxnum=-1, readbuf=0){
-  .Call("readBinaryFile",file[1],as.integer(maxnum),as.integer(readbuf))
+  x= .Call("readBinaryFile",file[1],as.integer(maxnum),as.integer(readbuf))
+  y=lapply(x,function(r) r) ##need to copy else crash seg fault on some data structs, ?
+  y
 }
 
 rhsz <- function(r) .Call("serializeUsingPB",r)
@@ -129,85 +131,94 @@ rhwrite <- function(lo,f,N=NULL,...){
 
 
     
-rhread <- function(files,max=NA,batch=100,length=1000,verbose=F){
-  ## browser()
-  ## reads upto max - 1
-  ## batch is how many to get from java side
-  ## length is initial size of vector
-  files <- unclass(rhls(files)['file'])$file
-  cfg <- rhoptions()$hadoop.cfg
-  j=vector(mode='list',length=if(is.na(max)) length else max)
-  ## j=vector(mode='list')
-  ibatch <- as.integer(batch)
-  count <- 0
-  nms <- vector(mode='character',length=length)
-  fin <- F
-  for(x in files){
-    .jcheck();reader <- .jnew("org.godhuli.rhipe.RHReader");.jcheck();
-    .jcheck();.jcall(reader,"V","set",x,cfg);.jcheck()
-     numread <- 1
-    ## cat("FIle=",x,"\n")
-    while(numread>0){
-      numread <- .jcall(reader,"I","readKVByteArray",ibatch)
-      .jcheck()
-      if(numread==0) break;
-      if((!is.na(max) && count >=max)) {
-        fin=T;break}
-      rawkv <- .jcall(reader,"[B","getKVByteArray");
-      off <- 1
-      for(k in 1:numread){
-        ## vintinfo <- .C("readVInt_from_R",rawkv[ off ], res=integer(2))$res
-        vintinfo <- c(4,readBin( rawkv[ off:(off+3)], "int",n=1,endian="big"))
-        off <- off+vintinfo[1]
-        keydata <- rawkv[  off:(off+vintinfo[2]) ]
-        kee <- rhuz(keydata)
-        off <- off+vintinfo[2]
-        ## nms[[ count+k ]] <- kee
-        kee0=kee
-        ## vintinfo <- .C("readVInt_from_R",rawkv[ off ], res=integer(2))$res
-        vintinfo <- c(4,readBin( rawkv[ off:(off+3)], "int",n=1,endian="big"))
-
-        off <- off+vintinfo[1]
-        keydata <- rawkv[  off:(off+vintinfo[2]) ]
-        kee <- rhuz(keydata)
-        off <- off+vintinfo[2]
-        j[[   count+k ]] <- list(key=kee0,value=kee)
-        
-      }
-      count <- count+numread
-      if(verbose) cat("Read ",count," items\n")
-    }
-    .jcheck();.jcall(reader,"V","close");.jcheck()
-    if(fin) break;
-  }
-  j <- j[1:count];
-  ## names(j) <- nms[1:count]
-  j
-}
-
-
-## rhread <- function(files,verbose=T){
+## rhread <- function(files,max=NA,batch=100,length=1000,verbose=F){
+##   ## browser()
+##   ## reads upto max - 1
+##   ## batch is how many to get from java side
+##   ## length is initial size of vector
 ##   files <- unclass(rhls(files)['file'])$file
 ##   cfg <- rhoptions()$hadoop.cfg
-##   j=vector(mode='list')
+##   j=vector(mode='list',length=if(is.na(max)) length else max)
+##   ## j=vector(mode='list')
+##   ibatch <- as.integer(batch)
 ##   count <- 0
+##   nms <- vector(mode='character',length=length)
+##   fin <- F
 ##   for(x in files){
 ##     .jcheck();reader <- .jnew("org.godhuli.rhipe.RHReader");.jcheck();
 ##     .jcheck();.jcall(reader,"V","set",x,cfg);.jcheck()
-##     numread <- 1
-##     numread <- .jcall(reader,"I","readKVByteArray",-1L)
-##     .jcheck()
-##     if(numread==0) break;
-##     rawkv <- .jcall(reader,"[B","getKVByteArray");
-##     ll <- .Call("returnListOfKV", rawkv, numread)
-##     j <- append(j,ll)
-##     count <- count+numread
-##     if(verbose) cat("Read",numread,"key/value pairs from file: ",x,"total: ",count,"\n")
+##      numread <- 1
+##     ## cat("FIle=",x,"\n")
+##     while(numread>0){
+##       numread <- .jcall(reader,"I","readKVByteArray",ibatch)
+##       .jcheck()
+##       if(numread==0) break;
+##       if((!is.na(max) && count >=max)) {
+##         fin=T;break}
+##       rawkv <- .jcall(reader,"[B","getKVByteArray");
+##       off <- 1
+##       for(k in 1:numread){
+##         ## vintinfo <- .C("readVInt_from_R",rawkv[ off ], res=integer(2))$res
+##         vintinfo <- c(4,readBin( rawkv[ off:(off+3)], "int",n=1,endian="big"))
+##         off <- off+vintinfo[1]
+##         keydata <- rawkv[  off:(off+vintinfo[2]) ]
+##         kee <- rhuz(keydata)
+##         off <- off+vintinfo[2]
+##         ## nms[[ count+k ]] <- kee
+##         kee0=kee
+##         ## vintinfo <- .C("readVInt_from_R",rawkv[ off ], res=integer(2))$res
+##         vintinfo <- c(4,readBin( rawkv[ off:(off+3)], "int",n=1,endian="big"))
+
+##         off <- off+vintinfo[1]
+##         keydata <- rawkv[  off:(off+vintinfo[2]) ]
+##         kee <- rhuz(keydata)
+##         off <- off+vintinfo[2]
+##         j[[   count+k ]] <- list(key=kee0,value=kee)
+        
+##       }
+##       count <- count+numread
+##       if(verbose) cat("Read ",count," items\n")
+##     }
 ##     .jcheck();.jcall(reader,"V","close");.jcheck()
+##     if(fin) break;
 ##   }
-##   return(j)
+##   j <- j[1:count];
+##   ## names(j) <- nms[1:count]
+##   j
 ## }
 
+
+rhread <- function(files,verbose=T){
+##   on.exit({
+##     unlink(tf)})
+  files <- unclass(rhls(files)['file'])$file
+  cfg <- rhoptions()$hadoop.cfg
+  j=list()
+  count <- 0
+  tf <- tempfile(pattern='rhread',tmpdir="/tmp")
+  for(x in files){
+    .jcheck();reader <- .jnew("org.godhuli.rhipe.RHReader");.jcheck();
+    .jcheck();.jcall(reader,"V","set",x,cfg);.jcheck()
+    numread <- 1
+    numread <- .jcall(reader,"I","readKVByteArray",-1L)
+    .jcheck()
+    if(numread==0) break;
+    rawkv <- .jcall(reader,"[B","getKVByteArray");
+    ll <- .Call("returnListOfKV", rawkv, numread)
+    j_ <- lapply(ll,function(r) r) ##i i just use ll in append it crashes
+    j <- append(j,j_)
+    count <- count+numread
+    if(verbose) cat("Read",numread,"key/value pairs from file: ",x,"total: ",count,"\n")
+    .jcheck();.jcall(reader,"V","close");.jcheck()
+  }
+  return(j)
+}
+
+rhmerge <- function(inr,ou){
+  system(paste(paste(Sys.getenv("HADOOP"),"bin","hadoop",sep=.Platform$file.sep,collapse=""),"dfs","-cat",inr,">", ou,collapse=" "))
+}
+
+#d=hrread("/net/o/dump.13.56.09.15/part-r-00000")
 
 ## rhkill <- function(w){
 ##   if(length(grep("^job_",w))==0) w=paste("job_",w,sep="",collapse="")

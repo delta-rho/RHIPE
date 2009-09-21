@@ -52,7 +52,7 @@ public class RHReader {
 	sqr = new SequenceFile.Reader(fs,p,cf);
     }
     
-    public int readKVByteArray(int n) throws IOException{
+    public int readKVByteArrayHow(int n,boolean how) throws IOException{
 	bos.reset();
 	// szlist.clear();
 	DataOutputStream dos = new DataOutputStream(bos);
@@ -66,13 +66,20 @@ public class RHReader {
 		return(i);
 	    }else{
 		i=i+1;
-		// k.write(dos); v.write(dos);
-		k.writeAsInt(dos); v.writeAsInt(dos);
+		if(how){
+		    k.write(dos); v.write(dos);
+		}else{
+		    k.writeAsInt(dos); v.writeAsInt(dos);
+		}
 		// szlist.add(new Integer(k.getLength()));
 		// szlist.add(new Integer(v.getLength()));
 	    }
 	}
 	return(i);
+    }
+    
+    public int readKVByteArray(int n) throws IOException{
+	return( readKVByteArrayHow(n,false));
     }
 
     // public int[] getSizes(){

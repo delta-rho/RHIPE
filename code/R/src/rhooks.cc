@@ -133,63 +133,105 @@ extern "C" {
   // }
   
   SEXP kk_(char *d,int n){
-    SEXP v,k,k1;
+    SEXP k;
     rexp_container->Clear();
     rexp_container->ParseFromArray(d,n);
     PROTECT(k = message2rexp(*rexp_container));
-
-//     PROTECT(v=Rf_allocVector(VECSXP,2));
-//     PROTECT(k=Rf_allocVector(INTSXP,5));
-//     INTEGER(k)[0]=1;INTEGER(k)[1]=2;INTEGER(k)[2]=1;INTEGER(k)[3]=1;INTEGER(k)[4]=1;
-//     PROTECT(k1=Rf_allocVector(INTSXP,5));
-//     INTEGER(k1)[0]=1;INTEGER(k1)[1]=2;INTEGER(k1)[2]=1;INTEGER(k1)[3]=1;INTEGER(k1)[4]=1;
-    //     SET_VECTOR_ELT(v,0,k);
-//     SET_VECTOR_ELT(v,1,k1);
-//     UNPROTECT(3);
-//     REXP *rexp = new REXP();
-//     rexp->Clear();
-//     rexp->ParseFromArray(d,n);
-//     PROTECT(k = message2rexp(*rexp));
-//     delete(rexp);
     UNPROTECT(1);
     return(k);
   }
+  /**
+     library(Rhipe)
+     d=rhreadBin("/tmp/smry")
+     ##where tmpsmr is say a part-r-0000 file
+     ##from connection summaryzes
+     ## u=list(); u=append(u,d) - crashes
 
+     n=10
+     z=rhsz(d[28231])
+     f=rhuz(z)
+     e=lapply(1:100000,function(r) rhuz(z))
+     u=list(); u=append(u,e)
+
+     
+  **/
   SEXP returnListOfKV(SEXP raw,SEXP numread){
    
     if(TYPEOF(raw)!=RAWSXP){
       return(R_NilValue);
     }
+    SEXP rval;
     int num = INTEGER(numread)[0];
     char *rawdata = (char*)RAW(raw);
-    SEXP rval;
     int r;
+    char *x = rawdata;
     PROTECT(rval = Rf_allocVector(VECSXP, num));
     for(int i=0;i<num;i++){
-      SEXP k = R_NilValue;
-      SEXP KV;
-      PROTECT(KV = Rf_allocVector(VECSXP, 2));
+      SEXP k,v,l;
+      PROTECT(l = Rf_allocVector(VECSXP, 2));
+      r = reverseUInt(*((int*) x  ));
+      x+=4;
 
-      r = reverseUInt(*((int*) rawdata));
-      rawdata+=4;
-      PROTECT(k= kk_(rawdata,r));
-      rawdata+= r;
-      SET_VECTOR_ELT(KV,0, k);
+      PROTECT(k= kk_(x,r));
+      x+= r;
+//       SET_VECTOR_ELT(rval, 2*i,k);
+      SET_VECTOR_ELT(l,0,k);
       UNPROTECT(1);
-
-      r = reverseUInt(*((int*) rawdata));
-      rawdata+=4;
-      PROTECT(k= kk_(rawdata,r));
-      rawdata+=r;
-      SET_VECTOR_ELT(KV,1, k);
+      
+      r = reverseUInt(*((int*) x));
+      x+=4;
+      PROTECT(v= kk_(x,r));
+      x+=r;
+//       SET_VECTOR_ELT(rval,2*i+1,v);
+      SET_VECTOR_ELT(l,1,v);
       UNPROTECT(1);
-
-      SET_VECTOR_ELT(rval,i,KV);
+      SET_VECTOR_ELT(rval,i,l);
       UNPROTECT(1);
     }
     UNPROTECT(1);
     return(rval);
   }
+
+//   SEXP returnListOfKV(SEXP raw,SEXP numread){
+
+//    //  SEXP raw ;
+// //     PROTECT(raw = Rf_duplicate(raw0));
+//     SEXP rval,rv,l;
+//     int num = INTEGER(numread)[0];
+//     char *rawdata = (char*)RAW(raw);
+//     int r;
+//     char *x = rawdata;
+//     //yeah, why a grow list when i know numread?
+//     PROTECT(rv = NewList());
+//     while(true){
+//       SEXP k,v;
+//       r = reverseUInt(*((int*) x  ));
+//       if(r<0) break;
+//       PROTECT(l = Rf_allocVector(VECSXP,2));
+//       x+=4;
+//       PROTECT(k= kk_(x,r));
+//       x+= r;
+//       SET_VECTOR_ELT( l, 0, k);
+
+//       r = reverseUInt(*((int*) x));
+//       x+=4;
+//       PROTECT(v= kk_(x,r));
+//       SET_VECTOR_ELT( l, 1, v);
+//       x+=r;
+
+//       UNPROTECT(3);
+//       rv = GrowList(rv, l);
+//     }
+
+//      rv = CDR(rv);
+
+//      PROTECT(rval = Rf_allocVector(VECSXP, Rf_length(rv)));
+//      for (int n = 0 ; n < LENGTH(rval) ; n++, rv = CDR(rv))
+//        SET_VECTOR_ELT(rval, n, CAR(rv));
+//      UNPROTECT(2);
+     
+//     return(rval);
+//   }
 
 
   SEXP readBinaryFile(SEXP filename0, SEXP max0,SEXP bf){

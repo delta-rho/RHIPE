@@ -40,8 +40,6 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.util.*;
 
 
-
-
 public class RXBinaryOutputFormat extends FileOutputFormat<RHBytesWritable, RHBytesWritable> {
 
   public RecordWriter<RHBytesWritable, RHBytesWritable>
@@ -50,15 +48,24 @@ public class RXBinaryOutputFormat extends FileOutputFormat<RHBytesWritable, RHBy
     Configuration conf = context.getConfiguration();
     
     // get the path of the temporary output file 
+//     final int flushwhen = conf.getInt("rhipe.binaryoutput.splitsize", 32*1024*1024);
+//     final boolean writemeta = conf.getInt("rhipe.binaryoutput.writemeta",0)==1? true:false;
     Path file = getDefaultWorkFile(context, "");
     FileSystem fs = file.getFileSystem(conf);
     final  FSDataOutputStream out = fs.create(file, false);
+//     final  FSDataOutputStream metaout = writemeta? fs.create(new Path(file.getParent(),"meta-"+file.getName()), false): null;
+//     if(writemeta) metaout.writeInt(0);
     return new RecordWriter<RHBytesWritable, RHBytesWritable>() {
-
+	int counter =0;
         public void write(RHBytesWritable key, RHBytesWritable value)
           throws IOException {
 	    int kl,vl;
 	    byte[] kb,vb;
+// 	    if( (out.size() - counter) >= flushwhen && writemeta){
+// 		counter = out.size();
+// 		metaout.writeInt(counter);
+// 		metaout.sync();
+// 	    }
 	    kl = key.getLength(); vl = value.getLength();
 	    kb = key.get(); vb=value.get();
 	    out.writeInt(kl);out.write(kb,0,kl);
@@ -68,7 +75,41 @@ public class RXBinaryOutputFormat extends FileOutputFormat<RHBytesWritable, RHBy
 
         public void close(TaskAttemptContext context) throws IOException { 
           out.close();
+// 	  if(writemeta) metaout.close();
         }
       };
   }
 }
+
+
+// public class RXBinaryOutputFormat extends FileOutputFormat<RHBytesWritable, RHBytesWritable> {
+
+//   public RecordWriter<RHBytesWritable, RHBytesWritable>
+//          getRecordWriter(TaskAttemptContext context
+//                          ) throws IOException, InterruptedException {
+//     Configuration conf = context.getConfiguration();
+    
+//     // get the path of the temporary output file 
+//     Path file = getDefaultWorkFile(context, "");
+//     FileSystem fs = file.getFileSystem(conf);
+//     final  FSDataOutputStream out = fs.create(file, false);
+
+//     return new RecordWriter<RHBytesWritable, RHBytesWritable>() {
+
+//         public void write(RHBytesWritable key, RHBytesWritable value)
+//           throws IOException {
+// 	    int kl,vl;
+// 	    byte[] kb,vb;
+// 	    kl = key.getLength(); vl = value.getLength();
+// 	    kb = key.get(); vb=value.get();
+// 	    out.writeInt(kl);out.write(kb,0,kl);
+// 	    out.writeInt(vl);out.write(vb,0,vl);
+// 	    out.sync();
+//         }
+
+//         public void close(TaskAttemptContext context) throws IOException { 
+//           out.close();
+//         }
+//       };
+//   }
+// }
