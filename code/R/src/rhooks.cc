@@ -310,8 +310,12 @@ extern "C" {
     rv = CDR(rv);
     SEXP rval;
     PROTECT(rval = Rf_allocVector(VECSXP, Rf_length(rv)));
-    for (int n = 0 ; n < LENGTH(rval) ; n++, rv = CDR(rv))
+    for (int n = 0 ; n < LENGTH(rval) ; n++, rv = CDR(rv)){
+      SEXP r;
+//       PROTECT(r = Rf_duplicate(CAR(rv)));
       SET_VECTOR_ELT(rval, n, CAR(rv));
+//       UNPROTECT(1);
+    }
     UNPROTECT(2);
 
     delete(rexp);

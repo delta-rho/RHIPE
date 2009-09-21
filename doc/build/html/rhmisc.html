@@ -59,6 +59,7 @@
 <li><a class="reference external" href="#rhdel">rhdel</a></li>
 <li><a class="reference external" href="#rhwrite">rhwrite</a></li>
 <li><a class="reference external" href="#rhread">rhread</a></li>
+<li><a class="reference external" href="#rhmerge">rhmerge</a></li>
 <li><a class="reference external" href="#rhreadbin">rhreadBin</a></li>
 </ul>
 </li>
@@ -68,7 +69,7 @@
 
             <h4>Previous topic</h4>
             <p class="topless"><a href="rhmr.html"
-                                  title="previous chapter">The <tt class="docutils literal docutils literal"><span class="pre">rhmr</span></tt> Command</a></p>
+                                  title="previous chapter">The <tt class="docutils literal"><span class="pre">rhmr</span></tt> Command</a></p>
             <h4>Next topic</h4>
             <p class="topless"><a href="ec2.html"
                                   title="next chapter">Using RHIPE on EC2</a></p>
@@ -189,17 +190,18 @@ to split the list into.  The default value of <tt class="docutils literal"><span
 </div>
 <div class="section" id="rhread">
 <h3>rhread<a class="headerlink" href="#rhread" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><div class="highlight"><pre>rhread <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>files<span class="p">,</span>max<span class="o">=</span><span class="kc">NA</span><span class="p">,</span>batch<span class="o">=</span><span class="m">100</span><span class="p">,</span>length<span class="o">=</span><span class="m">1000</span><span class="p">)</span>
+<div class="highlight-r"><div class="highlight"><pre>rhread <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>files<span class="p">,</span>verbose<span class="o">=</span>T<span class="p">)</span>
 </pre></div>
 </div>
 <p>Reads files(s) from <tt class="docutils literal"><span class="pre">files</span></tt> (which could be a directory). Wildcards allowed.</p>
-<p><tt class="docutils literal"><span class="pre">max</span></tt> is the maximum number of key-values to be read.</p>
-<p><tt class="docutils literal"><span class="pre">batch</span></tt> is how many to key-value pairs to request from Java in one go.</p>
-<p><tt class="docutils literal"><span class="pre">length</span></tt> is the initial size of the return list( a larger value will makes
-things faster if one is expecting to read in many items ).</p>
-<p>The latter two are important when it comes to reading sequence files with many values(100K+), set
-batch to a large number and <tt class="docutils literal"><span class="pre">length</span></tt> to an equally large number to reduce the
-number of JNI calls and vector resizes.</p>
+<p>If <tt class="docutils literal"><span class="pre">verbose</span></tt> is True, information is displayed (useful when reading many files)</p>
+</div>
+<div class="section" id="rhmerge">
+<h3>rhmerge<a class="headerlink" href="#rhmerge" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhmerge<span class="p">(</span>inr<span class="p">,</span>ou<span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">inr</span></tt> can have wildcards. Usually used to merge all files in a directory into one file <tt class="docutils literal"><span class="pre">ou</span></tt> on the local file system.</p>
 </div>
 <div class="section" id="rhreadbin">
 <h3>rhreadBin<a class="headerlink" href="#rhreadbin" title="Permalink to this headline">¶</a></h3>

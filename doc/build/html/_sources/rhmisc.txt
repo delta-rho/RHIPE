@@ -119,21 +119,22 @@ rhread
 
 ::
 	
-	rhread <- function(files,max=NA,batch=100,length=1000)
+	rhread <- function(files,verbose=T)
 
 
 Reads files(s) from ``files`` (which could be a directory). Wildcards allowed.
 
-``max`` is the maximum number of key-values to be read.
+If ``verbose`` is True, information is displayed (useful when reading many files)
 
-``batch`` is how many to key-value pairs to request from Java in one go.
+rhmerge
+^^^^^^^
 
-``length`` is the initial size of the return list( a larger value will makes
-things faster if one is expecting to read in many items ). 
+::
 
-The latter two are important when it comes to reading sequence files with many values(100K+), set
-batch to a large number and ``length`` to an equally large number to reduce the
-number of JNI calls and vector resizes.
+	rhmerge(inr,ou)
+
+
+``inr`` can have wildcards. Usually used to merge all files in a directory into one file ``ou`` on the local file system.
 
 
 .. rhreadText

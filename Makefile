@@ -8,7 +8,7 @@ sync:
 	rsync -av website/ sguha@altair.stat.purdue.edu:/home/www/rhipe/
 
 index: doc
-	/Applications/Aquamacs.app/Contents/MacOS/Aquamacs  -l index2html.el
+	/Applications/Aquamacs\ Emacs.app/Contents/MacOS/Aquamacs\ Emacs  -l index2html.el
 	# mv index.html website/
 
 

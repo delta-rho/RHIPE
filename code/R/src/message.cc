@@ -112,7 +112,7 @@ SEXP message2rexp(const REXP& rexp){
   	  Rf_setAttrib(s,n, message2rexp(rexp.attrvalue(j)));
   	}
     }
-  return(s);
+  return(Rf_duplicate(s)); //iff not forthis things crash, dont know why.
 }
 
 
