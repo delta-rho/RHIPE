@@ -56,7 +56,13 @@ public class RHMRHelper {
 	}
     }
     int exitval(){
-	return sim.exitValue();
+	int exitVal=0;
+	try{
+	     exitVal = sim.waitFor();
+	}catch(InterruptedException e){
+	    exitVal=-99;
+	}
+	return exitVal;
     }
 
     void addJobConfToEnvironment(Configuration conf, Properties env) {

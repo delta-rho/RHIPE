@@ -85,8 +85,12 @@ SEXP message2rexp(const REXP& rexp){
       	st= rexp.stringvalue(i);
       	if (st.isna())
       	  SET_STRING_ELT(s,i,R_NaString);
-      	else
-      	  SET_STRING_ELT(s,i, Rf_mkChar(st.strval().c_str()));
+      	else{
+	  SEXP y=  Rf_mkChar(st.strval().c_str());
+// // 	  Rf_PrintValue(y);
+// 	  mmessage("%d==typeof", TYPEOF(y));
+      	  SET_STRING_ELT(s,i,y);
+	}
       }
       UNPROTECT(1);
       break;
@@ -103,13 +107,26 @@ SEXP message2rexp(const REXP& rexp){
       UNPROTECT(1);
       break;
   }
+//   Rf_PrintValue(s);
   int atlength = rexp.attrname_size();
-  if (atlength>0)
+  int typ = TYPEOF(s);
+  if (atlength>0  )
     {
       for (int j=0; j<atlength; j++)
   	{
-  	  SEXP n=Rf_mkString(rexp.attrname(j).c_str());
-  	  Rf_setAttrib(s,n, message2rexp(rexp.attrvalue(j)));
+	  const char *nameofatt = rexp.attrname(j).c_str();
+	  if(strcmp(nameofatt,"names")==0 && typ!=VECSXP) continue;
+// 	  if(strcmp(nameofatt,"names")==0 ){
+// // 	    Rf_setAttrib(s, R_NamesSymbol,
+// 	    message2rexp(rexp.attrvalue(j));
+// // 			   );
+// 	    continue;
+// 	  }
+  	  SEXP n=Rf_mkString(nameofatt);
+	  SEXP v ;
+	  PROTECT(v= message2rexp(rexp.attrvalue(j)));
+  	  Rf_setAttrib(s,n, v );
+	  UNPROTECT(1);
   	}
     }
   return(Rf_duplicate(s)); //iff not forthis things crash, dont know why.

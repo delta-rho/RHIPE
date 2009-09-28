@@ -138,6 +138,7 @@ extern "C" {
     rexp_container->ParseFromArray(d,n);
     PROTECT(k = message2rexp(*rexp_container));
     UNPROTECT(1);
+//     Rf_PrintValue(k);
     return(k);
   }
   /**

@@ -58,11 +58,11 @@ The current version is *always* the master.
 
 Read the documentation for installation. Current is the latest version.
 
-| Version | Download         |
-|---------+------------------|
-| Current | [[file:./dn/rhipe.tar.gz][rhipe.tar.gz]]     |
+| Version | Download          |
+|---------+-------------------|
+| Current | [[file:./dn/rhipe.tar.gz][rhipe.tar.gz]]      |
 |     0.5 | [[file:./dn/Rhipe_0.5.tar.gz][Rhipe\_0.5.tar.gz]] |
-|    0.44 | [[./dn/rhipe.0.44.tgz][rhipe.0.44.tgz]]   |
+|    0.44 | [[./dn/rhipe.0.44.tgz][rhipe.0.44.tgz]]    |
 
 
 
@@ -73,6 +73,9 @@ Download the scripts from [[./dn/rhipeec2.tar.gz][here]], untar it. This will cr
 * Documentation
 The documentation can be found [[file:./doc/html/index.html][here]]. PDF version can be found [[file:./doc/rhipe.pdf][here]]
 * News
+** Sun Sep 27 22:01:33 EDT 2009
+- Names are *only* read for VECSXP (list objects), because of a strange bug.
+
 ** Tue Sep  8 15:35:24 EDT 2009
 - Moved to Hadoop 0.20
 - Uses protobuf for serialization, fewer R types allowed
@@ -86,4 +89,4 @@ The documentation can be found [[file:./doc/html/index.html][here]]. PDF version
   to seed it to avoid correlated streams. On RHEL linux
  when running =rhlapply= on 145K+ tasks,  =/dev/random= would block.
 
-
+ 

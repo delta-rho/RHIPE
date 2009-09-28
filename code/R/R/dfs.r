@@ -195,6 +195,7 @@ rhread <- function(files,verbose=T){
   cfg <- rhoptions()$hadoop.cfg
   j=list()
   count <- 0
+  fc <- 1
   tf <- tempfile(pattern='rhread',tmpdir="/tmp")
   for(x in files){
     .jcheck();reader <- .jnew("org.godhuli.rhipe.RHReader");.jcheck();
@@ -204,14 +205,16 @@ rhread <- function(files,verbose=T){
     .jcheck()
     if(numread==0) break;
     rawkv <- .jcall(reader,"[B","getKVByteArray");
-    ll <- .Call("returnListOfKV", rawkv, numread)
-       j <- append(j,ll)  
-##     j_ <- lapply(ll,function(r) r) ##i i just use ll in append it crashes
-##     j <- append(j,j_)
+    j_<- .Call("returnListOfKV", rawkv, numread)
+##     j[[fc]] <-j_
+##     fc=fc+1
+    j <- append(j,j_)
     count <- count+numread
     if(verbose) cat("Read",numread,"key/value pairs from file: ",x,"total: ",count,"\n")
     .jcheck();.jcall(reader,"V","close");.jcheck()
   }
+##   cat("Collating", length(files), "files")
+##   j <- do.call("append",list(list(),values=j))
   return(j)
 }
 
