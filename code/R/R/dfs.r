@@ -23,6 +23,7 @@ rhreadBin <- function(file,maxnum=-1, readbuf=0){
   x= .Call("readBinaryFile",file[1],as.integer(maxnum),as.integer(readbuf))
 ##   y=lapply(x,function(r) r) ##need to copy else crash seg fault on some data structs, ?
 ##   y
+  lapply(x,function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
 }
 
 rhsz <- function(r) .Call("serializeUsingPB",r)
@@ -203,12 +204,14 @@ rhread <- function(files,verbose=T){
     numread <- 1
     numread <- .jcall(reader,"I","readKVByteArray",-1L)
     .jcheck()
-    if(numread==0) break;
+    if(numread==0) next;
     rawkv <- .jcall(reader,"[B","getKVByteArray");
-    j_<- .Call("returnListOfKV", rawkv, numread)
+    j_1<- .Call("returnListOfKV", rawkv, numread)
+##     print(j_1)
+    j_1 <- lapply(j_1, function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
 ##     j[[fc]] <-j_
 ##     fc=fc+1
-    j <- append(j,j_)
+    j <- append(j,j_1)
     count <- count+numread
     if(verbose) cat("Read",numread,"key/value pairs from file: ",x,"total: ",count,"\n")
     .jcheck();.jcall(reader,"V","close");.jcheck()

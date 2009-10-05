@@ -5,7 +5,7 @@ A package called rprotobuf which implements a simple serialization using Googles
 protocol buffers[1].  The package also includes some miscellaneous functions for
 writing/reading variable length encoded integers, and Base64 encoding/decoding
 related functions.  The package can be downloaded from
-http://ml.stat.purdue.edu/rprotobuf_1.1.tar.gz . It requires one to install ``libproto``
+http://ml.stat.purdue.edu/rpackages/rprotobuf_1.1.tar.gz . It requires one to install ``libproto``
 (Googles protobuffer library)
 
 **Requirements**
@@ -46,7 +46,7 @@ Serialization/deserialization(for these extras SEXP types)  *appear* to work but
 **Download**
 
 
-Package(with source) : http://ml.stat.purdue.edu/rprotobuf_1.1.tar.gz
+Package(with source) : http://ml.stat.purdue.edu/rpackages/rprotobuf_1.1.tar.gz
 
 Install ::
     

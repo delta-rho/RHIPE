@@ -23,7 +23,11 @@ assign("rhipeOptions" ,list(version="0.5") ,envir=.rhipeEnv )
   opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",.Platform$r_arch,
                                   sep=.Platform$file.sep),pattern="imperious.so",full=T)
   opts$runner <- c("R","CMD", opts$runner,"--slave","--silent","--vanilla")
+##   opts$runner <- c(paste(R.home(component='bin'),"/R",sep=""), opts$runner,"--slave","--silent","--vanilla")
+##   opts$runner <- c(opts$runner,"--slave","--silent","--vanilla")
   opts$fsshell <- .jnew("org/godhuli/rhipe/FileUtils",cfg)
   assign("rhipeOptions",opts,envir=.rhipeEnv)
 
 }
+
+##  c(paste(R.home(component='bin'),"/R",sep=""), rhoptions()$runner[3],"--slave","--silent","--vanilla")

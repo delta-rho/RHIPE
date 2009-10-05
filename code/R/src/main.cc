@@ -69,7 +69,7 @@ int main(int argc,char *argv){
 
   if (embedR(argc,argv))
     {
-      exit(1);
+      exit(101);
     }
   LOGG(10,"R Embedded\n");
   GOOGLE_PROTOBUF_VERIFY_VERSION;

@@ -30,6 +30,16 @@ Tested on RHEL Linux, though *may* work on Windows
 
 Installation
 ------------
+Rhipe requires the following environment variables 
+
+::
+
+	HADOOP=location of Hadoop installation
+	HADOOP_LIB=location of lib jar files included with Hadoop, usually
+	$HADOOP/lib
+	HADOOP_CONF_DIR=location of Hadoop conf folder, (usually $HADOOP/conf)
+
+
 On every machine
 
 ::

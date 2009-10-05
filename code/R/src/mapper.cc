@@ -139,7 +139,7 @@ const int mapper_run2(void){
   if(runner2==NILSXP){
     merror("RHIPE ERROR: Could not create mapper\n");
     UNPROTECT(2);
-    return(1);
+    return(1009);
   }
   
   if ((mapbustr=getenv("rhipe_map_buff_size"))){
@@ -208,13 +208,13 @@ const int mapper_run2(void){
 	PROTECT(k= readFromHadoop(type,&err));
 	if(err) {
 	  UNPROTECT(5);
-	  return(0);
+	  return(1);
 	}
 	type = readVInt64FromFileDescriptor(CMMNC->BSTDIN);
 	PROTECT( v = readFromHadoop(type,&err));
 	if(err) {
 	  UNPROTECT(6);
-	  return(0);
+	  return(1);
 	}
 
 	SET_VECTOR_ELT(vvector, mapbuf_cnt, v);
@@ -308,11 +308,11 @@ const int mapper_setup(void){
     PROTECT(setupm=rexpress(MAPSETUPS));
     R_tryEval(Rf_lang2(Rf_install("eval"),setupm),NULL,&Rerr);
     UNPROTECT(1);
-    if(Rerr) return(Rerr);
+    if(Rerr) return(Rerr+2000);
   }
   else {
     merror("RHIPE ERROR: What command is this for setup: %d ?\n",type);
-    return(1);
+    return(102);
   }
   return(0);
 }

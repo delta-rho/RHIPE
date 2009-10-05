@@ -4,12 +4,13 @@
 using namespace std;
 
 
-static REXP *rexp_container = new REXP();
+// static REXP *rexp_container = new REXP();
 
 extern "C" {
   //Neither of these are thread safe...
   SEXP serializeUsingPB(SEXP robj)
   {
+    REXP *rexp_container = new REXP();
     rexp_container->Clear();
     rexp2message(rexp_container,robj);  
     int bs = rexp_container->ByteSize();
@@ -17,6 +18,7 @@ extern "C" {
     PROTECT(result = Rf_allocVector(RAWSXP,bs));
     rexp_container->SerializeWithCachedSizesToArray(RAW(result));
     UNPROTECT(1);
+    delete(rexp_container);
     return(result);
   }
   
@@ -26,10 +28,12 @@ extern "C" {
       Rf_error("Must pass a raw vector");
     SEXP ans  = R_NilValue;
     // REXP *rexp = new REXP();
-    rexp_container->Clear();
+    REXP *rexp_container = new REXP();
+//     rexp_container->Clear();
     rexp_container->ParseFromArray(RAW(robj),LENGTH(robj));
     PROTECT(ans = message2rexp(*rexp_container));
     UNPROTECT(1);
+    delete(rexp_container);
     return(ans);
   }
   
@@ -134,12 +138,16 @@ extern "C" {
   
   SEXP kk_(char *d,int n){
     SEXP k;
-    rexp_container->Clear();
+    REXP *rexp_container = new REXP();
+
+//     rexp_container->Clear();
     rexp_container->ParseFromArray(d,n);
     PROTECT(k = message2rexp(*rexp_container));
     UNPROTECT(1);
+    delete(rexp_container);
 //     Rf_PrintValue(k);
     return(k);
+
   }
   /**
      library(Rhipe)
@@ -173,15 +181,22 @@ extern "C" {
       r = reverseUInt(*((int*) x  ));
       x+=4;
 
-      PROTECT(k= kk_(x,r));
+      
+//       PROTECT(k= kk_(x,r));
+      PROTECT(k = Rf_allocVector(RAWSXP, r));
+      memcpy(RAW(k), x,r);
       x+= r;
 //       SET_VECTOR_ELT(rval, 2*i,k);
+//       Rf_PrintValue(k);
       SET_VECTOR_ELT(l,0,k);
       UNPROTECT(1);
       
       r = reverseUInt(*((int*) x));
       x+=4;
-      PROTECT(v= kk_(x,r));
+//       PROTECT(v= kk_(x,r));
+      PROTECT(v = Rf_allocVector(RAWSXP, r));
+      memcpy(RAW(v), x,r);
+
       x+=r;
 //       SET_VECTOR_ELT(rval,2*i+1,v);
       SET_VECTOR_ELT(l,1,v);
@@ -275,15 +290,18 @@ extern "C" {
 	UNPROTECT(1);
 	break;
       }
-      rexp->Clear();
-      rexp->ParseFromArray( kvhold, kvlength );
-      PROTECT(k = message2rexp(*rexp));
+ //       rexp->Clear();
+//       rexp->ParseFromArray( kvhold, kvlength );
+//       PROTECT(k = message2rexp(*rexp));
+
+      PROTECT(k = Rf_allocVector(RAWSXP,kvlength));
+      memcpy(RAW(k), kvhold,kvlength);
       SET_VECTOR_ELT( l, 0, k);
       // Rf_PrintValue(k);
       // read value
       fread(&kvlength, sizeof(int32_t),1,fp);
       kvlength = reverseUInt(kvlength);
-
+      
       if( kvlength > w){
 	kvhold = realloc( kvhold, kvlength + 2048);
 	w = kvlength+2048;
@@ -293,33 +311,36 @@ extern "C" {
 	UNPROTECT(2);
 	break;
       }
-      rexp->Clear();
-      rexp->ParseFromArray( kvhold, kvlength );
-      PROTECT(v = message2rexp(*rexp));
-      // Rf_PrintValue(v);
+// //       rexp->Clear();
+//       rexp->ParseFromArray( kvhold, kvlength );
+//       PROTECT(v = message2rexp(*rexp));
+//       Rf_PrintValue(v);
 
-      SET_VECTOR_ELT( l, 1, v);
-      UNPROTECT(3);
-      rv = GrowList(rv, l);
 
-      count++;
-      R_CheckUserInterrupt();
+       PROTECT(v = Rf_allocVector(RAWSXP,kvlength));
+       memcpy(RAW(v), kvhold,kvlength);
+       SET_VECTOR_ELT( l, 1, v);
+       UNPROTECT(3);
+       rv = GrowList(rv, l);
+       
+       count++;
+       R_CheckUserInterrupt();
 
-      if(max >=0 && count >= max) break;
+       if(max >=0 && count >= max) break;
     }
 
     rv = CDR(rv);
     SEXP rval;
     PROTECT(rval = Rf_allocVector(VECSXP, Rf_length(rv)));
     for (int n = 0 ; n < LENGTH(rval) ; n++, rv = CDR(rv)){
-      SEXP r;
+//       SEXP r;
 //       PROTECT(r = Rf_duplicate(CAR(rv)));
       SET_VECTOR_ELT(rval, n, CAR(rv));
 //       UNPROTECT(1);
     }
     UNPROTECT(2);
 
-    delete(rexp);
+//     delete(rexp);
     free(kvhold);
     free(buffer);
     fclose(fp);

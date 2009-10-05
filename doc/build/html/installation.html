@@ -111,6 +111,13 @@ PKG_CONFIG_PATH variable, e.g</p>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Rhipe requires the following environment variables</p>
+<div class="highlight-r"><div class="highlight"><pre>HADOOP<span class="o">=</span>location of Hadoop installation
+HADOOP_LIB<span class="o">=</span>location of lib jar files included with Hadoop<span class="p">,</span> usually
+<span class="p">$</span>HADOOP<span class="o">/</span>lib
+HADOOP_CONF_DIR<span class="o">=</span>location of Hadoop conf folder<span class="p">,</span> <span class="p">(</span>usually <span class="p">$</span>HADOOP<span class="o">/</span>conf<span class="p">)</span>
+</pre></div>
+</div>
 <p>On every machine</p>
 <div class="highlight-r"><div class="highlight"><pre>R CMD INSTALL Rhipe_VERSION.tar.gz
 </pre></div>
