@@ -1,0 +1,117 @@
+doCMD <- function(CMD=0,needoutput=F,opts=rhoptions(),verbose=T,ignore.stderr=F
+                  ,fold=NA,src=NA,dest=NA,locals=NA
+                  ,overwrite=NA,tempf=NA,output=NA
+                  ,groupsize=NA,howmany=NA,N=NA, infiles=NA, ofile=NA,ilocal=NA){
+  on.exit({unlink(tm)})
+  tm <- paste(tempfile(),paste(sample(letters,5),sep="",collapse=""),sep="",collapse="")
+##   cp <- opts$cp
+ ##  ip <- paste("java -cp ",paste(cp,sep="",collapse=":")," ",
+##               "org.godhuli.rhipe.FileUtils",sep="",collapse="")
+
+  ip <- paste(Sys.getenv("HADOOP"),"/bin/hadoop jar ",opts$jarloc," ",
+              "org.godhuli.rhipe.FileUtils",sep="",collapse="")
+  
+  p <- switch(as.integer(CMD),
+              {
+                rhsz(fold)
+              },
+              {
+                rhsz(c(src,dest))
+              },
+              {
+                rhsz(fold)
+              },
+              {
+                rhsz(list(locals,dest,overwrite))
+              },
+              {
+                rhsz(c(tempf,output,groupsize,howmany,N))
+              },
+              {
+                rhsz(c(infiles,ofile,ilocal*1))
+              })
+  if(!is.null(p)){
+    f <- file(tm, open='wb')
+    writeBin(p,f)
+    close(f);
+  }    
+  cmd <- paste(ip," ",CMD, " ",tm,sep='',collapse='')
+  if(verbose) cat(cmd,"\n")
+  r <- system(cmd,
+              intern=F,ignore.stderr=ignore.stderr)
+  if(verbose) message("Error Code is ",r)
+  if(r==256){
+    f <- file(tm, open='rb')
+    s <- readBin(f,'int',1,size=4,endian='big')
+    close(f)
+    stop(rhuz(readBin(f,'raw',n=s)))
+  }else
+  if(needoutput){
+    f <- file(tm, open='rb')
+    s <- readBin(f,'int',1,size=4,endian='big')
+    x <- rhuz(readBin(f,'raw',n=s))
+    close(f)
+    return(x)
+  }
+}
+
+
+
+## checkEx <- function(socket){
+##   v <- readBin(socket,'raw',n=1)
+##   if(v==as.raw(0x0)){
+##     v <- readBin(socket,'int',n=1,size=4,endian='big')
+##     v <- readBin(socket,'raw',n=v)
+##     stop(rawToChar(v))
+##   }
+## }
+
+
+
+## ## doDeletableFile <- function(fold,sock){
+## ##   pl <- rhsz(fold)
+## ##   writeBin(2L,sock,size=4,endian='big')
+## ##   writeBin(length(pl),sock,size=4,endian='big')
+## ##   writeBin(pl,sock,endian='big')
+## ##   checkEx(sock)
+## ## }
+
+## doPut <- function(fold1,dest,bool,sock){
+##   pl <- rhsz(list(fold1,dest,bool))
+##   writeBin(3L,sock,size=4,endian='big')
+##   writeBin(length(pl),sock,size=4,endian='big')
+##   writeBin(pl,sock,endian='big')
+##   checkEx(sock)
+## }
+
+## doGet <- function(fold1,fold2,sock){
+##   pl <- rhsz(c(fold1,fold2))
+##   writeBin(4L,sock,size=4,endian='big')
+##   writeBin(length(pl),sock,size=4,endian='big')
+##   writeBin(pl,sock,endian='big')
+##   checkEx(sock)
+## }
+## doLS <- function(fold,sock){
+##   pl <- rhsz(fold)
+##   writeBin(5L,sock,size=4,endian='big')
+##   writeBin(length(pl),sock,size=4,endian='big')
+##   writeBin(pl,sock,endian='big')
+##   checkEx(sock)
+##   v <- readBin(sock,'int',n=1,endian='big')
+##   v <- readBin(sock,'raw',n=v)
+##   rhuz(v)
+## }
+## doDel <- function(fold,sock){
+##   pl <- rhsz(fold)
+##   writeBin(6L,sock,size=4,endian='big')
+##   writeBin(length(pl),sock,size=4,endian='big')
+##   writeBin(pl,sock,endian='big')
+##   checkEx(sock)
+## }
+## doConvertBinToSequence <- function(infile,outfile,group,nfiles, total,sock){
+##   pl <- rhsz(c(infile,outfile, group,nfiles, total))
+##   writeBin(7L,sock,size=4,endian='big')
+##   writeBin(length(pl),sock,size=4,endian='big')
+##   writeBin(pl,sock,endian='big')
+##   checkEx(sock)
+## }
