@@ -2,8 +2,13 @@ rhoptions <- function(){
   get("rhipeOptions",envir=.rhipeEnv)
 }
 
-
-
+rhsetoptions <- function(li=NA,...){
+  N <- list(...)
+  v <- rhoptions()
+  for(x in names(N))
+    v[[x]] <- N[[x]]
+  assign("rhipeOptions",v,envir=.rhipeEnv)
+}
 
        
 rhmr <- function(map,reduce=NULL,
@@ -91,7 +96,7 @@ rhmr <- function(map,reduce=NULL,
       ofolder <- paste(ofolder,"/",sep="")
   }
   lines<- append(lines,list(
-                     R_HOME=Sys.getenv("R_HOME")
+                     R_HOME=R.home()
                      ,rhipe_map=rawToChar(map.s)
                      ,rhipe_setup_map=rawToChar(setup.m)
                      ,rhipe_cleanup_map= rawToChar(cleanup.m)
@@ -185,16 +190,7 @@ rhmr <- function(map,reduce=NULL,
   
   lines <- lapply(lines,as.character);
   conf <- tempfile(pattern='rhipe')
-  conffile <- file(conf,open='wb')
-  writeBin(as.integer(length(lines)),conffile,size=4,endian='big')
-  for(x in names(lines)){
-    writeBin(as.integer(nchar(x)),conffile,size=4,endian='big')
-    writeBin(charToRaw(x), conffile,endian='big')
-    writeBin(as.integer(nchar(lines[[x]])),conffile,size=4,endian='big')
-    writeBin(charToRaw(as.character(lines[[x]])),conffile,endian='big')
-  }
-    
-  close(conffile)
+
   h <- list(lines,temp=conf)
   if(!is.null(mapred$class))
     class(h)=mapred$class
@@ -206,7 +202,7 @@ rhmr <- function(map,reduce=NULL,
 
 rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
                     inout=c("lapply","sequence"),readIn=T,mapred=list(),jobname="rhlapply",
-                     ...){
+                     doLocal=F,...){
   del.o.file <- F
   del.i.file <- F
   
@@ -241,18 +237,24 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
 
   if(ofolder==""){
     ##One hopes this is unique
-    tempo.file <- paste("/tmp/",tail(strsplit(tempfile(patter="rhipelapply.output."),
+    tempo.file <- paste("/tmp/",tail(strsplit(tempfile(patter=paste("rhipelapply.output.",
+                                                         paste(sample(letters,4),sep="",collapse=""),sep="",collapse="")),
                                               "/+")[[1]],1),"/",sep="")
-    .jcheck();.jcall(rhoptions()$fsshell,"V","makeFolderToDelete",tempo.file,check=T);
+##     .jcheck();.jcall(rhoptions()$fsshell,"V","makeFolderToDelete",tempo.file,check=T);
+##     doDeletableFile(tempo.file,rhoptions()$socket)
     del.o.file <- T}
   else{
     tempo.file <- ofolder
   }
+  ## sok <-  socketConnection('127.0.0.1',rhoptions()$port,open='wb',blocking=T)
   
   if(is.list(ll)){
-    tempi.file <-  paste("/tmp/",tail(strsplit(tempfile(patter="rhipelapply.input.")
+    tempi.file <-  paste("/tmp/",tail(strsplit(paste(tempfile(patter="rhipelapply.input."),
+                                                     paste(sample(letters,4),sep="",collapse=""),
+                                                     sep="",collapse="")
                                                ,"/+")[[1]],1),"/",sep="")
-    rhwrite(ll,f=paste(tempi.file,"p",sep=""),...)
+##1
+    rhwrite(ll,f=tempi.file)#
     ifolder=tempi.file
     del.i.file <- T
   }
@@ -275,12 +277,18 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
   h=list(z,function(){
     retdata <- NULL
       on.exit({
+        #2
             if(del.o.file) rhdel(tempo.file)
             if(del.i.file) rhdel(tempi.file)
             return(retdata)
           })
-      if(readIn)
-        retdata <- rhread(paste(tempo.file,"/p*",sep=""))
+      if(readIn){
+        message("---------------")
+        message("Reading in Data")
+        message("---------------")
+        #3
+        retdata <- rhread(paste(tempo.file,"/p*",sep=""),doLocal)
+      }
     })
   class(h)="rhlapply"
   h
@@ -294,14 +302,31 @@ rhex <- function (conf)
   if(class(conf)=="rhlapply") {
     zonf <- conf[[1]]$temp
     exitf <- conf[[2]]
+    lines <- conf[[1]][[1]]
   }else if(class(conf)=='rhmr'){
     zonf <- conf$temp
+    lines <- conf
   }else
   stop("Wrong class of list given")
+
+
+  conffile <- file(zonf,open='wb')
+  writeBin(as.integer(length(lines)),conffile,size=4,endian='big')
+  for(x in names(lines)){
+    writeBin(as.integer(nchar(x)),conffile,size=4,endian='big')
+    writeBin(charToRaw(x), conffile,endian='big')
+    writeBin(as.integer(nchar(lines[[x]])),conffile,size=4,endian='big')
+    writeBin(charToRaw(as.character(lines[[x]])),conffile,endian='big')
+  }
+  close(conffile)
+  
   cmd <- paste("$HADOOP/bin/hadoop jar ", rhoptions()$jarloc, 
                " org.godhuli.rhipe.RHMR ", zonf, sep = "")
-  cat("Running: ", cmd, "\n")
+  x. <- paste("Running: ", cmd)
+  y. <- paste(rep("-",min(nchar(x.),40)))
+  message(y.);message(x.);message(y.)
   result <- system(cmd)
+  unlink(zonf)
   if(result==256 && !is.null(exitf)){
     return(exitf())
   }

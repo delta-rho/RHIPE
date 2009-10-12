@@ -1,4 +1,4 @@
-PKG_CXXFLAGS+= -I. -O3   `pkg-config --cflags protobuf` -Wall
+MYCXXFLAGS+= -I. -O3   -fopenmp  `pkg-config --cflags protobuf` -Wall
 PKG_LIBS+= `pkg-config --libs protobuf`
 
 # RHOME=`echo "cat(Sys.getenv('R_HOME'))" | R --slave `
@@ -13,9 +13,25 @@ RLIB=`R CMD config --ldflags`
 all: $(SHLIB) app
 
 
+rexp.pb.o: rexp.pb.cc
+	 $(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+message.o: message.cc
+	 $(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+utility.o: utility.cc
+	 $(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+display.o: display.cc
+	 $(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+reducer.o: reducer.cc
+	 $(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+mapper.o: mapper.cc
+	 $(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+main.o: main.cc
+	 $(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+rhooks.o: rhooks.cc
+	 $(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
 
 app:  rexp.pb.o message.o utility.o display.o reducer.o mapper.o main.o
-	g++ -g ${PKG_CXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB} $^ -o imperious.so
+	$(CXX) -g ${MYCXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB} $^ -o imperious.so
 
 
 

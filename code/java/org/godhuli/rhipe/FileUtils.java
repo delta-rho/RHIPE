@@ -15,6 +15,10 @@
  */
 
 package org.godhuli.rhipe;
+import java.io.Writer;
+import java.io.StringWriter;
+import java.io.PrintWriter;
+import java.io.FileOutputStream;
 
 import java.io.IOException;
 import java.io.DataInputStream;
@@ -34,7 +38,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-
+import org.apache.hadoop.conf.Configuration;
+import org.godhuli.rhipe.REXPProtos.REXP;
+import org.godhuli.rhipe.REXPProtos.REXP.RClass;
+import java.util.*;
+import java.io.IOException;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.Trash;
 import org.apache.hadoop.io.Text;
@@ -216,5 +226,150 @@ public class FileUtils {
 		    throw new IOException("Multiple IOExceptions: " + exceptions);
 	}
     }
+    private REXP readInfo(String file) throws IOException{
+	DataInputStream in = new 
+	    DataInputStream(new FileInputStream(file));
+	return(REXP.parseFrom(in));
+    }
 
+    private  REXP mapredopts() throws Exception{
+	Iterator<Map.Entry<String,String>> iter = cfg.iterator();
+	Vector<REXP> ent = new Vector<REXP>();
+	Vector<String> str = new Vector<String>();
+	while(iter.hasNext()){
+	    Map.Entry<String,String> c = iter.next();
+	    String key = c.getKey();
+	    String value = c.getValue();
+	    str.add( key);
+	    ent.add( RObjects.makeStringVector( value ));
+	}
+	return(RObjects.makeList(str,ent));
+    }
+
+    private static String getStackTrace(Throwable aThrowable) {
+	final Writer result = new StringWriter();
+	final PrintWriter printWriter = new PrintWriter(result);
+	aThrowable.printStackTrace(printWriter);
+	return result.toString();
+    }
+    public void binary2sequence(REXP rexp0) throws Exception{
+	String tf= rexp0.getStringValue(0).getStrval();
+	String ofold= rexp0.getStringValue(1).getStrval();
+	int groupsize = Integer.parseInt(rexp0.getStringValue(2).getStrval());
+	int howmany = Integer.parseInt(rexp0.getStringValue(3).getStrval());
+	int N = Integer.parseInt(rexp0.getStringValue(4).getStrval());
+	DataInputStream in = new 
+	    DataInputStream(new FileInputStream(tf));
+	int count=0;
+	for(int i=0;i < howmany-1;i++){
+	    String f = ofold+"/"+i;
+	    RHWriter w = new RHWriter(f,cfg);
+	    w.doWriteFile(in,groupsize);
+	    count=count+groupsize;
+	    w.close();
+	}
+	if(count < N){
+	    count=N-count;
+	    String f = ofold+"/"+(howmany-1);
+	    RHWriter w = new RHWriter(f,cfg);
+	    w.doWriteFile(in,count);
+	    w.close();
+	}
+    }
+
+    public void sequence2binary(REXP rexp0) throws Exception{
+	int n = rexp0.getStringValueCount();
+	String[] infile = new String[n-2];
+	String ofile = rexp0.getStringValue(n-2).getStrval();
+	int local = Integer.parseInt(rexp0.getStringValue(n-1).getStrval());
+	for(int i=0;i< n-2;i++) infile[i] = rexp0.getStringValue(i).getStrval();
+	S2B s = new S2B();
+	if(!s.runme( infile, ofile,local==1 ? true:false)){
+	    throw new Exception("Could not convert sequence to binary");
+	}
+    }
+    public void writeTo(String ofile, REXP b) {
+	try{
+	    DataOutputStream out = new 
+	    DataOutputStream(new FileOutputStream(ofile));
+	    byte[] bytes = b.toByteArray();
+	    out.writeInt( bytes.length);
+	    out.write(bytes);
+	    out.close();
+	}catch(Exception e){e.printStackTrace();}
+    }
+
+    public static void main(String[] args) throws Exception{
+	int cmd = Integer.parseInt(args[0]);
+	//parse data
+	//invokes class CMD inputfile
+	//writes results(or erors) to inputfile
+	REXP r;
+	REXP b=null;
+	boolean error = false;
+	FileUtils fu= new FileUtils(new Configuration());
+	try{
+	    switch(cmd){
+	    case 0:
+		// hadoop options
+		b = fu.mapredopts();
+		fu.writeTo(args[1], b);
+		break;
+	    case 1:
+		// ls
+		r = fu.readInfo(args[1]);
+		String folder = r.getStringValue(0).getStrval();
+		String result0 = fu.ls(folder);
+		b = RObjects.makeStringVector(result0);
+		fu.writeTo(args[1], b);
+		break;
+	    case 2:
+		//copy from hdfs to local
+		r = fu.readInfo(args[1]);
+		String src = r.getStringValue(0).getStrval();
+		String dest = r.getStringValue(1).getStrval();
+		fu.copyMain(src,dest);
+		break;
+	    case 3:
+		//delete from the hdfs
+		r = fu.readInfo(args[1]);
+		String s = r.getStringValue(0).getStrval();
+		fu.delete(s,true);
+		break;
+	    case 4:
+		//copy local files to hdfs
+		r = fu.readInfo(args[1]);
+		String[] locals = new String[r.getRexpValue(0).getStringValueCount()];
+		for(int i=0;i<locals.length;i++) locals[i] = r.getRexpValue(0).
+						getStringValue(i).getStrval();
+		String dest2 = r.getRexpValue(1).getStringValue(0).getStrval();
+		REXP.RBOOLEAN overwrite_ = r.getRexpValue(2).getBooleanValue(0);
+		boolean overwrite;
+		if(overwrite_==REXP.RBOOLEAN.F)
+		    overwrite=false;
+		else if(overwrite_==REXP.RBOOLEAN.T)
+		    overwrite=true;
+		else
+		    overwrite=false;
+		fu.copyFromLocalFile(locals,dest2,overwrite);
+		break;
+	    case 5:
+		r = fu.readInfo(args[1]);
+		fu.binary2sequence(r);
+		break;
+	    case 6:
+		r = fu.readInfo(args[1]);
+		fu.sequence2binary(r);
+		break;
+	    }
+	    
+	}catch(Exception e){
+	    e.printStackTrace();
+	    String x = getStackTrace(e);
+	    error=true;
+	    b = RObjects.makeStringVector(x);
+	    fu.writeTo(args[1], b);
+	}
+	System.exit(error? 1:0);
+    }
 }

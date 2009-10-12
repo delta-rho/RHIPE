@@ -28,6 +28,7 @@ post={
 z=rhmr(map=m,reduce=r,comb=F,inout=c("text","sequence"),ifolder="/tmp/50mil",ofolder='/tmp/tof')
 rhex(z)
 #+END_SRC
+For more information about what RHIPE is and not read the FAQ.
 
 * =rprotobuf=
 An R package to serialize R objects using Google's protobuffers
@@ -58,11 +59,11 @@ The current version is *always* the master.
 
 Read the documentation for installation. Current is the latest version.
 
-| Version | Download          |
-|---------+-------------------|
-| Current | [[file:./dn/rhipe.tar.gz][rhipe.tar.gz]]      |
-|     0.5 | [[file:./dn/Rhipe_0.5.tar.gz][Rhipe\_0.5.tar.gz]] |
-|    0.44 | [[./dn/rhipe.0.44.tgz][rhipe.0.44.tgz]]    |
+| Version | Download           |
+|---------+--------------------|
+|    0.51 | [[file:./dn/Rhipe_0.51.tar.gz][Rhipe\_0.51.tar.gz]] |
+|     0.5 | [[file:./dn/Rhipe_0.5.tar.gz][Rhipe\_0.5.tar.gz]]  |
+|    0.44 | [[./dn/rhipe.0.44.tgz][rhipe.0.44.tgz]]     |
 
 
 
@@ -73,6 +74,10 @@ Download the scripts from [[./dn/rhipeec2.tar.gz][here]], untar it. This will cr
 * Documentation
 The documentation can be found [[file:./doc/html/index.html][here]]. PDF version can be found [[file:./doc/rhipe.pdf][here]]
 * News
+** Mon Oct 12 11:18:31 EDT 2009
+- Removed the dependency on rJava. Getting it to work with Hadoop classpaths
+  caused to much grief. The actualy RHIPE program remains unchanged but the
+  client handler (R package) is a bit slower(?)
 ** Sun Sep 27 22:01:33 EDT 2009
 - Names are *only* read for VECSXP (list objects), because of a strange bug.
 
@@ -90,3 +95,5 @@ The documentation can be found [[file:./doc/html/index.html][here]]. PDF version
  when running =rhlapply= on 145K+ tasks,  =/dev/random= would block.
 
  
+* Contact
+sguha -AT- purdue -DOT- edu

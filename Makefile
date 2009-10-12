@@ -1,4 +1,4 @@
-VER=0.5
+VER=0.51
 
 .PHONY : doc code  sync
 
@@ -25,8 +25,10 @@ code:
 	ant -f build/build.xml
 	ant -f build/build.xml clean	
 
-	mv build/R build/Rhipe
-	tar -czf Rhipe_${VER}.tar.gz  -C build/  Rhipe
+	cd
+# 	mv build/R build/Rhipe
+	# tar -czf Rhipe_${VER}.tar.gz  -C build/  Rhipe
+	R CMD BUILD build/R
 	rsync  Rhipe_${VER}.tar.gz website/dn/
 	rm -rf Rhipe_${VER}.tar.gz
 	cp website/dn/Rhipe_${VER}.tar.gz website/dn/rhipe.tar.gz

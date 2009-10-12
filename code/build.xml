@@ -32,6 +32,7 @@
   </target>
 
   <target name="compile">
+  <delete file="${ant.project.name}.jar"/>
     <mkdir dir="${classes.dir}"/>
     <javac srcdir="${src.dir}" includes="**/*.java" destdir="${classes.dir}" classpathref="classpath"
 	   optimize="${javac.optimize}"
@@ -42,12 +43,19 @@
 	   debuglevel="lines,vars,source">
       <compilerarg line="${javac.args.warnings}"/>
     </javac>
-     <unjar dest="${classes.dir}" src="${lib.dir}/protobuf-java-2.2.0.jar"/>
+<!--      <unjar dest="${classes.dir}" src="${lib.dir}/protobuf-java-2.2.0.jar"/> -->
+     <unjar dest="${classes.dir}">
+       <fileset dir=".">
+        <include name="**/*.jar"/>
+    </fileset>
+     </unjar>
   </target>
 
   <target name="jar" depends="compile">
     <property name="version.num" value="1"/>
     <buildnumber file="build.num"/>
+    
+
     <jar destfile="${ant.project.name}.jar" basedir="${classes.dir}"> 
       <manifest>
 	<attribute name="Built-By" value="${user.name}"/>
@@ -57,6 +65,7 @@
   </target>
 
   <target name="cpy" depends="jar">
+       <delete file="${R.dir}/inst/java/${ant.project.name}.jar"/>
     <copy file="${ant.project.name}.jar" todir="${R.dir}/inst/java/"/> 
   </target>
 

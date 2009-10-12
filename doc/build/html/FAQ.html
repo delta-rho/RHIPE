@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>FAQ &mdash; rhipe v0.5 documentation</title>
+    <title>FAQ &mdash; rhipe v0.51 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.5',
+        VERSION:     '0.51',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,7 +19,7 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="rhipe v0.5 documentation" href="index.html" />
+    <link rel="top" title="rhipe v0.51 documentation" href="index.html" />
     <link rel="next" title="Protobuffer and R" href="ProtoBuffers.html" />
     <link rel="prev" title="Examples" href="examples.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="examples.html" title="Examples"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.51 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -89,6 +89,33 @@ working directory and side effect files will not be copied back.</p>
 </ol>
 <p>Similar to Hadoop Streaming. The bottlenecks are writing and reading to STDIN
 pipes and R.</p>
+<ol class="arabic simple" start="3">
+<li>What can RHIPE do?</li>
+</ol>
+<p>Firstly, there are several R packages for parrallel computing. <tt class="docutils literal"><span class="pre">snow</span></tt>,``snowfall``
+are packages for (mostly) embarrrasingly parallel computation and do not work
+with massive datasets. <tt class="docutils literal"><span class="pre">mapreduce</span></tt> implements the mapreduce algorithm on a
+single machine(which can be done with RHIPE by using a cluster of size 1).</p>
+<p>RHIPE is a wrapper around Hadoop for the R user. So that he/she need not leave
+the R environment for writing, running mapreduce applications and computing wth
+massive datasets.</p>
+<ol class="arabic simple" start="4">
+<li>The command runner, different client and tasktrackers.</li>
+</ol>
+<p>The object passed to rhex has variable called <tt class="docutils literal"><span class="pre">rhipe_command</span></tt> which is the
+command of the program that Hadoop sends information to. In case the client
+machine&#8217;s (machine from which commands are being sent ) R installation is different from the
+tasktrackers&#8217; R installation the RHIPE command runner wont be found. For example
+suppose my cluster is linux and my client is OS X , then the <tt class="docutils literal"><span class="pre">rhipe_command</span></tt>
+variable will reflect the location of the rhipe command runner on OS X and not
+that of the taskttrackers(Linux) R distribution.</p>
+<p>There are two ways to fix this
+a) after <tt class="docutils literal"><span class="pre">z</span> <span class="pre">&lt;-</span> <span class="pre">rhmr(...)</span></tt> change <tt class="docutils literal"><span class="pre">r[[1]]$rhipe_command</span></tt> to the
+value it should be on the tasktrackers.
+(in case of <tt class="docutils literal"><span class="pre">rhlapply</span></tt>, it should be <tt class="docutils literal"><span class="pre">r[[1]][[1]]$rhipe_command</span></tt>)</p>
+<p>or</p>
+<p>b) set the environment variable <tt class="docutils literal"><span class="pre">RHIPECOMMAND</span></tt> on each of tasktrackers. RHIPE
+java client will read this first before reading the above variable.</p>
 </div>
 
 
@@ -109,7 +136,7 @@ pipes and R.</p>
         <li class="right" >
           <a href="examples.html" title="Examples"
              >previous</a> |</li>
-        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.51 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

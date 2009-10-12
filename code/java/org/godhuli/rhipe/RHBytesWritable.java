@@ -191,7 +191,16 @@ public class RHBytesWritable
 	in.readFully(this.bytes, 0, this.length);
 	this.offset = 0;
     }
+	
+
 		
+    public void readIntFields(final DataInput in) throws IOException {
+	this.length = in.readInt();
+	this.bytes = new byte[this.length];
+	in.readFully(this.bytes, 0, this.length);
+	this.offset = 0;
+    }
+	
     public void write(final DataOutput out) throws IOException {
 	WritableUtils.writeVInt(out,this.length);
 	// out.writeInt(this.length);

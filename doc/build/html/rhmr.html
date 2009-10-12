@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>The rhmr Command &mdash; rhipe v0.5 documentation</title>
+    <title>The rhmr Command &mdash; rhipe v0.51 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.5',
+        VERSION:     '0.51',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,7 +19,7 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="rhipe v0.5 documentation" href="index.html" />
+    <link rel="top" title="rhipe v0.51 documentation" href="index.html" />
     <link rel="next" title="Miscellaneous Commands" href="rhmisc.html" />
     <link rel="prev" title="The rhlapply Command" href="rhlapply.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="rhlapply.html" title="The rhlapply Command"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.51 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -55,6 +55,7 @@
 </ul>
 </li>
 <li><a class="reference external" href="#side-effect-files">Side Effect files</a></li>
+<li><a class="reference external" href="#important">IMPORTANT</a></li>
 </ul>
 </li>
 </ul>
@@ -223,6 +224,22 @@ where C and G are strings and N is a number.</p>
 <h2>Side Effect files<a class="headerlink" href="#side-effect-files" title="Permalink to this headline">¶</a></h2>
 <p>Files written to <tt class="docutils literal"><span class="pre">tmp/</span></tt> (no leading slash !) e.g <tt class="docutils literal"><span class="pre">pdf(&quot;tmp/x.pdf&quot;)</span></tt> will be copied to the output folder.</p>
 </div>
+<div class="section" id="important">
+<h2>IMPORTANT<a class="headerlink" href="#important" title="Permalink to this headline">¶</a></h2>
+<p>The object passed to rhex has variable called <tt class="docutils literal"><span class="pre">rhipe_command</span></tt> which is the
+command of the program that Hadoop sends information to. In case the client
+machine&#8217;s (machine from which commands are being sent ) R installation is different from the
+tasktrackers&#8217; R installation the RHIPE command runner wont be found. For example
+suppose my cluster is linux and my client is OS X , then the <tt class="docutils literal"><span class="pre">rhipe_command</span></tt>
+variable will reflect the location of the rhipe command runner on OS X and not
+that of the taskttrackers(Linux) R distribution.</p>
+<p>There are two ways to fix this
+a) after <tt class="docutils literal"><span class="pre">z</span> <span class="pre">&lt;-</span> <span class="pre">rhmr(...)</span></tt> change <tt class="docutils literal"><span class="pre">r[[1]]$rhipe_command</span></tt> to the
+value it should be on the tasktrackers.</p>
+<p>or</p>
+<p>b) set the environment variable <tt class="docutils literal"><span class="pre">RHIPECOMMAND</span></tt> on each of tasktrackers. RHIPE
+java client will read this first before reading the above variable.</p>
+</div>
 </div>
 
 
@@ -243,7 +260,7 @@ where C and G are strings and N is a number.</p>
         <li class="right" >
           <a href="rhlapply.html" title="The rhlapply Command"
              >previous</a> |</li>
-        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.51 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

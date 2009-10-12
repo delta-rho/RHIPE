@@ -55,7 +55,7 @@ extern "C" {
     }
     int counter=1;
     int64_t i = 0;
-    int32_t idx;
+    uint32_t idx;
     for (idx = 0; idx < len-1; idx++) {
       int8_t b = (int8_t) data[counter];
       counter++;
@@ -269,7 +269,7 @@ extern "C" {
     int32_t kvlength;
     int32_t count=0;
     void * kvhold = (void*)malloc(w);
-    REXP *rexp = new REXP();
+//     REXP *rexp = new REXP();
     SEXP k,v,l;
     
 
@@ -347,4 +347,45 @@ extern "C" {
     return(rval);
   }
  
+
+  SEXP writeBinaryFile(SEXP d, SEXP f,SEXP bu){
+    char *filename =  (char*)CHAR(STRING_ELT( f , 0));
+    REXP *rexp_container = new REXP();
+    int n=INTEGER(bu)[0],m=n;
+    uint8_t *_k=(uint8_t*)malloc(n);
+    FILE *fp = fopen(filename,"w");
+    setvbuf(fp,NULL,_IOFBF , 0);
+    uint32_t kvlength;
+    for(int i=0;i < LENGTH(d);i++){
+      SEXP a = VECTOR_ELT(d,i);
+      SEXP k = VECTOR_ELT(a,0);
+      SEXP v = VECTOR_ELT(a,1);
+
+      rexp_container->Clear();
+      rexp2message(rexp_container,k);  
+      int bs = rexp_container->ByteSize();
+      if(bs>n){
+	_k = (uint8_t *)realloc(_k,bs+m);n=bs+m;
+      }
+      rexp_container->SerializeWithCachedSizesToArray(_k);
+      kvlength = reverseUInt((uint32_t)bs);
+      fwrite(&kvlength,sizeof(uint32_t),1,fp);
+      fwrite(_k,bs,1,fp);
+
+      rexp_container->Clear();
+      rexp2message(rexp_container,v);  
+      bs = rexp_container->ByteSize();
+      if(bs>n){
+	_k = (uint8_t*) realloc(_k,bs+m);n=bs+m;
+      }
+      rexp_container->SerializeWithCachedSizesToArray(_k);
+      kvlength = reverseUInt((uint32_t)bs);
+      fwrite(&kvlength,sizeof(uint32_t),1,fp);
+      fwrite(_k,bs,1,fp);
+    }
+    fclose(fp);
+    free(_k);
+    delete(rexp_container);
+    return(R_NilValue);   
+  }
 }

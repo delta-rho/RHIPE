@@ -35,16 +35,13 @@ public class RHMRReducer extends Reducer<RHBytesWritable,
     boolean doPipe_;
     boolean justCollect;
     String getPipeCommand(Configuration cfg) {
-	String str = cfg.get("rhipe_command");
+	String str = System.getenv("RHIPECOMMAND");
 	if (str == null) {
-	    return str;
+	    str=cfg.get("rhipe_command");
+	    if(str==null) System.err.println("No rhipe_command");
 	}
-	try {
-	    return URLDecoder.decode(str, "UTF-8");
-	} catch (UnsupportedEncodingException e) {
-	    System.err.println("rhipe_command in configuration not found");
-	    return null;
-	}
+	return(str);
+
     }
 
     boolean getDoPipe(Configuration cfg) {

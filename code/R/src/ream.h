@@ -116,7 +116,7 @@ const int reducer_setup(void);
  *****************/
 void Re_ShowMessage(const char*);
 void Re_WriteConsoleEx(const char *, int , int );
-void merror(char *, ...);
+void merror(const char *, ...);
 void mmessage(char *fmt, ...);
 void logg(int , const char *, ...);
 

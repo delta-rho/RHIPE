@@ -24,6 +24,7 @@ import java.util.Properties;
 import java.io.*;
 import java.io.IOException;
 import org.apache.hadoop.io.*;
+import java.net.InetAddress;
 
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -40,6 +41,7 @@ public class RHMRHelper {
     public boolean copyFile;
     static private Environment env_;
     private String callID;
+    private String hostname;
 
     public RHMRHelper(String fromWHo){
 	callID=fromWHo;
@@ -74,8 +76,12 @@ public class RHMRHelper {
 	    env.put(name, value);
 	}
     }
+
     void setup(Configuration cfg, String argv,boolean doPipe){     
 	try {
+// 	    InetAddress addr = InetAddress.getLocalHost();
+// 	    hostname = addr.getHostName();
+
 	    BUFFER_SIZE = cfg.getInt("rhipe_stream_buffer",10*1024);
 	    joinDelay_ = cfg.getLong("rhipe_joindelay_milli", 0);
 	    nonZeroExitIsFailure_ = cfg.getBoolean("rhipe_non_zero_exit_is_failure", true);

@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>The rhlapply Command &mdash; rhipe v0.5 documentation</title>
+    <title>The rhlapply Command &mdash; rhipe v0.51 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.5',
+        VERSION:     '0.51',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,7 +19,7 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="rhipe v0.5 documentation" href="index.html" />
+    <link rel="top" title="rhipe v0.51 documentation" href="index.html" />
     <link rel="next" title="The rhmr Command" href="rhmr.html" />
     <link rel="prev" title="Setting up RHIPE" href="installation.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="installation.html" title="Setting up RHIPE"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.51 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -48,6 +48,7 @@
 <li><a class="reference external" href="#return-value">Return Value</a></li>
 <li><a class="reference external" href="#function-usage">Function Usage</a><ul>
 <li><a class="reference external" href="#return">RETURN</a></li>
+<li><a class="reference external" href="#important">IMPORTANT</a></li>
 </ul>
 </li>
 </ul>
@@ -121,7 +122,7 @@ of the input list (if given).</p>
                      readIn<span class="o">=</span>T<span class="p">,</span>
                      inout<span class="o">=</span>c<span class="p">(</span>&#39;lapply&#39;<span class="p">,</span>&#39;sequence&#39;<span class="p">)</span>
                      mapred<span class="o">=</span>list<span class="p">()</span>
-                     setup<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>jobname<span class="o">=</span><span class="s">&quot;rhlapply&quot;</span><span class="p">,</span>...
+                     setup<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>jobname<span class="o">=</span><span class="s">&quot;rhlapply&quot;</span><span class="p">,</span>doLocal<span class="o">=</span>F<span class="p">,</span>...
                      <span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
@@ -150,12 +151,30 @@ is TRUE) and deleted.</dd>
 <dt><tt class="docutils literal"><span class="pre">setup</span></tt></dt>
 <dd>And expression that is called before running <tt class="docutils literal"><span class="pre">func</span></tt>. Called once per
 JVM.</dd>
+<dt><tt class="docutils literal"><span class="pre">doLocal</span></tt></dt>
+<dd>Default is <tt class="docutils literal"><span class="pre">F</span></tt>. Sent to <tt class="docutils literal"><span class="pre">rhread</span></tt></dd>
 <dt><tt class="docutils literal"><span class="pre">...</span></tt></dt>
 <dd>passed onto RHMR.</dd>
 </dl>
 <div class="section" id="return">
 <h3>RETURN<a class="headerlink" href="#return" title="Permalink to this headline">¶</a></h3>
 <p>An object that is passed onto <tt class="docutils literal"><span class="pre">rhex</span></tt>.</p>
+</div>
+<div class="section" id="important">
+<h3>IMPORTANT<a class="headerlink" href="#important" title="Permalink to this headline">¶</a></h3>
+<p>The object passed to rhex has variable called <tt class="docutils literal"><span class="pre">rhipe_command</span></tt> which is the
+command of the program that Hadoop sends information to. In case the client
+machine&#8217;s (machine from which commands are being sent ) R installation is different from the
+tasktrackers&#8217; R installation the RHIPE command runner wont be found. For example
+suppose my cluster is linux and my client is OS X , then the <tt class="docutils literal"><span class="pre">rhipe_command</span></tt>
+variable will reflect the location of the rhipe command runner on OS X and not
+that of the taskttrackers(Linux) R distribution.</p>
+<p>There are two ways to fix this
+a) after <tt class="docutils literal"><span class="pre">z</span> <span class="pre">&lt;-</span> <span class="pre">rhlapply(...)</span></tt> change <tt class="docutils literal"><span class="pre">r[[1]][[1]]$rhipe_command</span></tt> to the
+value it should be on the tasktrackers.</p>
+<p>or</p>
+<p>b) set the environment variable <tt class="docutils literal"><span class="pre">RHIPECOMMAND</span></tt> on each of tasktrackers. RHIPE
+java client will read this first before reading the above variable.</p>
 </div>
 </div>
 </div>
@@ -178,7 +197,7 @@ JVM.</dd>
         <li class="right" >
           <a href="installation.html" title="Setting up RHIPE"
              >previous</a> |</li>
-        <li><a href="index.html">rhipe v0.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.51 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

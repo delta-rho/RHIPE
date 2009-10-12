@@ -119,12 +119,18 @@ rhread
 
 ::
 	
-	rhread <- function(files,verbose=T)
+	rhread <- function(files,verbose=T,doLocal=T)
 
 
 Reads files(s) from ``files`` (which could be a directory). Wildcards allowed.
 
-If ``verbose`` is True, information is displayed (useful when reading many files)
+If ``verbose`` is True, information is displayed (useful when reading many
+files)
+``rhread`` read sequence files by running a mapreduce	job to convert the
+sequence file to a binary file. 
+This is then merged and read into R. If ``doLocal`` is True this mapreduce
+conversion job is a local mapreduce job (which can be slow for lots of part
+files) else a fully distributed job.
 
 rhmerge
 ^^^^^^^

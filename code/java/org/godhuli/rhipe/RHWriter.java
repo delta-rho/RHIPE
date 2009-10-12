@@ -91,8 +91,22 @@ public class RHWriter {
 	    sqw.append(k,v);
 	}
     }
+
+    public void doWriteFile(DataInputStream in,int count) throws IOException{
+	for(int i=0;i<count;i++){
+	    try{
+		k.readIntFields(in);
+		v.readIntFields(in);
+		sqw.append(k,v);
+	    }catch(EOFException e){}
+	}
+    }
+
     public void close() throws IOException{
 	sqw.close();
+    }
+    public SequenceFile.Writer getSQW(){
+	return sqw;
     }
 }
 

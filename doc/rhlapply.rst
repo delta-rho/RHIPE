@@ -36,7 +36,7 @@ Function Usage
 			     readIn=T,
 			     inout=c('lapply','sequence')
 			     mapred=list()
-			     setup=NULL,jobname="rhlapply",...
+			     setup=NULL,jobname="rhlapply",doLocal=F,...
 			     )
 
 
@@ -71,6 +71,9 @@ Description follows
 ``setup``
 	And expression that is called before running ``func``. Called once per
 	JVM.
+
+``doLocal``
+	Default is ``F``. Sent to ``rhread``
 ``...`` 
 	passed onto RHMR.
 
@@ -79,6 +82,27 @@ RETURN
 ++++++
 	
 An object that is passed onto ``rhex``.
+
+
+IMPORTANT
++++++++++
+
+The object passed to rhex has variable called ``rhipe_command`` which is the
+command of the program that Hadoop sends information to. In case the client
+machine's (machine from which commands are being sent ) R installation is different from the
+tasktrackers' R installation the RHIPE command runner wont be found. For example
+suppose my cluster is linux and my client is OS X , then the ``rhipe_command``
+variable will reflect the location of the rhipe command runner on OS X and not
+that of the taskttrackers(Linux) R distribution. 
+
+There are two ways to fix this 
+a) after ``z <- rhlapply(...)`` change ``r[[1]][[1]]$rhipe_command`` to the
+value it should be on the tasktrackers.
+
+or
+
+b) set the environment variable ``RHIPECOMMAND`` on each of tasktrackers. RHIPE
+java client will read this first before reading the above variable.
 
 
 

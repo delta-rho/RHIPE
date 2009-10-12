@@ -3,7 +3,7 @@
 #include <locale.h>
 #include <langinfo.h>
 
-#import "iostream"
+#include <iostream>
 #define PSIZE 4096
 static uint8_t ERROR_MSG = 0x00;
 static uint8_t PRINT_MSG = 0x01;
@@ -75,7 +75,7 @@ void logg(int level,const char *fmt, ...)
     }
 }
 
-void merror(char *fmt, ...)
+void merror(const char *fmt, ...)
 {
   va_list args;
   char errmsg[512];

@@ -5,24 +5,9 @@
 ###############################
 
 
- 
-
-## 7. rhread(src=,pattern,n=) src can be a file or list of files, n is max, get list from rhls
-## 8. rhlapply == rhmr(infile=tempfile,outfile=tempfile, ... )
-
-## rhreadText <- function(file,sep="\t"){
-##   d=read.table(file,header=F,sep="\t",stringsAsFactors=F,colClasses='character')
-##   apply(d,1,function(r) {
-##     f=lapply(strsplit(r," "),function(rr) as.raw(as.numeric(rr)))
-##     l=lapply(f,rhuz);names(l)=c("key","value")
-##     l
-##   })}
-## Was useful before, but not anymore
 
 rhreadBin <- function(file,maxnum=-1, readbuf=0){
   x= .Call("readBinaryFile",file[1],as.integer(maxnum),as.integer(readbuf))
-##   y=lapply(x,function(r) r) ##need to copy else crash seg fault on some data structs, ?
-##   y
   lapply(x,function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
 }
 
@@ -43,15 +28,19 @@ rhsave.image <- function(...,file){
   rhput(src=x,dest=file)
 }
 
-
-rhput <- function(src,dest,deleteDest=TRUE){
-  srcarr <- .jarray(src)
-  .jcheck(silent=T);
-  .jcall(rhoptions()$fsshell,"V","copyFromLocalFile",srcarr,dest,deleteDest)
-  .jcheck()
+rhls <- function(fold,ignore.stderr=T,verbose=F){
+  ## List of files,
+  v <- doCMD(rhoptions()$cmd['ls'],fold=fold,needoutput=T,ignore.stderr=ignore.stderr,verbose=verbose)
+  if(v=="") return(NULL)
+  k <- strsplit(v,"\n")[[1]]
+  k1 <- do.call("rbind",sapply(k,strsplit,"\t"))
+  f <- as.data.frame(do.call("rbind",sapply(k,strsplit,"\t")),stringsAsFactors=F)
+  rownames(f) <- NULL
+  colnames(f) <- c("permission","owner","group","size","modtime","file")
+  f
 }
 
-rhget <- function(src,dest){
+rhget <- function(src,dest,ignore.stderr=T,verbose=F){
   ## Copies src to dest
   ## If src is a directory and dest exists,
   ## src is copied inside dest(i.e a folder inside dest)
@@ -62,184 +51,127 @@ rhget <- function(src,dest){
   ## If dest does not exits, it is copied to that file
   ## Wildcards allowed
   ## OVERWRITES!
-  .jcheck()
-  .jcall(rhoptions()$fsshell,"V","copyMain",src,dest)
-  .jcheck();
-}
-
-rhls <- function(dir){
-  ## List of files,
-  .jcheck()
-  v <- .jcall(rhoptions()$fsshell,"S","ls",dir[1])
-  .jcheck()
-  if(v=="") return(NULL);
-  .jcheck()
-  k <- strsplit(v,"\n")[[1]]
-  k1 <- do.call("rbind",sapply(k,strsplit,"\t"))
-  f <- as.data.frame(do.call("rbind",sapply(k,strsplit,"\t")),stringsAsFactors=F)
-  rownames(f) <- NULL
-  colnames(f) <- c("permission","owner","group","size","modtime","file")
-  f
-}
-
-rhdel <- function(dir){
-  .jcheck()
-  v <- .jcall(rhoptions()$fsshell,"V","delete",dir[1],TRUE)
-  .jcheck()
+  doCMD(rhoptions()$cmd['get'],src=src,dest=dest,needout=F,ignore.stderr=ignore.stderr,verbose=verbose)
+##   doGet(src,dest,if(is.null(socket)) rhoptions()$socket else socket)
 }
 
 
-rhwrite <- function(lo,f,N=NULL,...){
+rhdel <- function(fold,ignore.stderr=T,verbose=F){
+  doCMD(rhoptions()$cmd['del'],fold=fold,needout=F,ignore.stderr=ignore.stderr,verbose=verbose)
+}
+
+
+rhput <- function(src,dest,deleteDest=TRUE,ignore.stderr=T,verbose=F){
+  doCMD(rhoptions()$cmd['put'],locals=src,dest=dest,overwrite=deleteDest,needoutput=F
+        ,ignore.stderr=ignore.stderr,verbose=verbose)
+##   doCMD(src,dest,deleteDest,if(is.null(socket)) rhoptions()$socket else socket)
+}
+
+#test!
+
+rhwrite <- function(lo,f,N=NULL,ignore.stderr=T,verbose=F){
+  on.exit({
+    unlink(tmf)
+  })
   if(!is.list(lo))
     stop("lo must be a list")
-  .jcheck()
   namv <- names(lo)
-  cfg <- rhoptions()$hadoop.cfg
 
-  if(is.null(N))
-    N <- as.numeric(.jcall(cfg,"S","get","mapred.map.tasks"))*
-      as.numeric(.jcall(cfg,"S","get", "mapred.tasktracker.map.tasks.maximum"))
-  if(is.null(N) || N==0 ) N=length(lo) ##why should it be zero????
-  .jcheck()
-  
-  if(is.null(namv))
-    namv=1:length(lo)
-  splits.id <- split(1:length(lo), sapply(1:length(lo), "%%",n))
-  
-  .jcheck();writer <- .jnew("org.godhuli.rhipe.RHWriter");.jcheck();
-  filenames <- paste(f,names(splits.id),sep=".")
-  names(filenames) <- names(splits.id)
-  for(id in names(splits.id)){
-    x <- splits.id[[id]]
-    .jcheck();.jcall(writer,"V","set",filenames[id],cfg);.jcheck()
-    nameaaray <- as.vector(unlist(sapply(namv[x],function(r) {
-      d <- rhsz(r)
-      c(.Call("returnBytesForVInt",length(d)),d)
-    },USE.NAMES=F)))
-    valarray <- unlist(as.vector(sapply(lo[x],function(r){
-      d <- rhsz(r)
-      c(.Call("returnBytesForVInt",length(d)),d)
-      },USE.NAMES=F)))
-    .jcheck()
-    .jcall(writer,"V","setKeyArray",as.integer(length(x)),
-           .jarray(nameaaray),.jarray(valarray))
-    .jcheck()
-    ## browser()
-    .jcall(writer,"V","doWrite"); .jcheck()
-    .jcall(writer,"V","close"); .jcheck()
+  if(is.null(N)){
+    x1 <- rhoptions()$mropts$mapred.map.tasks
+    x2 <- rhoptions()$mropts$mapred.tasktracker.map.tasks.maximum
+    N <- as.numeric(x1)*as.numeric(x2)
   }
+  if(is.null(N) || N==0 || N>length(lo)) N<- length(lo) ##why should it be zero????
+  tmf <- tempfile()
+  ## convert lo into a list of key-value lists
+  if(is.null(namv)) namv <- as.character(1:length(lo))
+  if(!(is.list(lo[[1]]) && length(lo[[1]])==2)){
+    ## we just checked the first element to see if it conforms
+    ## if not we convert, where keys
+    lo <- lapply(1:length(lo),function(r) {
+      list( namv[[r]], lo[[r]])
+    })
+  }
+  .Call("writeBinaryFile",lo,tmf,as.integer(16384))
+  doCMD(rhoptions()$cmd['b2s'],tempf=tmf,
+        output=f,groupsize = as.integer(length(lo)/N),
+        howmany=as.integer(N),
+        N=as.integer(length(lo),needoutput=F),ignore.stderr=ignore.stderr,verbose=verbose)
 }
 
 
-    
-## rhread <- function(files,max=NA,batch=100,length=1000,verbose=F){
-##   ## browser()
-##   ## reads upto max - 1
-##   ## batch is how many to get from java side
-##   ## length is initial size of vector
-##   files <- unclass(rhls(files)['file'])$file
-##   cfg <- rhoptions()$hadoop.cfg
-##   j=vector(mode='list',length=if(is.na(max)) length else max)
-##   ## j=vector(mode='list')
-##   ibatch <- as.integer(batch)
-##   count <- 0
-##   nms <- vector(mode='character',length=length)
-##   fin <- F
-##   for(x in files){
-##     .jcheck();reader <- .jnew("org.godhuli.rhipe.RHReader");.jcheck();
-##     .jcheck();.jcall(reader,"V","set",x,cfg);.jcheck()
-##      numread <- 1
-##     ## cat("FIle=",x,"\n")
-##     while(numread>0){
-##       numread <- .jcall(reader,"I","readKVByteArray",ibatch)
-##       .jcheck()
-##       if(numread==0) break;
-##       if((!is.na(max) && count >=max)) {
-##         fin=T;break}
-##       rawkv <- .jcall(reader,"[B","getKVByteArray");
-##       off <- 1
-##       for(k in 1:numread){
-##         ## vintinfo <- .C("readVInt_from_R",rawkv[ off ], res=integer(2))$res
-##         vintinfo <- c(4,readBin( rawkv[ off:(off+3)], "int",n=1,endian="big"))
-##         off <- off+vintinfo[1]
-##         keydata <- rawkv[  off:(off+vintinfo[2]) ]
-##         kee <- rhuz(keydata)
-##         off <- off+vintinfo[2]
-##         ## nms[[ count+k ]] <- kee
-##         kee0=kee
-##         ## vintinfo <- .C("readVInt_from_R",rawkv[ off ], res=integer(2))$res
-##         vintinfo <- c(4,readBin( rawkv[ off:(off+3)], "int",n=1,endian="big"))
-
-##         off <- off+vintinfo[1]
-##         keydata <- rawkv[  off:(off+vintinfo[2]) ]
-##         kee <- rhuz(keydata)
-##         off <- off+vintinfo[2]
-##         j[[   count+k ]] <- list(key=kee0,value=kee)
-        
-##       }
-##       count <- count+numread
-##       if(verbose) cat("Read ",count," items\n")
-##     }
-##     .jcheck();.jcall(reader,"V","close");.jcheck()
-##     if(fin) break;
-##   }
-##   j <- j[1:count];
-##   ## names(j) <- nms[1:count]
-##   j
-## }
-
-
-rhread <- function(files,verbose=T){
-##   on.exit({
-##     unlink(tf)})
+rhread <- function(files,dolocal=T,ignore.stderr=T,verbose=F){
+  ##need to specify /f/p* if there are other
+  ##files present (not sequence files)
+  on.exit({
+    unlink(tf2)
+  })
   files <- unclass(rhls(files)['file'])$file
-  cfg <- rhoptions()$hadoop.cfg
-  j=list()
-  count <- 0
-  fc <- 1
-  tf <- tempfile(pattern='rhread',tmpdir="/tmp")
-  for(x in files){
-    .jcheck();reader <- .jnew("org.godhuli.rhipe.RHReader");.jcheck();
-    .jcheck();.jcall(reader,"V","set",x,cfg);.jcheck()
-    numread <- 1
-    numread <- .jcall(reader,"I","readKVByteArray",-1L)
-    .jcheck()
-    if(numread==0) next;
-    rawkv <- .jcall(reader,"[B","getKVByteArray");
-    j_1<- .Call("returnListOfKV", rawkv, numread)
-##     print(j_1)
-    j_1 <- lapply(j_1, function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
-##     j[[fc]] <-j_
-##     fc=fc+1
-    j <- append(j,j_1)
-    count <- count+numread
-    if(verbose) cat("Read",numread,"key/value pairs from file: ",x,"total: ",count,"\n")
-    .jcheck();.jcall(reader,"V","close");.jcheck()
-  }
-##   cat("Collating", length(files), "files")
-##   j <- do.call("append",list(list(),values=j))
-  return(j)
+  tf1<- tempfile(pattern=paste('rhread_',
+                   paste(sample(letters,4),sep='',collapse='')
+                   ,sep="",collapse=""),tmpdir="/tmp")
+  tf2<- tempfile(pattern=paste(sample(letters,8),sep='',collapse=''))
+  message("----- converting to binary -----")
+  doCMD(rhoptions()$cmd['s2b'], infiles=files,ofile=tf1,ilocal=dolocal,ignore.stderr=ignore.stderr,
+        verbose=verbose)
+  message("------ merging -----")
+
+  rhmerge(paste(tf1,"/p*",sep="",collapse=""),tf2)
+  rhdel(tf1);
+  message("------ reading binary,please wait -----")
+
+  v <- rhreadBin(tf2)
+  return(v)
 }
 
 rhmerge <- function(inr,ou){
   system(paste(paste(Sys.getenv("HADOOP"),"bin","hadoop",sep=.Platform$file.sep,collapse=""),"dfs","-cat",inr,">", ou,collapse=" "))
 }
 
-#d=hrread("/net/o/dump.13.56.09.15/part-r-00000")
 
-## rhkill <- function(w){
-##   if(length(grep("^job_",w))==0) w=paste("job_",w,sep="",collapse="")
-##   .jcheck()
-##   jc <- .jnew("org.apache.hadoop.mapred.JobClient")
-##   .jcheck()
-##   jid <- .jcall("org.apache.hadoop.mapred.JobID","Lorg/apache/hadoop/mapred/JobID;",
-##                 "forName",w)
-##   rj <- .jcall(jc,"Lorg/apache/hadoop/mapred/RunningJob;","getJob",jid)
-##   .jcheck()
-##   if(!is.null(rj)) .jcall(rj,"V","killJob") else cat("No such job\n")
-##   .jcheck()
-## }
+
 rhkill <- function(w,...){
   if(length(grep("^job_",w))==0) w=paste("job_",w,sep="",collapse="")
   system(command=paste(paste(Sys.getenv("HADOOP"),"bin","hadoop",sep=.Platform$file.sep,collapse=""),"job","-kill",w,collapse=" "),...)
 }
+
+## rhSequenceToBin <- function(infile,outfile,local=F){
+##     pl <- rhsz(c(infile,outfile,local*1))
+##     writeBin(8L,if(is.null(socket)) rhoptions()$socket else socket,size=4,endian='big')
+##     writeBin(length(pl),if(is.null(socket)) rhoptions()$socket else socket,size=4,endian='big')
+##     writeBin(pl,if(is.null(socket)) rhoptions()$socket else socket,endian='big')
+##     checkEx(if(is.null(socket)) rhoptions()$socket else socket)
+##   }
+
+
+## rhGetConnection <- function(cp,port,show=F){
+##   cmd <- paste("java -cp ",paste(cp,collapse=":")," org.godhuli.rhipe.RHIPEClientDispatcher ",port,sep="",collapse="")
+##   if(show)  print(cmd)
+##   tryCatch({
+##     opts <- rhoptions()
+##     if(!is.null(opts$socket)) close(opts$socket)
+##     opts$cp <- cp
+##     opts$port <- port
+##     suppressWarnings(sock <- socketConnection('127.0.0.1',port,open='wb',blocking=T))
+##     opts$socket <- sock
+##     rhsetoptions(opts)
+##     message("===================================\n")
+##     message(paste("Connected to existing Client Server\n"))
+##     message("===================================\n")
+##     return(sock)
+##   },error=function(e){
+##     message("=============================\n")
+##     message(paste("Starting Client Server on ",port),"\n")
+##     message("=============================\n")
+##     system(cmd,wait=F)
+##     Sys.sleep(5)
+##     opts <- rhoptions()
+##     if(!is.null(opts$socket)) close(opts$socket)
+##     opts$cp <- cp
+##     opts$port <- port
+##     opts$socket <- socketConnection('127.0.0.1',port,open='wb',blocking=T)
+##     rhsetoptions(opts)
+##     return(opts$socket)
+##   })
+## }
