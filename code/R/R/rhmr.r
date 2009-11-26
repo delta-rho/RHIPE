@@ -105,7 +105,7 @@ rhmr <- function(map,reduce=NULL,
                      ,rhipe_command=paste(opts$runner,collapse=" ")
                      ,rhipe_input_folder=paste(ifolder,collapse=",")
                      ,rhipe_output_folder=paste(ofolder)))
-                    
+
   shared.files <- unlist(as.character(shared))
   if(! all(sapply(shared.files,is.character)))
     stop("shared  must be all characters")
@@ -117,6 +117,8 @@ rhmr <- function(map,reduce=NULL,
   lines$rhipe_shared <- shared.files
   
   inout <- as.vector(matrix(inout,ncol=2))
+  lines$map_output_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
+  lines$map_output_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
   switch(inout[1],
          'text' = {
            lines$rhipe_inputformat_class <- 'org.godhuli.rhipe.RXTextInputFormat'
@@ -305,7 +307,7 @@ rhex <- function (conf)
     lines <- conf[[1]][[1]]
   }else if(class(conf)=='rhmr'){
     zonf <- conf$temp
-    lines <- conf
+    lines <- conf[[1]]
   }else
   stop("Wrong class of list given")
 
@@ -333,3 +335,20 @@ rhex <- function (conf)
   return(if(result==256) 1 else 0)
 }
 
+## rhsubset <- function(ifolder,ofolder,subs,inout=c('text','text'),local=T){
+##   if(!is.function(subs)) stop('subs must be a function')
+##   setup <- list(map=parse(text=paste("userFUN...=",paste(deparse(subs),collapse="\n"))),
+##                 reduce=expression())
+
+##   m <- expression({
+##     for(x1 in 1:length(map.values)){
+##       y <- userFUN...(map.keys[[x1]],map.values[[x1]])
+##       if(!is.null(y))
+##         rhcollect(map.keys[[x1]],y)
+##   }})
+##   mpr <- list(mapred.textoutputformat.separator=" ")
+##   if(local) mpr$mapred.job.tracker <- 'local'
+##   z <- rhmr(map=m,ifolder=ifolder,ofolder=ofolder,inout=inout,setup=setup,mapred=mpr)
+##   rhex(z)
+## }
+## rhsubset("/tmp/small","/tmp/s",msub)

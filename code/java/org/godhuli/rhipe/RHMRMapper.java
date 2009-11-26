@@ -23,6 +23,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 public class RHMRMapper extends Mapper<RHBytesWritable,
 				RHBytesWritable,RHBytesWritable,RHBytesWritable>{
@@ -55,7 +56,10 @@ public class RHMRMapper extends Mapper<RHBytesWritable,
 								  
     public void setup(Context context) {
 	Configuration cfg = context.getConfiguration();
+	String mif = ((FileSplit) context.getInputSplit()).getPath().toString();
+	cfg.set("mapred.input.file",mif);
 	cfg.set("RHIPEWHAT","0");
+	// System.out.println("mapred.input.file == "+ cfg.get("mapred.input.file"));
 	helper.setup(cfg, getPipeCommand(cfg), getDoPipe());
 	copyFile=cfg.get("rhipe_copy_file").equals("TRUE")? true: false;
 	try{

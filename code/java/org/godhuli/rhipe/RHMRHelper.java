@@ -341,7 +341,9 @@ public class RHMRHelper {
 			long now = System.currentTimeMillis(); 
 			if ( now-lastStderrReport > reporterErrDelay_) {
 			    lastStderrReport = now;
-			    ctx.progress();
+			    // if(ctx!=null) {
+				ctx.progress();
+			    // }
 			}
 		    }
 		}catch(EOFException e){

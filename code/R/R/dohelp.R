@@ -43,8 +43,10 @@ doCMD <- function(CMD=0,needoutput=F,opts=rhoptions(),verbose=T,ignore.stderr=F
   if(r==256){
     f <- file(tm, open='rb')
     s <- readBin(f,'int',1,size=4,endian='big')
+##     close(f)
+    xx=rhuz(readBin(f,'raw',n=s))
     close(f)
-    stop(rhuz(readBin(f,'raw',n=s)))
+    stop(xx)
   }else
   if(needoutput){
     f <- file(tm, open='rb')

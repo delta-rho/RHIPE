@@ -49,3 +49,5 @@ or
 
 b) set the environment variable ``RHIPECOMMAND`` on each of tasktrackers. RHIPE
 java client will read this first before reading the above variable.
+
+

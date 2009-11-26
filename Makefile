@@ -8,7 +8,7 @@ sync:
 	rsync -av website/ sguha@altair.stat.purdue.edu:/home/www/rhipe/
 
 index: doc
-	/Applications/Aquamacs\ Emacs.app/Contents/MacOS/Aquamacs\ Emacs  -l index2html.el
+	/Applications/Aquamacs.app/Contents/MacOS/Aquamacs  -l index2html.el
 	# mv index.html website/
 
 
@@ -28,7 +28,7 @@ code:
 	cd
 # 	mv build/R build/Rhipe
 	# tar -czf Rhipe_${VER}.tar.gz  -C build/  Rhipe
-	R CMD BUILD build/R
+	R CMD BUILD  build/R
 	rsync  Rhipe_${VER}.tar.gz website/dn/
 	rm -rf Rhipe_${VER}.tar.gz
 	cp website/dn/Rhipe_${VER}.tar.gz website/dn/rhipe.tar.gz

@@ -116,17 +116,18 @@ SEXP message2rexp(const REXP& rexp){
   	{
 	  const char *nameofatt = rexp.attrname(j).c_str();
 	  if(strcmp(nameofatt,"names")==0 && typ!=VECSXP) continue;
-// 	  if(strcmp(nameofatt,"names")==0 ){
-// // 	    Rf_setAttrib(s, R_NamesSymbol,
-// 	    message2rexp(rexp.attrvalue(j));
-// // 			   );
-// 	    continue;
-// 	  }
-  	  SEXP n=Rf_mkString(nameofatt);
+//   	  SEXP n=Rf_mkString(nameofatt);
 	  SEXP v ;
 	  PROTECT(v= message2rexp(rexp.attrvalue(j)));
-  	  Rf_setAttrib(s,n, v );
+  	  Rf_setAttrib(s,Rf_install(nameofatt), v );
 	  UNPROTECT(1);
+
+	  //TEST TEST TEST TEST COULD FAILS
+	  // REVERT TO PREVIOUS CODE
+// 	  Rf_setAttrib(s,
+// 		       Rf_install(rexp.attrname(j).c_str()), 
+// 		       message2rexp(rexp.attrvalue(j)));
+
   	}
     }
   return(Rf_duplicate(s)); //iff not forthis things crash, dont know why.

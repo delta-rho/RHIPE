@@ -55,6 +55,7 @@
 </ul>
 </li>
 <li><a class="reference external" href="#side-effect-files">Side Effect files</a></li>
+<li><a class="reference external" href="#mapreduce-options">Mapreduce Options</a></li>
 <li><a class="reference external" href="#important">IMPORTANT</a></li>
 </ul>
 </li>
@@ -62,7 +63,7 @@
 
             <h4>Previous topic</h4>
             <p class="topless"><a href="rhlapply.html"
-                                  title="previous chapter">The <tt class="docutils literal docutils literal docutils literal"><span class="pre">rhlapply</span></tt> Command</a></p>
+                                  title="previous chapter">The <tt class="docutils literal"><span class="pre">rhlapply</span></tt> Command</a></p>
             <h4>Next topic</h4>
             <p class="topless"><a href="rhmisc.html"
                                   title="next chapter">Miscellaneous Commands</a></p>
@@ -223,6 +224,10 @@ where C and G are strings and N is a number.</p>
 <div class="section" id="side-effect-files">
 <h2>Side Effect files<a class="headerlink" href="#side-effect-files" title="Permalink to this headline">¶</a></h2>
 <p>Files written to <tt class="docutils literal"><span class="pre">tmp/</span></tt> (no leading slash !) e.g <tt class="docutils literal"><span class="pre">pdf(&quot;tmp/x.pdf&quot;)</span></tt> will be copied to the output folder.</p>
+</div>
+<div class="section" id="mapreduce-options">
+<h2>Mapreduce Options<a class="headerlink" href="#mapreduce-options" title="Permalink to this headline">¶</a></h2>
+<p>Many mapreduce configuration variables are stored in the environment. To get the value use <tt class="docutils literal"><span class="pre">Sys.getenv()</span></tt>, e.g in the map stage, to find out the name of the current input file, use <tt class="docutils literal"><span class="pre">Sys.getenv('mapred.input.file')</span></tt> .</p>
 </div>
 <div class="section" id="important">
 <h2>IMPORTANT<a class="headerlink" href="#important" title="Permalink to this headline">¶</a></h2>

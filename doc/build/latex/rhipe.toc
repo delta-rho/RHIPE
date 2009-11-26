@@ -18,7 +18,8 @@
 \contentsline {subsection}{\numberline {3.5.2}Counter}{8}{subsection.3.5.2}
 \contentsline {subsection}{\numberline {3.5.3}Output}{9}{subsection.3.5.3}
 \contentsline {section}{\numberline {3.6}Side Effect files}{9}{section.3.6}
-\contentsline {section}{\numberline {3.7}IMPORTANT}{9}{section.3.7}
+\contentsline {section}{\numberline {3.7}Mapreduce Options}{9}{section.3.7}
+\contentsline {section}{\numberline {3.8}IMPORTANT}{9}{section.3.8}
 \contentsline {chapter}{\numberline {4}Miscellaneous Commands}{11}{chapter.4}
 \contentsline {section}{\numberline {4.1}Introduction}{11}{section.4.1}
 \contentsline {section}{\numberline {4.2}Serialization}{11}{section.4.2}

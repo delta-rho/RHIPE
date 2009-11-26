@@ -136,6 +136,33 @@ rhkill <- function(w,...){
   system(command=paste(paste(Sys.getenv("HADOOP"),"bin","hadoop",sep=.Platform$file.sep,collapse=""),"job","-kill",w,collapse=" "),...)
 }
 
+rhwordcount <- function(infile,outfile,local=F){
+  m <- expression({
+    for(x in map.values){
+      y <- strsplit(x," +")[[1]]
+      for(w in y) rhcollect(w,T)
+    }})
+  r <- expression(pre={
+    count <- 0
+  },
+      reduce={
+        count <- count+sum(unlist(reduce.values))
+      },
+      post={
+        rhcollect(reduce.key,as.integer(count))
+      })
+  if(local) 
+  z=rhmr(map=m,reduce=r,comb=F,inout=c("text","sequence"),ifolder=infile,ofolder=outfile,mapred=list(mapred.job.tracker='local'))
+  else
+    z=rhmr(map=m,reduce=r,comb=F,inout=c("text","sequence"),ifolder=infile,ofolder=outfile)
+
+  rhex(z)
+  x <- rhread(paste(outfile,"/p*",sep="",collapse=""),dolocal=local)
+  ##rhdel(outfile)
+  return(x)
+}
+
+  
 ## rhSequenceToBin <- function(infile,outfile,local=F){
 ##     pl <- rhsz(c(infile,outfile,local*1))
 ##     writeBin(8L,if(is.null(socket)) rhoptions()$socket else socket,size=4,endian='big')

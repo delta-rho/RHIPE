@@ -130,6 +130,9 @@ Side Effect files
 Files written to ``tmp/`` (no leading slash !) e.g ``pdf("tmp/x.pdf")`` will be copied to the output folder.
 
 
+Mapreduce Options
+-----------------
+Many mapreduce configuration variables are stored in the environment. To get the value use ``Sys.getenv()``, e.g in the map stage, to find out the name of the current input file, use ``Sys.getenv('mapred.input.file')`` .
 
 IMPORTANT
 ---------

@@ -28,7 +28,17 @@ post={
 z=rhmr(map=m,reduce=r,comb=F,inout=c("text","sequence"),ifolder="/tmp/50mil",ofolder='/tmp/tof')
 rhex(z)
 #+END_SRC
+
+Or just, load Rhipe and type 
+#+BEGIN_SRC R-example
+rhwordcount(infolder,outfolder)
+#+END_SRC
+where =infolder= is the input file(or folder of files) or words and outfolder is
+the destination directory.
+
+* More Information
 For more information about what RHIPE is and not read the FAQ.
+Please not, this does not work on Mac OS X Snow Leopard.
 
 * =rprotobuf=
 An R package to serialize R objects using Google's protobuffers

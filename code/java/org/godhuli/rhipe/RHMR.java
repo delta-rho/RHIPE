@@ -166,6 +166,11 @@ public class RHMR  implements Tool {
 						       .get("rhipe_outputformat_valueclass")));
 		job_.setMapOutputKeyClass(RHBytesWritable.class);
 		job_.setMapOutputValueClass(RHBytesWritable.class);
+// 		job_.setMapOutputKeyClass(Class.forName(rhoptions_
+// 						     .get("map_output_keyclass")));
+// 		job_.setMapOutputValueClass(Class.forName(rhoptions_
+// 						     .get("map_output_valueclass")));
+
 	    } else{
 		job_.setOutputFormatClass(org.apache.hadoop.mapreduce.lib.output.NullOutputFormat.class);
 		job_.setOutputKeyClass(org.apache.hadoop.io.NullWritable.class);

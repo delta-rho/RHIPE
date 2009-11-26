@@ -25,7 +25,8 @@ Requirements
 3. *rJava* The R package needs rJava.
 
 
-Tested on RHEL Linux, though *may* work on Windows
+Tested on RHEL Linux, Mac OS 10.5.5 (Leopard).
+Does not work on Snow Leopard
 
 
 Installation
