@@ -13,5 +13,6 @@ Documentation for RHIPE
    examples.rst
    FAQ.rst
    ProtoBuffers.rst
+   datatypes.rst
 
 

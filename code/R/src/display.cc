@@ -148,6 +148,28 @@ void sendToHadoop(SEXP k){
   // fflush(CMMNC->BSTDOUT);
 }
 
+// SEXP readFromHadoop(const uint32_t nbytes,int *err){
+//   SEXP r = R_NilValue;
+//   SEXP rv ;
+//   PROTECT(rv = Rf_allocVector(RAWSXP, nbytes));
+//   if(fread(RAW(rv),nbytes,1,CMMNC->BSTDIN)<=0){
+//     *err=1;
+//     UNPROTECT(1);
+//     return(R_NilValue);
+//   }
+//   REXP *rxp = new REXP();
+//   if (rxp->ParseFromArray(RAW(rv),LENGTH(rv))){
+//     LOGG(1,"%s\n", rxp->DebugString().c_str());
+
+//     PROTECT(r = message2rexp(*rxp));
+//     UNPROTECT(1);
+//   }
+//   UNPROTECT(1);
+//   delete rxp;
+//   return(r);
+// }
+
+
 SEXP readFromHadoop(const uint32_t nbytes,int *err){
   SEXP r = R_NilValue;
   oiinfo->rxp->Clear();
@@ -161,16 +183,21 @@ SEXP readFromHadoop(const uint32_t nbytes,int *err){
       BSIZE=nbytes+1024;
     }
   *err=0;
+
   if(fread(oiinfo->inputbuffer,nbytes,1,CMMNC->BSTDIN)<=0){
     *err=1;
     return(R_NilValue);
   }
   if (oiinfo->rxp->ParseFromArray(oiinfo->inputbuffer,nbytes)){
+    // LOGG(1,"%s\n", oiinfo->rxp->DebugString().c_str());
     PROTECT(r = message2rexp(*(oiinfo->rxp)));
     UNPROTECT(1);
+    
   }
+
   return(r);
 }
+
 
 
 SEXP readFromMem(void * array,uint32_t nbytes){

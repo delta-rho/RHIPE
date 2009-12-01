@@ -28,7 +28,7 @@
 #include <R_ext/Parse.h>
 #include <R_ext/Rdynload.h>
   
-#define DLEVEL 9
+#define DLEVEL -9
 
 #ifdef RHIPEDEBUG
 #define LOGG(...) logg(__VA_ARGS__)

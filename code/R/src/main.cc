@@ -14,7 +14,7 @@ Streams *CMMNC;
 FILE* LOG;
 int _STATE_;
 
-int embedR(int argc, char *argv){
+int embedR(int argc, char **argv){
   structRstart rp;
   Rstart Rp = &rp;
   R_DefParams(Rp);
@@ -30,7 +30,7 @@ int embedR(int argc, char *argv){
     return(-1);
   }
 
-  int stat= Rf_initialize_R(argc,(char **) argv);
+  int stat= Rf_initialize_R(argc, argv);
   if (stat<0) {
     fprintf(stderr,"Failed to initialize embedded R!:%d\n",stat);
     return(-2);
@@ -55,7 +55,7 @@ int embedR(int argc, char *argv){
   return(0);
 }
 
-int main(int argc,char *argv){
+int main(int argc,char **argv){
   char *rhipewhat;
   if ((rhipewhat=getenv("RHIPEWHAT")))
     _STATE_ = (int)strtol(rhipewhat,NULL,10);

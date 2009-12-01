@@ -176,8 +176,8 @@ const int mapper_run2(void){
 	    PROTECT(t2 = Rf_allocVector(VECSXP,mapbuf_cnt));
 	    
 	    for(int i=0;i<mapbuf_cnt;i++){
-	      SET_VECTOR_ELT(t2,i, VECTOR_ELT(vvector,i));
-	      SET_VECTOR_ELT(t1,i, VECTOR_ELT(kvector,i));
+	      SET_VECTOR_ELT(t2,i, Rf_duplicate(VECTOR_ELT(vvector,i)));
+	      SET_VECTOR_ELT(t1,i, Rf_duplicate(VECTOR_ELT(kvector,i)));
 	    }
 	    Rf_setVar(Rf_install("map.keys"),t1,R_GlobalEnv);
 	    Rf_setVar(Rf_install("map.values"),t2,R_GlobalEnv);
@@ -188,7 +188,6 @@ const int mapper_run2(void){
 	    Rf_setVar(Rf_install("map.keys"),kvector,R_GlobalEnv);
 	    Rf_setVar(Rf_install("map.values"),vvector,R_GlobalEnv);
 	    R_tryEval(runner2,NULL,&Rerr);
-
 	  }
 	}
 	PROTECT(cleaner=rexpress(MAPCLEANS));
@@ -206,22 +205,24 @@ const int mapper_run2(void){
 	}
 	SEXP k,v;
 	PROTECT(k= readFromHadoop(type,&err));
+
 	if(err) {
 	  UNPROTECT(5);
 	  return(1);
 	}
+
+
 	type = readVInt64FromFileDescriptor(CMMNC->BSTDIN);
+
 	PROTECT( v = readFromHadoop(type,&err));
 	if(err) {
 	  UNPROTECT(6);
 	  return(1);
 	}
-
 	SET_VECTOR_ELT(vvector, mapbuf_cnt, v);
 	SET_VECTOR_ELT(kvector, mapbuf_cnt, k);
 	UNPROTECT(2);
 	mapbuf_cnt++;
-
 	break;
       }
     }

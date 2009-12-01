@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+lang="en" xml:lang="en">
+<head>
+
+<title>RHIPE - R and Hadoop Integrated Processing Environment </title>
+<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2009-11-30 14:39:32 EST"/>
+<meta name="author" content="Saptarshi Guha"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  html { font-family: Times, serif; font-size: 12pt; }
+  .title  { text-align: center; }
+  .todo   { color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #add8e6; font-weight:normal }
+  .target { }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  p.verse { margin-left: 3% }
+  pre {
+	border: 1pt solid #AEBDCC;
+	background-color: #F3F5F7;
+	padding: 5pt;
+	font-family: courier, monospace;
+        font-size: 90%;
+        overflow:auto;
+  }
+  table { border-collapse: collapse; }
+  td, th { vertical-align: top; }
+  dt { font-weight: bold; }
+  div.figure { padding: 0.5em; }
+  div.figure p { text-align: center; }
+  .linenr { font-size:smaller }
+  .code-highlighted {background-color:#ffff00;}
+  .org-info-js_info-navigation { border-style:none; }
+  #org-info-js_console-label { font-size:10px; font-weight:bold;
+                               white-space:nowrap; }
+  .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
+                                 font-weight:bold; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="a.css" />
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">RHIPE - R and Hadoop Integrated Processing Environment </h1>
+
+
+<p>
+RHIPE(phonetic spelling: hree-pay' <sup><a class="footref" name="fnr.1" href="#fn.1">1</a></sup>) is a java package that integrates the R environment with <a href="http://hadoop.apache.org/core/">Hadoop</a>, the open source implementation
+of Google's mapreduce.  Using RHIPE it is possible to code map-reduce algorithms in R e.g
+</p>
+
+
+<pre class="src src-R-example">m &lt;- expression({
+for(x in map.values){
+  y &lt;- strsplit(x,<span style="color: #8b2252;">" +"</span>)[[1]]
+  for(w in y) rhcollect(w,T)
+}})
+r &lt;- expression(pre={
+  count &lt;- 0
+},
+reduce={
+  count &lt;- count+sum(unlist(reduce.values))
+},
+post={
+ rhcollect(reduce.key,as.integer(count))
+})
+z=rhmr(map=m,reduce=r,comb=F,inout=c(<span style="color: #8b2252;">"text"</span>,<span style="color: #8b2252;">"sequence"</span>),ifolder=<span style="color: #8b2252;">"/tmp/50mil"</span>,ofolder='/tmp/tof')
+rhex(z)
+</pre>
+
+
+
+
+<p>
+Or just, load Rhipe and type 
+</p>
+
+
+<pre class="src src-R-example">rhwordcount(infolder,outfolder)
+</pre>
+
+
+
+<p>
+where <code>infolder</code> is the input file(or folder of files) or words and outfolder is
+the destination directory.
+</p>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 Mailing List </a></li>
+<li><a href="#sec-2">2 Data types supported </a></li>
+<li><a href="#sec-3">3 More Information </a></li>
+<li><a href="#sec-4">4 <code>rprotobuf</code> </a></li>
+<li><a href="#sec-5">5 Download </a></li>
+<li><a href="#sec-6">6 EC2 </a></li>
+<li><a href="#sec-7">7 Documentation </a></li>
+<li><a href="#sec-8">8 News </a>
+<ul>
+<li><a href="#sec-8.1">8.1 Mon Oct 12 11:18:31 EDT 2009 </a></li>
+<li><a href="#sec-8.2">8.2 Sun Sep 27 22:01:33 EDT 2009 </a></li>
+<li><a href="#sec-8.3">8.3 Tue Sep  8 15:35:24 EDT 2009 </a></li>
+<li><a href="#sec-8.4">8.4 Fri Aug  7 2009, Version 0.45 </a></li>
+</ul>
+</li>
+<li><a href="#sec-9">9 Contact </a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Mailing List </h2>
+<div class="outline-text-2" id="text-1">
+
+<p>Mailing list is hosted on Google Groups. The url is
+<a href="http://groups.google.com/group/rhipe">http://groups.google.com/group/rhipe</a> . Your first post will be moderated.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Data types supported </h2>
+<div class="outline-text-2" id="text-2">
+
+
+<p>
+Well, a useful subset, but not all, see <a href="./doc/html/datatypes.html">Data Types</a>
+</p></div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> More Information </h2>
+<div class="outline-text-2" id="text-3">
+
+<p>For more information about what RHIPE is and not, read the FAQ.
+Please note, this does not work on Mac OS X Snow Leopard.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> <code>rprotobuf</code> </h2>
+<div class="outline-text-2" id="text-4">
+
+<p>An R package to serialize R objects using Google's protobuffers
+See this page <a href="http://ml.stat.purdue.edu/rhipe/doc/html/ProtoBuffers.html">http://ml.stat.purdue.edu/rhipe/doc/html/ProtoBuffers.html</a>
+</p>
+
+</div>
+
+</div>
+
+<div id="outline-container-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Download </h2>
+<div class="outline-text-2" id="text-5">
+
+<p><b>Source</b>
+</p>
+<p>
+The source code is present on Git, go here <a href="http://github.com/saptarshiguha/RHIPE/">http://github.com/saptarshiguha/RHIPE/</a>
+</p>
+<p>
+To check out the current version, install <code>git</code>
+</p>
+
+
+<pre class="src src-sh">git clone git://github.com/saptarshiguha/RHIPE.git
+</pre>
+
+
+
+
+<p>
+To download version <code>X</code> e.g <code>0.45</code>
+</p>
+
+
+<pre class="src src-sh">git clone git://github.com/saptarshiguha/RHIPE.git
+git checkout 0.45
+</pre>
+
+
+
+
+<p>
+The current version is <b>always</b> the master. 
+</p>
+
+<p>
+<b>Versions</b>
+</p>
+
+<p>
+Read the documentation for installation. Current is the latest version.
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption></caption>
+<colgroup><col align="right" /><col align="left" />
+</colgroup>
+<thead>
+<tr><th scope="col">Version</th><th scope="col">Download</th></tr>
+</thead>
+<tbody>
+<tr><td>0.51</td><td><a href="./dn/Rhipe_0.51.tar.gz">Rhipe_0.51.tar.gz</a></td></tr>
+<tr><td>0.5</td><td><a href="./dn/Rhipe_0.5.tar.gz">Rhipe_0.5.tar.gz</a></td></tr>
+<tr><td>0.44</td><td><a href="./dn/rhipe.0.44.tgz">rhipe.0.44.tgz</a></td></tr>
+</tbody>
+</table>
+
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> EC2 </h2>
+<div class="outline-text-2" id="text-6">
+
+<p>Download the scripts from <a href="./dn/rhipeec2.tar.gz">here</a>, untar it. This will create a folder called <code>ec2</code> which has a <code>bin</code> folder in it. Modify <code>ec2/bin/hadoop-ec2-env.sh.template</code>
+</p>
+<p>
+**NOTE** For 32 bit instance types only (m1.small, c1.medium). Hopefully, 64 bit will work soon.
+</p></div>
+
+</div>
+
+<div id="outline-container-7" class="outline-2">
+<h2 id="sec-7"><span class="section-number-2">7</span> Documentation </h2>
+<div class="outline-text-2" id="text-7">
+
+<p>The documentation can be found <a href="./doc/html/index.html">here</a>. PDF version can be found <a href="./doc/rhipe.pdf">here</a>
+</p></div>
+
+</div>
+
+<div id="outline-container-8" class="outline-2">
+<h2 id="sec-8"><span class="section-number-2">8</span> News </h2>
+<div class="outline-text-2" id="text-8">
+
+
+</div>
+
+<div id="outline-container-8.1" class="outline-3">
+<h3 id="sec-8.1"><span class="section-number-3">8.1</span> Mon Oct 12 11:18:31 EDT 2009 </h3>
+<div class="outline-text-3" id="text-8.1">
+
+<ul>
+<li>
+Removed the dependency on rJava. Getting it to work with Hadoop classpaths
+caused to much grief. The actualy RHIPE program remains unchanged but the
+client handler (R package) is a bit slower(?)
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-8.2" class="outline-3">
+<h3 id="sec-8.2"><span class="section-number-3">8.2</span> Sun Sep 27 22:01:33 EDT 2009 </h3>
+<div class="outline-text-3" id="text-8.2">
+
+<ul>
+<li>
+Names are <b>only</b> read for VECSXP (list objects), because of a strange bug.
+
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-8.3" class="outline-3">
+<h3 id="sec-8.3"><span class="section-number-3">8.3</span> Tue Sep  8 15:35:24 EDT 2009 </h3>
+<div class="outline-text-3" id="text-8.3">
+
+<ul>
+<li>
+Moved to Hadoop 0.20
+</li>
+<li>
+Uses protobuf for serialization, fewer R types allowed
+</li>
+<li>
+Does not depend on Rserve, single R package to install
+
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-8.4" class="outline-3">
+<h3 id="sec-8.4"><span class="section-number-3">8.4</span> Fri Aug  7 2009, Version 0.45 </h3>
+<div class="outline-text-3" id="text-8.4">
+
+<ul>
+<li>
+Web site revamped. Beginning with the current version, the entire
+manual is in PDF or can be accessed  at the <a href="./doc/index.html/">documentation</a> link.
+</li>
+<li>
+Source code is available on Git, go to the download page for instructions.
+</li>
+<li>
+Stopped seeding via secure random generator, so the user will have
+to seed it to avoid correlated streams. On RHEL linux
+when running <code>rhlapply</code> on 145K+ tasks,  <code>/dev/random</code> would block.
+
+
+</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-9" class="outline-2">
+<h2 id="sec-9"><span class="section-number-2">9</span> Contact </h2>
+<div class="outline-text-2" id="text-9">
+
+<p>sguha -AT- purdue -DOT- edu
+</p>
+
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+<p class="footnote"><sup><a class="footnum" name="fn.1" href="#fnr.1">1</a></sup> This is greek for <i>a moment in time</i>. See here for pronunciation:
+<a href="http://www.searchgodsword.org/lex/grk/view.cgi?number=4493">Greek Lexicon</a>
+</p>
+</div>
+</div>
+<div id="postamble">
+<p class="author"> Author: Saptarshi Guha
+<a href="mailto:sguha@purdue.edu">&lt;sguha@purdue.edu&gt;</a>
+</p>
+<p class="date"> Date: 2009-11-30 14:39:32 EST</p>
+<p class="creator">HTML generated by org-mode 6.32trans in emacs 23</p>
+</div>
+</div>
+</body>
+</html>

@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Documentation for RHIPE &mdash; rhipe v0.51 documentation</title>
+    <title>Datatypes &mdash; rhipe v0.51 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -19,8 +19,8 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="rhipe v0.51 documentation" href="" />
-    <link rel="next" title="Setting up RHIPE" href="installation.html" /> 
+    <link rel="top" title="rhipe v0.51 documentation" href="index.html" />
+    <link rel="prev" title="Protobuffer and R" href="ProtoBuffers.html" /> 
   </head>
   <body>
     <div class="related">
@@ -30,19 +30,19 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="installation.html" title="Setting up RHIPE"
-             accesskey="N">next</a> |</li>
-        <li><a href="">rhipe v0.51 documentation</a> &raquo;</li> 
+          <a href="ProtoBuffers.html" title="Protobuffer and R"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">rhipe v0.51 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-            <h4>Next topic</h4>
-            <p class="topless"><a href="installation.html"
-                                  title="next chapter">Setting up RHIPE</a></p>
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="ProtoBuffers.html"
+                                  title="previous chapter">Protobuffer and R</a></p>
             <h3>This Page</h3>
             <ul class="this-page-menu">
-              <li><a href="_sources/index.txt"
+              <li><a href="_sources/datatypes.txt"
                      rel="nofollow">Show Source</a></li>
             </ul>
           <div id="searchbox" style="display: none">
@@ -66,20 +66,25 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="documentation-for-rhipe">
-<h1>Documentation for RHIPE<a class="headerlink" href="#documentation-for-rhipe" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="../../index.html">Mainpage</a></p>
+  <div class="section" id="datatypes">
+<h1>Datatypes<a class="headerlink" href="#datatypes" title="Permalink to this headline">¶</a></h1>
+<p>I have tried to make RHIPE as flexible as possible with regards to data types exchanged. As such the following can be sent</p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="installation.html">Setting up RHIPE</a></li>
-<li class="toctree-l1"><a class="reference external" href="rhlapply.html">The <tt class="docutils literal"><span class="pre">rhlapply</span></tt> Command</a></li>
-<li class="toctree-l1"><a class="reference external" href="rhmr.html">The <tt class="docutils literal"><span class="pre">rhmr</span></tt> Command</a></li>
-<li class="toctree-l1"><a class="reference external" href="rhmisc.html">Miscellaneous Commands</a></li>
-<li class="toctree-l1"><a class="reference external" href="ec2.html">Using RHIPE on EC2</a></li>
-<li class="toctree-l1"><a class="reference external" href="examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference external" href="FAQ.html">FAQ</a></li>
-<li class="toctree-l1"><a class="reference external" href="ProtoBuffers.html">Protobuffer and R</a></li>
-<li class="toctree-l1"><a class="reference external" href="datatypes.html">Datatypes</a></li>
+<li><dl class="first docutils">
+<dt>atomic vectors without attributes (raw, character, logical, complex, real, integer) (these include NA&#8217;s)</dt>
+<dd><ul class="first last simple">
+<li>e.g names attribute will be lost</li>
 </ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">lists of the above and lists of lists. Names will be preserved.</p>
+</li>
+</ul>
+<p>So <em>officially</em> no matrices, data.frames, time series objects etc. If there are needed serialized them using <tt class="docutils literal"><span class="pre">serialize</span></tt> .</p>
+<p><em>Unofficially</em>, several attributes of are serialized, hence you can send matrices (the dim and  dimnames attribute are involved) will be serialized.
+However, with regards to data.frames the row.names attribute has caused me much grief. Hence, relying on these types can lead to many problems, crashes even.</p>
+<p>If in doubt, serialize.</p>
 </div>
 
 
@@ -95,9 +100,9 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="installation.html" title="Setting up RHIPE"
-             >next</a> |</li>
-        <li><a href="">rhipe v0.51 documentation</a> &raquo;</li> 
+          <a href="ProtoBuffers.html" title="Protobuffer and R"
+             >previous</a> |</li>
+        <li><a href="index.html">rhipe v0.51 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

@@ -241,6 +241,7 @@ void sigHandler(int i) {
   // if (i==SIGTERM || i==SIGHUP  || i==SIGINT || i==SIGQUIT)
   //   __active__=0;
   while ( (pid = waitpid(-1, &stat, WNOHANG)) > 0);
+  merror("sighandler: %d\n", i);
   return;
 }
 

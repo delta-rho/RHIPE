@@ -35,10 +35,16 @@ rhwordcount(infolder,outfolder)
 #+END_SRC
 where =infolder= is the input file(or folder of files) or words and outfolder is
 the destination directory.
+* Mailing List
+Mailing list is hosted on Google Groups. The url is
+[[http://groups.google.com/group/rhipe]] . Your first post will be moderated.
 
+* Data types supported
+
+Well, a useful subset, but not all, see [[file:./doc/html/datatypes.html][Data Types]]
 * More Information
-For more information about what RHIPE is and not read the FAQ.
-Please not, this does not work on Mac OS X Snow Leopard.
+For more information about what RHIPE is and not, read the FAQ.
+Please note, this does not work on Mac OS X Snow Leopard.
 
 * =rprotobuf=
 An R package to serialize R objects using Google's protobuffers

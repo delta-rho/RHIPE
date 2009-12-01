@@ -112,10 +112,12 @@ SEXP message2rexp(const REXP& rexp){
   int typ = TYPEOF(s);
   if (atlength>0  )
     {
+      //set the class first
       for (int j=0; j<atlength; j++)
   	{
 	  const char *nameofatt = rexp.attrname(j).c_str();
 	  if(strcmp(nameofatt,"names")==0 && typ!=VECSXP) continue;
+
 //   	  SEXP n=Rf_mkString(nameofatt);
 	  SEXP v ;
 	  PROTECT(v= message2rexp(rexp.attrvalue(j)));

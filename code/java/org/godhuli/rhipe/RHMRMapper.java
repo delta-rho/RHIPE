@@ -59,7 +59,7 @@ public class RHMRMapper extends Mapper<RHBytesWritable,
 	String mif = ((FileSplit) context.getInputSplit()).getPath().toString();
 	cfg.set("mapred.input.file",mif);
 	cfg.set("RHIPEWHAT","0");
-	// System.out.println("mapred.input.file == "+ cfg.get("mapred.input.file"));
+	System.out.println("mapred.input.file == "+ cfg.get("mapred.input.file"));
 	helper.setup(cfg, getPipeCommand(cfg), getDoPipe());
 	copyFile=cfg.get("rhipe_copy_file").equals("TRUE")? true: false;
 	try{

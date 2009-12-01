@@ -51,3 +51,13 @@ b) set the environment variable ``RHIPECOMMAND`` on each of tasktrackers. RHIPE
 java client will read this first before reading the above variable.
 
 
+5. Data types
+
+Stick to vectors of raws, character, logical, integer, complex and reals. 
+For atomic vectors, don't use attributes (especially not the names attribute)
+*Stay away* from ``data.frames``
+
+In lists, the names are preserved.
+
+Try and keep your objects simple (using types even more basic than R types :) ) and even on data sets, you find no object corruption, there can be on large data sets  - ** if you use the advanced types such classes, data.frames etc **
+

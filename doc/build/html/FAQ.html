@@ -116,6 +116,14 @@ value it should be on the tasktrackers.
 <p>or</p>
 <p>b) set the environment variable <tt class="docutils literal"><span class="pre">RHIPECOMMAND</span></tt> on each of tasktrackers. RHIPE
 java client will read this first before reading the above variable.</p>
+<ol class="arabic simple" start="5">
+<li>Data types</li>
+</ol>
+<p>Stick to vectors of raws, character, logical, integer, complex and reals.
+For atomic vectors, don&#8217;t use attributes (especially not the names attribute)
+<em>Stay away</em> from <tt class="docutils literal"><span class="pre">data.frames</span></tt></p>
+<p>In lists, the names are preserved.</p>
+<p>Try and keep your objects simple (using types even more basic than R types :) ) and even on data sets, you find no object corruption, there can be on large data sets  - ** if you use the advanced types such classes, data.frames etc **</p>
 </div>
 
 
