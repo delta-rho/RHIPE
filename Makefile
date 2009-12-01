@@ -29,8 +29,7 @@ code:
 # 	mv build/R build/Rhipe
 	# tar -czf Rhipe_${VER}.tar.gz  -C build/  Rhipe
 	R CMD BUILD  build/R
-	rsync  Rhipe_${VER}.tar.gz website/dn/
-	rm -rf Rhipe_${VER}.tar.gz
+	mv  Rhipe_${VER}.tar.gz website/dn/
 	cp website/dn/Rhipe_${VER}.tar.gz website/dn/rhipe.tar.gz
 	rm -rf build
 doc: 
