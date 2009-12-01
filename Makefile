@@ -1,5 +1,5 @@
 VER=0.51
-
+#
 .PHONY : doc code  sync
 
 all: code doc index
