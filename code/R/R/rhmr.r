@@ -29,17 +29,15 @@ rhmr <- function(map,reduce=NULL,
     stop("'map' must be an expression")
   reduces <- T
   lines$rhipe_reduce_justcollect <- "FALSE"
-  ## lines$rhipe_reduce <- rawToChar(serialize(expression(),NULL,ascii=T))
-  ## lines$rhipe_reduce_prekey <- rawToChar(serialize(expression(),NULL,ascii=T))
-  ## lines$rhipe_reduce_postkey <- rawToChar(serialize(expression(),NULL,ascii=T))
   
   if(is.null(reduce)){
     reduces <- FALSE
   }
 
-  reduce$reduce <- eval(substitute(reduce$reduce))
-  reduce$pre <- eval(substitute(reduce$pre))
-  reduce$post <- eval(substitute(reduce$post))
+  ## rr <- eval(reduce$reduce); rpre <- eval(reduce$pre) ; rpos <- eval(reduce$post)
+  ## lines$rhipe_reduce <- rawToChar(serialize( eval(substitute(rr)) ,NULL,ascii=T))
+  ## lines$rhipe_reduce_prekey <- rawToChar(serialize( eval(substitute(rpre)) ,NULL,ascii=T))
+  ## lines$rhipe_reduce_postkey <- rawToChar(serialize( eval(substitute(rpos)) ,NULL,ascii=T))
   
   lines$rhipe_reduce <- rawToChar(serialize(reduce$reduce,NULL,ascii=T))
   lines$rhipe_reduce_prekey <- rawToChar(serialize(reduce$pre,NULL,ascii=T))
@@ -89,11 +87,11 @@ rhmr <- function(map,reduce=NULL,
   }
 
 
-  map.s <- eval(substitute(map.s))
-  setup.m <- eval(substitute(setup.m))
-  setup.r <- eval(substitute(setup.r))
-  cleanup.m <- eval(substitute(cleanup.m))
-  cleanup.r <- eval(substitute(cleanup.r))
+  ## map=eval(map);map <- eval(substitute(map))
+  ## setup.m=eval(setup.m);setup.m <- eval(substitute(setup.m))
+  ## setup.r=eval(setup.r);setup.r <- eval(substitute(setup.r))
+  ## cleanup.m=eval(cleanup.m);cleanup.m <- eval(substitute(cleanup.m))
+  ## cleanup.r=eval(cleanu.r);cleanup.r <- eval(substitute(cleanup.r))
   
   map.s <- serialize(map,NULL,ascii=T)
   
@@ -241,11 +239,12 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
   ## usercode <- rawToChar(serialize(fun,NULL,ascii=TRUE))
   usecodeText <-
     parse(text=paste("userFUN...=",paste(deparse(fun),collapse="\n")))
-  
+  userFUN... <- fun
   if(!is.null(setup))
     setup <- append(usecodeText,setup)
   else
     setup <- usecodeText
+
 
   map.exp <- expression({ for(.id. in 1:length(map.values)) { ..r..<-userFUN...(map.values[[.id.]]); rhcollect(map.keys[[.id.]],..r..) }})
 
