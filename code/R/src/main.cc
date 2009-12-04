@@ -60,7 +60,10 @@ int main(int argc,char **argv){
   if ((rhipewhat=getenv("RHIPEWHAT")))
     _STATE_ = (int)strtol(rhipewhat,NULL,10);
 
-  LOG=fopen("/tmp/logger","a");
+  int uid = geteuid();
+  char fn[20];
+  sprintf(fn,"/tmp/logger-%d.log",uid);
+  LOG=fopen(fn,"a");
   LOGG(10,"\n.....................\n");
   LOGG(10,"Starting Up\n");
 

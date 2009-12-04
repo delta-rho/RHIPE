@@ -121,7 +121,7 @@ SEXP message2rexp(const REXP& rexp){
 //   	  SEXP n=Rf_mkString(nameofatt);
 	  SEXP v ;
 	  PROTECT(v= message2rexp(rexp.attrvalue(j)));
-  	  Rf_setAttrib(s,Rf_install(nameofatt), v );
+  	  if(!Rf_isNull(v)) Rf_setAttrib(s,Rf_install(nameofatt), v );
 	  UNPROTECT(1);
 
 	  //TEST TEST TEST TEST COULD FAILS

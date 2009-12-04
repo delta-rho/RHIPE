@@ -39,6 +39,7 @@ public class S2B {
 	FileOutputFormat.setOutputPath(job, new Path(opath));
 	job.setOutputFormatClass(RXBinaryOutputFormat.class);
 	job.setInputFormatClass(SequenceFileInputFormat.class);
+	job.submit();
 	boolean result = job.waitForCompletion(true) ? true : false;
 	return(result);
     }

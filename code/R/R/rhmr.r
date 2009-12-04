@@ -36,6 +36,11 @@ rhmr <- function(map,reduce=NULL,
   if(is.null(reduce)){
     reduces <- FALSE
   }
+
+  reduce$reduce <- eval(substitute(reduce$reduce))
+  reduce$pre <- eval(substitute(reduce$pre))
+  reduce$post <- eval(substitute(reduce$post))
+  
   lines$rhipe_reduce <- rawToChar(serialize(reduce$reduce,NULL,ascii=T))
   lines$rhipe_reduce_prekey <- rawToChar(serialize(reduce$pre,NULL,ascii=T))
   lines$rhipe_reduce_postkey <- rawToChar(serialize(reduce$post,NULL,ascii=T))
@@ -82,6 +87,13 @@ rhmr <- function(map,reduce=NULL,
   if(is.expression(cleanup)){
     cleanup <- list(map=cleanup,reduce=cleanup)
   }
+
+
+  map.s <- eval(substitute(map.s))
+  setup.m <- eval(substitute(setup.m))
+  setup.r <- eval(substitute(setup.r))
+  cleanup.m <- eval(substitute(cleanup.m))
+  cleanup.r <- eval(substitute(cleanup.r))
   
   map.s <- serialize(map,NULL,ascii=T)
   

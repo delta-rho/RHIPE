@@ -90,6 +90,9 @@ Download the scripts from [[./dn/rhipeec2.tar.gz][here]], untar it. This will cr
 * Documentation
 The documentation can be found [[file:./doc/html/index.html][here]]. PDF version can be found [[file:./doc/rhipe.pdf][here]]
 * News
+** Wed Dec  2 12:44:23 EST 2009
+- Failed when running RHIPE from different UID's. Now writes to
+  =/tmp/logger-UID=. Version number is still the same
 ** Mon Oct 12 11:18:31 EDT 2009
 - Removed the dependency on rJava. Getting it to work with Hadoop classpaths
   caused to much grief. The actualy RHIPE program remains unchanged but the
@@ -109,7 +112,7 @@ The documentation can be found [[file:./doc/html/index.html][here]]. PDF version
 - Stopped seeding via secure random generator, so the user will have
   to seed it to avoid correlated streams. On RHEL linux
  when running =rhlapply= on 145K+ tasks,  =/dev/random= would block.
-
+ 
  
 * Contact
 sguha -AT- purdue -DOT- edu
