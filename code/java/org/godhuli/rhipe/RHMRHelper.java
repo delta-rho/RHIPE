@@ -34,6 +34,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.godhuli.rhipe.REXPProtos.REXP;
+import org.godhuli.rhipe.REXPProtos.REXP.RClass;
 
 public class RHMRHelper {
     private  static int BUFFER_SIZE = 10*1024;
@@ -328,14 +330,24 @@ public class RHMRHelper {
 			    String status = new String(k);
 			    ctx.setStatus(status);
 			    break;
+			// case RHTypes.SET_COUNTER:
+			//     ln = clientErr_.readInt();
+			//     k = new byte[ln]; 
+			//     clientErr_.readFully(k,0,ln);
+			//     String grcnt = new String(k);
+			//     String[] columns = grcnt.split(",");
+			//     ctx.getCounter(columns[0], columns[1])
+			// 	.increment(Long.parseLong(columns[2]));
+			//     break;
 			case RHTypes.SET_COUNTER:
-			    ln = clientErr_.readInt();
+			    ln = RHBytesWritable.readVInt(clientErr_);
 			    k = new byte[ln]; 
 			    clientErr_.readFully(k,0,ln);
-			    String grcnt = new String(k);
-			    String[] columns = grcnt.split(",");
-			    ctx.getCounter(columns[0], columns[1])
-				.increment(Long.parseLong(columns[2]));
+			    REXP r = REXP.parseFrom(k);
+			    String grcnt = REXPHelper.toString_(r.getRexpValue(0));
+			    String subcnt = REXPHelper.toString_(r.getRexpValue(1));
+			    long value = (long)(Double.parseDouble( REXPHelper.toString_(r.getRexpValue(2))));
+			    ctx.getCounter(grcnt, subcnt).increment(value);
 			    break;
 			}
 			long now = System.currentTimeMillis(); 

@@ -77,6 +77,7 @@ Read the documentation for installation. Current is the latest version.
 
 | Version | Download           |
 |---------+--------------------|
+|    0.52 | [[file:./dn/Rhipe_0.52.tar.gz][Rhipe\_0.52.tar.gz]] |
 |    0.51 | [[file:./dn/Rhipe_0.51.tar.gz][Rhipe\_0.51.tar.gz]] |
 |     0.5 | [[file:./dn/Rhipe_0.5.tar.gz][Rhipe\_0.5.tar.gz]]  |
 |    0.44 | [[./dn/rhipe.0.44.tgz][rhipe.0.44.tgz]]     |

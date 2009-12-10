@@ -95,13 +95,28 @@ void mmessage(char *fmt, ...)
   Re_WriteConsoleEx(errmsg,strlen(errmsg),0);
 }
 
-SEXP counter(SEXP grouppattern){
-  char *group = (char*)CHAR(STRING_ELT( grouppattern , 0));
-  fwrite(&SET_COUNTER,sizeof(uint8_t),1,CMMNC->BSTDERR);
-  uint32_t stle = strlen(group);
-  uint32_t len_rev =  reverseUInt(stle);
-  fwrite(&len_rev,sizeof(uint32_t),1,CMMNC->BSTDERR);
-  fwrite(group,stle,1,CMMNC->BSTDERR);
+SEXP counter(SEXP listmoo){
+  // char *group = (char*)CHAR(STRING_ELT( grouppattern , 0));
+  // fwrite(&SET_COUNTER,sizeof(uint8_t),1,CMMNC->BSTDERR);
+  // uint32_t stle = strlen(group);
+  // uint32_t len_rev =  reverseUInt(stle);
+  // fwrite(&len_rev,sizeof(uint32_t),1,CMMNC->BSTDERR);
+  // fwrite(group,stle,1,CMMNC->BSTDERR);
+  // return(R_NilValue);
+  REXP *rxp = new REXP();
+  SEXP result;
+  rxp->Clear();
+  rexp2message(rxp,listmoo);
+  int size = rxp->ByteSize();
+  PROTECT(result = Rf_allocVector(RAWSXP,size));
+  if(result != R_NilValue){
+    fwrite(&SET_COUNTER,sizeof(uint8_t),1,CMMNC->BSTDERR);
+    writeVInt64ToFileDescriptor( size , CMMNC->BSTDERR);
+    rxp->SerializeWithCachedSizesToArray(RAW(result));
+    fwrite(RAW(result), size,1,CMMNC->BSTDERR);
+  }
+  UNPROTECT(1);
+  delete rxp;
   return(R_NilValue);
 }
 

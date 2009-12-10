@@ -88,7 +88,7 @@ int main(int argc,char **argv){
 
   // Load the functions into the R global environmen
   rexpress("rhstatus<-function(string) .Call('rh_status',string);");
-  rexpress("rhcounter<-function(group,counter,n) .Call('rh_counter',paste(group,counter,n,sep=','))");
+  rexpress("rhcounter<-function(group,counter='',n=1) .Call('rh_counter',list(group,counter,n))");
   rexpress("rhcollect<-function(key,value) .Call('rh_collect',key,value)");
   LOGG(9,"Loaded R Wrappers\n");
 
