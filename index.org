@@ -4,7 +4,7 @@
 #+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t *:t TeX:t LaTeX:nil
 #+STYLE: <link rel="stylesheet" type="text/css" href="a.css" />
 #+TITLE: RHIPE - R and Hadoop Integrated Processing Environment 
-
+#
 
 RHIPE(phonetic spelling: hree-pay' [1]) is a java package that integrates the R environment with [[http://hadoop.apache.org/core/][Hadoop]], the open source implementation
 of Google's mapreduce.  Using RHIPE it is possible to code map-reduce algorithms in R e.g
