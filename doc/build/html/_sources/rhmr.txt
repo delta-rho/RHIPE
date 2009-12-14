@@ -118,7 +118,8 @@ This will also indicate progress.
 Counter
 ^^^^^^^
 To update the counter C in the group G with a number N, user ``rhcounter(G,C,N)``
-where C and G are strings and N is a number.
+where C and G are strings and N is a number. However, C and G can be atomic vectors and they will be converted to strings.
+Previously a "," in C or G would upset Hadoop, but not with version 0.52 onwards.
 
 Output
 ^^^^^^

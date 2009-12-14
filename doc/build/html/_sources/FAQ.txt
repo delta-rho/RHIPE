@@ -51,13 +51,26 @@ b) set the environment variable ``RHIPECOMMAND`` on each of tasktrackers. RHIPE
 java client will read this first before reading the above variable.
 
 
+for x in spica deneb mimosa adhara castor acrux ;do
+    echo -en '\E[1;31m'
+    echo "==========" $x "=========="
+    tput sgr0
+    scp Rhipe_0.52.tar.gz $x:/tmp/
+    ssh $x ". ~/.bashrc && rm -rf /ln/meraki/custom/lib64/R/library/00LOCK && R CMD INSTALL /tmp/Rhipe_0.52.tar.gz"
+done
+
 5. Data types
 
-Stick to vectors of raws, character, logical, integer, complex and reals. 
-For atomic vectors, don't use attributes (especially not the names attribute)
-*Stay away* from ``data.frames``
+Stick to vectors of raws, character, logical, integer, complex and reals.  For
+atomic vectors, don't use attributes (especially not the names attribute) *Stay
+away* from ``data.frames`` (These two(data.frames and named scalar vectors) are
+read and written successfully, but I'm not guaranteeing success)
 
 In lists, the names are preserved.
 
 Try and keep your objects simple (using types even more basic than R types :) ) and even on data sets, you find no object corruption, there can be on large data sets  - ** if you use the advanced types such classes, data.frames etc **
 
+6. Key and Value Object Size : Are there limits?
+Yes, the serialized version of a key and object should be less than 64MB. I can fix this and will in future. For e.g. ``runif(8e6)`` is 61MB. Your keys and values should be less than this.
+
+ 

@@ -1,4 +1,4 @@
-VER=0.52
+VER=0.53
 #
 .PHONY : doc code  sync
 

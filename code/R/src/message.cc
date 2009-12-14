@@ -27,6 +27,7 @@ SEXP rexpress(const char* cmd)
 // call (void)Rf_PrintValue(robj) in gdb
 
 
+
 SEXP message2rexp(const REXP& rexp){
   SEXP s = R_NilValue;
   int length;
@@ -42,21 +43,18 @@ SEXP message2rexp(const REXP& rexp){
   	REXP::RBOOLEAN v = rexp.booleanvalue(i);
   	LOGICAL(s)[i] = convertLogical[1*v];
       }
-    UNPROTECT(1);
     break;
   case REXP::INTEGER:
     length = rexp.intvalue_size();
     PROTECT(s = Rf_allocVector(INTSXP,length));
     for (int i = 0; i<length; i++)
       INTEGER(s)[i] = rexp.intvalue(i);
-    UNPROTECT(1);
     break;
   case REXP::REAL:
     length = rexp.realvalue_size();
     PROTECT(s = Rf_allocVector(REALSXP,length));
     for (int i = 0; i<length; i++)
       REAL(s)[i] = rexp.realvalue(i);
-    UNPROTECT(1);
     break;
   case REXP::RAW:
     {
@@ -64,7 +62,6 @@ SEXP message2rexp(const REXP& rexp){
       length = r.size();
       PROTECT(s = Rf_allocVector(RAWSXP,length));
       memcpy(RAW(s),r.data(),length);
-      UNPROTECT(1);
       break;
     }
   case REXP::COMPLEX:
@@ -74,7 +71,6 @@ SEXP message2rexp(const REXP& rexp){
       COMPLEX(s)[i].r = rexp.complexvalue(i).real();
       COMPLEX(s)[i].i = rexp.complexvalue(i).imag();
     }
-    UNPROTECT(1);
     break;
   case REXP::STRING:
     {
@@ -87,52 +83,51 @@ SEXP message2rexp(const REXP& rexp){
       	  SET_STRING_ELT(s,i,R_NaString);
       	else{
 	  SEXP y=  Rf_mkChar(st.strval().c_str());
-// // 	  Rf_PrintValue(y);
-// 	  mmessage("%d==typeof", TYPEOF(y));
       	  SET_STRING_ELT(s,i,y);
 	}
       }
-      UNPROTECT(1);
       break;
     }
   case REXP::LIST:
-      length = rexp.rexpvalue_size();
-      PROTECT(s = Rf_allocVector(VECSXP,length));
-      for (int i = 0; i< length; i++){
-	SEXP ik;
-	PROTECT(ik = message2rexp(rexp.rexpvalue(i)));
-	SET_VECTOR_ELT(s, i,ik );
-	UNPROTECT(1);
-      }
-      UNPROTECT(1);
-      break;
+    length = rexp.rexpvalue_size();
+    PROTECT(s = Rf_allocVector(VECSXP,length));
+    for (int i = 0; i< length; i++){
+      // SEXP ik;
+      SET_VECTOR_ELT(s, i, message2rexp(rexp.rexpvalue(i)) );
+    }
+    break;
   }
-//   Rf_PrintValue(s);
   int atlength = rexp.attrname_size();
-  int typ = TYPEOF(s);
+  // int typ = TYPEOF(s);
   if (atlength>0  )
     {
-      //set the class first
       for (int j=0; j<atlength; j++)
   	{
-	  const char *nameofatt = rexp.attrname(j).c_str();
-	  if(strcmp(nameofatt,"names")==0 && typ!=VECSXP) continue;
-
+	  // const char *nameofatt = rexp.attrname(j).c_str();
+	  // if(strcmp(nameofatt,"names")==0 && typ!=VECSXP) continue;
+	  // if(strcmp(nameofatt,"names")==0 && typ==VECSXP){
+	  //   SEXP v ;
+	  //   PROTECT(v= message2rexp(rexp.attrvalue(j)));
+	  //   if(!Rf_isNull(v)) Rf_setAttrib(s,Rf_install(nameofatt), v );
+	  //   UNPROTECT(1);
+	  // }
 //   	  SEXP n=Rf_mkString(nameofatt);
-	  SEXP v ;
-	  PROTECT(v= message2rexp(rexp.attrvalue(j)));
-  	  if(!Rf_isNull(v)) Rf_setAttrib(s,Rf_install(nameofatt), v );
-	  UNPROTECT(1);
+	  // SEXP v ;
+	  // PROTECT(v= message2rexp(rexp.attrvalue(j)));
+  	  // if(!Rf_isNull(v)) Rf_setAttrib(s,Rf_install(nameofatt), v );
+	  // UNPROTECT(1);
 
-	  //TEST TEST TEST TEST COULD FAILS
+	  // TEST TEST TEST TEST COULD FAILS
 	  // REVERT TO PREVIOUS CODE
-// 	  Rf_setAttrib(s,
-// 		       Rf_install(rexp.attrname(j).c_str()), 
-// 		       message2rexp(rexp.attrvalue(j)));
+	  Rf_setAttrib(s,
+	  	       Rf_install(rexp.attrname(j).c_str()), 
+	  	       message2rexp(rexp.attrvalue(j)));
+
 
   	}
     }
-  return(Rf_duplicate(s)); //iff not forthis things crash, dont know why.
+  UNPROTECT(1);
+  return(s); //Rf_duplicate(s)); //iff not forthis things crash, dont know why.
 }
 
 

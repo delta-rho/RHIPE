@@ -46,10 +46,6 @@ Well, a useful subset, but not all, see [[file:./doc/html/datatypes.html][Data T
 For more information about what RHIPE is and not, read the FAQ.
 Please note, this does not work on Mac OS X Snow Leopard.
 
-* =rprotobuf=
-An R package to serialize R objects using Google's protobuffers
-See this page http://ml.stat.purdue.edu/rhipe/doc/html/ProtoBuffers.html
-
 
 * Download
 *Source*
@@ -77,6 +73,7 @@ Read the documentation for installation. Current is the latest version.
 
 | Version | Download           |
 |---------+--------------------|
+|    0.53 | [[file:./dn/Rhipe_0.53.tar.gz][Rhipe\_0.53.tar.gz]] |
 |    0.52 | [[file:./dn/Rhipe_0.52.tar.gz][Rhipe\_0.52.tar.gz]] |
 |    0.51 | [[file:./dn/Rhipe_0.51.tar.gz][Rhipe\_0.51.tar.gz]] |
 |     0.5 | [[file:./dn/Rhipe_0.5.tar.gz][Rhipe\_0.5.tar.gz]]  |
@@ -91,6 +88,21 @@ Download the scripts from [[./dn/rhipeec2.tar.gz][here]], untar it. This will cr
 * Documentation
 The documentation can be found [[file:./doc/html/index.html][here]]. PDF version can be found [[file:./doc/rhipe.pdf][here]]
 * News
+** Sun Dec 13 22:11:53 EST 2009
+- Release **Version 0.53**
+- Bug fixes:
+  - Inserted R\_CStackLimits, since I'm using Protobuf a threaded library, it was
+    upsetting R.
+  -  Removed Rf\_duplicate
+- Data types have been enhanced, now allows scalar vectors with attributes. Experimental.
+- A result of which can now write data.frames and read them back in.
+- Impose 64MB key,value serialization limit(workaround to come in
+  future). Objects bigger than this will be written successfully,but will fail
+  to read and will cause the job to fail.
+
+** Thu Dec 10 13:28:19 EST 2009
+- =rhcounter= ,available in mapreduce code, is more versatile. Previously, ','
+  in the counter names would upset Hadoop. Not anymore, see documentation for =rhmr=
 ** Wed Dec  2 12:44:23 EST 2009
 - Failed when running RHIPE from different UID's. Now writes to
   =/tmp/logger-UID=. Version number is still the same
@@ -113,7 +125,7 @@ The documentation can be found [[file:./doc/html/index.html][here]]. PDF version
 - Stopped seeding via secure random generator, so the user will have
   to seed it to avoid correlated streams. On RHEL linux
  when running =rhlapply= on 145K+ tasks,  =/dev/random= would block.
- 
+  
  
 * Contact
 sguha -AT- purdue -DOT- edu

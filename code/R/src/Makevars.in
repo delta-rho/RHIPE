@@ -1,4 +1,4 @@
-MYCXXFLAGS+= -I. -O3   `pkg-config --cflags protobuf` -Wall
+MYCXXFLAGS+= -I. -g    `pkg-config --cflags protobuf` -Wall
 PKG_LIBS+= `pkg-config --libs protobuf`
 
 # RHOME=`echo "cat(Sys.getenv('R_HOME'))" | R --slave `
@@ -6,11 +6,28 @@ PKG_LIBS+= `pkg-config --libs protobuf`
 ##RHOME is only set when this run from R
 ##otherwise I have to set it
 USERDIR = ../inst/lib
-RIN=`R CMD config --cppflags`
-RLIB=`R CMD config --ldflags`
+RINC=`R CMD config --cppflags`
+RLIB=-fpic `R CMD config --ldflags`
 .PHONY: all cpy
 
 all: $(SHLIB) app
+
+# rexp.pb.o: rexp.pb.cc
+# 	 $(CXX) ${RINC} ${RLIB} $(MYCXXFLAGS) -c $< -o $@
+# message.o: message.cc
+# 	 $(CXX) ${RINC} ${RLIB} $(MYCXXFLAGS) -c $< -o $@
+# utility.o: utility.cc
+# 	 $(CXX) ${RINC} ${RLIB} $(MYCXXFLAGS) -c $< -o $@
+# display.o: display.cc
+# 	 $(CXX) ${RINC} ${RLIB} $(MYCXXFLAGS) -c $< -o $@
+# reducer.o: reducer.cc
+# 	 $(CXX) ${RINC} ${RLIB} $(MYCXXFLAGS) -c $< -o $@
+# mapper.o: mapper.cc
+# 	 $(CXX) ${RINC} ${RLIB} $(MYCXXFLAGS) -c $< -o $@
+# main.o: main.cc
+# 	 $(CXX) ${RINC} ${RLIB} $(MYCXXFLAGS) -c $< -o $@
+# rhooks.o: rhooks.cc
+# 	 $(CXX) ${RINC} ${RLIB} $(MYCXXFLAGS) -c $< -o $@
 
 
 rexp.pb.o: rexp.pb.cc
@@ -31,10 +48,15 @@ rhooks.o: rhooks.cc
 	 $(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
 
 app:  rexp.pb.o message.o utility.o display.o reducer.o mapper.o main.o
-	$(CXX) -g ${MYCXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB} $^ -o imperious.so
+	$(CXX)   ${MYCXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB} $^ -o imperious.so
 
 
 
 
 clean:
 	rm *.so *.o
+
+
+
+## To -DFileREADER,the sequencefile should be /ln/mapinput
+##  rhipe_map_buff_size=1000 /ln/meraki/custom/lib64/R/library/Rhipe/libs/imperious.so --slave --silent --vanilla --max-ppsize=100000 --max-nsize=1G

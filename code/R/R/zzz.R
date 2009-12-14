@@ -1,5 +1,5 @@
 .rhipeEnv <- new.env()
-assign("rhipeOptions" ,list(version="0.52") ,envir=.rhipeEnv )
+assign("rhipeOptions" ,list(version="0.53") ,envir=.rhipeEnv )
 
 
 .onLoad <- function(libname,pkgname){
@@ -28,7 +28,8 @@ assign("rhipeOptions" ,list(version="0.52") ,envir=.rhipeEnv )
                                     sep=.Platform$file.sep),pattern="imperious.so",full=T)
 
   
-  opts$runner <- c("R","CMD", opts$runner,"--slave","--silent","--vanilla")
+  opts$runner <- c("R","CMD", opts$runner,"--slave","--silent","--vanilla","--max-ppsize=100000",
+                   "--max-nsize=1G")
 ##   opts$runner <- c(paste(R.home(component='bin'),"/R",sep=""), opts$runner,"--slave","--silent","--vanilla")
 ##  print("WHY3")
 

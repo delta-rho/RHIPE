@@ -24,7 +24,6 @@ public class S2B {
       }
     }
 
-  
     public static boolean runme(String[] ipath,String opath, boolean local) throws Exception {
 	Configuration conf = new Configuration();
 	if(local) conf.set("mapred.job.tracker","local");

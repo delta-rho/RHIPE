@@ -2,6 +2,7 @@
 #define	__ream_h
 
 #include <iostream>
+#include <google/protobuf/stubs/common.h>
 
 #include <rexp.pb.h>
 #include <stdint.h>
@@ -18,6 +19,9 @@
 #include <sys/wait.h>
 
 #define R_NO_REMAP
+#define R_INTERFACE_PTRS 1
+#define CSTACK_DEFNS 1 
+
 #include <Rversion.h>
 #include <R.h>
 #include <Rdefines.h>
@@ -30,22 +34,24 @@
   
 #define DLEVEL -9
 
+#ifdef FILEREADER
+extern FILE *FILEIN;
+#endif
+
 #ifdef RHIPEDEBUG
 #define LOGG(...) logg(__VA_ARGS__)
 #else
 #define LOGG(...)
 #endif
 
-
-extern void (*ptr_R_ShowMessage)(const char *);
-extern void (*ptr_R_WriteConsole)(const char *, int);
-extern int  (*ptr_R_ReadConsole)(char *, unsigned char *, int, int);
-extern void (*ptr_R_WriteConsoleEx)(const char *, int , int );
-extern FILE* R_Consolefile;
-extern FILE* R_Outputfile; 
+/* extern void (*ptr_R_ShowMessage)(const char *); */
+/* extern void (*ptr_R_WriteConsole)(const char *, int); */
+/* extern int  (*ptr_R_ReadConsole)(char *, unsigned char *, int, int); */
+/* extern void (*ptr_R_WriteConsoleEx)(const char *, int , int ); */
+/* extern FILE* R_Consolefile; */
+/* extern FILE* R_Outputfile;  */
 extern FILE* LOG;
 extern int _STATE_;
-
 SEXP rexpress(const char*);
 void rexp2message(REXP *, const SEXP);
 void fill_rexp(REXP *, const SEXP );
@@ -58,6 +64,9 @@ SEXP message2rexp(const REXP&);
 /*********
  * Utility
  *********/
+/* void CaptureLog(LogLevel , const char* , int ,const string& ) ; */
+/* void CaptureLogInLibrary(LogLevel , const char* , int ,const string& ) ; */
+
 uint32_t nlz(const int64_t);
 uint32_t getVIntSize(const int64_t) ;
 uint32_t isNegativeVInt(const int8_t);
@@ -65,6 +74,7 @@ uint32_t decodeVIntSize(const int8_t);
 uint32_t reverseUInt (uint32_t );
 void writeVInt64ToFileDescriptor( int64_t , FILE* );
 int64_t readVInt64FromFileDescriptor(FILE* );
+int32_t readJavaInt(FILE* );
 
 /************************
  * Signal Handler Related
@@ -101,7 +111,7 @@ int setup_stream(Streams *);
 ssize_t readn(int , void *, size_t );
 ssize_t Readn(int , void *, size_t);
 ssize_t writen(int , const void *, int );
-
+void do_unser(void);
 /******************
  ** Map & Reduce
  *****************/
@@ -128,7 +138,8 @@ SEXP status(SEXP );
 SEXP collect(SEXP ,SEXP );
 SEXP readFromHadoop(const uint32_t,int* );
 SEXP readFromMem(void * ,uint32_t );
-
+SEXP persUnser(SEXP);
+SEXP dbgstr(SEXP);
 extern  R_CallMethodDef callMethods[];
 
 

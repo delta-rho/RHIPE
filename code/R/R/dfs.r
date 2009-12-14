@@ -37,6 +37,7 @@ rhls <- function(fold,ignore.stderr=T,verbose=F){
   f <- as.data.frame(do.call("rbind",sapply(k,strsplit,"\t")),stringsAsFactors=F)
   rownames(f) <- NULL
   colnames(f) <- c("permission","owner","group","size","modtime","file")
+  f$size <- as.numeric(f$size)
   f
 }
 
@@ -101,17 +102,27 @@ rhwrite <- function(lo,f,N=NULL,ignore.stderr=T,verbose=F){
 }
 
 
-rhread <- function(files,dolocal=T,ignore.stderr=T,verbose=F){
+rhread <- function(files,dolocal=T,ignore.stderr=T,verbose=F,keep=NULL){
   ##need to specify /f/p* if there are other
   ##files present (not sequence files)
   on.exit({
-    unlink(tf2)
+    if(!keepfile)
+      unlink(tf2)
   })
+  
+  keepfile=F
   files <- unclass(rhls(files)['file'])$file
   tf1<- tempfile(pattern=paste('rhread_',
                    paste(sample(letters,4),sep='',collapse='')
                    ,sep="",collapse=""),tmpdir="/tmp")
-  tf2<- tempfile(pattern=paste(sample(letters,8),sep='',collapse=''))
+
+  if(!is.null(keep))
+    {
+      tf2 <- keep
+      keepfile=T
+    }else{
+      tf2<- tempfile(pattern=paste(sample(letters,8),sep='',collapse=''))
+    }
   message("----- converting to binary -----")
   doCMD(rhoptions()$cmd['s2b'], infiles=files,ofile=tf1,ilocal=dolocal,ignore.stderr=ignore.stderr,
         verbose=verbose)

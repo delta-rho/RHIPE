@@ -1,10 +1,9 @@
 #include "ream.h"
 #include <netinet/in.h>
-
+#include <google/protobuf/stubs/common.h>
 
 const int i___ = 1;
 #define is_bigendian() ( (*(char*)&i___) == 0 )
-
 
 /***************************************************
  **
@@ -12,7 +11,7 @@ const int i___ = 1;
  **
  ***************************************************/
 int setup_stream(Streams *s){
-  if (!(s->BSTDOUT = freopen(NULL, "wb", stdout))){
+   if (!(s->BSTDOUT = freopen(NULL, "wb", stdout))){
     fprintf(stderr,"ERROR: Could not reopen standard output in binary mode");
     return(-1);
   }
@@ -29,10 +28,11 @@ int setup_stream(Streams *s){
   if ((buffsizekb=getenv("rhipe_stream_buffer")))
     buffs = (int)strtol(buffsizekb,NULL,10);
 
-
+#ifndef FILEREADER
   setvbuf(s->BSTDOUT, 0, _IOFBF , buffs);
   setvbuf(s->BSTDIN,  0, _IOFBF,  buffs);
   setvbuf(s->BSTDERR, 0, _IONBF , 0);
+#endif
   s->NBSTDOUT = fileno(s->BSTDOUT);
   s->NBSTDIN =  fileno(s->BSTDIN);
   s->NBSTDERR = fileno(s->BSTDERR);

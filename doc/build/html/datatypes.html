@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Datatypes &mdash; rhipe v0.52 documentation</title>
+    <title>Datatypes &mdash; rhipe v0.53 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.52',
+        VERSION:     '0.53',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,7 +19,7 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="rhipe v0.52 documentation" href="index.html" />
+    <link rel="top" title="rhipe v0.53 documentation" href="index.html" />
     <link rel="prev" title="Protobuffer and R" href="ProtoBuffers.html" /> 
   </head>
   <body>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="ProtoBuffers.html" title="Protobuffer and R"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">rhipe v0.52 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.53 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -69,21 +69,14 @@
   <div class="section" id="datatypes">
 <h1>Datatypes<a class="headerlink" href="#datatypes" title="Permalink to this headline">¶</a></h1>
 <p>I have tried to make RHIPE as flexible as possible with regards to data types exchanged. As such the following can be sent</p>
-<ul>
-<li><dl class="first docutils">
-<dt>atomic vectors without attributes (raw, character, logical, complex, real, integer) (these include NA&#8217;s)</dt>
-<dd><ul class="first last simple">
-<li>e.g names attribute will be lost</li>
+<ul class="simple">
+<li>atomic vectors (raw, character, logical, complex, real, integer) (these include NA&#8217;s)</li>
+<li>lists of the above and lists of lists. Names will be preserved.</li>
 </ul>
-</dd>
-</dl>
-</li>
-<li><p class="first">lists of the above and lists of lists. Names will be preserved.</p>
-</li>
-</ul>
-<p>So <em>officially</em> no matrices, data.frames, time series objects etc. If there are needed serialized them using <tt class="docutils literal"><span class="pre">serialize</span></tt> .</p>
+<p>So <em>officially</em> no matrices, data.frames, time series objects etc. If there are needed , serialize them using <tt class="docutils literal"><span class="pre">serialize</span></tt> .</p>
 <p><em>Unofficially</em>, several attributes of are serialized, hence you can send matrices (the dim and  dimnames attribute are involved) will be serialized.
-However, with regards to data.frames the row.names attribute has caused me much grief. Hence, relying on these types can lead to many problems, crashes even.</p>
+However, with regards to data.frames the row.names attribute has caused me much grief. Keep it simple: scalar vectors (use <tt class="docutils literal"><span class="pre">as.vector</span></tt> to remove attributes) and lists (names are allowed).</p>
+<p>I use data.frames too and it works. If you get a crash(error code 139,using version &gt;= 0.53), email me.</p>
 <p>If in doubt, serialize.</p>
 </div>
 
@@ -102,7 +95,7 @@ However, with regards to data.frames the row.names attribute has caused me much 
         <li class="right" >
           <a href="ProtoBuffers.html" title="Protobuffer and R"
              >previous</a> |</li>
-        <li><a href="index.html">rhipe v0.52 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.53 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

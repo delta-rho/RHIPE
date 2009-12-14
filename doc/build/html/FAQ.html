@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>FAQ &mdash; rhipe v0.52 documentation</title>
+    <title>FAQ &mdash; rhipe v0.53 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.52',
+        VERSION:     '0.53',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,7 +19,7 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="rhipe v0.52 documentation" href="index.html" />
+    <link rel="top" title="rhipe v0.53 documentation" href="index.html" />
     <link rel="next" title="Protobuffer and R" href="ProtoBuffers.html" />
     <link rel="prev" title="Examples" href="examples.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="examples.html" title="Examples"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">rhipe v0.52 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.53 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -116,14 +116,26 @@ value it should be on the tasktrackers.
 <p>or</p>
 <p>b) set the environment variable <tt class="docutils literal"><span class="pre">RHIPECOMMAND</span></tt> on each of tasktrackers. RHIPE
 java client will read this first before reading the above variable.</p>
+<dl class="docutils">
+<dt>for x in spica deneb mimosa adhara castor acrux ;do</dt>
+<dd>echo -en &#8216;E[1;31m&#8217;
+echo &#8220;==========&#8221; $x &#8220;==========&#8221;
+tput sgr0
+scp Rhipe_0.52.tar.gz $x:/tmp/
+ssh $x &#8220;. ~/.bashrc &amp;&amp; rm -rf /ln/meraki/custom/lib64/R/library/00LOCK &amp;&amp; R CMD INSTALL /tmp/Rhipe_0.52.tar.gz&#8221;</dd>
+</dl>
+<p>done</p>
 <ol class="arabic simple" start="5">
 <li>Data types</li>
 </ol>
-<p>Stick to vectors of raws, character, logical, integer, complex and reals.
-For atomic vectors, don&#8217;t use attributes (especially not the names attribute)
-<em>Stay away</em> from <tt class="docutils literal"><span class="pre">data.frames</span></tt></p>
+<p>Stick to vectors of raws, character, logical, integer, complex and reals.  For
+atomic vectors, don&#8217;t use attributes (especially not the names attribute) <em>Stay
+away</em> from <tt class="docutils literal"><span class="pre">data.frames</span></tt> (These two(data.frames and named scalar vectors) are
+read and written successfully, but I&#8217;m not guaranteeing success)</p>
 <p>In lists, the names are preserved.</p>
 <p>Try and keep your objects simple (using types even more basic than R types :) ) and even on data sets, you find no object corruption, there can be on large data sets  - ** if you use the advanced types such classes, data.frames etc **</p>
+<p>6. Key and Value Object Size : Are there limits?
+Yes, the serialized version of a key and object should be less than 64MB. I can fix this and will in future. For e.g. <tt class="docutils literal"><span class="pre">runif(8e6)</span></tt> is 61MB. Your keys and values should be less than this.</p>
 </div>
 
 
@@ -144,7 +156,7 @@ For atomic vectors, don&#8217;t use attributes (especially not the names attribu
         <li class="right" >
           <a href="examples.html" title="Examples"
              >previous</a> |</li>
-        <li><a href="index.html">rhipe v0.52 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.53 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

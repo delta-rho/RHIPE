@@ -42,6 +42,7 @@ void Re_ShowMessage(const char* mess){
 }
 
 void Re_WriteConsoleEx(const char *buf1, int len, int oType){
+#ifndef FILEREADER
   switch(oType){
   case 0:
     fwrite(&PRINT_MSG,sizeof(uint8_t),1,CMMNC->BSTDERR);
@@ -51,6 +52,7 @@ void Re_WriteConsoleEx(const char *buf1, int len, int oType){
   }
   int len_rev =  reverseUInt(len);
   fwrite(&len_rev,sizeof(uint32_t),1,CMMNC->BSTDERR);
+#endif
   fwrite(buf1,len,1,CMMNC->BSTDERR);
 }
 
@@ -137,8 +139,10 @@ SEXP status(SEXP mess){
 
 SEXP collect(SEXP k,SEXP v){
   // So not thread safe
+#ifndef FILEREADER
   sendToHadoop(k);
   sendToHadoop(v);
+#endif
   return(R_NilValue);
 }
 
@@ -198,18 +202,15 @@ SEXP readFromHadoop(const uint32_t nbytes,int *err){
       BSIZE=nbytes+1024;
     }
   *err=0;
-
   if(fread(oiinfo->inputbuffer,nbytes,1,CMMNC->BSTDIN)<=0){
     *err=1;
     return(R_NilValue);
   }
   if (oiinfo->rxp->ParseFromArray(oiinfo->inputbuffer,nbytes)){
-    // LOGG(1,"%s\n", oiinfo->rxp->DebugString().c_str());
     PROTECT(r = message2rexp(*(oiinfo->rxp)));
     UNPROTECT(1);
-    
   }
-
+  // a positive value in err is error
   return(r);
 }
 
@@ -233,3 +234,33 @@ SEXP readFromMem(void * array,uint32_t nbytes){
   }
   return(r);
 }
+
+int32_t readJavaInt(FILE* fp){
+  int32_t t = 0,rt=0;
+  fread(&t,sizeof(int32_t),1,fp);
+  rt = reverseUInt(t); //something not good here, rt is int32_t
+  return(rt);
+}
+    
+ SEXP persUnser(SEXP robj)
+  {
+    SEXP ans  = R_NilValue;
+    REXP *rexp_container = new REXP();
+    if(rexp_container->ParseFromArray(RAW(robj),LENGTH(robj))){
+      PROTECT(ans = message2rexp(*rexp_container));
+      UNPROTECT(1);
+    }
+    delete(rexp_container);
+    return(ans);
+  }
+ SEXP dbgstr(SEXP robj)
+  {
+    SEXP ans  = R_NilValue;
+    REXP *rexp_container = new REXP();
+    rexp_container->ParseFromArray(RAW(robj),LENGTH(robj));
+    PROTECT(ans = Rf_allocVector(STRSXP,1));
+    SET_STRING_ELT(ans,0,Rf_mkChar(rexp_container->DebugString().c_str()));    
+    delete(rexp_container);
+    UNPROTECT(1);
+    return(ans);
+  }
