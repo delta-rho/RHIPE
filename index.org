@@ -33,7 +33,7 @@ Or just, load Rhipe and type
 #+BEGIN_SRC R-example
 rhwordcount(infolder,outfolder)
 #+END_SRC
-where =infolder= is the input file(or folder of files) or words and outfolder is
+where =infolder= is the input file(or folder of files) of words(text file) and =outfolder= is
 the destination directory.
 * Mailing List
 Mailing list is hosted on Google Groups. The url is

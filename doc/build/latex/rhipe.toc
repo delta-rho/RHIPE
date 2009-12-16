@@ -27,15 +27,16 @@
 \contentsline {subsection}{\numberline {4.2.2}rhuz}{11}{subsection.4.2.2}
 \contentsline {section}{\numberline {4.3}HDFS Related}{11}{section.4.3}
 \contentsline {subsection}{\numberline {4.3.1}rhload}{11}{subsection.4.3.1}
-\contentsline {subsection}{\numberline {4.3.2}rhsave.image}{12}{subsection.4.3.2}
-\contentsline {subsection}{\numberline {4.3.3}rhput}{12}{subsection.4.3.3}
-\contentsline {subsection}{\numberline {4.3.4}rhget}{12}{subsection.4.3.4}
-\contentsline {subsection}{\numberline {4.3.5}rhls}{12}{subsection.4.3.5}
-\contentsline {subsection}{\numberline {4.3.6}rhdel}{12}{subsection.4.3.6}
-\contentsline {subsection}{\numberline {4.3.7}rhwrite}{12}{subsection.4.3.7}
-\contentsline {subsection}{\numberline {4.3.8}rhread}{13}{subsection.4.3.8}
-\contentsline {subsection}{\numberline {4.3.9}rhmerge}{13}{subsection.4.3.9}
-\contentsline {subsection}{\numberline {4.3.10}rhreadBin}{13}{subsection.4.3.10}
+\contentsline {subsection}{\numberline {4.3.2}rhsave}{12}{subsection.4.3.2}
+\contentsline {subsection}{\numberline {4.3.3}rhsave.image}{12}{subsection.4.3.3}
+\contentsline {subsection}{\numberline {4.3.4}rhput}{12}{subsection.4.3.4}
+\contentsline {subsection}{\numberline {4.3.5}rhget}{12}{subsection.4.3.5}
+\contentsline {subsection}{\numberline {4.3.6}rhls}{12}{subsection.4.3.6}
+\contentsline {subsection}{\numberline {4.3.7}rhdel}{12}{subsection.4.3.7}
+\contentsline {subsection}{\numberline {4.3.8}rhwrite}{12}{subsection.4.3.8}
+\contentsline {subsection}{\numberline {4.3.9}rhread}{13}{subsection.4.3.9}
+\contentsline {subsection}{\numberline {4.3.10}rhmerge}{13}{subsection.4.3.10}
+\contentsline {subsection}{\numberline {4.3.11}rhreadBin}{13}{subsection.4.3.11}
 \contentsline {chapter}{\numberline {5}Using RHIPE on EC2}{15}{chapter.5}
 \contentsline {section}{\numberline {5.1}Introduction}{15}{section.5.1}
 \contentsline {section}{\numberline {5.2}Usage}{15}{section.5.2}
