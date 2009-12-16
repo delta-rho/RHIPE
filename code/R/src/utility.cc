@@ -242,7 +242,8 @@ void sigHandler(int i) {
   //   __active__=0;
   while ( (pid = waitpid(-1, &stat, WNOHANG)) > 0);
   // merror("sighandler: %d\n", i);
-  return;
+  // return;
+  exit(31);
 }
 
 

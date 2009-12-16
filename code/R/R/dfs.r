@@ -15,6 +15,13 @@ rhsz <- function(r) .Call("serializeUsingPB",r)
 
 rhuz <- function(r) .Call("unserializeUsingPB",r)
 
+rhload <- function(file,...){
+  on.exit({unlink(x)})
+  x <- tempfile(pattern='rhipe.load')
+  rhget(file,x)
+  load(x,...)
+}
+
 rhsave <- function(...,file){
   on.exit({unlink(x)})
   x <- tempfile(pattern='rhipe.save')

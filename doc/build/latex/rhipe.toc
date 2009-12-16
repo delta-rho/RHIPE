@@ -26,7 +26,7 @@
 \contentsline {subsection}{\numberline {4.2.1}rhsz}{11}{subsection.4.2.1}
 \contentsline {subsection}{\numberline {4.2.2}rhuz}{11}{subsection.4.2.2}
 \contentsline {section}{\numberline {4.3}HDFS Related}{11}{section.4.3}
-\contentsline {subsection}{\numberline {4.3.1}rhsave}{11}{subsection.4.3.1}
+\contentsline {subsection}{\numberline {4.3.1}rhload}{11}{subsection.4.3.1}
 \contentsline {subsection}{\numberline {4.3.2}rhsave.image}{12}{subsection.4.3.2}
 \contentsline {subsection}{\numberline {4.3.3}rhput}{12}{subsection.4.3.3}
 \contentsline {subsection}{\numberline {4.3.4}rhget}{12}{subsection.4.3.4}

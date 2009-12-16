@@ -57,7 +57,7 @@ int embedR(int argc, char **argv){
 
   R_Outputfile = NULL;
   R_Consolefile = NULL;
-  R_Interactive = (Rboolean)0;
+  R_Interactive = (Rboolean)1;
   ptr_R_ShowMessage = Re_ShowMessage;
   ptr_R_WriteConsoleEx =Re_WriteConsoleEx;
 
@@ -169,14 +169,15 @@ int main(int argc,char **argv){
     merror("Bad value for RHIPEWHAT: %d\n",_STATE_);
     break;
   }
-  fflush(NULL);
-  free(CMMNC);
-  fclose(LOG);
   R_RunExitFinalizers();
   Rf_KillAllDevices();
   R_CleanTempDir();
+  fflush(NULL);
+  free(CMMNC);
+  fclose(LOG);
 
-  exit(0);
+
+  exit(ret);
 }
 
   

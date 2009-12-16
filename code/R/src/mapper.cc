@@ -37,7 +37,7 @@ const int mapper_run2(void){
   if(runner2==NILSXP){
     merror("RHIPE ERROR: Could not create mapper\n");
     UNPROTECT(2);
-    return(1009);
+    return(4);
   }
   
   if ((mapbustr=getenv("rhipe_map_buff_size"))){
@@ -119,6 +119,7 @@ const int mapper_run2(void){
 	PROTECT(cleaner=rexpress(MAPCLEANS));
 	R_tryEval(Rf_lang2(Rf_install("eval"),cleaner),NULL,&Rerr);
 	UNPROTECT(1);
+	fflush(NULL);
 #ifdef FILEREADER
 	return(0);
 #endif
@@ -135,7 +136,8 @@ const int mapper_run2(void){
 #else
 	    R_tryEval(runner2,NULL,&Rerr);
 #endif
-	  mapbuf_cnt=0;
+	    fflush(NULL);
+	    mapbuf_cnt=0;
 	}
 	SEXP k=R_NilValue,v=R_NilValue;
 	int fre=0;
@@ -149,7 +151,7 @@ const int mapper_run2(void){
 		  );
 	if(fre <= 0){
 	  UNPROTECT(5);
-	  return(1100);
+	  return(5);
 	}
 #ifdef FILEREADER
 	type = readJavaInt(FILEIN);
@@ -166,7 +168,7 @@ const int mapper_run2(void){
 		  );
 	if(fre<=0){
 	  UNPROTECT(6);
-	  return(1101);
+	  return(6);
 	}
 	SET_VECTOR_ELT(vvector, mapbuf_cnt, v);
 	SET_VECTOR_ELT(kvector, mapbuf_cnt, k);
@@ -208,11 +210,11 @@ const int mapper_setup(void){
     PROTECT(setupm=rexpress(MAPSETUPS));
     R_tryEval(Rf_lang2(Rf_install("eval"),setupm),NULL,&Rerr);
     UNPROTECT(1);
-    if(Rerr) return(Rerr+2000);
+    if(Rerr) return(7);
   }
   else {
     merror("RHIPE ERROR: What command is this for setup: %d ?\n",type);
-    return(102);
+    return(8);
   }
   return(0);
 }

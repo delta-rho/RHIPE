@@ -51,7 +51,7 @@
 </ul>
 </li>
 <li><a class="reference external" href="#hdfs-related">HDFS Related</a><ul>
-<li><a class="reference external" href="#rhsave">rhsave</a></li>
+<li><a class="reference external" href="#rhload">rhload</a></li>
 <li><a class="reference external" href="#rhsave-image">rhsave.image</a></li>
 <li><a class="reference external" href="#rhput">rhput</a></li>
 <li><a class="reference external" href="#rhget">rhget</a></li>
@@ -69,7 +69,7 @@
 
             <h4>Previous topic</h4>
             <p class="topless"><a href="rhmr.html"
-                                  title="previous chapter">The <tt class="docutils literal docutils literal"><span class="pre">rhmr</span></tt> Command</a></p>
+                                  title="previous chapter">The <tt class="docutils literal"><span class="pre">rhmr</span></tt> Command</a></p>
             <h4>Next topic</h4>
             <p class="topless"><a href="ec2.html"
                                   title="next chapter">Using RHIPE on EC2</a></p>
@@ -129,8 +129,14 @@ and unserialized sucessfully.</p>
 </div>
 <div class="section" id="hdfs-related">
 <h2>HDFS Related<a class="headerlink" href="#hdfs-related" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="rhsave">
-<h3>rhsave<a class="headerlink" href="#rhsave" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="rhload">
+<h3>rhload<a class="headerlink" href="#rhload" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhload <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>file<span class="p">,</span>...<span class="p">)</span>
+</pre></div>
+</div>
+<p>Loads an R data set stored on the DFS.
+rhsave
+^^^^^^</p>
 <div class="highlight-r"><div class="highlight"><pre>rhsave <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>...<span class="p">,</span> file<span class="p">)</span>
 </pre></div>
 </div>

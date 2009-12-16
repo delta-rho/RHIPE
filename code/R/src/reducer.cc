@@ -110,7 +110,7 @@ const int reducer_run(void){
       PROTECT(v= readFromHadoop(type,&err));
       if(err) {
 	UNPROTECT(8);
-	return(0);
+	return(10);
       }
       SET_VECTOR_ELT(vvector, redbuf_cnt, v);
       UNPROTECT(1);

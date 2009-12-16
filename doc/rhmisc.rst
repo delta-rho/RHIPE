@@ -36,7 +36,14 @@ Unserializes a raw object returned from ``rhsz``
 
 HDFS Related
 ------------
+rhload
+^^^^^^
+::
+	
+	rhload <- function(file,...)
 
+
+Loads an R data set stored on the DFS.
 rhsave
 ^^^^^^
 ::
