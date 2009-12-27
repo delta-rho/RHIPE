@@ -33,18 +33,17 @@ rhmr <- function(map,reduce=NULL,
   if(is.null(reduce)){
     reduces <- FALSE
   }
-
+  
   ## rr <- eval(reduce$reduce); rpre <- eval(reduce$pre) ; rpos <- eval(reduce$post)
   ## lines$rhipe_reduce <- rawToChar(serialize( eval(substitute(rr)) ,NULL,ascii=T))
   ## lines$rhipe_reduce_prekey <- rawToChar(serialize( eval(substitute(rpre)) ,NULL,ascii=T))
   ## lines$rhipe_reduce_postkey <- rawToChar(serialize( eval(substitute(rpos)) ,NULL,ascii=T))
-  
   lines$rhipe_reduce <- rawToChar(serialize(reduce$reduce,NULL,ascii=T))
-  lines$rhipe_reduce_prekey <- rawToChar(serialize(reduce$pre,NULL,ascii=T))
+  lines$rhipe_reduce_prekey <- rawToChar(serialize(reduce$pre ,NULL,ascii=T))
   lines$rhipe_reduce_postkey <- rawToChar(serialize(reduce$post,NULL,ascii=T))
 
   lines$rhipe_jobname=jobname
-  if(combiner && is.null(reduce))
+  if(combiner & is.null(reduce))
     stop("If combiner is T, give a reducer")
   if(is.null(setup)){
     setup$map <- expression()

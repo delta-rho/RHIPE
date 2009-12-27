@@ -21,31 +21,31 @@
 # Import variables
 echo "LOGGED IN, BEGIN INSTALL"
 
-bin=`dirname "$0"`
-bin=`cd "$bin"; pwd`
-. "$bin"/hadoop-ec2-env.sh
+. ./hadoop-ec2-env.sh
 
 # Remove environment script since it contains sensitive information
-rm -f "$bin"/hadoop-ec2-env.sh
+rm -f ./hadoop-ec2-env.sh
 
 # Install Java
 echo "Download java"
-wget -nv -O /usr/local/java.bin $JAVA_BINARY_URL
+wget -nv -O /usr/local/java.bin "$JAVA_BINARY_URL"
 echo "Installing java binary."
 cd /usr/local
 sh java.bin
 rm -f java.bin
 
 # Install tools
-yum -y update
-yum clean all
+echo "$CRAN_REPO" >>/etc/apt/sources.list
+apt-get update
 echo "Installing packages."
-yum -y install rsync lynx screen ganglia-gmetad ganglia-gmond ganglia-web httpd php ant ant-nodeps svn lzo lzo-devel zlib zlib-devel gzip gzip-devel bzip2 bzip2-devel R pkgconfig
-yum -y clean all
+apt-get install -y rsync lynx screen  apache2 php5-cli php5-dev  php5-common ant ant-doc ant-optional git liblzo2-2 liblzo2-dev zlib1g-dev  zlibc gzip bzip2   python  python-numeric 
 
+apt-get install -y r-base r-base-dev  python-rpy ess r-recommended r-cran-rodbc r-cran-rmysql
+apt-get install -y ganglia-monitor libganglia1 libganglia1-dev   
+# ganglia-gmetad ganglia-gmond ganglia-web
 
 #install protobuf
-export PROTOVER=2.2.0
+export PROTOVER=2.2.0a
 wget -nv http://protobuf.googlecode.com/files/protobuf-$PROTOVER.tar.bz2 -P /tmp
 cd /tmp
 tar jxvf protobuf-$PROTOVER.tar.bz2
@@ -88,6 +88,7 @@ echo 'export HADOOP_LIB=$HADOOP_HOME/lib'>> /root/.bash_profile
 echo 'export HADOOP_CONF_DIR=$HADOOP_HOME/conf' >>  /root/.bash_profile
 echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HADOOP_HOME/lib/native' >> /root/.bash_profile
 echo "export CLASSPATH=$HADOOP_CONF_DIR:$HADOOP:$HADOOP/lib:" >> /root/.bash_profile
+echo "export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig"  >> /root/.bash_profile
 
 echo "Configuring R for Java"
 R CMD javareconf
@@ -110,8 +111,8 @@ R CMD javareconf
 # cp build/native/*/lib/* /usr/local/hadoop-${HADOOP_VERSION}/lib/native/
 
 ## Install rJava
-wget -q http://www.rforge.net/rJava/snapshot/rJava_0.7-1.tar.gz -P /tmp
-R CMD INSTALL /tmp/rJava_0.7-1.tar.gz
+wget -q http://www.rforge.net/rJava/snapshot/rJava_0.8-2.tar.gz -P /tmp
+R CMD INSTALL /tmp/rJava_0.8-2.tar.gz
 # rm -rf /tmp/Rserve_0.6-0.tar.gz
 
 

@@ -52,11 +52,6 @@ while true; do
   sleep 5
 done
 
-#read -p "Login first? [yes or no]: " answer
-
-if [ "$answer" == "yes" ]; then
-  ssh $SSH_OPTS "root@$HOSTNAME"
-fi
 
 echo "Copying scripts."
 
@@ -75,8 +70,14 @@ scp $SSH_OPTS $EC2_KEYDIR/cert*.pem "root@$HOSTNAME:/mnt"
 
 
 # Connect to it
+read -p "Login first? [yes or no]: " answer
+
+if [ "$answer" == "yes" ]; then
+  ssh $SSH_OPTS "root@$HOSTNAME"
+fi
+
 echo "Connecting to Instance"
-ssh $SSH_OPTS "root@$HOSTNAME" '/mnt/create-hadoop-image-remote'
+ssh $SSH_OPTS "root@$HOSTNAME" 'cd /mnt && /mnt/create-hadoop-image-remote'
 
 # Register image
 echo "Registering image"

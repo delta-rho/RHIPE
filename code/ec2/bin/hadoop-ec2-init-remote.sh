@@ -36,37 +36,48 @@ HADOOP_HOME=`ls -d /usr/local/hadoop-*`
 echo "export HADOOP_CLASSPATH=/usr/local/hadoop-0.20.1/conf" >> /usr/local/hadoop-0.20.1/conf/hadoop-env.sh
 
 case "$INSTANCE_TYPE" in
-"m1.large")
-  MAX_MAP_TASKS=2
-  MAX_REDUCE_TASKS=1
-  CHILD_OPTS=-Xmx1024m
-  CHILD_ULIMIT=2097152
-  ;;
-"m1.xlarge")
-  MAX_MAP_TASKS=6
-  MAX_REDUCE_TASKS=4
-  CHILD_OPTS=-Xmx1024m
-  CHILD_ULIMIT=1392640
-  ;;
-"c1.large")
-  MAX_MAP_TASKS=4
-  MAX_REDUCE_TASKS=2
-  CHILD_OPTS=-Xmx550m
-  CHILD_ULIMIT=1126400
-  ;;
-"c1.xlarge")
-  MAX_MAP_TASKS=6
-  MAX_REDUCE_TASKS=4
-  CHILD_OPTS=-Xmx680m
-  CHILD_ULIMIT=1392640
-  ;;
-*)
-  # "m1.small
-  MAX_MAP_TASKS=2
-  MAX_REDUCE_TASKS=1
-  CHILD_OPTS=-Xmx550m
-  CHILD_ULIMIT=1126400
-  ;;
+    "m1.large")
+	MAX_MAP_TASKS=4
+	MAX_REDUCE_TASKS=2
+	CHILD_OPTS=-Xmx1024m
+	CHILD_ULIMIT=2097152
+	;;
+    "m1.xlarge")
+	MAX_MAP_TASKS=8
+	MAX_REDUCE_TASKS=4
+	CHILD_OPTS=-Xmx680m
+	CHILD_ULIMIT=1392640
+	;;
+    "m2.2xlarge")
+	MAX_MAP_TASKS=10
+	MAX_REDUCE_TASKS=6
+	CHILD_OPTS=-Xmx2024m
+	CHILD_ULIMIT=1392640
+	;;
+    "m2.4xlarge")
+	MAX_MAP_TASKS=10
+	MAX_REDUCE_TASKS=6
+	CHILD_OPTS=-Xmx2024m
+	CHILD_ULIMIT=1392640
+	;;
+    "c1.large")
+	MAX_MAP_TASKS=4
+	MAX_REDUCE_TASKS=2
+	CHILD_OPTS=-Xmx550m
+	CHILD_ULIMIT=1126400
+	;;
+    "c1.xlarge")
+	MAX_MAP_TASKS=8
+	MAX_REDUCE_TASKS=4
+	CHILD_OPTS=-Xmx680m
+	CHILD_ULIMIT=1392640
+	;;
+    "m1.small")
+	MAX_MAP_TASKS=4
+	MAX_REDUCE_TASKS=2
+	CHILD_OPTS=-Xmx550m
+	CHILD_ULIMIT=1126400
+	;;
 esac
 #Copy the fair scheduler
 cp $HADOOP_HOME/contrib/fairscheduler/*jar $HADOOP_HOME/lib
