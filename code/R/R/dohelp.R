@@ -1,7 +1,7 @@
 doCMD <- function(CMD=0,needoutput=F,opts=rhoptions(),verbose=T,ignore.stderr=F
                   ,fold=NA,src=NA,dest=NA,locals=NA
                   ,overwrite=NA,tempf=NA,output=NA
-                  ,groupsize=NA,howmany=NA,N=NA, infiles=NA, ofile=NA,ilocal=NA){
+                  ,groupsize=NA,howmany=NA,N=NA, infiles=NA, ofile=NA,ilocal=NA,keys=NA){
   on.exit({unlink(tm)})
   tm <- paste(tempfile(),paste(sample(letters,5),sep="",collapse=""),sep="",collapse="")
 ##   cp <- opts$cp
@@ -29,7 +29,14 @@ doCMD <- function(CMD=0,needoutput=F,opts=rhoptions(),verbose=T,ignore.stderr=F
               },
               {
                 rhsz(c(infiles,ofile,ilocal*1))
-              })
+              },
+              {
+                rhsz(list(keys,src,dest))
+              },
+              {
+                rhsz(c(infiles,ofile,ilocal*1))
+              }
+              )
   if(!is.null(p)){
     f <- file(tm, open='wb')
     writeBin(p,f)

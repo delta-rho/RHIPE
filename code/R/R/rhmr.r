@@ -172,12 +172,18 @@ rhmr <- function(map,reduce=NULL,
            lines$rhipe_outputformat_class <-'org.godhuli.rhipe.RXBinaryOutputFormat'
            lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
            lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
+         },
+         'map' = {
+           lines$rhipe_outputformat_class <-'org.godhuli.rhipe.RHMapFileOutputFormat'
+           lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
+           lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
          })
   
   lines$rhipe_reduce_buff_size <- 10000
   lines$rhipe_map_buff_size <- 10000
   lines$rhipe_job_verbose <- "TRUE"
   lines$rhipe_stream_buffer <- 10*1024
+  lines$mapred.compress.map.output="true"
   ##If user does not provide
   ##a reduce function,set reduce to NULL
   ##however can be over ridden by

@@ -58,7 +58,7 @@ public class RHBytesWritable
 	this.length = length;
     }
 		
-		
+
     public RHBytesWritable(final RHBytesWritable ibw) {
 	this(ibw.get(), 0, ibw.getSize());
     }
@@ -72,7 +72,6 @@ public class RHBytesWritable
 	return this.bytes;
     }
 		
-		
     public void set(final byte [] b) {
 	set(b, 0, b.length);
     }
@@ -81,7 +80,7 @@ public class RHBytesWritable
 	return(this.bytes);
     }
 		
-		
+    
     public void set(final byte [] b, final int offset, final int length) {
 	this.bytes = b;
 	this.offset = offset;
@@ -106,15 +105,8 @@ public class RHBytesWritable
 	return this.length;
     }
 		
-		
-		
-		
-		
-		
-    // Below methods copied from BytesWritable
-		
-    @Override
-	public int hashCode() {
+	
+    public int hashCode() {
 	return WritableComparator.hashBytes(bytes, this.length);
     }
 		
@@ -135,18 +127,14 @@ public class RHBytesWritable
      *         negative if left is smaller than right.
      */
     public int compareTo(final byte [] that) {
-	int diff = this.length - that.length;
-	return (diff != 0)?
-	    diff:
-	    WritableComparator.compareBytes(this.bytes, 0, this.length, that,
+	// int diff = this.length - that.length;
+	// return (diff != 0)?
+	//     diff:
+	   return WritableComparator.compareBytes(this.bytes, 0, this.length, that,
 					    0, that.length);
     }
-		
-    /**
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-	public boolean equals(Object right_obj) {
+
+    public boolean equals(Object right_obj) {
 	if (right_obj instanceof byte []) {
 	    return compareTo((byte [])right_obj) == 0;
 	}
@@ -168,12 +156,8 @@ public class RHBytesWritable
 	public Comparator() {
 	    super(RHBytesWritable.class);
 	}
-			
-	/**
-	 * @see org.apache.hadoop.io.WritableComparator#compare(byte[], int, int, byte[], int, int)
-	 */
-	@Override
-	    public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+	
+	public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
 	    return comparator.compare(b1, s1, l1, b2, s2, l2);
 	}
     }

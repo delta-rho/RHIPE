@@ -74,3 +74,6 @@ Try and keep your objects simple (using types even more basic than R types :) ) 
 Yes, the serialized version of a key and object should be less than 64MB. I can fix this and will in future. For e.g. ``runif(8e6)`` is 61MB. Your keys and values should be less than this.
 
  
+7. ``java.lang.RuntimeException: RHMRMapRed.waitOutputThreads(): subprocess failed with code 141``
+
+This is because Hadoop broke the read/write pipe with the R code. To view the error, you'll need to go the job tracker website, click on one of the Failed attempts and see the error.

@@ -8,6 +8,7 @@
 
 rhreadBin <- function(file,maxnum=-1, readbuf=0){
   x= .Call("readBinaryFile",file[1],as.integer(maxnum),as.integer(readbuf))
+  cat("Read binary data, deserializing\n")
   lapply(x,function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
 }
 
@@ -77,6 +78,27 @@ rhput <- function(src,dest,deleteDest=TRUE,ignore.stderr=T,verbose=F){
 
 #test!
 
+rhgetkey <- function(keys,paths,ignore.stderr=T,verbose=F){
+  on.exit({
+    unlink(tmf)
+  })
+  tmf <- tempfile()
+  if(!all(is.character(paths)))
+    stop('paths must be a character vector of mapfiles( a directory containing them or a single one)')
+  keys <- lapply(keys,rhsz)
+  paths=unlist(paths)
+  Rhipe:::doCMD(rhoptions()$cmd['getkey'], keys=keys,src=paths,dest=tmf,ignore.stderr=ignore.stderr,verbose=verbose)
+  rhreadBin(tmf)
+}
+## rhgetkey(list(c("f405ad5006b8dda3a7a1a819e4d13abfdbf8a","1"),c("f2b6a5390e9521397031f81c1a756e204fb18","1")) ,"/tmp/small.seq")
+
+##returns the data files in a directory of map files (the index files can't be sent to ##a mapreduce), which can be used for mapreduce jobs as the ifolder param
+rhmap.sqs <- function(x){
+  v=rhls(x)
+  sapply(v$file,function(r){
+    sprintf("%s/data",r)
+  },USE.NAMES=F)}
+
 rhwrite <- function(lo,f,N=NULL,ignore.stderr=T,verbose=F){
   on.exit({
     unlink(tmf)
@@ -108,6 +130,17 @@ rhwrite <- function(lo,f,N=NULL,ignore.stderr=T,verbose=F){
         N=as.integer(length(lo),needoutput=F),ignore.stderr=ignore.stderr,verbose=verbose)
 }
 
+rhS2M <- function(files,ofile,dolocal=T,ignore.stderr=F,verbose=F,keep=NULL){
+  files <- unclass(rhls(files)['file'])$file
+  doCMD(rhoptions()$cmd['s2m'], infiles=files,ofile=ofile,ilocal=dolocal,
+        ignore.stderr=ignore.stderr,
+        verbose=verbose)
+}
+rhM2M <- function(files,ofile,dolocal=T,ignore.stderr=F,verbose=F,keep=NULL){
+  Rhipe:::doCMD(rhoptions()$cmd['s2m'], infiles=files,ofile=ofile,ilocal=dolocal,
+        ignore.stderr=ignore.stderr,
+        verbose=verbose)
+}
 
 rhread <- function(files,dolocal=T,ignore.stderr=T,verbose=F,keep=NULL){
   ##need to specify /f/p* if there are other

@@ -1,7 +1,7 @@
 Package: Rhipe
 Type: Package
 Title: Integrates R with Hadoop
-Version: 0.53
+Version: 0.54
 Date: 2009-08-30
 Author: Saptarshi Guha
 Maintainer: Saptarshi Guha  <sguha@purdue.edu>

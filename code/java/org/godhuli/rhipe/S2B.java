@@ -27,6 +27,8 @@ public class S2B {
     public static boolean runme(String[] ipath,String opath, boolean local) throws Exception {
 	Configuration conf = new Configuration();
 	if(local) conf.set("mapred.job.tracker","local");
+	conf.set("mapred.job.reuse.jvm.num.tasks","-1");
+
 	Job job = new Job(conf, "Sequence To Binary");
 	job.setJarByClass(S2B.class);
 	job.setMapperClass(IDMapper.class);

@@ -1,10 +1,10 @@
-VER=0.53
+VER=0.54
 #
 .PHONY : doc code  sync
 
 all: code doc index
 
-sync:
+sync: ec2
 	rsync -av website/ sguha@altair.stat.purdue.edu:/home/www/rhipe/
 
 index: doc
@@ -13,7 +13,7 @@ index: doc
 
 
 ec2:
-	tar  cvfz website/dn/rhipeec2.tar.gz --exclude hadoop-ec2-env.sh   -C code  ec2
+	tar  cvfz website/dn/rhipe_ec2.tar.gz --exclude hadoop-ec2-env.sh   -C code  ec2
 
 code:
 	sed  -i ""  "s/Version: [0-9]*\.*[0-9]*/Version: ${VER}/" code/R/DESCRIPTION 

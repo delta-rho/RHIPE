@@ -54,7 +54,7 @@ import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.io.WritableUtils;
-
+import org.apache.hadoop.io.MapFile;
 import java.util.Calendar;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -145,10 +145,11 @@ public class FileUtils {
 					    ": No such file or directory.");
 	}
 	if(srcs.length==1 && srcs[0].isDir())
-	    srcs = srcFS.listStatus(spath);
+	    srcs = srcFS.listStatus(srcs[0].getPath());
+	// System.out.println(srcs+ " Length= "+srcs.length);
+
 	StringBuilder sb = new StringBuilder();
 	Calendar c =  Calendar.getInstance();
-
 	for(FileStatus status : srcs){
 	    String x = status.isDir() ? "d" : "-";
 	    sb.append(x);
@@ -288,6 +289,18 @@ public class FileUtils {
 	    throw new Exception("Could not convert sequence to binary");
 	}
     }
+    public void sequence2map(REXP rexp0) throws Exception{
+	int n = rexp0.getStringValueCount();
+	String[] infile = new String[n-2];
+	String ofile = rexp0.getStringValue(n-2).getStrval();
+	int local = Integer.parseInt(rexp0.getStringValue(n-1).getStrval());
+	for(int i=0;i< n-2;i++) infile[i] = rexp0.getStringValue(i).getStrval();
+	S2M s = new S2M();
+	if(!s.runme( infile, ofile,local==1 ? true:false)){
+	    throw new Exception("Could not convert sequence to mapfile");
+	}
+    }
+
     public void writeTo(String ofile, REXP b) {
 	try{
 	    DataOutputStream out = new 
@@ -297,6 +310,25 @@ public class FileUtils {
 	    out.write(bytes);
 	    out.close();
 	}catch(Exception e){e.printStackTrace();}
+    }
+
+    public void getKeys(REXP rexp0) throws Exception{
+	REXP keys = rexp0.getRexpValue(0); 
+	REXP paths = rexp0.getRexpValue(1);
+	MapFile.Reader[] mr = RHMapFileOutputFormat.getReaders(new Path( paths.getStringValue(0).getStrval() ),getConf());
+	String tempdest = rexp0.getRexpValue(2).getStringValue(0).getStrval();
+	int numkeys = keys.getRexpValueCount();
+	DataOutputStream out = new 
+	    DataOutputStream(new FileOutputStream(tempdest));
+	RHBytesWritable k = new RHBytesWritable();
+	RHBytesWritable v = new RHBytesWritable();
+	for(int i=0; i < numkeys; i++){
+	    k.set(keys.getRexpValue(i).getRawValue().toByteArray());
+	    RHMapFileOutputFormat.getEntry(mr,k,v);
+	    k.writeAsInt(out);
+	    v.writeAsInt(out);
+	}
+	out.close();
     }
 
     public static void main(String[] args) throws Exception{
@@ -360,6 +392,14 @@ public class FileUtils {
 	    case 6:
 		r = fu.readInfo(args[1]);
 		fu.sequence2binary(r);
+		break;
+	    case 7:
+		r = fu.readInfo(args[1]);
+		fu.getKeys(r);
+		break;
+	    case 8:
+		r = fu.readInfo(args[1]);
+		fu.sequence2map(r);
 		break;
 	    }
 	    

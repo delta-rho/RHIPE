@@ -25,7 +25,7 @@
 #include <Rversion.h>
 #include <R.h>
 #include <Rdefines.h>
-#include <Rinternals.h>
+/* #include <Rinternals.h> */
 #include <Rinterface.h>
 #include <Rembedded.h>
 #include <R_ext/Boolean.h>

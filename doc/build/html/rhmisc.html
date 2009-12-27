@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Miscellaneous Commands &mdash; rhipe v0.53 documentation</title>
+    <title>Miscellaneous Commands &mdash; rhipe v0.54 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.53',
+        VERSION:     '0.54',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,7 +19,7 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="rhipe v0.53 documentation" href="index.html" />
+    <link rel="top" title="rhipe v0.54 documentation" href="index.html" />
     <link rel="next" title="Using RHIPE on EC2" href="ec2.html" />
     <link rel="prev" title="The rhmr Command" href="rhmr.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="rhmr.html" title="The rhmr Command"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">rhipe v0.53 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.54 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -62,6 +62,13 @@
 <li><a class="reference external" href="#rhread">rhread</a></li>
 <li><a class="reference external" href="#rhmerge">rhmerge</a></li>
 <li><a class="reference external" href="#rhreadbin">rhreadBin</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#map-files">Map Files</a><ul>
+<li><a class="reference external" href="#rhs2m">rhS2M</a></li>
+<li><a class="reference external" href="#rhm2m">rhM2M</a></li>
+<li><a class="reference external" href="#rhmap-sqs">rhmap.sqs</a></li>
+<li><a class="reference external" href="#rhgetkey">rhgetkey</a></li>
 </ul>
 </li>
 </ul>
@@ -226,6 +233,65 @@ files) else a fully distributed job.</p>
 is all. <tt class="docutils literal"><span class="pre">bf</span></tt> is the read buffer, 0 implies the os specified default <tt class="docutils literal"><span class="pre">BUFSIZ</span></tt></p>
 </div>
 </div>
+<div class="section" id="map-files">
+<h2>Map Files<a class="headerlink" href="#map-files" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rhs2m">
+<h3>rhS2M<a class="headerlink" href="#rhs2m" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhS2M <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>files<span class="p">,</span> ofile<span class="p">,</span> dolocal <span class="o">=</span> T<span class="p">,</span> ignore.stderr <span class="o">=</span> F<span class="p">,</span> verbose <span class="o">=</span> F<span class="p">)</span>
+</pre></div>
+</div>
+<p>Converts the sequence files specified by <tt class="docutils literal"><span class="pre">files</span></tt> and places them in
+destination <tt class="docutils literal"><span class="pre">ofile</span></tt>. If <tt class="docutils literal"><span class="pre">dolocal</span></tt> is True the conversion is done on the
+local machine, otherwise over the cluster (which is much faster for anything
+greater than hundreds of megabytes). If <tt class="docutils literal"><span class="pre">ignore.stderr</span></tt> is True, the mapreduce
+output is displayed on the R console. e.g</p>
+<div class="highlight-r"><div class="highlight"><pre>rhS2m<span class="p">(</span><span class="s">&quot;/tmp/so/p*&quot;</span><span class="p">,</span><span class="s">&quot;/tmp/so.map&quot;</span><span class="p">,</span>dolocal<span class="o">=</span>F<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="rhm2m">
+<h3>rhM2M<a class="headerlink" href="#rhm2m" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhM2M <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>files<span class="p">,</span> ofile<span class="p">,</span> dolocal <span class="o">=</span> T<span class="p">,</span> ignore.stderr <span class="o">=</span> F<span class="p">,</span> verbose <span class="o">=</span> F<span class="p">)</span>
+</pre></div>
+</div>
+<p>Same as S2M, except it converts a group of Map files to Map files.Why?
+Consider a mapreduce job that outputs modified keys in the reduce part, i.e the
+reduce receives key K0 but emits f(K0), where f(K0) &lt;&gt; K0, the result of this
+the keys in the reduce output part files wont be sorted even though the K0 are
+sorted.</p>
+<p>So, if the reducer emits K0, the output part files constitute a valid collection
+of sorted map files. If the reducer emits f(K0), this does not hold any
+more. Running <tt class="docutils literal"><span class="pre">rhM2M</span></tt> on this output produces another output in which the keys
+are now sorted (i.e we just run an identity mapreduce emitting f(K0), though now
+the input to the reducers are f(K0)).</p>
+<p>To specify the input files, it is not enough to specify the directory
+containing the part files, because the part files are directories which contain
+a sequence file and a non sequence file. Specifying the list of directories to a
+mapreduce job will cause it to fail when it reads the non-map file.</p>
+<p>Use <tt class="docutils literal"><span class="pre">rhmap.sqs</span></tt> .</p>
+</div>
+<div class="section" id="rhmap-sqs">
+<h3>rhmap.sqs<a class="headerlink" href="#rhmap-sqs" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhmap.sqs <span class="o">&lt;-</span>  <span class="kr">function</span><span class="p">(</span>x<span class="p">)</span>
+</pre></div>
+</div>
+<p>Given a directory containing map part directories, e.g /a/part-r-00000/ etc,
+each part directory contains a data and an index file, this function picks up
+the data files (which are sequence files). This can be used as input to
+mapreduce job with inputformat sequence e.g.</p>
+<div class="highlight-r"><div class="highlight"><pre>rhmap.sqs<span class="p">(</span><span class="s">&quot;/a/p*&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="rhgetkey">
+<h3>rhgetkey<a class="headerlink" href="#rhgetkey" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhgetkey <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>keys<span class="p">,</span> paths<span class="p">,</span> ignore.stderr <span class="o">=</span> T<span class="p">,</span> verbose <span class="o">=</span> F<span class="p">)</span>
+</pre></div>
+</div>
+<p>Given a list of keys and vector of  map directories (e.g /tmp/ou/mapoutput/p*&#8221;),
+returns a list of key,values.</p>
+</div>
+</div>
 </div>
 
 
@@ -246,7 +312,7 @@ is all. <tt class="docutils literal"><span class="pre">bf</span></tt> is the rea
         <li class="right" >
           <a href="rhmr.html" title="The rhmr Command"
              >previous</a> |</li>
-        <li><a href="index.html">rhipe v0.53 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.54 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

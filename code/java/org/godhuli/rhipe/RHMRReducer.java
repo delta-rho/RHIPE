@@ -113,11 +113,11 @@ public class RHMRReducer extends Reducer<RHBytesWritable,
 	      
       } catch (IOException io) {
 	String extraInfo = "";
-	try {
-	    extraInfo = helper.getSimExitInfo();
-	} catch (IllegalThreadStateException e) {
-	    extraInfo = "subprocess still running\n";
-	};
+	// try {
+	//     extraInfo = helper.getSimExitInfo();
+	// } catch (IllegalThreadStateException e) {
+	//     extraInfo = "subprocess still running\n";
+	// };
 	helper.mapRedFinished(ctx);
 	throw new IOException(extraInfo + "::" + io.getMessage());
     }

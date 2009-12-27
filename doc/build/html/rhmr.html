@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>The rhmr Command &mdash; rhipe v0.53 documentation</title>
+    <title>The rhmr Command &mdash; rhipe v0.54 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.53',
+        VERSION:     '0.54',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,7 +19,7 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="rhipe v0.53 documentation" href="index.html" />
+    <link rel="top" title="rhipe v0.54 documentation" href="index.html" />
     <link rel="next" title="Miscellaneous Commands" href="rhmisc.html" />
     <link rel="prev" title="The rhlapply Command" href="rhlapply.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="rhlapply.html" title="The rhlapply Command"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">rhipe v0.53 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.54 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -63,7 +63,7 @@
 
             <h4>Previous topic</h4>
             <p class="topless"><a href="rhlapply.html"
-                                  title="previous chapter">The <tt class="docutils literal docutils literal docutils literal"><span class="pre">rhlapply</span></tt> Command</a></p>
+                                  title="previous chapter">The <tt class="docutils literal"><span class="pre">rhlapply</span></tt> Command</a></p>
             <h4>Next topic</h4>
             <p class="topless"><a href="rhmisc.html"
                                   title="next chapter">Miscellaneous Commands</a></p>
@@ -120,7 +120,7 @@ can be any R data structure.</p>
 10
 11
 12</pre></td><td class="code"><div class="highlight"><pre>rhmr <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>map<span class="p">,</span>reduce<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>
-         combiner<span class="o">=</span>F<span class="p">,</span> <span class="c1">#CANNOT BE CHANGED</span>
+         combiner<span class="o">=</span>F<span class="p">,</span>
          setup<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>
          cleanup<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>
          ofolder<span class="o">=</span>&#39;&#39;<span class="p">,</span>
@@ -148,7 +148,7 @@ can be any R data structure.</p>
 </dl>
 </dd>
 <dt><tt class="docutils literal"><span class="pre">combiner</span></tt></dt>
-<dd>Uses a combiner if TRUE. If so, then <tt class="docutils literal"><span class="pre">reduce.values</span></tt> present in the <tt class="docutils literal"><span class="pre">reduce$reduce</span></tt> expression will be a <em>subset</em> of values.</dd>
+<dd>Uses a combiner if TRUE. If so, then <tt class="docutils literal"><span class="pre">reduce.values</span></tt> present in the <tt class="docutils literal"><span class="pre">reduce$reduce</span></tt> expression will be a <em>subset</em> of values.The reducer algorithm should be able process input emitted from map <em>or</em> reduce.</dd>
 <dt><tt class="docutils literal"><span class="pre">setup</span></tt></dt>
 <dd>An expression that can be called to setup the environment. Called once for every task.
 It can be a list of two attributes <tt class="docutils literal"><span class="pre">map</span></tt> and <tt class="docutils literal"><span class="pre">reduce</span></tt> which are expressions to be run in the map and reduce stage. If a single expression then that is run for both map and reduce</dd>
@@ -170,10 +170,13 @@ It can be a list of two attributes <tt class="docutils literal"><span class="pre
 <dd>is a sequence format. Outputs in this form /can/ be used as an input.</dd>
 <dt><tt class="docutils literal"><span class="pre">binary</span></tt></dt>
 <dd>is a simple binary format consisting of key-length, key data, value-length, value data where the lengths are integers in network order. Though <em>much</em> faster than sequence in terms of reading in data, it <em>cannot</em> be used an input to a map reduce operation.</dd>
-</dl>
-</dd>
+<dt><tt class="docutils literal"><span class="pre">map</span></tt></dt>
+<dd><em>Only as OutputFormat</em> ! That is, map can only be the second element of <tt class="docutils literal"><span class="pre">inout</span></tt>. If so, the output part files will be directories, each containing a data and an index file. If the reducer writes the same key as the one received then using the function <tt class="docutils literal"><span class="pre">rhgetkey</span></tt>, specifying the get and the output folder part files , one can use the output as a hash table (do keep the keys small then). However, if the keys are changed before being written (using rhcollect), the order is lost and even though one can still use the individual part file as a Map file reader, the part file containing the key needs to be known (as opposed to just specifying the directory of part files). To remedy this just run a identity map job converting map input to map output (see <tt class="docutils literal"><span class="pre">rhM2M</span></tt> and <tt class="docutils literal"><span class="pre">rhS2M</span></tt>).
+Map Output formats can be used an input format. Use the function <tt class="docutils literal"><span class="pre">rhmap.sq</span></tt> on a directory of map part files e.g <tt class="docutils literal"><span class="pre">rhmap.sq(&quot;/tmp/out/p*)</span></tt>, this will return a vector of paths pointing to the <em>data</em> files in each of the part folders (the folders also contain index files, which can&#8217;t be used as sequence file input to Hadoop, so these have to be filtered).</dd>
 <dt><tt class="docutils literal"><span class="pre">shared</span></tt></dt>
 <dd>A vector of files on the HDFS that will be copied to the working directory of the R program. These files can then be loaded as easily as <tt class="docutils literal"><span class="pre">load(filename)</span></tt> (removed leading path)</dd>
+</dl>
+</dd>
 <dt><tt class="docutils literal"><span class="pre">jarfiles</span></tt></dt>
 <dd>Copy jar files if required. Experimental, probably doesn&#8217;t work.</dd>
 <dt><tt class="docutils literal"><span class="pre">copyFiles</span></tt></dt>
@@ -266,7 +269,7 @@ java client will read this first before reading the above variable.</p>
         <li class="right" >
           <a href="rhlapply.html" title="The rhlapply Command"
              >previous</a> |</li>
-        <li><a href="index.html">rhipe v0.53 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.54 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>FAQ &mdash; rhipe v0.53 documentation</title>
+    <title>FAQ &mdash; rhipe v0.54 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.53',
+        VERSION:     '0.54',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,7 +19,7 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="rhipe v0.53 documentation" href="index.html" />
+    <link rel="top" title="rhipe v0.54 documentation" href="index.html" />
     <link rel="next" title="Protobuffer and R" href="ProtoBuffers.html" />
     <link rel="prev" title="Examples" href="examples.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="examples.html" title="Examples"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">rhipe v0.53 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.54 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -136,6 +136,10 @@ read and written successfully, but I&#8217;m not guaranteeing success)</p>
 <p>Try and keep your objects simple (using types even more basic than R types :) ) and even on data sets, you find no object corruption, there can be on large data sets  - ** if you use the advanced types such classes, data.frames etc **</p>
 <p>6. Key and Value Object Size : Are there limits?
 Yes, the serialized version of a key and object should be less than 64MB. I can fix this and will in future. For e.g. <tt class="docutils literal"><span class="pre">runif(8e6)</span></tt> is 61MB. Your keys and values should be less than this.</p>
+<ol class="arabic simple" start="7">
+<li><tt class="docutils literal"><span class="pre">java.lang.RuntimeException:</span> <span class="pre">RHMRMapRed.waitOutputThreads():</span> <span class="pre">subprocess</span> <span class="pre">failed</span> <span class="pre">with</span> <span class="pre">code</span> <span class="pre">141</span></tt></li>
+</ol>
+<p>This is because Hadoop broke the read/write pipe with the R code. To view the error, you&#8217;ll need to go the job tracker website, click on one of the Failed attempts and see the error.</p>
 </div>
 
 
@@ -156,7 +160,7 @@ Yes, the serialized version of a key and object should be less than 64MB. I can 
         <li class="right" >
           <a href="examples.html" title="Examples"
              >previous</a> |</li>
-        <li><a href="index.html">rhipe v0.53 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.54 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

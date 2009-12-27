@@ -73,6 +73,7 @@ Read the documentation for installation. Current is the latest version.
 
 | Version | Download           |
 |---------+--------------------|
+|    0.54 | [[file:./dn/Rhipe_0.54.tar.gz][Rhipe\_0.54.tar.gz]] |
 |    0.53 | [[file:./dn/Rhipe_0.53.tar.gz][Rhipe\_0.53.tar.gz]] |
 |    0.52 | [[file:./dn/Rhipe_0.52.tar.gz][Rhipe\_0.52.tar.gz]] |
 |    0.51 | [[file:./dn/Rhipe_0.51.tar.gz][Rhipe\_0.51.tar.gz]] |
@@ -82,12 +83,21 @@ Read the documentation for installation. Current is the latest version.
 
 
 * EC2
-Download the scripts from [[./dn/rhipeec2.tar.gz][here]], untar it. This will create a folder called =ec2= which has a =bin= folder in it. Modify =ec2/bin/hadoop-ec2-env.sh.template=
+*NOT WORKING* - the AMI is FC4 and Rhipe is not compiling on FC4 ...
+I'm trying to resolve this.
 
-**NOTE** For 32 bit instance types only (m1.small, c1.medium). Hopefully, 64 bit will work soon.
+#Download the scripts from [[./dn/rhipeec2.tar.gz][here]], untar it. This will create a folder called =ec2= which has a =bin= folder in it. Modify =ec2/bin/hadoop-ec2-env.sh.template=
+#**NOTE** For 32 bit instance types only (m1.small, c1.medium). 
+
 * Documentation
 The documentation can be found [[file:./doc/html/index.html][here]]. PDF version can be found [[file:./doc/rhipe.pdf][here]]
 * News
+** Thu Dec 24 11:58:04 EST 2009
+Released version 0.54
+- Introduce a Hadoop Map File Outputformat and functions for reading a key from
+  map files(see help on rhmr and misc functions)
+- Fixed a bug for the case when no reducer is specified but RHIPE java code
+  threw an exception.
 ** Sun Dec 13 22:11:53 EST 2009
 - Release **Version 0.53**
 - Bug fixes:

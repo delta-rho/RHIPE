@@ -177,3 +177,78 @@ rhreadBin
 Reads data outputed in 'binary' form. ``max`` is the maximum number to read, -1
 is all. ``bf`` is the read buffer, 0 implies the os specified default ``BUFSIZ``
 
+
+Map Files
+---------
+
+rhS2M
+^^^^^
+
+::	
+
+	rhS2M <- function (files, ofile, dolocal = T, ignore.stderr = F, verbose = F) 
+
+
+Converts the sequence files specified by ``files`` and places them in
+destination ``ofile``. If ``dolocal`` is True the conversion is done on the
+local machine, otherwise over the cluster (which is much faster for anything
+greater than hundreds of megabytes). If ``ignore.stderr`` is True, the mapreduce
+output is displayed on the R console. e.g
+
+::
+
+	rhS2m("/tmp/so/p*","/tmp/so.map",dolocal=F)
+
+
+rhM2M
+^^^^^
+
+::	
+
+	rhM2M <- function (files, ofile, dolocal = T, ignore.stderr = F, verbose = F) 
+
+
+Same as S2M, except it converts a group of Map files to Map files.Why? 
+Consider a mapreduce job that outputs modified keys in the reduce part, i.e the
+reduce receives key K0 but emits f(K0), where f(K0) <> K0, the result of this
+the keys in the reduce output part files wont be sorted even though the K0 are
+sorted.
+
+So, if the reducer emits K0, the output part files constitute a valid collection
+of sorted map files. If the reducer emits f(K0), this does not hold any
+more. Running ``rhM2M`` on this output produces another output in which the keys
+are now sorted (i.e we just run an identity mapreduce emitting f(K0), though now
+the input to the reducers are f(K0)).
+
+To specify the input files, it is not enough to specify the directory
+containing the part files, because the part files are directories which contain
+a sequence file and a non sequence file. Specifying the list of directories to a
+mapreduce job will cause it to fail when it reads the non-map file.
+
+Use ``rhmap.sqs`` .
+
+rhmap.sqs
+^^^^^^^^^
+
+::
+
+	rhmap.sqs <-  function(x)
+
+Given a directory containing map part directories, e.g /a/part-r-00000/ etc,
+each part directory contains a data and an index file, this function picks up
+the data files (which are sequence files). This can be used as input to
+mapreduce job with inputformat sequence e.g.
+
+::
+
+	rhmap.sqs("/a/p*")
+
+rhgetkey
+^^^^^^^^
+
+::
+	
+	rhgetkey <- function (keys, paths, ignore.stderr = T, verbose = F) 
+
+Given a list of keys and vector of  map directories (e.g /tmp/ou/mapoutput/p*"),
+returns a list of key,values.

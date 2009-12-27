@@ -22,7 +22,7 @@ Function
 ::
 
 	rhmr <- function(map,reduce=NULL,
-                 combiner=F, #CANNOT BE CHANGED
+                 combiner=F, 
                  setup=NULL,
                  cleanup=NULL,
                  ofolder='',
@@ -47,7 +47,7 @@ Function
 	``post``
 		Called when all the values have been sent. 
 ``combiner``
-	Uses a combiner if TRUE. If so, then ``reduce.values`` present in the ``reduce$reduce`` expression will be a *subset* of values.
+	Uses a combiner if TRUE. If so, then ``reduce.values`` present in the ``reduce$reduce`` expression will be a *subset* of values.The reducer algorithm should be able process input emitted from map *or* reduce.
 ``setup``
 	An expression that can be called to setup the environment. Called once for every task.
 	It can be a list of two attributes ``map`` and ``reduce`` which are expressions to be run in the map and reduce stage. If a single expression then that is run for both map and reduce
@@ -70,9 +70,12 @@ Function
 		   is a sequence format. Outputs in this form /can/ be used as an input.
 	``binary`` 
 		   is a simple binary format consisting of key-length, key data, value-length, value data where the lengths are integers in network order. Though *much* faster than sequence in terms of reading in data, it *cannot* be used an input to a map reduce operation.
+	``map``
+		*Only as OutputFormat* ! That is, map can only be the second element of ``inout``. If so, the output part files will be directories, each containing a data and an index file. If the reducer writes the same key as the one received then using the function ``rhgetkey``, specifying the get and the output folder part files , one can use the output as a hash table (do keep the keys small then). However, if the keys are changed before being written (using rhcollect), the order is lost and even though one can still use the individual part file as a Map file reader, the part file containing the key needs to be known (as opposed to just specifying the directory of part files). To remedy this just run a identity map job converting map input to map output (see ``rhM2M`` and ``rhS2M``). 
+		Map Output formats can be used an input format. Use the function ``rhmap.sq`` on a directory of map part files e.g ``rhmap.sq("/tmp/out/p*)``, this will return a vector of paths pointing to the *data* files in each of the part folders (the folders also contain index files, which can't be used as sequence file input to Hadoop, so these have to be filtered).
 
-``shared``
-	A vector of files on the HDFS that will be copied to the working directory of the R program. These files can then be loaded as easily as ``load(filename)`` (removed leading path)
+	``shared``
+		A vector of files on the HDFS that will be copied to the working directory of the R program. These files can then be loaded as easily as ``load(filename)`` (removed leading path)
 
 ``jarfiles``
 	Copy jar files if required. Experimental, probably doesn't work.

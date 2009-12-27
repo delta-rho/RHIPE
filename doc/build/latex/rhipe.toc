@@ -13,9 +13,9 @@
 \contentsline {section}{\numberline {3.2}Return Value}{7}{section.3.2}
 \contentsline {section}{\numberline {3.3}Function}{7}{section.3.3}
 \contentsline {section}{\numberline {3.4}RHIPE Options}{8}{section.3.4}
-\contentsline {section}{\numberline {3.5}Status, Counters and Writing Output}{8}{section.3.5}
-\contentsline {subsection}{\numberline {3.5.1}Status}{8}{subsection.3.5.1}
-\contentsline {subsection}{\numberline {3.5.2}Counter}{8}{subsection.3.5.2}
+\contentsline {section}{\numberline {3.5}Status, Counters and Writing Output}{9}{section.3.5}
+\contentsline {subsection}{\numberline {3.5.1}Status}{9}{subsection.3.5.1}
+\contentsline {subsection}{\numberline {3.5.2}Counter}{9}{subsection.3.5.2}
 \contentsline {subsection}{\numberline {3.5.3}Output}{9}{subsection.3.5.3}
 \contentsline {section}{\numberline {3.6}Side Effect files}{9}{section.3.6}
 \contentsline {section}{\numberline {3.7}Mapreduce Options}{9}{section.3.7}
@@ -37,6 +37,11 @@
 \contentsline {subsection}{\numberline {4.3.9}rhread}{13}{subsection.4.3.9}
 \contentsline {subsection}{\numberline {4.3.10}rhmerge}{13}{subsection.4.3.10}
 \contentsline {subsection}{\numberline {4.3.11}rhreadBin}{13}{subsection.4.3.11}
+\contentsline {section}{\numberline {4.4}Map Files}{13}{section.4.4}
+\contentsline {subsection}{\numberline {4.4.1}rhS2M}{13}{subsection.4.4.1}
+\contentsline {subsection}{\numberline {4.4.2}rhM2M}{13}{subsection.4.4.2}
+\contentsline {subsection}{\numberline {4.4.3}rhmap.sqs}{14}{subsection.4.4.3}
+\contentsline {subsection}{\numberline {4.4.4}rhgetkey}{14}{subsection.4.4.4}
 \contentsline {chapter}{\numberline {5}Using RHIPE on EC2}{15}{chapter.5}
 \contentsline {section}{\numberline {5.1}Introduction}{15}{section.5.1}
 \contentsline {section}{\numberline {5.2}Usage}{15}{section.5.2}
