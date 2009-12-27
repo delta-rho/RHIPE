@@ -18,7 +18,7 @@ assign("rhipeOptions" ,list(version="0.54") ,envir=.rhipeEnv )
 ##   opts$port <- 12874
 ##   opts$socket <- rhGetConnection(paste(cp,collapse=":"),opts$port)
   ##  print("WHY2")
-
+  ##$HADOOP should be such that $HADOOP/bin contains the hadoop executable
   if(Sys.getenv("HADOOP")=="") stop("Rhipe requires the HADOOP environment variable to be present")
   if(.Platform$r_arch!="")
     opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",.Platform$r_arch,
