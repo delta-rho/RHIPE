@@ -285,11 +285,11 @@ mapreduce job with inputformat sequence e.g.</p>
 </div>
 <div class="section" id="rhgetkey">
 <h3>rhgetkey<a class="headerlink" href="#rhgetkey" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><div class="highlight"><pre>rhgetkey <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>keys<span class="p">,</span> paths<span class="p">,</span> ignore.stderr <span class="o">=</span> T<span class="p">,</span> verbose <span class="o">=</span> F<span class="p">)</span>
+<div class="highlight-r"><div class="highlight"><pre>rhgetkey <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>keys<span class="p">,</span> paths<span class="p">,</span> sequence<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>ignore.stderr <span class="o">=</span> T<span class="p">,</span> verbose <span class="o">=</span> F<span class="p">)</span>
 </pre></div>
 </div>
 <p>Given a list of keys and vector of  map directories (e.g /tmp/ou/mapoutput/p*&#8221;),
-returns a list of key,values.</p>
+returns a list of key,values. If sequence is a string, the output key,values will be written to the sequence files on the DFS(the values will not be read into R)</p>
 </div>
 </div>
 </div>
