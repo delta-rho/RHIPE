@@ -77,18 +77,27 @@ rhput <- function(src,dest,deleteDest=TRUE,ignore.stderr=T,verbose=F){
 }
 
 #test!
-
-rhgetkey <- function(keys,paths,ignore.stderr=T,verbose=F){
+## rhrename <- function(src,dest,delete=T,ignore.stderr=T,verbose=F){
+##   Rhipe:::doCMD(rhoptions()$cmd['rename'],infiles=src,ofile=dest,ignore.stderr=T,verbose=F)
+##   if(delete) rhdel(src)
+## }
+rhgetkey <- function(keys,paths,sequence=NULL,ignore.stderr=T,verbose=F){
   on.exit({
-    unlink(tmf)
+    if(dodel) unlink(tmf)
   })
-  tmf <- tempfile()
+  if(is.null(sequence)){
+    dodel=T
+    tmf <- tempfile()
+  }else{
+    tmf=sequence;dodel=F
+  }
   if(!all(is.character(paths)))
     stop('paths must be a character vector of mapfiles( a directory containing them or a single one)')
   keys <- lapply(keys,rhsz)
   paths=unlist(paths)
-  Rhipe:::doCMD(rhoptions()$cmd['getkey'], keys=keys,src=paths,dest=tmf,ignore.stderr=ignore.stderr,verbose=verbose)
-  rhreadBin(tmf)
+  Rhipe:::doCMD(rhoptions()$cmd['getkey'], keys=keys,src=paths,dest=tmf,sequence=!is.null(sequence),
+                ignore.stderr=ignore.stderr,verbose=verbose)
+  if(is.null(sequence)) rhreadBin(tmf)
 }
 ## rhgetkey(list(c("f405ad5006b8dda3a7a1a819e4d13abfdbf8a","1"),c("f2b6a5390e9521397031f81c1a756e204fb18","1")) ,"/tmp/small.seq")
 

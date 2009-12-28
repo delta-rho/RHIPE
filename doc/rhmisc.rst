@@ -248,7 +248,7 @@ rhgetkey
 
 ::
 	
-	rhgetkey <- function (keys, paths, ignore.stderr = T, verbose = F) 
+	rhgetkey <- function (keys, paths, sequence=NULL,ignore.stderr = T, verbose = F) 
 
 Given a list of keys and vector of  map directories (e.g /tmp/ou/mapoutput/p*"),
-returns a list of key,values.
+returns a list of key,values. If sequence is a string, the output key,values will be written to the sequence files on the DFS(the values will not be read into R)

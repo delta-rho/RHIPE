@@ -4,7 +4,7 @@ VER=0.54
 
 all: code doc index
 
-sync: ec2
+sync: 
 	rsync -av website/ sguha@altair.stat.purdue.edu:/home/www/rhipe/
 
 index: doc

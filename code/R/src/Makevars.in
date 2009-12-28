@@ -1,4 +1,5 @@
-MYCXXFLAGS+= -I. -g   -DHAVE_UINTPTR_T  `pkg-config --cflags protobuf` -Wall
+MYCXXFLAGS+= -I. -g    `pkg-config --cflags protobuf` -Wall
+# -DHAVE_UINTPTR_T
 PKG_LIBS+= `pkg-config --libs protobuf`
 
 # RHOME=`echo "cat(Sys.getenv('R_HOME'))" | R --slave `

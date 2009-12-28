@@ -58,6 +58,7 @@ import org.apache.hadoop.io.MapFile;
 import java.util.Calendar;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+import org.apache.hadoop.io.SequenceFile;
 
 public class FileUtils {
     private FsShell fsshell;
@@ -311,26 +312,50 @@ public class FileUtils {
 	    out.close();
 	}catch(Exception e){e.printStackTrace();}
     }
-
+    public void hdfsrename(REXP rexp0) throws Exception{
+	REXP spaths = rexp0.getRexpValue(0); 
+	REXP tpaths = rexp0.getRexpValue(1);
+	int np = spaths.getRexpValueCount();
+	FileSystem fs = FileSystem.get(getConf());
+	for(int i=0;i<np;i++){
+	    String s = spaths.getStringValue(1).getStrval();
+	    String t = tpaths.getStringValue(1).getStrval();
+	    Path dstPath = new Path(t);
+	    Path srcPath = new Path(s);
+	    if(!fs.rename(srcPath,dstPath)) throw new Exception("Error renaming "+s);
+	}
+    }
     public void getKeys(REXP rexp0) throws Exception{
 	REXP keys = rexp0.getRexpValue(0); 
 	REXP paths = rexp0.getRexpValue(1);
 	MapFile.Reader[] mr = RHMapFileOutputFormat.getReaders(new Path( paths.getStringValue(0).getStrval() ),getConf());
 	String tempdest = rexp0.getRexpValue(2).getStringValue(0).getStrval();
+	REXP.RBOOLEAN b = rexp0.getRexpValue(3).getBooleanValue(0);
+
 	int numkeys = keys.getRexpValueCount();
-	DataOutputStream out = new 
-	    DataOutputStream(new FileOutputStream(tempdest));
 	RHBytesWritable k = new RHBytesWritable();
 	RHBytesWritable v = new RHBytesWritable();
-	for(int i=0; i < numkeys; i++){
-	    k.set(keys.getRexpValue(i).getRawValue().toByteArray());
-	    RHMapFileOutputFormat.getEntry(mr,k,v);
-	    k.writeAsInt(out);
-	    v.writeAsInt(out);
+	if(b==REXP.RBOOLEAN.F){ //binary style
+	    DataOutputStream out = new 
+		DataOutputStream(new FileOutputStream(tempdest));
+	    for(int i=0; i < numkeys; i++){
+		k.set(keys.getRexpValue(i).getRawValue().toByteArray());
+		RHMapFileOutputFormat.getEntry(mr,k,v);
+		k.writeAsInt(out);
+		v.writeAsInt(out);
+	    }
+	    out.close();
+	}else{
+	    RHWriter rw = new RHWriter(tempdest,getConf());
+	    SequenceFile.Writer w = rw.getSQW();
+	    for(int i=0; i < numkeys; i++){
+		k.set(keys.getRexpValue(i).getRawValue().toByteArray());
+		RHMapFileOutputFormat.getEntry(mr,k,v);
+		w.append(k,v);
+	    }
+	    rw.close();
 	}
-	out.close();
     }
-
     public static void main(String[] args) throws Exception{
 	int cmd = Integer.parseInt(args[0]);
 	//parse data
@@ -400,6 +425,10 @@ public class FileUtils {
 	    case 8:
 		r = fu.readInfo(args[1]);
 		fu.sequence2map(r);
+		break;
+	    case 9:
+		r = fu.readInfo(args[1]);
+		fu.hdfsrename(r);
 		break;
 	    }
 	    

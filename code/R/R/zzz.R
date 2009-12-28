@@ -34,7 +34,7 @@ assign("rhipeOptions" ,list(version="0.54") ,envir=.rhipeEnv )
 ##  print("WHY3")
 
   opts$runner <-opts$runner[-c(1,2)]
-  opts$cmd <- list(opt=0,ls=1,get=2,del=3,put=4,b2s=5,s2b=6,getkey=7,s2m=8)
+  opts$cmd <- list(opt=0,ls=1,get=2,del=3,put=4,b2s=5,s2b=6,getkey=7,s2m=8,rename=9)
   ##print("WHY4")
 
   opts$mropts <- doCMD(opts$cmd['opt'],opts=opts,needo=T,ignore=F,verbose=F)
