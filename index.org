@@ -5,7 +5,7 @@
 #+STYLE: <link rel="stylesheet" type="text/css" href="a.css" />
 #+TITLE: RHIPE - R and Hadoop Integrated Processing Environment 
 #
-
+*website moving http://www.stat.purdue.edu/~sguha/rhipe*
 RHIPE(phonetic spelling: hree-pay' [1]) is a java package that integrates the R environment with [[http://hadoop.apache.org/core/][Hadoop]], the open source implementation
 of Google's mapreduce.  Using RHIPE it is possible to code map-reduce algorithms in R e.g
 [1] This is greek for /a moment in time/. See here for pronunciation:
@@ -92,6 +92,9 @@ I'm trying to resolve this.
 * Documentation
 The documentation can be found [[file:./doc/html/index.html][here]]. PDF version can be found [[file:./doc/rhipe.pdf][here]]
 * News
+** Wed Jan 13 02:52:27 EST 2010
+- Fixed a bug where errors in R code were not appearing. Somewhat fixed. Version
+  stays the same.
 ** Thu Dec 24 11:58:04 EST 2009
 Released version 0.54
 - Introduce a Hadoop Map File Outputformat and functions for reading a key from

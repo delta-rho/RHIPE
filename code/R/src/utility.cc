@@ -1,6 +1,7 @@
 #include "ream.h"
 #include <netinet/in.h>
 #include <google/protobuf/stubs/common.h>
+#include <unistd.h>
 
 const int i___ = 1;
 #define is_bigendian() ( (*(char*)&i___) == 0 )
@@ -243,7 +244,10 @@ void sigHandler(int i) {
   while ( (pid = waitpid(-1, &stat, WNOHANG)) > 0);
   // merror("sighandler: %d\n", i);
   // return;
-  exit(31);
+  sleep(10);
+  LOGG(9,"SIGHANDLE %d\n",i);
+  exit(0);
+  // return;
 }
 
 

@@ -5,8 +5,9 @@ VER=0.54
 all: code doc index
 
 sync: 
-	rsync -av website/ sguha@altair.stat.purdue.edu:/home/www/rhipe/
-
+	cp a.css website/
+	rsync -av website/ sguha@odds.stat.purdue.edu:~/.www/rhipe/
+	ssh sguha@odds.stat.purdue.edu 'fixwww'
 index: doc
 	/Applications/Aquamacs.app/Contents/MacOS/Aquamacs  -l index2html.el
 	# mv index.html website/
@@ -38,7 +39,6 @@ doc:
 	make -C doc/build/latex -f Makefile all-pdf
 	rsync -av doc/build/html/ website/doc/html/
 	rsync -av doc/build/latex/rhipe.pdf website/doc/
-
 clean:
 	rm -rf doc/build
 

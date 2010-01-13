@@ -64,7 +64,11 @@ int embedR(int argc, char **argv){
   ptr_R_WriteConsole = NULL;
   ptr_R_ReadConsole = NULL;
 
-  // Signal(SIGPIPE,sigHandler);
+  // ptr_R_ResetConsole = NULL;
+  // ptr_R_FlushConsole = NULL;
+  // ptr_R_ClearerrConsole = NULL;
+
+  Signal(SIGPIPE,sigHandler);
   // Signal(SIGQUIT,sigHandler);
   // Signal(SIGCHLD,sigHandler);
   // Signal(SIGHUP,sigHandler);
@@ -137,14 +141,14 @@ int main(int argc,char **argv){
     {
 #ifndef FILEREADER
       if ((ret=mapper_setup())!=0){
-	LOGG(12,"FAILURE:%d\n",ret);
+	LOGG(12,"FAILURE IN MAP SETUP:%d\n",ret);
 	merror("Error while running mapper setup: %d\n",ret);
 	// exit(ret);
 	break;
       }
 #endif
-      if ((ret=mapper_run2()!=0)){
-	LOGG(12,"FAILURE:%d\n",ret);
+      if (((ret=mapper_run2())!=0)){
+	LOGG(12,"FAILURE IN MAP RUN:%d\n",ret);
 	merror("Error while running mapper: %d\n",ret);
 	// exit(ret);
 	break;
@@ -158,7 +162,8 @@ int main(int argc,char **argv){
       // 	merror("Error while running reducer setup: %d\n",ret);
       // 	exit(4);
       // }
-      if ((ret=reducer_run()!=0)){
+      if ((ret=reducer_run())!=0){
+	LOGG(12,"FAILURE IN REDUCER:%d\n",ret);
 	merror("Error while running reducer: %d\n",ret);
 	// exit(ret);
 	break;
