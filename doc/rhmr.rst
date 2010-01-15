@@ -123,7 +123,7 @@ Counter
 To update the counter C in the group G with a number N, user ``rhcounter(G,C,N)``
 where C and G are strings and N is a number. However, C and G can be atomic vectors and they will be converted to strings.
 Previously a "," in C or G would upset Hadoop, but not with version 0.52 onwards.
-
+The values will be returned to the R session.
 Output
 ^^^^^^
 To output data use ``rhcollect(KEY,VALUE)`` where KEY and VALUE are R objects that can be serialized by ``rhsz`` (see the misc page). If one needs to send across complex R objects e.g the KEY is a function, do something like ``rhcollect(serialize(KEY,NULL),VALUE)``

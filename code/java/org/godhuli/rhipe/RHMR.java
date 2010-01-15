@@ -15,10 +15,12 @@
  */
 
 package org.godhuli.rhipe;
-
+import java.util.Collection;
+import java.util.Vector;
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.DataOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
@@ -109,7 +111,7 @@ public class RHMR  implements Tool {
     public int run(String[] args) throws Exception {
 	this.argv_ = args;
 	init();
-	submitAndMonitorJob();
+	submitAndMonitorJob(argv_[0]);
 	return 1;
     }
 
@@ -188,16 +190,65 @@ public class RHMR  implements Tool {
 	
     }
 
-    public int submitAndMonitorJob() throws Exception {
+    public int submitAndMonitorJob(String configfile) throws Exception {
 	int k =0;
 	job_.submit();
 	LOG.info("Tracking URL ----> "+ job_.getTrackingURL());
 	boolean verb = rhoptions_.get("rhipe_job_verbose").equals("TRUE")
 	    ? true: false;
+	long now = System.currentTimeMillis();
+	// System.err.println("Now="+now);
 	boolean result = job_.waitForCompletion( verb );
-	if(!result)
+	double tt = (System.currentTimeMillis() - now)/1000.0;
+	// System.err.println("End="+System.currentTimeMillis()+" diff="+tt+"\n");
+
+	//We will overwrite the input configfile
+	FileOutputStream out = new FileOutputStream (configfile);
+	DataOutputStream fout = new DataOutputStream(out);
+	try{
+	    if(!result){
+		k=-1;
+	    }else{
+		k=0;
+		org.apache.hadoop.mapreduce.Counters counter = job_.getCounters();
+		REXP r = buildListFromCounters(counter,tt);
+		RHBytesWritable rb = new RHBytesWritable(r.toByteArray());
+		rb.writeAsInt(fout);
+	    }
+	}catch(Exception e){
 	    k=-1;
+	}finally{
+	    fout.close();
+	    out.close();
+	}
 	return k;
+    }
+    
+    public REXP buildListFromCounters(org.apache.hadoop.mapreduce.Counters counters,double tt){
+	String[] groupnames = counters.getGroupNames().toArray(new String[]{});
+	String[] groupdispname = new String[groupnames.length+1];
+	Vector<REXP> cn = new Vector<REXP>();
+	for(int i=0;i < groupnames.length; i++){
+	    org.apache.hadoop.mapreduce.CounterGroup
+		cgroup = counters.getGroup( groupnames[i]);
+	    groupdispname[i] = cgroup.getDisplayName();
+	    REXP.Builder cvalues = REXP.newBuilder();
+	    Vector<String> cnames = new Vector<String>();
+	    cvalues.setRclass(REXP.RClass.REAL);
+	    for (org.apache.hadoop.mapreduce.Counter counter: cgroup){
+		cvalues.addRealValue((double)counter.getValue());
+		cnames.add(counter.getDisplayName());
+	    }
+	    cvalues.addAttrName("names");
+	    cvalues.addAttrValue(RObjects.makeStringVector(cnames.toArray(new String[]{})));
+	    cn.add( cvalues.build());
+	}
+	groupdispname[groupnames.length]="job_time";
+	REXP.Builder cvalues = REXP.newBuilder();
+	cvalues.setRclass(REXP.RClass.REAL);
+	cvalues.addRealValue(tt);
+	cn.add(cvalues.build());
+	return(RObjects.makeList(groupdispname,cn));
     }
 
     public void readParametersFromR(String configfile) throws

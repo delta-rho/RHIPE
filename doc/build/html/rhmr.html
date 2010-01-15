@@ -51,7 +51,6 @@
 <li><a class="reference external" href="#status-counters-and-writing-output">Status, Counters and Writing Output</a><ul>
 <li><a class="reference external" href="#status">Status</a></li>
 <li><a class="reference external" href="#counter">Counter</a></li>
-<li><a class="reference external" href="#output">Output</a></li>
 </ul>
 </li>
 <li><a class="reference external" href="#side-effect-files">Side Effect files</a></li>
@@ -218,11 +217,11 @@ This will also indicate progress.</p>
 <h3>Counter<a class="headerlink" href="#counter" title="Permalink to this headline">¶</a></h3>
 <p>To update the counter C in the group G with a number N, user <tt class="docutils literal"><span class="pre">rhcounter(G,C,N)</span></tt>
 where C and G are strings and N is a number. However, C and G can be atomic vectors and they will be converted to strings.
-Previously a &#8220;,&#8221; in C or G would upset Hadoop, but not with version 0.52 onwards.</p>
-</div>
-<div class="section" id="output">
-<h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
-<p>To output data use <tt class="docutils literal"><span class="pre">rhcollect(KEY,VALUE)</span></tt> where KEY and VALUE are R objects that can be serialized by <tt class="docutils literal"><span class="pre">rhsz</span></tt> (see the misc page). If one needs to send across complex R objects e.g the KEY is a function, do something like <tt class="docutils literal"><span class="pre">rhcollect(serialize(KEY,NULL),VALUE)</span></tt></p>
+Previously a &#8220;,&#8221; in C or G would upset Hadoop, but not with version 0.52 onwards.
+The values will be returned to the R session.
+Output
+^^^^^^
+To output data use <tt class="docutils literal"><span class="pre">rhcollect(KEY,VALUE)</span></tt> where KEY and VALUE are R objects that can be serialized by <tt class="docutils literal"><span class="pre">rhsz</span></tt> (see the misc page). If one needs to send across complex R objects e.g the KEY is a function, do something like <tt class="docutils literal"><span class="pre">rhcollect(serialize(KEY,NULL),VALUE)</span></tt></p>
 </div>
 </div>
 <div class="section" id="side-effect-files">

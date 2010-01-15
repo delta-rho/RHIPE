@@ -344,11 +344,21 @@ rhex <- function (conf)
   y. <- paste(rep("-",min(nchar(x.),40)))
   message(y.);message(x.);message(y.)
   result <- system(cmd)
+  f3=NULL
+  if(result==256){
+    f1=file(zonf,"rb")
+    f2=readBin(f1,"integer",1,endian='network')
+    f3=rhuz(readBin(f1,'raw',f2))
+  }
   unlink(zonf)
   if(result==256 && !is.null(exitf)){
     return(exitf())
   }
-  return(if(result==256) 1 else 0)
+  return(if(result==256) {
+    list(result=T, counters=f3)
+ }else{
+    list(result=F, counters=f3)
+ })
 }
 
 ## rhsubset <- function(ifolder,ofolder,subs,inout=c('text','text'),local=T){
