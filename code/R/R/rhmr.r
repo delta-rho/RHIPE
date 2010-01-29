@@ -349,6 +349,7 @@ rhex <- function (conf)
     f1=file(zonf,"rb")
     f2=readBin(f1,"integer",1,endian='network')
     f3=rhuz(readBin(f1,'raw',f2))
+    close(file)
   }
   unlink(zonf)
   if(result==256 && !is.null(exitf)){
