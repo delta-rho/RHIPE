@@ -8,67 +8,102 @@ Using RHIPE on EC2
 Introduction
 ------------
 
-There is one 32 bit EC2 AMI with R-2.8, Hadoop 0.21 and the latest RHIPE. `s3sync <http://s3sync.net/wiki>`_ is also present.
+RHIPE also works on EC2 using Cloudera's scripts. Let me demonstrate
 
+Download
+^^^^^^^^
 
+The Cloudera scripts can be found at http://archive.cloudera.com/docs/_getting_started.html
 
-The following describes the usage of the EC2 scripts.
+Follow the instructions to test your working EC2 installation. 
 
-Usage
------
-* Get an Amazon EC2 account and confirm the ability to start and instance from the command line (using ec2-tools).
-* Unzip the rhipe-ec2 distribution (see the downloads page)
-* OPTIONS
+Using RHIPE on EC2
+^^^^^^^^^^^^^^^^^^
 
-In ``bin/hadoop-ec2-env.sh`` template there are several options:
-
-AWS_ACCOUNT_ID
-    fill this from the Amazon Account Identifiers 
-AWS_ACCESS_KEY_ID
-    same as above 
-AWS_SECRET_ACCESS_KEY
-    same as above 
-R_USER_FILE
-    a URL to an R script. This file is executed on machine boot up. Useful to install R packages. Read ``bin/hadoop-ec2-env.sh.template`` for details. 
-
-INSTANCE_TYPE
-    choose the Amazon machine instance type. For details, go to
-    `<http://aws.amazon.com/ec2/instance-types/>`_
-  
-* Save the file as ``bin/hadoop-ec2-env.sh``
-Some launch commands
---------------------
-
-* launch
+1. You need to create an entry in your `~/.hadoop-ec2/ec2-clusters.cfg`, e.g.
 
 ::
 
-	bin/hadoop-ec2 launch-cluster clustername number-of-workers
+ [test2]
+ ami=ami-6159bf08 # Fedora 32 bit instance
+ instance_type=c1.medium
+ key_name=saptarshiguha ## Your key name
+ availability_zone=us-east-1c
+ private_key=PATH_TO_PRIVATE_KEY
+ ssh_options= -i %(private_key)s -o StrictHostKeyChecking=no
 
 
-Replace clustername with the name of the cluster and number-of-workers with the number of workers. Use Elasticfox to check all the instances are running, this can some time.
+In particular, RHIPE only works with 32/64 bit Fedora instance types, so choose those AMIs.
 
-* login
+2. Download this file( http://www.stat.purdue.edu/~sguha/rhipe/dn/hadoop-ec2-init-remote.sh ) and replace the file of the same name (it is in the Cloudera distribution). This file contains one extra shell function to install code RHIPE requires: R, Google's protobuf and RHIPE
+
+3. Now start your cluster 
 
 ::
-	
-	bin/hadoop-ec2 login clustername
 
-* terminate
+ python hadoop-ec2 launch-cluster --env REPO=testing --env HADOOP_VERSION=0.20 test2 3
+
+The number (3) must be greater than 1.
+
+4. *Wait*, till you it completely finishes booting up (the cloudera scripts tell you the url of the jobtracker). Login to the cluster 
 
 ::
-	
-	bin/hadoop-ec2 terminate-cluster clustername
 
-* You can check the status of jobs at masterip:50030 in your web browser.
+ python hadoop-ec2 login test2
 
-Useful tools
-------------
-`s3fox <http://www.s3fox.net/>`_
-    A S3 file browser that works within Firefox.
-`Elasticfox <http://sourceforge.net/projects/elasticfox/>`_
-    EC2 management tools, a Firefox add-on. 
+5. Start `R`, and try the following
+
+::
+
+ library(Rhipe)
+ z <- rhlapply(10,runif)
+ ## Runs on a local machine(i.e the master)
+ rhex(z,changes=list(mapred.job.tracker='local'))
 
 
+::
+ 
+ library(Rhipe)
+ ## Runs on the cluster
+ z <- rhlapply(10,runif,mapred=list(LD_LIBRARY_PATH='/usr/local/lib'))
+ rhex(z)
+
+The `LD_LIBRARY_PATH` is essential, you need to use it *all* the time on EC2 ( without it Rhipe cannot find the location of the protobuffer library )
+
+6. Consider the more involved problem of bootstrapping. See this question posed on the 
+R-HPC mailing list (http://permalink.gmane.org/gmane.comp.lang.r.hpc/221).
+Using Rhipe( chunksize (see the posting) is 1000 per task which results in 100 tasks)
+
+::
+
+ y <- iris[which(iris[,5] != "setosa"), c(1,5)]
+ rhsave(y,file="/tmp/tmp.Rdata")
+
+ ## The function 'f' depends on 'x' so we must save it
+ ## using rhsave and then load it in the setup
+
+ setup <- expression({
+    load("tmp.Rdata")
+   })
+
+ f<- function(i){
+    ind <- sample(100, 100, replace=TRUE)
+    result1 <- glm(y[ind,2]~y[ind,1], family=binomial(logit))
+    return(structure(coefficients(result1), names=NULL))
+ }
+
+ z <- rhlapply(100000L,f,shared="/tmp/tmp.Rdata",setup=setup,
+              mapred=list(mapred.map.tasks=100000L/1000
+                ,mapred.reduce.tasks=5,LD_LIBRARY_PATH='/usr/local/lib'))
+
+ g <- rhex(z)
+ g1 <- do.call("rbind",lapply(g,function(r) r[[2]]))
+ g2 <- cbind(unlist(lapply(g,function(r) r[[1]])),g1)
+
+I used 3 c1.xlarge nodes(each $0.68/hr). This took 2 minutes and  5 seconds to run and another minute to read the data back in.
+
+On 10 similar nodes, this took 1 minute and 2 seconds. There is a point where it won't become any faster.
+
+On 20 nodes(with `mapred.map.tasks=160`), it takes 52 seconds (probably not worth the extra cost ... ) 
 
 

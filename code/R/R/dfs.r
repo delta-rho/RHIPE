@@ -20,7 +20,7 @@ rhload <- function(file,...){
   on.exit({unlink(x)})
   x <- tempfile(pattern='rhipe.load')
   rhget(file,x)
-  load(x,...)
+  load(x,...) ##Fix this..., does not load in current frame
 }
 
 rhsave <- function(...,file){

@@ -37,4 +37,4 @@ app:  rexp.pb.o message.o utility.o display.o reducer.o mapper.o main.o
 
 
 clean:
-	rm *.so *.o
+	rm -rf *.so *.o

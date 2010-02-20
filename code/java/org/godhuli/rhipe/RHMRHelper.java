@@ -44,10 +44,17 @@ public class RHMRHelper {
     static private Environment env_;
     private String callID;
     private String hostname;
-
+    private RHMRMapper mapper;
+    
+    public RHMRHelper(String fromWHo,RHMRMapper m){
+	callID=fromWHo;
+	mapper = m;
+    }
     public RHMRHelper(String fromWHo){
 	callID=fromWHo;
+	mapper = null;
     }
+
     void addEnvironment(Properties env, String nameVals) {
 	if (nameVals == null) return;
 	String[] nv = nameVals.split(" ");
@@ -315,7 +322,9 @@ public class RHMRHelper {
 			    k = new byte[ln]; 
 			    clientErr_.readFully(k,0,ln);
 			    String errmsg = new String(k);
-			    throw new Exception("\nR ERROR\n=======\n"+errmsg);
+			     // mapper.setreadcomplete(true);
+			    ctx.getCounter("** R ERRORS **","").increment(1);
+			    throw new RuntimeException("\nR ERROR\n=======\n"+errmsg);
 			case RHTypes.PRINT_MSG:
 			    ln = clientErr_.readInt();
 			    k = new byte[ln]; 
@@ -353,9 +362,9 @@ public class RHMRHelper {
 			long now = System.currentTimeMillis(); 
 			if ( now-lastStderrReport > reporterErrDelay_) {
 			    lastStderrReport = now;
-			    // if(ctx!=null) {
+			    if(ctx!=null) {
 				ctx.progress();
-			    // }
+			    }
 			}
 		    }
 		}catch(EOFException e){
@@ -433,12 +442,11 @@ public class RHMRHelper {
     FileSystem thisfs;
     Path outputFolder;
     Process sim;
-    MROutputThread outThread_;
-    MRErrorThread errThread_;
+    public MROutputThread outThread_;
+    public MRErrorThread errThread_;
     volatile DataOutputStream clientOut_;
     volatile DataInputStream clientErr_;
     volatile DataInputStream clientIn_;
-    
     
     protected volatile Throwable outerrThreadsThrowable;
 }

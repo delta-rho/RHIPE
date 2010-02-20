@@ -71,7 +71,9 @@ public class RHMR  implements Tool {
 	try{
 	    // (new RHMR()).doTest();
 	    // System.exit(0);
-	    res = ToolRunner.run(new Configuration(), new RHMR(), args);
+	    RHMR r = new RHMR();
+	    r.setConfig(new Configuration());
+	    res = ToolRunner.run(r.getConfig(), r, args);
 	}catch(Exception ex){
 	    ex.printStackTrace();
 	    res=-2;
@@ -85,6 +87,12 @@ public class RHMR  implements Tool {
 	System.out.println("Last I="+i);
     }
 
+    public Configuration getConfig(){
+	return config_;
+    }
+    public void setConfig(Configuration c){
+	config_ = c;
+    }
     public void setConf(Configuration c){}
     protected void init()  {
 	try {
@@ -92,7 +100,7 @@ public class RHMR  implements Tool {
 	    rhoptions_ = new Hashtable<String,String>();
 	    readParametersFromR(argv_[0]);
 	    env_ = new Environment();
-	    config_ = new Configuration();
+	    // config_ = new Configuration();
 	    setConf();
 	    job_ = new Job(config_);
 	    setJob();
@@ -122,6 +130,7 @@ public class RHMR  implements Tool {
 	    String key = (String) keys.nextElement();
 	    String value = (String) rhoptions_.get(key);
 	    config_.set(key,value);
+	    // System.out.println(key+"==="+value);
 	}
 	REXPHelper.setFieldSep( config_.get("mapred.field.separator"," "));
 

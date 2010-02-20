@@ -2,7 +2,7 @@ VER=0.54
 #
 .PHONY : doc code  sync
 
-all: code doc index
+all: code doc ec2 index
 
 sync: 
 	cp a.css website/
@@ -14,7 +14,7 @@ index: doc
 
 
 ec2:
-	tar  cvfz website/dn/rhipe_ec2.tar.gz --exclude hadoop-ec2-env.sh   -C code  ec2
+	rsync -av code/hadoop-ec2-init-remote.sh website/dn/
 
 code:
 	sed  -i ""  "s/Version: [0-9]*\.*[0-9]*/Version: ${VER}/" code/R/DESCRIPTION 

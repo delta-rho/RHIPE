@@ -313,7 +313,7 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
 }
 
 
-rhex <- function (conf) 
+rhex <- function (conf,changes) 
 {
   exitf <- NULL
   ## browser()
@@ -327,6 +327,11 @@ rhex <- function (conf)
   }else
   stop("Wrong class of list given")
 
+  if(!missing(changes)){
+    for(i in names(changes)){
+      lines[[i]] <- changes[[i]]
+    }
+  }
 
   conffile <- file(zonf,open='wb')
   writeBin(as.integer(length(lines)),conffile,size=4,endian='big')
@@ -349,7 +354,7 @@ rhex <- function (conf)
     f1=file(zonf,"rb")
     f2=readBin(f1,"integer",1,endian='network')
     f3=rhuz(readBin(f1,'raw',f2))
-    close(file)
+    close(f1)
   }
   unlink(zonf)
   if(result==256 && !is.null(exitf)){
