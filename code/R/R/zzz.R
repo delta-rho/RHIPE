@@ -1,5 +1,5 @@
 .rhipeEnv <- new.env()
-assign("rhipeOptions" ,list(version="0.54") ,envir=.rhipeEnv )
+assign("rhipeOptions" ,list(version="0.55") ,envir=.rhipeEnv )
 
 
 .onLoad <- function(libname,pkgname){
