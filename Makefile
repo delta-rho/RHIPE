@@ -10,7 +10,7 @@ sync:
 	ssh sguha@odds.stat.purdue.edu 'fixwww'
 index: doc
 	/Applications/Aquamacs.app/Contents/MacOS/Aquamacs  -l index2html.el
-	# mv index.html website/
+	# mv index.html website/#
 
 
 ec2:
