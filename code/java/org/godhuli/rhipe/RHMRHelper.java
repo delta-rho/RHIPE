@@ -323,7 +323,7 @@ public class RHMRHelper {
 			    clientErr_.readFully(k,0,ln);
 			    String errmsg = new String(k);
 			     // mapper.setreadcomplete(true);
-			    ctx.getCounter("** R ERRORS **","").increment(1);
+			    ctx.getCounter("R_ERRORS",errmsg).increment(1);
 			    throw new RuntimeException("\nR ERROR\n=======\n"+errmsg);
 			case RHTypes.PRINT_MSG:
 			    ln = clientErr_.readInt();
