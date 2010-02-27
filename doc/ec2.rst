@@ -31,11 +31,11 @@ Using RHIPE on EC2
  availability_zone=us-east-1c
  private_key=PATH_TO_PRIVATE_KEY
  ssh_options= -i %(private_key)s -o StrictHostKeyChecking=no
-
+ user_data_file=the file you download in step 2
 
 In particular, RHIPE only works with 32/64 bit Fedora instance types, so choose those AMIs.
 
-2. Download this file( http://www.stat.purdue.edu/~sguha/rhipe/dn/hadoop-ec2-init-remote.sh ) and replace the file of the same name (it is in the Cloudera distribution). This file contains one extra shell function to install code RHIPE requires: R, Google's protobuf and RHIPE
+2. Download this file( http://github.com/saptarshiguha/RHIPE/blob/master/code/hadoop-ec2-init-remote.sh ) and replace the file of the same name (it is in the Cloudera distribution). This file contains one extra shell function to install code RHIPE requires: R, Google's protobuf and RHIPE
 
 3. Now start your cluster 
 

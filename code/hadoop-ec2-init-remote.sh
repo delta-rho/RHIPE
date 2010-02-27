@@ -580,23 +580,26 @@ function install_rhipe_extras(){
 }
 
 function run_r_code(){
-    cat > /root/users_r_code.r <<EOF
+    cat > /root/users_r_code.r << END
 install.packages("yaImpute",dependencies=TRUE,repos='http://cran.r-project.org')
 download.file("http://ml.stat.purdue.edu/rpackages/survstl_0.1-1.tar.gz","/root/survstl_0.1-1.tar.gz")
 download.file("http://ml.stat.purdue.edu/rpackages/stl2_1.0.tar.gz","/root/stl2_1.0.tar.gz")
 install.packages("/root/survstl_0.1-1.tar.gz",repos=NULL,dependenc=TRUE)
-install.packages("/root//stl2_1.0.tar.gz",repos=NULL,dependenc=TRUE)
-EOF
+install.packages("/root/stl2_1.0.tar.gz",repos=NULL,dependenc=TRUE)
+END
+
 R CMD BATCH /root/users_r_code.r
 }
 
 register_auto_shutdown
 update_repo
 install_user_packages
-install_rhipe_extras
-run_r_code()
 install_hadoop
 configure_hadoop
+install_rhipe_extras
+## uncomment the following line and modify
+## run_r_code to install your own packages
+run_r_code
 
 if $IS_MASTER ; then
   setup_web
