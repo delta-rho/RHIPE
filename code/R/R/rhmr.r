@@ -219,7 +219,7 @@ rhmr <- function(map,reduce=NULL,
 
 rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
                     inout=c("lapply","sequence"),readIn=T,mapred=list(),jobname="rhlapply",
-                     doLocal=F,...){
+                     doLocal=F,N,...){
   del.o.file <- F
   del.i.file <- F
   
@@ -272,7 +272,8 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
                                                      sep="",collapse="")
                                                ,"/+")[[1]],1),"/",sep="")
 ##1
-    if(is.missing(N))
+    message("Creating temporary input folder for list")
+    if(missing(N))
       rhwrite(ll,f=tempi.file)#
     else
       rhwrite(ll,f=tempi.file,N=N)#
