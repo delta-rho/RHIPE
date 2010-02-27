@@ -65,10 +65,10 @@ The number (3) must be greater than 1.
  
  library(Rhipe)
  ## Runs on the cluster
- z <- rhlapply(10,runif,mapred=list(LD_LIBRARY_PATH='/usr/local/lib'))
+ z <- rhlapply(10,runif)
  rhex(z)
 
-The `LD_LIBRARY_PATH` is essential, you need to use it *all* the time on EC2 ( without it Rhipe cannot find the location of the protobuffer library )
+
 
 6. Consider the more involved problem of bootstrapping. See this question posed on the 
 R-HPC mailing list (http://permalink.gmane.org/gmane.comp.lang.r.hpc/221).
@@ -94,7 +94,7 @@ Using Rhipe( chunksize (see the posting) is 1000 per task which results in 100 t
 
  z <- rhlapply(100000L,f,shared="/tmp/tmp.Rdata",setup=setup,
               mapred=list(mapred.map.tasks=100000L/1000
-                ,mapred.reduce.tasks=5,LD_LIBRARY_PATH='/usr/local/lib'))
+                ,mapred.reduce.tasks=5))
 
  g <- rhex(z)
  g1 <- do.call("rbind",lapply(g,function(r) r[[2]]))

@@ -143,11 +143,10 @@ rhex<span class="o">(</span>z,changes<span class="o">=</span>list<span class="o"
 </div>
 <div class="highlight-sh"><div class="highlight"><pre>library<span class="o">(</span>Rhipe<span class="o">)</span>
 <span class="c">## Runs on the cluster</span>
-z &lt;- rhlapply<span class="o">(</span>10,runif,mapred<span class="o">=</span>list<span class="o">(</span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="s1">&#39;/usr/local/lib&#39;</span><span class="o">))</span>
+z &lt;- rhlapply<span class="o">(</span>10,runif<span class="o">)</span>
 rhex<span class="o">(</span>z<span class="o">)</span>
 </pre></div>
 </div>
-<p>The <cite>LD_LIBRARY_PATH</cite> is essential, you need to use it <em>all</em> the time on EC2 ( without it Rhipe cannot find the location of the protobuffer library )</p>
 <p>6. Consider the more involved problem of bootstrapping. See this question posed on the
 R-HPC mailing list (<a class="reference external" href="http://permalink.gmane.org/gmane.comp.lang.r.hpc/221">http://permalink.gmane.org/gmane.comp.lang.r.hpc/221</a>).
 Using Rhipe( chunksize (see the posting) is 1000 per task which results in 100 tasks)</p>
@@ -191,7 +190,7 @@ f&lt;- <span class="k">function</span><span class="o">(</span>i<span class="o">)
 
 z &lt;- rhlapply<span class="o">(</span>100000L,f,shared<span class="o">=</span><span class="s2">&quot;/tmp/tmp.Rdata&quot;</span>,setup<span class="o">=</span>setup,
              <span class="nv">mapred</span><span class="o">=</span>list<span class="o">(</span>mapred.map.tasks<span class="o">=</span>100000L/1000
-               ,mapred.reduce.tasks<span class="o">=</span>5,LD_LIBRARY_PATH<span class="o">=</span><span class="s1">&#39;/usr/local/lib&#39;</span><span class="o">))</span>
+               ,mapred.reduce.tasks<span class="o">=</span>5<span class="o">))</span>
 
 g &lt;- rhex<span class="o">(</span>z<span class="o">)</span>
 g1 &lt;- <span class="k">do</span>.call<span class="o">(</span><span class="s2">&quot;rbind&quot;</span>,lapply<span class="o">(</span>g,function<span class="o">(</span>r<span class="o">)</span> r<span class="o">[[</span>2<span class="o">]]))</span>
