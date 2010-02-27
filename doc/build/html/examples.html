@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Examples &mdash; rhipe v0.55 documentation</title>
+    <title>Examples &mdash; rhipe v0.56 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.55',
+        VERSION:     '0.56',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,7 +19,7 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="rhipe v0.55 documentation" href="index.html" />
+    <link rel="top" title="rhipe v0.56 documentation" href="index.html" />
     <link rel="next" title="FAQ" href="FAQ.html" />
     <link rel="prev" title="Using RHIPE on EC2" href="ec2.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="ec2.html" title="Using RHIPE on EC2"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">rhipe v0.55 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.56 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -97,13 +97,13 @@
 <div class="section" id="simple-example">
 <h3>Simple Example<a class="headerlink" href="#simple-example" title="Permalink to this headline">¶</a></h3>
 <p>Take a sample of 100 iid observations Xi from N(0,1). Compute the mean of the eight closest neighbours to X1. This is repeated 1,000,000 times.</p>
-<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre>1
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
 4
 5
 6
-7</pre></td><td class="code"><div class="highlight"><pre>nbrmean <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>r<span class="p">){</span>
+7</pre></div></td><td class="code"><div class="highlight"><pre>nbrmean <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>r<span class="p">){</span>
   d <span class="o">&lt;-</span> matrix<span class="p">(</span>rnorm<span class="p">(</span><span class="m">200</span><span class="p">),</span>ncol<span class="o">=</span><span class="m">2</span><span class="p">)</span>
   orig <span class="o">&lt;-</span> d<span class="p">[</span><span class="m">1</span><span class="p">,]</span>
   ds <span class="o">&lt;-</span> sort<span class="p">(</span>apply<span class="p">(</span>d<span class="p">,</span><span class="m">1</span><span class="p">,</span><span class="kr">function</span><span class="p">(</span>r<span class="p">)</span> sqrt<span class="p">(</span>sum<span class="p">((</span>r<span class="o">-</span>orig<span class="p">)</span><span class="o">^</span><span class="m">2</span><span class="p">)))[</span><span class="m">-1</span><span class="p">])[</span><span class="m">1</span>:<span class="m">8</span><span class="p">]</span>
@@ -129,7 +129,7 @@ rhex<span class="p">(</span>r<span class="p">)</span>
 </div>
 <div class="section" id="using-shared-files-and-side-effects">
 <h3>Using Shared Files and Side Effects<a class="headerlink" href="#using-shared-files-and-side-effects" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre> 1
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
  4
@@ -139,7 +139,7 @@ rhex<span class="p">(</span>r<span class="p">)</span>
  8
  9
 10
-11</pre></td><td class="code"><div class="highlight"><pre>h<span class="o">=</span>rhlapply<span class="p">(</span>length<span class="p">(</span>simlist<span class="p">)</span>
+11</pre></div></td><td class="code"><div class="highlight"><pre>h<span class="o">=</span>rhlapply<span class="p">(</span>length<span class="p">(</span>simlist<span class="p">)</span>
   <span class="p">,</span>func<span class="o">=</span><span class="kr">function</span><span class="p">(</span>r<span class="p">){</span>
     <span class="c1">## do something from data loaded from session.Rdata</span>
     pdf<span class="p">(</span><span class="s">&quot;tmp/a.pdf&quot;</span><span class="p">)</span>
@@ -154,11 +154,11 @@ rhex<span class="p">(</span>r<span class="p">)</span>
 </td></tr></table></div>
 <p>Here <tt class="docutils literal"><span class="pre">session.Rdata</span></tt> is copied from HDFS to local temporary directories (making for faster reads). This
 is a useful idiom for loading code that the <tt class="docutils literal"><span class="pre">rhlapply</span></tt> function might depend on. For example, assuming the image is not <em>huge</em></p>
-<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre>1
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
 4
-5</pre></td><td class="code"><div class="highlight"><pre>rhsave.image<span class="p">(</span><span class="s">&quot;/tmp/myimage.Rdata&quot;</span><span class="p">)</span>
+5</pre></div></td><td class="code"><div class="highlight"><pre>rhsave.image<span class="p">(</span><span class="s">&quot;/tmp/myimage.Rdata&quot;</span><span class="p">)</span>
 rhlapply<span class="p">(</span>N<span class="p">,</span><span class="kr">function</span><span class="p">(</span>r<span class="p">)</span> <span class="p">{</span>
   object <span class="o">&lt;-</span> dataset<span class="p">[[</span>r<span class="p">]]</span>
   G<span class="p">(</span>object<span class="p">)</span>
@@ -173,13 +173,13 @@ rhlapply<span class="p">(</span>N<span class="p">,</span><span class="kr">functi
 <div class="section" id="word-count">
 <h3>Word Count<a class="headerlink" href="#word-count" title="Permalink to this headline">¶</a></h3>
 <p>Generate the words, 1 word every line</p>
-<div class="highlight-r"><div class="highlight"><pre>rhlapply<span class="p">(</span><span class="m">10000</span><span class="p">,</span><span class="kr">function</span><span class="p">(</span>r<span class="p">)</span> paste<span class="p">(</span>sample<span class="p">(</span>letters<span class="p">[</span><span class="m">1</span>:<span class="m">10</span><span class="p">],</span><span class="m">5</span><span class="p">),</span>collapse<span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">),</span>output.folder<span class="o">=</span>&#39;<span class="o">/</span>tmp<span class="o">/</span>words&#39;<span class="p">)</span>
+<div class="highlight-r"><div class="highlight"><pre>rhlapply<span class="p">(</span><span class="m">10000</span><span class="p">,</span><span class="kr">function</span><span class="p">(</span>r<span class="p">)</span> paste<span class="p">(</span>sample<span class="p">(</span>letters<span class="p">[</span><span class="m">1</span>:<span class="m">10</span><span class="p">],</span><span class="m">5</span><span class="p">),</span>collapse<span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">),</span>output.folder<span class="o">=</span><span class="s">&#39;/tmp/words&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Word count using the sequence file</p>
 <p>Run it</p>
 <div class="highlight-r"><div class="highlight"><pre>z <span class="o">&lt;-</span> rhmr<span class="p">(</span>map<span class="o">=</span>m<span class="p">,</span>reduce<span class="o">=</span>r<span class="p">,</span>inout<span class="o">=</span>c<span class="p">(</span><span class="s">&quot;sequence&quot;</span><span class="p">,</span><span class="s">&quot;sequence&quot;</span><span class="p">),</span>
-       ifolder<span class="o">=</span><span class="s">&quot;/tmp/words&quot;</span><span class="p">,</span>ofolder<span class="o">=</span>&#39;<span class="o">/</span>tmp<span class="o">/</span>wordcount&#39;<span class="p">)</span>
+       ifolder<span class="o">=</span><span class="s">&quot;/tmp/words&quot;</span><span class="p">,</span>ofolder<span class="o">=</span><span class="s">&#39;/tmp/wordcount&#39;</span><span class="p">)</span>
  rhex<span class="p">(</span>z<span class="p">)</span>
 </pre></div>
 </div>
@@ -187,20 +187,20 @@ rhlapply<span class="p">(</span>N<span class="p">,</span><span class="kr">functi
 <div class="section" id="subset-a-file">
 <h3>Subset a file<a class="headerlink" href="#subset-a-file" title="Permalink to this headline">¶</a></h3>
 <p>We can use this RHIPE to subset files. Setting <tt class="docutils literal"><span class="pre">mapred.reduce.tasks</span></tt> to 5 writes the subsetted data across 5 files (even though we haven&#8217;t provided a reduce task)</p>
-<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><pre>1
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
 4
 5
 6
 7
-8</pre></td><td class="code"><div class="highlight"><pre>m <span class="o">&lt;-</span> expression<span class="p">({</span>
+8</pre></div></td><td class="code"><div class="highlight"><pre>m <span class="o">&lt;-</span> expression<span class="p">({</span>
   <span class="kr">for</span><span class="p">(</span>x in map.values<span class="p">){</span>
     y <span class="o">&lt;-</span> strsplit<span class="p">(</span>x<span class="p">,</span><span class="s">&quot; +&quot;</span><span class="p">)[[</span><span class="m">1</span><span class="p">]]</span>
-    <span class="kr">for</span><span class="p">(</span>w in y<span class="p">)</span> rhcollect<span class="p">(</span>w<span class="p">,</span>T<span class="p">)</span>
+    <span class="kr">for</span><span class="p">(</span>w in y<span class="p">)</span> rhcollect<span class="p">(</span>w<span class="p">,</span><span class="k-Variable">T</span><span class="p">)</span>
   <span class="p">}})</span>
 z <span class="o">&lt;-</span> rhmr<span class="p">(</span>map<span class="o">=</span>m<span class="p">,</span>inout<span class="o">=</span>c<span class="p">(</span><span class="s">&quot;text&quot;</span><span class="p">,</span><span class="s">&quot;binary&quot;</span><span class="p">),</span>
-    ifolder<span class="o">=</span><span class="s">&quot;X&quot;</span><span class="p">,</span>ofolder<span class="o">=</span>&#39;Y&#39;<span class="p">,</span>mapred<span class="o">=</span>list<span class="p">(</span>mapred.reduce.tasks<span class="o">=</span><span class="m">5</span><span class="p">))</span>
+    ifolder<span class="o">=</span><span class="s">&quot;X&quot;</span><span class="p">,</span>ofolder<span class="o">=</span><span class="s">&#39;Y&#39;</span><span class="p">,</span>mapred<span class="o">=</span>list<span class="p">(</span>mapred.reduce.tasks<span class="o">=</span><span class="m">5</span><span class="p">))</span>
 rhex<span class="p">(</span>z<span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
@@ -226,7 +226,7 @@ rhex<span class="p">(</span>z<span class="p">)</span>
         <li class="right" >
           <a href="ec2.html" title="Using RHIPE on EC2"
              >previous</a> |</li>
-        <li><a href="index.html">rhipe v0.55 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.56 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

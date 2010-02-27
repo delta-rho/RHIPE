@@ -272,7 +272,11 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
                                                      sep="",collapse="")
                                                ,"/+")[[1]],1),"/",sep="")
 ##1
-    rhwrite(ll,f=tempi.file)#
+    if(is.missing(N))
+      rhwrite(ll,f=tempi.file)#
+    else
+      rhwrite(ll,f=tempi.file,N=N)#
+
     ifolder=tempi.file
     del.i.file <- T
   }

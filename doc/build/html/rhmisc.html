@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Miscellaneous Commands &mdash; rhipe v0.55 documentation</title>
+    <title>Miscellaneous Commands &mdash; rhipe v0.56 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.55',
+        VERSION:     '0.56',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,7 +19,7 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="rhipe v0.55 documentation" href="index.html" />
+    <link rel="top" title="rhipe v0.56 documentation" href="index.html" />
     <link rel="next" title="Using RHIPE on EC2" href="ec2.html" />
     <link rel="prev" title="The rhmr Command" href="rhmr.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="rhmr.html" title="The rhmr Command"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">rhipe v0.55 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.56 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -139,14 +139,14 @@ and unserialized sucessfully.</p>
 <h2>HDFS Related<a class="headerlink" href="#hdfs-related" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="rhload">
 <h3>rhload<a class="headerlink" href="#rhload" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><div class="highlight"><pre>rhload <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>file<span class="p">,</span>...<span class="p">)</span>
+<div class="highlight-r"><div class="highlight"><pre>rhload <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>file<span class="p">,</span><span class="m">...</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Loads an R data set stored on the DFS.</p>
 </div>
 <div class="section" id="rhsave">
 <h3>rhsave<a class="headerlink" href="#rhsave" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><div class="highlight"><pre>rhsave <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>...<span class="p">,</span> file<span class="p">)</span>
+<div class="highlight-r"><div class="highlight"><pre>rhsave <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span><span class="m">...</span><span class="p">,</span> file<span class="p">)</span>
 </pre></div>
 </div>
 <p>Saves the objects in <tt class="docutils literal"><span class="pre">...</span></tt> to <tt class="docutils literal"><span class="pre">file</span></tt> on the HDFS. All other options are
@@ -154,7 +154,7 @@ passed onto the R function <tt class="docutils literal"><span class="pre">save</
 </div>
 <div class="section" id="rhsave-image">
 <h3>rhsave.image<a class="headerlink" href="#rhsave-image" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><div class="highlight"><pre>rhsave.image <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>...<span class="p">,</span> file<span class="p">)</span>
+<div class="highlight-r"><div class="highlight"><pre>rhsave.image <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span><span class="m">...</span><span class="p">,</span> file<span class="p">)</span>
 </pre></div>
 </div>
 <p>Same as R&#8217;s <tt class="docutils literal"><span class="pre">save.image</span></tt>, except that the file goes to the HDFS.</p>
@@ -196,7 +196,7 @@ inside <tt class="docutils literal"><span class="pre">dest</span></tt> . If <tt 
 </div>
 <div class="section" id="rhwrite">
 <h3>rhwrite<a class="headerlink" href="#rhwrite" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><div class="highlight"><pre>rhwrite <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>lo<span class="p">,</span>f<span class="p">,</span>n<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>...<span class="p">)</span>
+<div class="highlight-r"><div class="highlight"><pre>rhwrite <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>lo<span class="p">,</span>f<span class="p">,</span>n<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="m">...</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Writes the list <tt class="docutils literal"><span class="pre">lo</span></tt>  to the file <tt class="docutils literal"><span class="pre">f</span></tt>. <tt class="docutils literal"><span class="pre">n</span></tt> is the number of sequence files
@@ -205,7 +205,7 @@ to split the list into.  The default value of <tt class="docutils literal"><span
 </div>
 <div class="section" id="rhread">
 <h3>rhread<a class="headerlink" href="#rhread" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><div class="highlight"><pre>rhread <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>files<span class="p">,</span>verbose<span class="o">=</span>T<span class="p">,</span>doLocal<span class="o">=</span>T<span class="p">)</span>
+<div class="highlight-r"><div class="highlight"><pre>rhread <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>files<span class="p">,</span>verbose<span class="o">=</span><span class="k-Variable">T</span><span class="p">,</span>doLocal<span class="o">=</span><span class="k-Variable">T</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Reads files(s) from <tt class="docutils literal"><span class="pre">files</span></tt> (which could be a directory). Wildcards allowed.</p>
@@ -237,7 +237,7 @@ is all. <tt class="docutils literal"><span class="pre">bf</span></tt> is the rea
 <h2>Map Files<a class="headerlink" href="#map-files" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="rhs2m">
 <h3>rhS2M<a class="headerlink" href="#rhs2m" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><div class="highlight"><pre>rhS2M <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>files<span class="p">,</span> ofile<span class="p">,</span> dolocal <span class="o">=</span> T<span class="p">,</span> ignore.stderr <span class="o">=</span> F<span class="p">,</span> verbose <span class="o">=</span> F<span class="p">)</span>
+<div class="highlight-r"><div class="highlight"><pre>rhS2M <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>files<span class="p">,</span> ofile<span class="p">,</span> dolocal <span class="o">=</span> <span class="k-Variable">T</span><span class="p">,</span> ignore.stderr <span class="o">=</span> <span class="k-Variable">F</span><span class="p">,</span> verbose <span class="o">=</span> <span class="k-Variable">F</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Converts the sequence files specified by <tt class="docutils literal"><span class="pre">files</span></tt> and places them in
@@ -245,13 +245,13 @@ destination <tt class="docutils literal"><span class="pre">ofile</span></tt>. If
 local machine, otherwise over the cluster (which is much faster for anything
 greater than hundreds of megabytes). If <tt class="docutils literal"><span class="pre">ignore.stderr</span></tt> is True, the mapreduce
 output is displayed on the R console. e.g</p>
-<div class="highlight-r"><div class="highlight"><pre>rhS2m<span class="p">(</span><span class="s">&quot;/tmp/so/p*&quot;</span><span class="p">,</span><span class="s">&quot;/tmp/so.map&quot;</span><span class="p">,</span>dolocal<span class="o">=</span>F<span class="p">)</span>
+<div class="highlight-r"><div class="highlight"><pre>rhS2m<span class="p">(</span><span class="s">&quot;/tmp/so/p*&quot;</span><span class="p">,</span><span class="s">&quot;/tmp/so.map&quot;</span><span class="p">,</span>dolocal<span class="o">=</span><span class="k-Variable">F</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="rhm2m">
 <h3>rhM2M<a class="headerlink" href="#rhm2m" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><div class="highlight"><pre>rhM2M <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>files<span class="p">,</span> ofile<span class="p">,</span> dolocal <span class="o">=</span> T<span class="p">,</span> ignore.stderr <span class="o">=</span> F<span class="p">,</span> verbose <span class="o">=</span> F<span class="p">)</span>
+<div class="highlight-r"><div class="highlight"><pre>rhM2M <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>files<span class="p">,</span> ofile<span class="p">,</span> dolocal <span class="o">=</span> <span class="k-Variable">T</span><span class="p">,</span> ignore.stderr <span class="o">=</span> <span class="k-Variable">F</span><span class="p">,</span> verbose <span class="o">=</span> <span class="k-Variable">F</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Same as S2M, except it converts a group of Map files to Map files.Why?
@@ -285,7 +285,7 @@ mapreduce job with inputformat sequence e.g.</p>
 </div>
 <div class="section" id="rhgetkey">
 <h3>rhgetkey<a class="headerlink" href="#rhgetkey" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><div class="highlight"><pre>rhgetkey <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>keys<span class="p">,</span> paths<span class="p">,</span> sequence<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>ignore.stderr <span class="o">=</span> T<span class="p">,</span> verbose <span class="o">=</span> F<span class="p">)</span>
+<div class="highlight-r"><div class="highlight"><pre>rhgetkey <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>keys<span class="p">,</span> paths<span class="p">,</span> sequence<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>ignore.stderr <span class="o">=</span> <span class="k-Variable">T</span><span class="p">,</span> verbose <span class="o">=</span> <span class="k-Variable">F</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Given a list of keys and vector of  map directories (e.g /tmp/ou/mapoutput/p*&#8221;),
@@ -312,7 +312,7 @@ returns a list of key,values. If sequence is a string, the output key,values wil
         <li class="right" >
           <a href="rhmr.html" title="The rhmr Command"
              >previous</a> |</li>
-        <li><a href="index.html">rhipe v0.55 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.56 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
