@@ -22,6 +22,7 @@ rhmr <- function(map,reduce=NULL,
                  shared=c(),
                  jarfiles=c(),
                  copyFiles=F,
+                 N=NA,
                  opts=rhoptions(),
                  jobname=""){
   lines <- list();
@@ -146,6 +147,7 @@ rhmr <- function(map,reduce=NULL,
              'org.godhuli.rhipe.LApplyInputFormat'
            lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHNumeric'
            lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHNumeric'
+           lines$rhipe_lapply_lengthofinput <- as.integer(N)
          },
          'binary'={
            stop("'binary' cannot be used as input format")
@@ -219,7 +221,7 @@ rhmr <- function(map,reduce=NULL,
 
 rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
                     inout=c("lapply","sequence"),readIn=T,mapred=list(),jobname="rhlapply",
-                     doLocal=F,N,...){
+                     doLocal=F,N,aggr=NULL,...){
   del.o.file <- F
   del.i.file <- F
   
@@ -244,14 +246,29 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
   ## usercode <- rawToChar(serialize(fun,NULL,ascii=TRUE))
   usecodeText <-
     parse(text=paste("userFUN...=",paste(deparse(fun),collapse="\n")))
+  aggrText <-
+    parse(text=paste("aggr...=",paste(deparse(aggr),collapse="\n")))
+
   userFUN... <- fun
   if(!is.null(setup))
     setup <- append(usecodeText,setup)
   else
     setup <- usecodeText
 
+  setup <- append(aggrText,setup)
 
-  map.exp <- expression({ for(.id. in 1:length(map.values)) { ..r..<-userFUN...(map.values[[.id.]]); rhcollect(map.keys[[.id.]],..r..) }})
+  map.exp <- expression({
+    w <- lapply(seq_along(map.values),function(.id.){
+      r <- userFUN...(map.values[[.id.]])
+      if(is.null(aggr...))
+        rhcollect(map.keys[[.id.]],r)
+      else
+        r
+    })
+    if(!is.null(aggr...)){
+      rhcollect(1,aggr...(w))
+    }
+  })
 
   if(ofolder==""){
     ##One hopes this is unique
@@ -311,6 +328,7 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
         message("---------------")
         #3
         retdata <- rhread(paste(tempo.file,"/p*",sep=""),doLocal)
+        if(!is.null(aggr)) retdata <- aggr(lapply(retdata,"[[",2))
       }
     })
   class(h)="rhlapply"

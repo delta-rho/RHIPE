@@ -146,11 +146,25 @@ default options to <tt class="docutils literal"><span class="pre">rhread</span><
 <dd>If given the results are written to this folder and not deleted. If not,
 they are written to temporary folder, read back in (assuming <tt class="docutils literal"><span class="pre">readIn</span></tt>
 is TRUE) and deleted.</dd>
+<dt><tt class="docutils literal"><span class="pre">N</span></tt></dt>
+<dd>The number of task to create, i.e the mapred.map.tasks and is passes onto the <tt class="docutils literal"><span class="pre">rhwrite</span></tt> function</dd>
 <dt><tt class="docutils literal"><span class="pre">mapred</span></tt></dt>
 <dd>Options passed onto <tt class="docutils literal"><span class="pre">rhmr</span></tt></dd>
 <dt><tt class="docutils literal"><span class="pre">setup</span></tt></dt>
 <dd>And expression that is called before running <tt class="docutils literal"><span class="pre">func</span></tt>. Called once per
 JVM.</dd>
+<dt><tt class="docutils literal"><span class="pre">aggr</span></tt></dt>
+<dd>A function (default is NULL) to aggregate results. If NULL (default), every list element is written to disk.
+This can be difficult to read back into R (especially when one has nearly 1MN trials, R has to combine a list
+of 1MN elements!). <tt class="docutils literal"><span class="pre">aggr</span></tt> is a function that takes one argument a list of values, each value being the result
+apply the user function to an element of the input list. E.g. if <tt class="docutils literal"><span class="pre">fun</span></tt> returns a data frame, one could write</dd>
+</dl>
+<div class="highlight-r"><div class="highlight"><pre>aggr<span class="o">=</span><span class="kr">function</span><span class="p">(</span>x<span class="p">)</span> do.call<span class="p">(</span><span class="s">&quot;rbind&quot;</span><span class="p">,</span>x<span class="p">)</span>
+
+and the result of rhlapply will be one big data frame.
+</pre></div>
+</div>
+<dl class="docutils">
 <dt><tt class="docutils literal"><span class="pre">doLocal</span></tt></dt>
 <dd>Default is <tt class="docutils literal"><span class="pre">F</span></tt>. Sent to <tt class="docutils literal"><span class="pre">rhread</span></tt></dd>
 <dt><tt class="docutils literal"><span class="pre">...</span></tt></dt>

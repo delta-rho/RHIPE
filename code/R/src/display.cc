@@ -2,6 +2,8 @@
 #include <time.h>
 #include <locale.h>
 #include <langinfo.h>
+#include <google/protobuf/io/coded_stream.h>
+using namespace google::protobuf::io;
 
 #include <iostream>
 #define PSIZE 4096
@@ -206,7 +208,10 @@ SEXP readFromHadoop(const uint32_t nbytes,int *err){
     *err=1;
     return(R_NilValue);
   }
-  if (oiinfo->rxp->ParseFromArray(oiinfo->inputbuffer,nbytes)){
+  CodedInputStream cds((uint8_t*)(oiinfo->inputbuffer),nbytes);
+  cds.SetTotalBytesLimit(256*1024*1024,256*1024*1024);
+  if (oiinfo->rxp->ParseFromCodedStream(&cds)){
+  // if (oiinfo->rxp->ParseFromArray(oiinfo->inputbuffer,nbytes)){
     PROTECT(r = message2rexp(*(oiinfo->rxp)));
     UNPROTECT(1);
   }
@@ -246,7 +251,10 @@ int32_t readJavaInt(FILE* fp){
   {
     SEXP ans  = R_NilValue;
     REXP *rexp_container = new REXP();
-    if(rexp_container->ParseFromArray(RAW(robj),LENGTH(robj))){
+    CodedInputStream cds(RAW(robj),LENGTH(robj));
+    cds.SetTotalBytesLimit(256*1024*1024,256*1024*1024);
+    if(rexp_container->ParseFromCodedStream(&cds)){
+      // if(rexp_container->ParseFromArray(RAW(robj),LENGTH(robj))){
       PROTECT(ans = message2rexp(*rexp_container));
       UNPROTECT(1);
     }

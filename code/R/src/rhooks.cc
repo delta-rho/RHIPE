@@ -1,8 +1,11 @@
 #include "ream.h"
 #include <vector>
 #include <iostream>
+#include <google/protobuf/io/coded_stream.h>
+
 using namespace std;
 using namespace google::protobuf;
+using namespace google::protobuf::io;
 
 // static REXP *rexp_container = new REXP();
 extern uintptr_t R_CStackLimit; 
@@ -50,7 +53,10 @@ extern "C" {
     // REXP *rexp = new REXP();
     REXP *rexp_container = new REXP();
 //     rexp_container->Clear();
-    rexp_container->ParseFromArray(RAW(robj),LENGTH(robj));
+    CodedInputStream cds(RAW(robj),LENGTH(robj));
+    // rexp_container->ParseFromArray(RAW(robj),LENGTH(robj));
+    cds.SetTotalBytesLimit(256*1024*1024,256*1024*1024);
+    rexp_container->ParseFromCodedStream(&cds);
     PROTECT(ans = message2rexp(*rexp_container));
     UNPROTECT(1);
     delete(rexp_container);

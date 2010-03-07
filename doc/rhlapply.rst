@@ -65,12 +65,27 @@ Description follows
 	they are written to temporary folder, read back in (assuming ``readIn``
 	is TRUE) and deleted.
 
+``N``
+	The number of task to create, i.e the mapred.map.tasks and is passes onto the ``rhwrite`` function
+
 ``mapred``
 	Options passed onto ``rhmr``
 
 ``setup``
 	And expression that is called before running ``func``. Called once per
 	JVM.
+
+``aggr``
+	A function (default is NULL) to aggregate results. If NULL (default), every list element is written to disk.
+	This can be difficult to read back into R (especially when one has nearly 1MN trials, R has to combine a list
+	of 1MN elements!). ``aggr`` is a function that takes one argument a list of values, each value being the result
+	apply the user function to an element of the input list. E.g. if ``fun`` returns a data frame, one could write
+
+::
+
+	aggr=function(x) do.call("rbind",x)
+
+	and the result of rhlapply will be one big data frame.
 
 ``doLocal``
 	Default is ``F``. Sent to ``rhread``
