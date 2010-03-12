@@ -87,9 +87,11 @@ const int reducer_run(void){
 	  SEXP t1;
 	  PROTECT(t1 = Rf_allocVector(VECSXP,redbuf_cnt));	  
 	  for(int i=0;i<redbuf_cnt;i++){
-	    SET_VECTOR_ELT(t1,i, Rf_duplicate(VECTOR_ELT(vvector,i))); //added a duplicate
+	    // SET_VECTOR_ELT(t1,i, Rf_duplicate(VECTOR_ELT(vvector,i))); //added a duplicate
+	    SET_VECTOR_ELT(t1,i, (VECTOR_ELT(vvector,i))); //added a duplicate
 	  }
 	  Rf_setVar(Rf_install("reduce.values"),t1,R_GlobalEnv);
+
 	  R_tryEval(reduce,NULL, &Rerr);
 	  UNPROTECT(1);
 	}else{

@@ -90,9 +90,12 @@ const int mapper_run2(void){
 	    PROTECT(t2 = Rf_allocVector(VECSXP,mapbuf_cnt));
 	    
 	    for(int i=0;i<mapbuf_cnt;i++){
-	      SET_VECTOR_ELT(t2,i, Rf_duplicate(VECTOR_ELT(vvector,i)));
-	      SET_VECTOR_ELT(t1,i, Rf_duplicate(VECTOR_ELT(kvector,i)));
+	      // SET_VECTOR_ELT(t2,i, Rf_duplicate(VECTOR_ELT(vvector,i)));
+	      // SET_VECTOR_ELT(t1,i, Rf_duplicate(VECTOR_ELT(kvector,i)));
+	      SET_VECTOR_ELT(t2,i, VECTOR_ELT(vvector,i));
+	      SET_VECTOR_ELT(t1,i, VECTOR_ELT(kvector,i));
 	    }
+
 	    Rf_setVar(Rf_install("map.keys"),t1,R_GlobalEnv);
 	    Rf_setVar(Rf_install("map.values"),t2,R_GlobalEnv);
 	    do_unser();
@@ -140,36 +143,47 @@ const int mapper_run2(void){
 	    mapbuf_cnt=0;
 	}
 	SEXP k=R_NilValue,v=R_NilValue;
-	int fre=0;
-	PROTECT(k=Rf_allocVector(RAWSXP,type));
-	fre=fread(RAW(k),type,1,
-#ifdef FILEREADER
-		  FILEIN
-#else 
-		  CMMNC->BSTDIN
-#endif		  
-		  );
-	if(fre <= 0){
-	  UNPROTECT(5);
-	  return(5);
-	}
+	// int fre=0;
+//	PROTECT(k=Rf_allocVector(RAWSXP,type));
+// 	fre=fread(RAW(k),type,1,
+// #ifdef FILEREADER
+// 		  FILEIN
+// #else 
+// 		  CMMNC->BSTDIN
+// #endif		  
+// 		  );
+// 	if(fre <= 0){
+// 	  UNPROTECT(5);
+// 	  return(5);
+// 	}
+// #ifdef FILEREADER
+// 	type = readJavaInt(FILEIN);
+// #else
+// 	type = readVInt64FromFileDescriptor(CMMNC->BSTDIN);
+// #endif
+// 	PROTECT(v=Rf_allocVector(RAWSXP,type));
+// 	fre=fread(RAW(v),type,1,
+// #ifdef FILEREADER
+// 		  FILEIN
+// #else 
+// 		  CMMNC->BSTDIN
+// #endif		  
+// 		  );
+// 	if(fre<=0){
+// 	  UNPROTECT(6);
+// 	  return(6);
+// 	}
+	int err;
+	PROTECT(k = readFromHadoop(type,&err));
+	if(err){UNPROTECT(5); return(5);}
 #ifdef FILEREADER
 	type = readJavaInt(FILEIN);
 #else
 	type = readVInt64FromFileDescriptor(CMMNC->BSTDIN);
 #endif
-	PROTECT(v=Rf_allocVector(RAWSXP,type));
-	fre=fread(RAW(v),type,1,
-#ifdef FILEREADER
-		  FILEIN
-#else 
-		  CMMNC->BSTDIN
-#endif		  
-		  );
-	if(fre<=0){
-	  UNPROTECT(6);
-	  return(6);
-	}
+
+	PROTECT(v = readFromHadoop(type,&err));
+	if(err){UNPROTECT(6); return(6);}
 	SET_VECTOR_ELT(vvector, mapbuf_cnt, v);
 	SET_VECTOR_ELT(kvector, mapbuf_cnt, k);
 	UNPROTECT(2);
@@ -188,8 +202,8 @@ const int mapper_run2(void){
 
 void do_unser(void){
   // LOGG(12,"Wrote something home\n");
-  rexpress("map.keys   <- lapply(map.keys,function(r)   .Call('rh_uz',r)) ");
-  rexpress("map.values <- lapply(map.values,function(r) .Call('rh_uz',r))");
+  // rexpress("map.keys   <- lapply(map.keys,function(r)   .Call('rh_uz',r)) ");
+  // rexpress("map.values <- lapply(map.values,function(r) .Call('rh_uz',r))");
 }
 
 
