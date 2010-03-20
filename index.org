@@ -95,7 +95,8 @@ The documentation can be found [[file:./doc/html/index.html][here]]. PDF version
 - Fixed combiner, still alpha, but it halves the wordcount speed. The combiner
   logic is run in the R interpreter C code. However it is still alpha, so if you
   get erroneous results kindly report them back.
-
+- Also fixed a buffer overflow in =main.c=. Thanks to Will Nolan.
+- Values and Keys can be now be upto 256MB.
 ** Fri Feb 19 20:43:25 EST 2010
 - EC2 now works!
 ** Thu Jan 14 20:19:24 EST 2010

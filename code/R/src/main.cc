@@ -174,7 +174,10 @@ int main(int argc,char **argv){
       */
       if((int)strtol(getenv("rhipe_combiner"),NULL,10)==1){
 	combiner_inplace = true;
-	spill_size = (int)((strtod(getenv("io.sort.mb"),NULL)*1024*1024));
+	spill_size = (uint32_t)((strtod(getenv("io.sort.mb"),NULL)*1024*1024));
+	// mcount("combiner","spill_size",spill_size);
+	// mcount("combiner","ncall",1);
+
 	// mmessage("\n\nSPILL_SIZE==%d bytes\n\n",spill_size);
 	// map_output_buffer = map<string, vector<string> >();
 	rexpress("Sys.setenv(rhipe_iscombining=1);rhcollect<-function(key,value) .Call('rh_collect_buffer',key,value)");
@@ -213,6 +216,7 @@ int main(int argc,char **argv){
       if(combiner_inplace){
 	rexpress("rhcollect<-function(key,value) .Call('rh_collect',key,value)");
 	if(!map_output_buffer.empty() || total_count>0) { //mmessage("\n\n SPILLING LEFTOVER\n\n ");
+	  mcount("combiner","bytesent",total_count);
 	  spill_to_reducer(); //do i need total_count >0 ?
 	  fflush(NULL);
 	}

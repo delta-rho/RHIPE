@@ -7,8 +7,9 @@
 
 
 rhreadBin <- function(file,maxnum=-1, readbuf=0){
+  sz=file.info(file[1])['size']
   x= .Call("readBinaryFile",file[1],as.integer(maxnum),as.integer(readbuf))
-  cat("Read binary data, deserializing\n")
+  cat(sprintf("Read binary data(%s MB), deserializing\n",round(sz/1024^2),4))
   lapply(x,function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
 }
 

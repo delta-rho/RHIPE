@@ -155,6 +155,7 @@ SEXP readFromMem(void * ,uint32_t );
 SEXP persUnser(SEXP);
 SEXP dbgstr(SEXP);
 void spill_to_reducer(void);
+void mcount(char *,char*, uint32_t);
 
 extern  R_CallMethodDef callMethods[];
 

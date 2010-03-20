@@ -79,6 +79,29 @@ void logg(int level,const char *fmt, ...)
 	}
 }
 
+void mcount(char *g1, char* g2, uint32_t n){
+  SEXP g,s1,s2,s3;
+  PROTECT(g = Rf_allocVector(VECSXP,3));
+
+  PROTECT(s1 = Rf_allocVector(STRSXP,1));
+  PROTECT(s2 = Rf_allocVector(STRSXP,1));
+  PROTECT(s3 = Rf_allocVector(REALSXP,1));
+
+  SET_STRING_ELT(s1,0,Rf_mkChar(g1));
+  SET_VECTOR_ELT(g,0,s1);
+
+  SET_STRING_ELT(s2,0,Rf_mkChar(g2));
+  SET_VECTOR_ELT(g,1,s2);
+
+  REAL(s3)[0] = (double)n;
+  SET_VECTOR_ELT(g,2,s3);
+  
+  UNPROTECT(3);
+
+  counter(g);
+  UNPROTECT(1);
+
+}
 void merror(const char *fmt, ...)
 {
 	va_list args;
@@ -141,14 +164,17 @@ SEXP collect(SEXP k,SEXP v){
 	return(R_NilValue);
 }
 
-static inline void tobytes(SEXP x,std::string* result,uint32_t& size){
+static inline uint32_t tobytes(SEXP x,std::string* result){
 	REXP r = REXP();
 	rexp2message(&r,x);
-	size = r.ByteSize();
+	uint32_t size = r.ByteSize();
 	r.SerializeToString(result);
+	return(size);
 }
 
 void spill_to_reducer(void){
+  // rexpress("rhcounter('combiner','spill_to_reducer',1)");
+  uint32_t bytes_received = 0;  
 	SEXP comb_pre_red,comb_do_red,comb_post_red;
 	rexpress("rhcollect<-function(key,value) .Call('rh_collect',key,value)");
 	SEXP dummy1,dummy2,dummy3;
@@ -170,6 +196,7 @@ void spill_to_reducer(void){
 
 		REXP r = REXP();
 		r.ParseFromArray((void*)key.data(),key.length());
+		bytes_received+=key.length();
 		PROTECT(rkey = message2rexp(r));
 		Rf_defineVar(Rf_install("reduce.key"),rkey,R_GlobalEnv);
 		R_tryEval(comb_pre_red,NULL,&Rerr);
@@ -183,6 +210,7 @@ void spill_to_reducer(void){
 			REXP v;
 			string aval = (*itvalue);
 			v.ParseFromArray((void*)aval.data(),aval.length());
+			bytes_received+=aval.length();
 			// mmessage("The values are for %s ==%s", r.DebugString().c_str(),v.DebugString().c_str());
 			SET_VECTOR_ELT(rvalues, i, message2rexp(v));
 		}
@@ -211,16 +239,18 @@ SEXP collect_buffer(SEXP k,SEXP v){
     once = true;
   }
   ks->clear();vs->clear();
-  tobytes(k,ks,ksize);
-  tobytes(v,vs,vsize);
+  ksize=tobytes(k,ks);
+  vsize=tobytes(v,vs);
   total_count += ksize+vsize;
+  map_output_buffer[*ks].push_back(*vs);
   if( total_count >=  spill_size) {
+    mcount("combiner","bytesent",total_count);
     spill_to_reducer();
     total_count = 0;
     map_output_buffer.clear();
-  }else{
-    map_output_buffer[*ks].push_back(*vs);
-  }
+  }// else{
+  //   map_output_buffer[*ks].push_back(*vs);
+  // }
   // delete(ks);delete(vs);
   return(R_NilValue);
 }
