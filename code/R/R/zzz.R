@@ -1,5 +1,5 @@
 .rhipeEnv <- new.env()
-assign("rhipeOptions" ,list(version="0.56") ,envir=.rhipeEnv )
+assign("rhipeOptions" ,list(version="0.57") ,envir=.rhipeEnv )
 
 
 .onLoad <- function(libname,pkgname){
@@ -8,7 +8,7 @@ assign("rhipeOptions" ,list(version="0.56") ,envir=.rhipeEnv )
   opts <- get("rhipeOptions",envir=.rhipeEnv)
 
   ## start server
-  opts$jarloc <- list.files(paste(system.file(package="Rhipe2"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
+  opts$jarloc <- list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
 ##   cp <- c(list.files(Sys.getenv("HADOOP"),pattern="jar$",full=T),
 ##           list.files(Sys.getenv("HADOOP_LIB"),pattern="jar$",full=T),
 ##           Sys.getenv("HADOOP_CONF_DIR"),
@@ -21,10 +21,10 @@ assign("rhipeOptions" ,list(version="0.56") ,envir=.rhipeEnv )
   ##$HADOOP should be such that $HADOOP/bin contains the hadoop executable
   if(Sys.getenv("HADOOP")=="") stop("Rhipe requires the HADOOP environment variable to be present")
   if(.Platform$r_arch!="")
-    opts$runner <- list.files(paste(system.file(package="Rhipe2"),"libs",.Platform$r_arch,
+    opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",.Platform$r_arch,
                                     sep=.Platform$file.sep),pattern="imperious.so",full=T)
   else
-    opts$runner <- list.files(paste(system.file(package="Rhipe2"),"libs",
+    opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",
                                     sep=.Platform$file.sep),pattern="imperious.so",full=T)
 
   
