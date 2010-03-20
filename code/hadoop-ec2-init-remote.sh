@@ -548,7 +548,7 @@ function start_hadoop_slave() {
 function install_rhipe_extras(){
     cd /root
     PROT=protobuf-2.2.0a
-    RHIPE=0.56
+    RHIPE=0.57
     case $INSTANCE_TYPE in
     m1.xlarge|c1.xlarge)
 	    MAKE_THREAD=6
