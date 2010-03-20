@@ -4,6 +4,7 @@ R_CallMethodDef callMethods [] = {
   {"rh_counter",(DL_FUNC) counter,1},
   {"rh_status",(DL_FUNC) status,1},
   {"rh_collect",(DL_FUNC) collect,2},
+  {"rh_collect_buffer",(DL_FUNC) collect_buffer,2},
   {"rh_uz",(DL_FUNC) persUnser,1},
   {"rh_dbgstr",(DL_FUNC) dbgstr,1},
   {NULL, NULL, 0}
@@ -18,6 +19,11 @@ FILE* LOG;
 FILE* FILEIN;
 #endif
 int _STATE_;
+uint32_t spill_size;
+map<string, vector<string> > map_output_buffer;
+bool combiner_inplace;
+SEXP comb_pre_red,comb_do_red,comb_post_red;
+
 extern int R_running_as_main_program;
 extern uintptr_t R_CStackLimit; 
 
@@ -29,6 +35,17 @@ void CaptureLog(LogLevel level, const char* filename, int line,
 				"LOGLEVEL_DFATAL" };
   merror("PB ERROR[%s](%s:%d) %s", pb_log_level[level], filename,line, message.c_str());  
 }
+
+void Re_ResetConsole()
+{
+}
+void Re_FlushConsole()
+{
+}
+void Re_ClearerrConsole()
+{
+}
+
 
 int embedR(int argc, char **argv){
   
@@ -64,9 +81,18 @@ int embedR(int argc, char **argv){
   ptr_R_WriteConsole = NULL;
   ptr_R_ReadConsole = NULL;
 
-  // ptr_R_ResetConsole = NULL;
-  // ptr_R_FlushConsole = NULL;
-  // ptr_R_ClearerrConsole = NULL;
+  // ptr_R_ReadConsole = NULL;
+  // ptr_R_ResetConsole = Re_ResetConsole;;
+  // ptr_R_FlushConsole = Re_FlushConsole;
+  // ptr_R_ClearerrConsole = Re_ClearerrConsole;
+  
+  // ptr_R_Busy = NULL;
+  // ptr_R_ShowFiles = NULL;
+  // ptr_R_ChooseFile = NULL;
+  // ptr_R_loadhistory = NULL;
+  // ptr_R_savehistory = NULL;
+
+  
 
   Signal(SIGPIPE,sigHandler);
   // Signal(SIGQUIT,sigHandler);
@@ -94,7 +120,7 @@ int main(int argc,char **argv){
   }
 #endif
   int uid = geteuid();
-  char fn[20];
+  char fn[256];
   sprintf(fn,"/tmp/logger-%d.log",uid);
   LOG=fopen(fn,"a");
   LOGG(10,"\n.....................\n");
@@ -120,6 +146,7 @@ int main(int argc,char **argv){
 
 
   // Load the functions into the R global environmen
+  // rexpress("options(width=200)");
   rexpress("rhstatus<-function(string) .Call('rh_status',string);");
   rexpress("rhcounter<-function(group,counter='',n=1) .Call('rh_counter',list(group,counter,n))");
   rexpress("rhcollect<-function(key,value) .Call('rh_collect',key,value)");
@@ -133,13 +160,42 @@ int main(int argc,char **argv){
 
 
   int ret=0;
-
+  
   LOGG(10,"Running in STATE=%d\n",_STATE_);
   google::protobuf::SetLogHandler(&CaptureLog);
+  rexpress("Sys.setenv(rhipe_iscombining=0)");
+  combiner_inplace=false;
   switch(_STATE_){
   case 0: 
     {
 #ifndef FILEREADER
+      /* we check if combiner is set and if so
+	 read in the value of io.sort.mb
+      */
+      if((int)strtol(getenv("rhipe_combiner"),NULL,10)==1){
+	combiner_inplace = true;
+	spill_size = (int)((strtod(getenv("io.sort.mb"),NULL)*1024*1024));
+	// mmessage("\n\nSPILL_SIZE==%d bytes\n\n",spill_size);
+	// map_output_buffer = map<string, vector<string> >();
+	rexpress("Sys.setenv(rhipe_iscombining=1);rhcollect<-function(key,value) .Call('rh_collect_buffer',key,value)");
+	SEXP reducesetup;
+	int Rerr=0;
+	PROTECT(reducesetup=rexpress(REDUCESETUP));
+	R_tryEval(Rf_lang2(Rf_install("eval"),reducesetup),NULL,&Rerr);
+	UNPROTECT(1);
+	// SEXP dummy;
+	// PROTECT(dummy=rexpress(REDUCEPREKEY));
+	// PROTECT(comb_pre_red=Rf_lang2(Rf_install("eval"),dummy));
+	// UNPROTECT(1);
+
+	// PROTECT(dummy=rexpress(REDUCE));
+	// PROTECT(comb_do_red=Rf_lang2(Rf_install("eval"),dummy));
+	// UNPROTECT(1);
+	
+	// PROTECT(dummy=rexpress(REDUCEPOSTKEY));
+	// PROTECT(comb_post_red=Rf_lang2(Rf_install("eval"),dummy));
+	// UNPROTECT(1);
+      }
       if ((ret=mapper_setup())!=0){
 	LOGG(12,"FAILURE IN MAP SETUP:%d\n",ret);
 	merror("Error while running mapper setup: %d\n",ret);
@@ -152,7 +208,16 @@ int main(int argc,char **argv){
 	merror("Error while running mapper: %d\n",ret);
 	// exit(ret);
 	break;
+    }else{
+      // if combiner is true, we must spill left over!
+      if(combiner_inplace){
+	rexpress("rhcollect<-function(key,value) .Call('rh_collect',key,value)");
+	if(!map_output_buffer.empty() || total_count>0) { //mmessage("\n\n SPILLING LEFTOVER\n\n ");
+	  spill_to_reducer(); //do i need total_count >0 ?
+	  fflush(NULL);
+	}
       }
+    }
     }
     break;
   case 1:
@@ -173,7 +238,7 @@ int main(int argc,char **argv){
   default:
     merror("Bad value for RHIPEWHAT: %d\n",_STATE_);
     break;
-  }
+    }
   R_RunExitFinalizers();
   Rf_KillAllDevices();
   R_CleanTempDir();
@@ -183,6 +248,6 @@ int main(int argc,char **argv){
 
 
   exit(ret);
-}
+    }
 
   

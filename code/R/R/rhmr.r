@@ -203,8 +203,8 @@ rhmr <- function(map,reduce=NULL,
   lines$mapred.job.reuse.jvm.num.tasks <- -1
   for(n in names(mapred)) lines[[n]] <- mapred[[n]]
   
-  lines$rhipe_combiner <- paste(combiner)
-  if(lines$rhipe_combiner=="TRUE")
+  lines$rhipe_combiner <- paste(as.integer(combiner))
+  if(lines$rhipe_combiner=="1")
     lines$rhipe_reduce_justcollect <- "FALSE"
   
   lines <- lapply(lines,as.character);

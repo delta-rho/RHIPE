@@ -1,0 +1,8 @@
+;; Object rhipe
+;; EDE project file.
+(ede-proj-project "rhipe"
+  :name "rhipe"
+  :file "Project.ede"
+  :targets 'nil
+  :makefile-type 'Makefile.am
+  )

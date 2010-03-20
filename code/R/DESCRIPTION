@@ -1,4 +1,4 @@
-Package: Rhipe
+Package: Rhipe2
 Type: Package
 Title: Integrates R with Hadoop
 Version: 0.56

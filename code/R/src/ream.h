@@ -2,8 +2,10 @@
 #define	__ream_h
 
 #include <iostream>
-#include <google/protobuf/stubs/common.h>
+#include <vector>
+#include <map>
 
+#include <google/protobuf/stubs/common.h>
 #include <rexp.pb.h>
 #include <stdint.h>
 #include <sys/types.h>	
@@ -17,6 +19,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+using namespace std;
 
 #define R_NO_REMAP
 #define R_INTERFACE_PTRS 1
@@ -31,7 +34,17 @@
 #include <R_ext/Boolean.h>
 #include <R_ext/Parse.h>
 #include <R_ext/Rdynload.h>
-  
+
+extern map<string, vector<string> > map_output_buffer;
+extern uint32_t spill_size;
+extern uint32_t total_count;
+/* extern SEXP comb_pre_red,comb_do_red,comb_post_red; */
+extern  char* REDUCESETUP;
+extern  char* REDUCEPREKEY;
+extern  char* REDUCE;
+extern  char* REDUCEPOSTKEY ;
+extern  char* REDUCECLEANUP;
+extern bool combiner_inplace;
 #define DLEVEL -9
 
 #ifdef FILEREADER
@@ -136,16 +149,14 @@ void logg(int , const char *, ...);
 SEXP counter(SEXP );
 SEXP status(SEXP );
 SEXP collect(SEXP ,SEXP );
+SEXP collect_buffer(SEXP ,SEXP );
 SEXP readFromHadoop(const uint32_t,int* );
 SEXP readFromMem(void * ,uint32_t );
 SEXP persUnser(SEXP);
 SEXP dbgstr(SEXP);
+void spill_to_reducer(void);
+
 extern  R_CallMethodDef callMethods[];
-
-
-
-
-
 
 
 

@@ -1,4 +1,4 @@
-<project name="Rhipe" basedir="java/" default="main">
+<project name="Rhipe2" basedir="java/" default="main">
   <property name="src.dir"     value="./"/>
   <property name="lib.dir"     value="./lib/"/>
   <property name="build.dir"   value="build"/>
