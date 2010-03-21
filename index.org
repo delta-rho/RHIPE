@@ -91,6 +91,8 @@ See the documentation.
 * Documentation
 The documentation can be found [[file:./doc/html/index.html][here]]. PDF version can be found [[file:./doc/rhipe.pdf][here]]
 * News
+** Sat Mar 20 20:51:58 EDT 2010
+- Combiner bug fixed, it's still needs to be tested. Mail if numbers do not match.
 ** Sat Mar 20 11:20:44 EDT 2010
 - Fixed combiner, still alpha, but it halves the wordcount speed. The combiner
   logic is run in the R interpreter C code. However it is still alpha, so if you
