@@ -174,7 +174,7 @@ static inline uint32_t tobytes(SEXP x,std::string* result){
 
 void spill_to_reducer(void){
   // rexpress("rhcounter('combiner','spill_to_reducer',1)");
-  uint32_t bytes_received = 0;  
+  // uint32_t bytes_received = 0;  
 	SEXP comb_pre_red,comb_do_red,comb_post_red;
 	rexpress("rhcollect<-function(key,value) .Call('rh_collect',key,value)");
 	SEXP dummy1,dummy2,dummy3;
@@ -196,7 +196,7 @@ void spill_to_reducer(void){
 
 		REXP r = REXP();
 		r.ParseFromArray((void*)key.data(),key.length());
-		bytes_received+=key.length();
+		// bytes_received+=key.length();
 		PROTECT(rkey = message2rexp(r));
 		Rf_defineVar(Rf_install("reduce.key"),rkey,R_GlobalEnv);
 		R_tryEval(comb_pre_red,NULL,&Rerr);
@@ -210,7 +210,7 @@ void spill_to_reducer(void){
 			REXP v;
 			string aval = (*itvalue);
 			v.ParseFromArray((void*)aval.data(),aval.length());
-			bytes_received+=aval.length();
+			// bytes_received+=aval.length();
 			// mmessage("The values are for %s ==%s", r.DebugString().c_str(),v.DebugString().c_str());
 			SET_VECTOR_ELT(rvalues, i, message2rexp(v));
 		}
