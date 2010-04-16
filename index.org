@@ -5,27 +5,29 @@
 #+STYLE: <link rel="stylesheet" type="text/css" href="a.css" />
 #+TITLE: RHIPE - R and Hadoop Integrated Processing Environment 
 #
-*website moving http://www.stat.purdue.edu/~sguha/rhipe*
+
 RHIPE(phonetic spelling: hree-pay' [1]) is a java package that integrates the R environment with [[http://hadoop.apache.org/core/][Hadoop]], the open source implementation
 of Google's mapreduce.  Using RHIPE it is possible to code map-reduce algorithms in R e.g
 [1] This is greek for /a moment in time/. See here for pronunciation:
 [[http://www.searchgodsword.org/lex/grk/view.cgi?number=4493][Greek Lexicon]]
 #+BEGIN_SRC R-example
 m <- expression({
-for(x in map.values){
-  y <- strsplit(x," +")[[1]]
-  for(w in y) rhcollect(w,T)
-}})
-r <- expression(pre={
-  count <- 0
-},
-reduce={
-  count <- count+sum(unlist(reduce.values))
-},
-post={
- rhcollect(reduce.key,as.integer(count))
+  y <- unlist(strsplit(unlist(map.values),"[[:space:]]+"))
+  sapply(y,function(r) rhcollect(r,T))
+  ## instead of the previous line, you could also do
+  ## z <-  table(sapply(y,function(r) rhcollect(r,T)))
+  ## sapply(names(z), function(r) rhcollect(r, z[r]))
 })
-z=rhmr(map=m,reduce=r,comb=F,inout=c("text","sequence"),ifolder="/tmp/50mil",ofolder='/tmp/tof')
+r <- expression(
+    pre={
+      count=0
+    },
+    reduce={
+      count <- sum(as.numeric(unlist(reduce.values)),count)
+    },post={
+      rhcollect(reduce.key,count)
+    })
+z=rhmr(map=m,reduce=r,comb=T,inout=c("text","sequence"),ifolder="/tmp/50mil",ofolder='/tmp/tof')
 rhex(z)
 #+END_SRC
 
@@ -73,6 +75,7 @@ Read the documentation for installation. Current is the latest version.
 
 | Version | Download           |                              |
 |---------+--------------------+------------------------------|
+|    0.58 | [[file:./dn/Rhipe_0.58.tar.gz][Rhipe_0.58.tar.gz]]  | Fri Apr 09 01:41:48 EDT 2010                             |
 |    0.57 | [[file:./dn/Rhipe_0.57.tar.gz][Rhipe_0.57.tar.gz]]  | Sat Mar 20 11:20:21 EDT 2010 |
 |    0.56 | [[file:./dn/Rhipe_0.56.tar.gz][Rhipe_0.56.tar.gz]]  | Sat Feb 27 17:04:44 EST 2010 |
 |    0.55 | [[file:./dn/Rhipe_0.55.tar.gz][Rhipe\_0.55.tar.gz]] | Sun Feb 21 00:49:04 EST 2010 |
@@ -91,6 +94,16 @@ See the documentation.
 * Documentation
 The documentation can be found [[file:./doc/html/index.html][here]]. PDF version can be found [[file:./doc/rhipe.pdf][here]]
 * News
+** Thur Apr 15
+- moved to protobuf-2.3
+** Fri Apr 09 01:42:05 EDT 2010
+- =rhls= can now recurse
+- =rhread= now need only take a folder (no need for =rhmap.sqs= to read map files).
+  Use the =type= argument to specify sequence(or text) files or map files.
+- Similarly =rhmr= does not need =rhmap.sqs=
+** Wed Apr 07 16:56:07 EDT 2010
+- =rhread= takes a =max= argument that reads in only max number of key-value pairs
+- =rhex= passes all extra arguments to the system command.
 ** Sat Mar 20 20:51:58 EDT 2010
 - Combiner bug fixed, it's still needs to be tested. Mail if numbers do not match.
 ** Sat Mar 20 11:20:44 EDT 2010

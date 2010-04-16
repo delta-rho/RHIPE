@@ -105,6 +105,27 @@ rhmr <- function(map,reduce=NULL,
     if(substr(ofolder,nchar(ofolder),nchar(ofolder))!="/")
       ofolder <- paste(ofolder,"/",sep="")
   }
+  flagclz <- NULL
+  ifolder=switch(inout[1],
+    "map"={
+      flagclz="sequence"
+      uu=unclass(rhls(ifolder,rec=TRUE)['file'])$file
+      uu[grep("data$",uu)]
+    },
+    "sequence"={
+      a <- rhls(ifolder)$file
+    },
+    "text"={
+      rhls(ifolder)$file
+    }
+    )
+  remr <- c(grep("/_logs",ifolder))
+  if(length(remr)>0)
+    ifolder <- ifolder[-remr]
+  if(!is.null(flagclz)) inout <- c('sequence',inout[2])
+
+  ## print(ifolder)
+  ## stop("woo")
   lines<- append(lines,list(
                      R_HOME=R.home()
                      ,rhipe_map=rawToChar(map.s)
@@ -336,7 +357,7 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
 }
 
 
-rhex <- function (conf,changes) 
+rhex <- function (conf,changes,...) 
 {
   exitf <- NULL
   ## browser()
@@ -371,7 +392,7 @@ rhex <- function (conf,changes)
   x. <- paste("Running: ", cmd)
   y. <- paste(rep("-",min(nchar(x.),40)))
   message(y.);message(x.);message(y.)
-  result <- system(cmd)
+  result <- system(cmd,...)
   f3=NULL
   if(result==256){
     f1=file(zonf,"rb")

@@ -96,9 +96,9 @@ rhls
 ^^^^
 ::
 	
-	rhls <- function(dir)
+	rhls <- function(dir,recur=FALSE)
 
-Lists the path at ``dir``. Wildcards allowed.
+Lists the path at ``dir``. Wildcards allowed. Use ``recur`` (FALSE/TRUE) to not recurse or to recurse.
 
 
 rhdel
@@ -128,7 +128,7 @@ rhread
 
 ::
 	
-	rhread <- function(files,verbose=T,doLocal=T)
+	rhread <- function(files,max=-1,type="sequence",verbose=T,doLocal=T)
 
 
 Reads files(s) from ``files`` (which could be a directory). Wildcards allowed.
@@ -140,6 +140,10 @@ sequence file to a binary file.
 This is then merged and read into R. If ``doLocal`` is True this mapreduce
 conversion job is a local mapreduce job (which can be slow for lots of part
 files) else a fully distributed job.
+
+If ``max`` is positive, ``max`` key-value pairs will be read.
+
+Set ``type`` to "map" if the directory ``files`` contains map folders.
 
 rhmerge
 ^^^^^^^

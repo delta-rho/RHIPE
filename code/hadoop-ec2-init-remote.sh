@@ -215,7 +215,7 @@ function configure_hadoop() {
   c1.medium)
     MAPRED_LOCAL_DIR=/mnt/hadoop/mapred/local
     MAX_MAP_TASKS=4
-    MAX_REDUCE_TASKS=2
+    MAX_REDUCE_TASKS=4
     CHILD_OPTS=-Xmx550m
     CHILD_ULIMIT=1126400
     ;;
@@ -547,8 +547,8 @@ function start_hadoop_slave() {
 
 function install_rhipe_extras(){
     cd /root
-    PROT=protobuf-2.2.0a
-    RHIPE=0.57
+    PROT=protobuf-2.3.0
+    RHIPE=0.58
     case $INSTANCE_TYPE in
     m1.xlarge|c1.xlarge)
 	    MAKE_THREAD=6
@@ -577,6 +577,7 @@ function install_rhipe_extras(){
     echo "export LD_LIBRARY_PATH=/usr/local/lib" >> /etc/$HADOOP/conf.dist/hadoop-env.sh
     ##Must start like
     ## hadoop-ec2 launch-cluster --env REPO=testing --env HADOOP_VERSION=0.20
+    chmod a+rwxt /mnt*/hadoop/mapred/local
 }
 
 function run_r_code(){
@@ -599,7 +600,7 @@ configure_hadoop
 install_rhipe_extras
 ## uncomment the following line and modify
 ## run_r_code to install your own packages
-run_r_code
+## run_r_code
 
 if $IS_MASTER ; then
   setup_web

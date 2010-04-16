@@ -2,7 +2,7 @@ doCMD <- function(CMD=0,needoutput=F,opts=rhoptions(),verbose=T,ignore.stderr=F
                   ,fold=NA,src=NA,dest=NA,locals=NA
                   ,overwrite=NA,tempf=NA,output=NA
                   ,groupsize=NA,howmany=NA,N=NA, sequence=F,
-                  infiles=NA, ofile=NA,ilocal=NA,keys=NA){
+                  infiles=NA, ofile=NA,ilocal=NA,keys=NA,recursive='FALSE'){
   on.exit({unlink(tm)})
   tm <- paste(tempfile(),paste(sample(letters,5),sep="",collapse=""),sep="",collapse="")
 ##   cp <- opts$cp
@@ -14,7 +14,7 @@ doCMD <- function(CMD=0,needoutput=F,opts=rhoptions(),verbose=T,ignore.stderr=F
   
   p <- switch(as.integer(CMD),
               {
-                rhsz(fold)
+                rhsz(list(fold,recursive))
               },
               {
                 rhsz(c(src,dest))
@@ -29,7 +29,7 @@ doCMD <- function(CMD=0,needoutput=F,opts=rhoptions(),verbose=T,ignore.stderr=F
                 rhsz(c(tempf,output,groupsize,howmany,N))
               },
               {
-                rhsz(c(infiles,ofile,ilocal*1))
+                rhsz(c(ofile,ilocal*1,howmany,infiles)) ##rhread
               },
               {
                 rhsz(list(keys,src,dest,sequence)) ##getkey

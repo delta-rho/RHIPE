@@ -37,18 +37,23 @@ rhsave.image <- function(...,file){
   rhput(src=x,dest=file)
 }
 
-rhls <- function(fold,ignore.stderr=T,verbose=F){
+rhls <- function(fold,recurse=FALSE,ignore.stderr=T,verbose=F){
   ## List of files,
-  v <- doCMD(rhoptions()$cmd['ls'],fold=fold,needoutput=T,ignore.stderr=ignore.stderr,verbose=verbose)
-  if(v=="") return(NULL)
-  k <- strsplit(v,"\n")[[1]]
-  k1 <- do.call("rbind",sapply(k,strsplit,"\t"))
-  f <- as.data.frame(do.call("rbind",sapply(k,strsplit,"\t")),stringsAsFactors=F)
+  v <- Rhipe:::doCMD(rhoptions()$cmd['ls'],fold=fold,recur=as.integer(recurse),needoutput=T,ignore.stderr=ignore.stderr,verbose=verbose)
+  if(is.null(v)) return(NULL)
+  if(length(v)==0) {
+    warning(sprintf("Is not a readable directory %s",fold))
+    return(v)
+  }
+  ## k <- strsplit(v,"\n")[[1]]
+  ## k1 <- do.call("rbind",sapply(v,strsplit,"\t"))
+  f <- as.data.frame(do.call("rbind",sapply(v,strsplit,"\t")),stringsAsFactors=F)
   rownames(f) <- NULL
   colnames(f) <- c("permission","owner","group","size","modtime","file")
   f$size <- as.numeric(f$size)
-  f
+  unique(f)
 }
+
 
 rhget <- function(src,dest,ignore.stderr=T,verbose=F){
   ## Copies src to dest
@@ -152,16 +157,35 @@ rhM2M <- function(files,ofile,dolocal=T,ignore.stderr=F,verbose=F,keep=NULL){
         verbose=verbose)
 }
 
-rhread <- function(files,dolocal=T,ignore.stderr=T,verbose=F,keep=NULL){
+rhread <- function(files,type="sequence",max=-1,dolocal=T,ignore.stderr=T,verbose=F,keep=NULL){
   ##need to specify /f/p* if there are other
   ##files present (not sequence files)
-  on.exit({
-    if(!keepfile)
-      unlink(tf2)
-  })
-  
+  type = match.arg(type,c("sequence","map","text"))
+  ## on.exit({
+  ##   if(!keepfile)
+  ##     unlink(tf2)
+  ## })
   keepfile=F
-  files <- unclass(rhls(files)['file'])$file
+  ## files <- unclass(rhls(files)['file'])$file
+  files <- switch(type,
+                  "text"={
+                    unclass(rhls(files)['file'])$file
+                  },
+                  
+                  "sequence"={
+                    unclass(rhls(files)['file'])$file
+                  },
+                  "map"={
+                    uu=unclass(rhls(files,rec=TRUE)['file'])$file
+                    uu[grep("data$",uu)]
+                  })
+  ## print(files)
+  ## return(files)
+  remr <- c(grep("/_logs/",files))
+  if(length(remr)>0)
+    files <- files[-remr]
+
+  ## print(files)
   tf1<- tempfile(pattern=paste('rhread_',
                    paste(sample(letters,4),sep='',collapse='')
                    ,sep="",collapse=""),tmpdir="/tmp")
@@ -174,7 +198,7 @@ rhread <- function(files,dolocal=T,ignore.stderr=T,verbose=F,keep=NULL){
       tf2<- tempfile(pattern=paste(sample(letters,8),sep='',collapse=''))
     }
   message("----- converting to binary -----")
-  doCMD(rhoptions()$cmd['s2b'], infiles=files,ofile=tf1,ilocal=dolocal,ignore.stderr=ignore.stderr,
+  doCMD(rhoptions()$cmd['s2b'], infiles=files,ofile=tf1,ilocal=dolocal,howmany=max,ignore.stderr=ignore.stderr,
         verbose=verbose)
   message("------ merging -----")
 
@@ -182,7 +206,7 @@ rhread <- function(files,dolocal=T,ignore.stderr=T,verbose=F,keep=NULL){
   rhdel(tf1);
   message("------ reading binary,please wait -----")
 
-  v <- rhreadBin(tf2)
+  v <- rhreadBin(tf2,maxnum=max)
   return(v)
 }
 

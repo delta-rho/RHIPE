@@ -136,7 +136,16 @@ public class FileUtils {
 	}
     }
 
-    public String ls(String path) throws IOException,FileNotFoundException{
+    public String[] ls(REXP r,int f) throws IOException,FileNotFoundException{
+	ArrayList<String> lsco = new ArrayList<String>();
+	for(int i=0;i<r.getStringValueCount();i++){
+	    String path = r.getStringValue(i).getStrval();
+	    ls__(path,lsco,f>0 ? true:false);
+	}
+	return(lsco.toArray(new String[]{}));
+    }
+
+    private void ls__(String path, ArrayList<String> lsco,boolean dorecurse)  throws IOException,FileNotFoundException{
 	FileSystem srcFS = FileSystem.get(cfg);
 	Path spath = new Path(path);
 	FileStatus[] srcs;
@@ -147,34 +156,37 @@ public class FileUtils {
 	}
 	if(srcs.length==1 && srcs[0].isDir())
 	    srcs = srcFS.listStatus(srcs[0].getPath());
-	// System.out.println(srcs+ " Length= "+srcs.length);
-
-	StringBuilder sb = new StringBuilder();
 	Calendar c =  Calendar.getInstance();
 	for(FileStatus status : srcs){
-	    String x = status.isDir() ? "d" : "-";
-	    sb.append(x);
-	    sb.append(status.getPermission().toString());
-	    sb.append(fsep);
-
-	    sb.append(status.getOwner());
-	    sb.append(fsep);
-
-	    sb.append(status.getGroup());
-	    sb.append(fsep);
-
-	    sb.append(status.getLen());
-	    sb.append(fsep);
-	    
-	    Date d = new Date(status.getModificationTime());
-	    sb.append(formatter.format(d));
-	    sb.append(fsep);
-
-	    sb.append(status.getPath().toUri().getPath());
-	    sb.append("\n");
+	    StringBuilder sb = new StringBuilder();
+	    boolean idir = status.isDir();
+	    String x= idir? "d":"-";
+	    if(dorecurse && idir) 
+		ls__(status.getPath().toUri().getPath(),lsco,dorecurse);
+	    else{
+		sb.append(x);
+		sb.append(status.getPermission().toString());
+		sb.append(fsep);
+		
+		sb.append(status.getOwner());
+		sb.append(fsep);
+		
+		sb.append(status.getGroup());
+		sb.append(fsep);
+		
+		sb.append(status.getLen());
+		sb.append(fsep);
+		
+		Date d = new Date(status.getModificationTime());
+		sb.append(formatter.format(d));
+		sb.append(fsep);
+		
+		sb.append(status.getPath().toUri().getPath());
+		lsco.add(sb.toString());
+	    }
 	}
-	return(sb.toString());
     }
+
 
     public void delete(String srcf, final boolean recursive) throws IOException {
 	Path srcPattern = new Path(srcf);
@@ -280,13 +292,15 @@ public class FileUtils {
     }
 
     public void sequence2binary(REXP rexp0) throws Exception{
+	// System.out.println(rexp0);
 	int n = rexp0.getStringValueCount();
-	String[] infile = new String[n-2];
-	String ofile = rexp0.getStringValue(n-2).getStrval();
-	int local = Integer.parseInt(rexp0.getStringValue(n-1).getStrval());
-	for(int i=0;i< n-2;i++) infile[i] = rexp0.getStringValue(i).getStrval();
+	String[] infile = new String[n-3];
+	String ofile = rexp0.getStringValue(0).getStrval();
+	int local = Integer.parseInt(rexp0.getStringValue(1).getStrval());
+	int maxnum = Integer.parseInt(rexp0.getStringValue(2).getStrval());
+	for(int i=3;i< n;i++) infile[i-3] = rexp0.getStringValue(i).getStrval();
 	S2B s = new S2B();
-	if(!s.runme( infile, ofile,local==1 ? true:false)){
+	if(!s.runme( infile, ofile,local==1 ? true:false,maxnum)){
 	    throw new Exception("Could not convert sequence to binary");
 	}
     }
@@ -295,6 +309,7 @@ public class FileUtils {
 	String[] infile = new String[n-2];
 	String ofile = rexp0.getStringValue(n-2).getStrval();
 	int local = Integer.parseInt(rexp0.getStringValue(n-1).getStrval());
+
 	for(int i=0;i< n-2;i++) infile[i] = rexp0.getStringValue(i).getStrval();
 	S2M s = new S2M();
 	if(!s.runme( infile, ofile,local==1 ? true:false)){
@@ -375,8 +390,7 @@ public class FileUtils {
 	    case 1:
 		// ls
 		r = fu.readInfo(args[1]);
-		String folder = r.getStringValue(0).getStrval();
-		String result0 = fu.ls(folder);
+		String[] result0 = fu.ls(r.getRexpValue(0),r.getRexpValue(1).getIntValue(0));
 		b = RObjects.makeStringVector(result0);
 		fu.writeTo(args[1], b);
 		break;

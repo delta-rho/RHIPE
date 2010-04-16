@@ -8,6 +8,7 @@
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
+// @@protoc_insertion_point(includes)
 
 namespace {
 
@@ -140,7 +141,8 @@ void protobuf_AddDesc_rexp_2eproto() {
     "\013\n\007LOGICAL\020\006\022\014\n\010NULLTYPE\020\007\" \n\010RBOOLEAN\022\005"
     "\n\001F\020\000\022\005\n\001T\020\001\022\006\n\002NA\020\002\"-\n\006STRING\022\016\n\006strval"
     "\030\001 \001(\t\022\023\n\004isNA\030\002 \001(\010:\005false\"&\n\005CMPLX\022\017\n\004"
-    "real\030\001 \001(\001:\0010\022\014\n\004imag\030\002 \002(\001", 507);
+    "real\030\001 \001(\001:\0010\022\014\n\004imag\030\002 \002(\001B\037\n\021org.godhu"
+    "li.rhipeB\nREXPProtos", 540);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "rexp.proto", &protobuf_RegisterTypes);
   REXP::default_instance_ = new REXP();
@@ -193,6 +195,7 @@ const REXP_RClass REXP::LOGICAL;
 const REXP_RClass REXP::NULLTYPE;
 const REXP_RClass REXP::RClass_MIN;
 const REXP_RClass REXP::RClass_MAX;
+const int REXP::RClass_ARRAYSIZE;
 #endif  // _MSC_VER
 const ::google::protobuf::EnumDescriptor* REXP_RBOOLEAN_descriptor() {
   protobuf_AssignDescriptorsOnce();
@@ -215,6 +218,7 @@ const REXP_RBOOLEAN REXP::T;
 const REXP_RBOOLEAN REXP::NA;
 const REXP_RBOOLEAN REXP::RBOOLEAN_MIN;
 const REXP_RBOOLEAN REXP::RBOOLEAN_MAX;
+const int REXP::RBOOLEAN_ARRAYSIZE;
 #endif  // _MSC_VER
 const ::std::string REXP::_default_rawvalue_;
 #ifndef _MSC_VER
@@ -230,14 +234,16 @@ const int REXP::kAttrNameFieldNumber;
 const int REXP::kAttrValueFieldNumber;
 #endif  // !_MSC_VER
 
-REXP::REXP() {
+REXP::REXP()
+  : ::google::protobuf::Message() {
   SharedCtor();
 }
 
 void REXP::InitAsDefaultInstance() {
 }
 
-REXP::REXP(const REXP& from) {
+REXP::REXP(const REXP& from)
+  : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
 }
@@ -261,6 +267,11 @@ void REXP::SharedDtor() {
   }
 }
 
+void REXP::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
 const ::google::protobuf::Descriptor* REXP::descriptor() {
   protobuf_AssignDescriptorsOnce();
   return REXP_descriptor_;
@@ -305,16 +316,19 @@ bool REXP::MergePartialFromCodedStream(
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required .REXP.RClass rclass = 1;
       case 1: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-          goto handle_uninterpreted;
-        }
-        int value;
-        DO_(::google::protobuf::internal::WireFormatLite::ReadEnum(input, &value));
-        if (::REXP_RClass_IsValid(value)) {
-          set_rclass(static_cast< ::REXP_RClass >(value));
+          int value;
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+                 input, &value)));
+          if (::REXP_RClass_IsValid(value)) {
+            set_rclass(static_cast< ::REXP_RClass >(value));
+          } else {
+            mutable_unknown_fields()->AddVarint(1, value);
+          }
         } else {
-          mutable_unknown_fields()->AddVarint(1, value);
+          goto handle_uninterpreted;
         }
         if (input->ExpectTag(18)) goto parse_realValue;
         break;
@@ -322,23 +336,20 @@ bool REXP::MergePartialFromCodedStream(
       
       // repeated double realValue = 2 [packed = true];
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_realValue:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_realvalue())));
+        } else if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag)
+                   == ::google::protobuf::internal::WireFormatLite::
+                      WIRETYPE_FIXED64) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 18, input, this->mutable_realvalue())));
+        } else {
           goto handle_uninterpreted;
-        }
-       parse_realValue:
-        {
-          ::google::protobuf::uint32 length;
-          DO_(input->ReadVarint32(&length));
-          ::google::protobuf::io::CodedInputStream::Limit limit =
-              input->PushLimit(length);
-          while (input->BytesUntilLimit() > 0) {
-            double value;
-            DO_(::google::protobuf::internal::WireFormatLite::ReadDouble(
-                  input, &value));
-            add_realvalue(value);
-          }
-          input->PopLimit(limit);
         }
         if (input->ExpectTag(26)) goto parse_intValue;
         break;
@@ -346,23 +357,20 @@ bool REXP::MergePartialFromCodedStream(
       
       // repeated sint32 intValue = 3 [packed = true];
       case 3: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_intValue:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_SINT32>(
+                 input, this->mutable_intvalue())));
+        } else if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag)
+                   == ::google::protobuf::internal::WireFormatLite::
+                      WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_SINT32>(
+                 1, 26, input, this->mutable_intvalue())));
+        } else {
           goto handle_uninterpreted;
-        }
-       parse_intValue:
-        {
-          ::google::protobuf::uint32 length;
-          DO_(input->ReadVarint32(&length));
-          ::google::protobuf::io::CodedInputStream::Limit limit =
-              input->PushLimit(length);
-          while (input->BytesUntilLimit() > 0) {
-            ::google::protobuf::int32 value;
-            DO_(::google::protobuf::internal::WireFormatLite::ReadSInt32(
-                  input, &value));
-            add_intvalue(value);
-          }
-          input->PopLimit(limit);
         }
         if (input->ExpectTag(32)) goto parse_booleanValue;
         break;
@@ -370,17 +378,27 @@ bool REXP::MergePartialFromCodedStream(
       
       // repeated .REXP.RBOOLEAN booleanValue = 4;
       case 4: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-          goto handle_uninterpreted;
-        }
-       parse_booleanValue:
-        int value;
-        DO_(::google::protobuf::internal::WireFormatLite::ReadEnum(input, &value));
-        if (::REXP_RBOOLEAN_IsValid(value)) {
-          add_booleanvalue(static_cast< ::REXP_RBOOLEAN >(value));
+         parse_booleanValue:
+          int value;
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+                 input, &value)));
+          if (::REXP_RBOOLEAN_IsValid(value)) {
+            add_booleanvalue(static_cast< ::REXP_RBOOLEAN >(value));
+          } else {
+            mutable_unknown_fields()->AddVarint(4, value);
+          }
+        } else if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag)
+                   == ::google::protobuf::internal::WireFormatLite::
+                      WIRETYPE_LENGTH_DELIMITED) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedEnumNoInline(
+                 input,
+                 &::REXP_RBOOLEAN_IsValid,
+                 this->mutable_booleanvalue())));
         } else {
-          mutable_unknown_fields()->AddVarint(4, value);
+          goto handle_uninterpreted;
         }
         if (input->ExpectTag(32)) goto parse_booleanValue;
         if (input->ExpectTag(42)) goto parse_stringValue;
@@ -389,13 +407,14 @@ bool REXP::MergePartialFromCodedStream(
       
       // repeated .STRING stringValue = 5;
       case 5: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_stringValue:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_stringvalue()));
+        } else {
           goto handle_uninterpreted;
         }
-       parse_stringValue:
-        DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-              input, add_stringvalue()));
         if (input->ExpectTag(42)) goto parse_stringValue;
         if (input->ExpectTag(50)) goto parse_rawValue;
         break;
@@ -403,26 +422,28 @@ bool REXP::MergePartialFromCodedStream(
       
       // optional bytes rawValue = 6;
       case 6: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_rawValue:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+                input, this->mutable_rawvalue()));
+        } else {
           goto handle_uninterpreted;
         }
-       parse_rawValue:
-        DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
-              input, this->mutable_rawvalue()));
         if (input->ExpectTag(58)) goto parse_complexValue;
         break;
       }
       
       // repeated .CMPLX complexValue = 7;
       case 7: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_complexValue:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_complexvalue()));
+        } else {
           goto handle_uninterpreted;
         }
-       parse_complexValue:
-        DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-              input, add_complexvalue()));
         if (input->ExpectTag(58)) goto parse_complexValue;
         if (input->ExpectTag(66)) goto parse_rexpValue;
         break;
@@ -430,13 +451,14 @@ bool REXP::MergePartialFromCodedStream(
       
       // repeated .REXP rexpValue = 8;
       case 8: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_rexpValue:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_rexpvalue()));
+        } else {
           goto handle_uninterpreted;
         }
-       parse_rexpValue:
-        DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-              input, add_rexpvalue()));
         if (input->ExpectTag(66)) goto parse_rexpValue;
         if (input->ExpectTag(90)) goto parse_attrName;
         break;
@@ -444,16 +466,17 @@ bool REXP::MergePartialFromCodedStream(
       
       // repeated string attrName = 11;
       case 11: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_attrName:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_attrname()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->attrname(0).data(), this->attrname(0).length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
           goto handle_uninterpreted;
         }
-       parse_attrName:
-        DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-              input, this->add_attrname()));
-        ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-          this->attrname(0).data(), this->attrname(0).length(),
-          ::google::protobuf::internal::WireFormat::PARSE);
         if (input->ExpectTag(90)) goto parse_attrName;
         if (input->ExpectTag(98)) goto parse_attrValue;
         break;
@@ -461,13 +484,14 @@ bool REXP::MergePartialFromCodedStream(
       
       // repeated .REXP attrValue = 12;
       case 12: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_attrValue:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_attrvalue()));
+        } else {
           goto handle_uninterpreted;
         }
-       parse_attrValue:
-        DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-              input, add_attrvalue()));
         if (input->ExpectTag(98)) goto parse_attrValue;
         if (input->ExpectAtEnd()) return true;
         break;
@@ -491,12 +515,6 @@ bool REXP::MergePartialFromCodedStream(
 
 void REXP::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  ::google::protobuf::uint8* raw_buffer = output->GetDirectBufferForNBytesAndAdvance(_cached_size_);
-  if (raw_buffer != NULL) {
-    REXP::SerializeWithCachedSizesToArray(raw_buffer);
-    return;
-  }
-  
   // required .REXP.RClass rclass = 1;
   if (_has_bit(0)) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
@@ -531,7 +549,7 @@ void REXP::SerializeWithCachedSizes(
   
   // repeated .STRING stringValue = 5;
   for (int i = 0; i < this->stringvalue_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageNoVirtual(
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       5, this->stringvalue(i), output);
   }
   
@@ -543,13 +561,13 @@ void REXP::SerializeWithCachedSizes(
   
   // repeated .CMPLX complexValue = 7;
   for (int i = 0; i < this->complexvalue_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageNoVirtual(
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       7, this->complexvalue(i), output);
   }
   
   // repeated .REXP rexpValue = 8;
   for (int i = 0; i < this->rexpvalue_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageNoVirtual(
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       8, this->rexpvalue(i), output);
   }
   
@@ -564,7 +582,7 @@ void REXP::SerializeWithCachedSizes(
   
   // repeated .REXP attrValue = 12;
   for (int i = 0; i < this->attrvalue_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageNoVirtual(
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       12, this->attrvalue(i), output);
   }
   
@@ -766,7 +784,9 @@ int REXP::ByteSize() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
   }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
   return total_size;
 }
 
@@ -865,14 +885,16 @@ const int STRING::kStrvalFieldNumber;
 const int STRING::kIsNAFieldNumber;
 #endif  // !_MSC_VER
 
-STRING::STRING() {
+STRING::STRING()
+  : ::google::protobuf::Message() {
   SharedCtor();
 }
 
 void STRING::InitAsDefaultInstance() {
 }
 
-STRING::STRING(const STRING& from) {
+STRING::STRING(const STRING& from)
+  : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
 }
@@ -896,6 +918,11 @@ void STRING::SharedDtor() {
   }
 }
 
+void STRING::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
 const ::google::protobuf::Descriptor* STRING::descriptor() {
   protobuf_AssignDescriptorsOnce();
   return STRING_descriptor_;
@@ -932,29 +959,32 @@ bool STRING::MergePartialFromCodedStream(
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // optional string strval = 1;
       case 1: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_strval()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->strval().data(), this->strval().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
           goto handle_uninterpreted;
         }
-        DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-              input, this->mutable_strval()));
-        ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-          this->strval().data(), this->strval().length(),
-          ::google::protobuf::internal::WireFormat::PARSE);
         if (input->ExpectTag(16)) goto parse_isNA;
         break;
       }
       
       // optional bool isNA = 2 [default = false];
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_isNA:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &isna_)));
+          _set_bit(1);
+        } else {
           goto handle_uninterpreted;
         }
-       parse_isNA:
-        DO_(::google::protobuf::internal::WireFormatLite::ReadBool(
-              input, &isna_));
-        _set_bit(1);
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -977,12 +1007,6 @@ bool STRING::MergePartialFromCodedStream(
 
 void STRING::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  ::google::protobuf::uint8* raw_buffer = output->GetDirectBufferForNBytesAndAdvance(_cached_size_);
-  if (raw_buffer != NULL) {
-    STRING::SerializeWithCachedSizesToArray(raw_buffer);
-    return;
-  }
-  
   // optional string strval = 1;
   if (_has_bit(0)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
@@ -1049,7 +1073,9 @@ int STRING::ByteSize() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
   }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
   return total_size;
 }
 
@@ -1121,14 +1147,16 @@ const int CMPLX::kRealFieldNumber;
 const int CMPLX::kImagFieldNumber;
 #endif  // !_MSC_VER
 
-CMPLX::CMPLX() {
+CMPLX::CMPLX()
+  : ::google::protobuf::Message() {
   SharedCtor();
 }
 
 void CMPLX::InitAsDefaultInstance() {
 }
 
-CMPLX::CMPLX(const CMPLX& from) {
+CMPLX::CMPLX(const CMPLX& from)
+  : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
 }
@@ -1149,6 +1177,11 @@ void CMPLX::SharedDtor() {
   }
 }
 
+void CMPLX::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
 const ::google::protobuf::Descriptor* CMPLX::descriptor() {
   protobuf_AssignDescriptorsOnce();
   return CMPLX_descriptor_;
@@ -1181,27 +1214,31 @@ bool CMPLX::MergePartialFromCodedStream(
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // optional double real = 1 [default = 0];
       case 1: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED64) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &real_)));
+          _set_bit(0);
+        } else {
           goto handle_uninterpreted;
         }
-        DO_(::google::protobuf::internal::WireFormatLite::ReadDouble(
-              input, &real_));
-        _set_bit(0);
         if (input->ExpectTag(17)) goto parse_imag;
         break;
       }
       
       // required double imag = 2;
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED64) {
+         parse_imag:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &imag_)));
+          _set_bit(1);
+        } else {
           goto handle_uninterpreted;
         }
-       parse_imag:
-        DO_(::google::protobuf::internal::WireFormatLite::ReadDouble(
-              input, &imag_));
-        _set_bit(1);
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1224,12 +1261,6 @@ bool CMPLX::MergePartialFromCodedStream(
 
 void CMPLX::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  ::google::protobuf::uint8* raw_buffer = output->GetDirectBufferForNBytesAndAdvance(_cached_size_);
-  if (raw_buffer != NULL) {
-    CMPLX::SerializeWithCachedSizesToArray(raw_buffer);
-    return;
-  }
-  
   // optional double real = 1 [default = 0];
   if (_has_bit(0)) {
     ::google::protobuf::internal::WireFormatLite::WriteDouble(1, this->real(), output);
@@ -1285,7 +1316,9 @@ int CMPLX::ByteSize() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
   }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
   return total_size;
 }
 
@@ -1350,3 +1383,7 @@ void CMPLX::Swap(CMPLX* other) {
   return metadata;
 }
 
+
+// @@protoc_insertion_point(namespace_scope)
+
+// @@protoc_insertion_point(global_scope)
