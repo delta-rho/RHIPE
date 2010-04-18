@@ -600,7 +600,7 @@ configure_hadoop
 install_rhipe_extras
 ## uncomment the following line and modify
 ## run_r_code to install your own packages
- run_r_code
+## run_r_code
 
 if $IS_MASTER ; then
   setup_web
