@@ -287,7 +287,7 @@ extern "C" {
     int buffsize = INTEGER(bf)[0];
     if(buffsize == 0)
       buffsize = BUFSIZ;
-    int w=64*1024;
+    int w=2*1024*1024;
     Rf_warning("Using read buffer size:%d, data store:%d",buffsize,w);
     char* buffer = (char*)malloc(buffsize*sizeof(char));
     setbuffer(fp,buffer, buffsize);

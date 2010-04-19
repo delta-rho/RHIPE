@@ -59,17 +59,19 @@ public class RXBinaryOutputFormat extends FileOutputFormat<RHBytesWritable, RHBy
 	int counter =0;
         public void write(RHBytesWritable key, RHBytesWritable value)
           throws IOException {
-	    int kl,vl;
-	    byte[] kb,vb;
+	    // int kl,vl;
+	    // byte[] kb,vb;
 // 	    if( (out.size() - counter) >= flushwhen && writemeta){
 // 		counter = out.size();
 // 		metaout.writeInt(counter);
 // 		metaout.sync();
 // 	    }
-	    kl = key.getLength(); vl = value.getLength();
-	    kb = key.get(); vb=value.get();
-	    out.writeInt(kl);out.write(kb,0,kl);
-	    out.writeInt(vl);out.write(vb,0,vl);
+	    key.writeAsInt(out);
+	    value.writeAsInt(out);
+	    // kl = key.getSize(); vl = value.getSize();
+	    // kb = key.getBytes(); vb=value.getBytes();
+	    // out.writeInt(kl);out.write(kb,0,kl);
+	    // out.writeInt(vl);out.write(vb,0,vl);
 	    out.sync();
         }
 

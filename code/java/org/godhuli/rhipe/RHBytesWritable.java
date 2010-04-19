@@ -34,12 +34,11 @@ public class RHBytesWritable
     implements WritableComparable<RHBytesWritable> {
     public static String fieldSep=" ";
 		
-    int length;
-    int offset;
+    int bytelength;
+    // int offset;
     private static final int LENGTH_BYTES = 0 ; // 4;
     private static final byte[] EMPTY_BYTES = {};
 		
-    int size;
     byte[] bytes;
 		
 		
@@ -48,106 +47,79 @@ public class RHBytesWritable
     }
 		
     public RHBytesWritable(byte[] bytes) {
-	this(bytes, 0, bytes.length);
+	this(bytes, bytes.length);
     }
 		
-    public RHBytesWritable(final byte[] bytes, final int offset,
+    public RHBytesWritable(final byte[] bytes, 
 			   final int length) {
 	this.bytes = bytes;
-	this.offset = offset;
-	this.length = length;
+	// this.offset = offset;
+	this.bytelength = length;
     }
-		
-
     public RHBytesWritable(final RHBytesWritable ibw) {
-	this(ibw.get(), 0, ibw.getSize());
+	this(ibw.getBytes(),  ibw.getSize());
     }
-		
-
-    public byte [] get() {
-	if (this.bytes == null) {
-	    throw new IllegalStateException("Uninitialiized. Null constructor " +
-					    "called w/o accompaying readFields invocation");
-	}
-	return this.bytes;
-    }
-		
     public void set(final byte [] b) {
-	set(b, 0, b.length);
+	set(b, b.length);
     }
-		
     public byte []  getBytes(){
 	return(this.bytes);
     }
-		
-    
-    public void set(final byte [] b, final int offset, final int length) {
-	this.bytes = b;
-	this.offset = offset;
-	this.length = length;
-    }
-		
-    public int getSize() {
-	if (this.bytes == null) {
-	    throw new IllegalStateException("Uninitialiized. Null constructor " +
-					    "called w/o accompaying readFields invocation");
-	}
-	return this.length;
-    }
-		
-		
-		
-    public int getLength() {
-	if (this.bytes == null) {
-	    throw new IllegalStateException("Uninitialiized. Null constructor " +
-					    "called w/o accompaying readFields invocation");
-	}
-	return this.length;
-    }
-		
-	
-    public int hashCode() {
-	return WritableComparator.hashBytes(bytes, this.length);
-    }
-		
-    /**
-     * Define the sort order of the BytesWritable.
-     * @param right_obj The other bytes writable
-     * @return Positive if left is bigger than right, 0 if they are equal, and
-     *         negative if left is smaller than right.
-     */
-    public int compareTo(RHBytesWritable right_obj) {
-	return compareTo(right_obj.get());
-    }
-		
-    /**
-     * Compares the bytes in this object to the specified byte array
-     * @param that
-     * @return Positive if left is bigger than right, 0 if they are equal, and
-     *         negative if left is smaller than right.
-     */
-    public int compareTo(final byte [] that) {
-	// int diff = this.length - that.length;
-	// return (diff != 0)?
-	//     diff:
-	   return WritableComparator.compareBytes(this.bytes, 0, this.length, that,
-					    0, that.length);
+    // public void set(final byte [] b, final int length) {
+    // 	this.bytes = b;
+    // 	this.bytelength = length;
+    // }
+    public void set(byte[] newData,  int length) {
+    	setSize(0);
+    	setSize(length);
+    	System.arraycopy(newData,0, bytes, 0, bytelength);
     }
 
-    public boolean equals(Object right_obj) {
-	if (right_obj instanceof byte []) {
-	    return compareTo((byte [])right_obj) == 0;
+    public void setSize(int size) {
+	if (size > getCapacity()) {
+	    setCapacity(size * 3 / 2);
 	}
-	if (right_obj instanceof RHBytesWritable) {
-	    return compareTo((RHBytesWritable)right_obj) == 0;
+	this.bytelength = size;
+    }
+    public void setCapacity(int new_cap) {
+	if (new_cap != getCapacity()) {
+	    byte[] new_data = new byte[new_cap];
+	    if (new_cap < this.bytelength) {
+		bytelength = new_cap;
+	    }
+	    if (bytelength != 0) {
+		System.arraycopy(bytes, 0, new_data, 0, bytelength);
+	    }
+	    bytes = new_data;
 	}
-	return false;
+    }
+    public int getSize() {
+	return this.bytelength;
+    }
+    public int getCapacity() {
+	return bytes.length;
+    }
+    public int hashCode() {
+	return WritableComparator.hashBytes(bytes, this.bytelength);
     }
 		
-		
-		
-    /** A Comparator optimized for RXImmutableBytesWritable.
-     */ 
+    public int compareTo(RHBytesWritable right_obj) {
+	return compareTo(right_obj.getBytes());
+    }
+    public int compareTo(final byte [] that) {
+	   return WritableComparator.compareBytes(this.bytes, 0, this.bytes.length, that,
+					    0, that.length);
+    }
+    public boolean equals(Object right_obj) {
+	// I changed this in 0.59!
+	// if (right_obj instanceof byte []) {
+	//     return compareTo((byte [])right_obj) == 0;
+	// }
+	// if (right_obj instanceof RHBytesWritable) {
+	    return compareTo((RHBytesWritable)right_obj) == 0;
+	// }
+	// return false;
+    }
     public static class Comparator extends WritableComparator {
 	private BytesWritable.Comparator comparator =
 	    new BytesWritable.Comparator();
@@ -161,40 +133,42 @@ public class RHBytesWritable
 	    return comparator.compare(b1, s1, l1, b2, s2, l2);
 	}
     }
-		
     static { // register this comparator
 	WritableComparator.define(RHBytesWritable.class, new Comparator());
     }
-		
-		
-		
+    // public void readFields(final DataInput in) throws IOException {
+    // 	this.bytelength = readVInt(in);
+    // 	this.bytes = new byte[this.bytelength];
+    // 	in.readFully(this.bytes, 0, this.bytelength);
+    // }
     public void readFields(final DataInput in) throws IOException {
-	this.length = readVInt(in);
-	// this.length = in.readInt();
-	this.bytes = new byte[this.length];
-	in.readFully(this.bytes, 0, this.length);
-	this.offset = 0;
+	// System.out.print("Old length="+bytelength);
+    	setSize(0); // clear the old data
+    	setSize(readVInt(in));
+	// System.out.println(" new Length= "+bytelength+" of "+getCapacity());
+    	in.readFully(this.bytes, 0, bytelength);
     }
-	
-
-		
+    // public void readIntFields(final DataInput in) throws IOException {
+    // 	this.bytelength = in.readInt();
+    // 	this.bytes = new byte[this.bytelength];
+    // 	in.readFully(this.bytes, 0, this.bytelength);
+    // }
     public void readIntFields(final DataInput in) throws IOException {
-	this.length = in.readInt();
-	this.bytes = new byte[this.length];
-	in.readFully(this.bytes, 0, this.length);
-	this.offset = 0;
+    	setSize(0); // clear the old data
+    	setSize(in.readInt());
+    	in.readFully(bytes, 0, bytelength);
     }
 	
     public void write(final DataOutput out) throws IOException {
-	WritableUtils.writeVInt(out,this.length);
+	WritableUtils.writeVInt(out,this.bytelength);
 	// out.writeInt(this.length);
-	out.write(this.bytes, this.offset, this.length);
+	out.write(this.bytes, 0, this.bytelength);
     }
 
     public void writeAsInt(final DataOutput out) throws IOException {
-	out.writeInt(this.length);
+	out.writeInt(this.bytelength);
 	// out.writeInt(this.length);
-	out.write(this.bytes, this.offset, this.length);
+	out.write(this.bytes, 0, this.bytelength);
     }
 
     public static boolean isNegativeVInt(byte value) {
@@ -231,8 +205,8 @@ public class RHBytesWritable
     
 		
     public String toByteString() { 
-	StringBuffer sb = new StringBuffer(3*this.bytes.length);
-	for (int idx = 0; idx < this.bytes.length; idx++) {
+	StringBuffer sb = new StringBuffer(3*this.bytelength);
+	for (int idx = 0; idx < this.bytelength; idx++) {
 	    // if not the first, put a blank separator in
 	    if (idx != 0) {
 		sb.append(" 0x");
@@ -252,7 +226,7 @@ public class RHBytesWritable
 
 		
     public String toString() {
-	String s =  REXPHelper.toString(bytes);
+	String s =  REXPHelper.toString(bytes,0,this.bytelength);
 	return(s);
 	// return(toByteString());
     }

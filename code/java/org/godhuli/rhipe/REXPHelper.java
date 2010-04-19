@@ -33,10 +33,11 @@ public class REXPHelper  {
 	return(r.toString());
     }
 
-    public static String toString(byte[] b){
+    public static String toString(byte[] b,int off, int len){
 	REXP r = null;
 	try{
-	    r=REXP.parseFrom(b);
+		
+	    r=REXP.newBuilder().mergeFrom(b,off,len).build();
 	}catch( com.google.protobuf.InvalidProtocolBufferException e){
 	    return(null);
 	}

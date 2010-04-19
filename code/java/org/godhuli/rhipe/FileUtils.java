@@ -24,8 +24,10 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.DataOutputStream;
+import org.apache.hadoop.io.Writable;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataOutput;
 import java.io.DataInput;
 import java.io.EOFException;
@@ -291,6 +293,20 @@ public class FileUtils {
 	}
     }
 
+    // public void sequence2binary(REXP rexp0) throws Exception{
+    // 	// System.out.println(rexp0);
+    // 	int n = rexp0.getStringValueCount();
+    // 	String[] infile = new String[n-3];
+    // 	String ofile = rexp0.getStringValue(0).getStrval();
+    // 	int local = Integer.parseInt(rexp0.getStringValue(1).getStrval());
+    // 	int maxnum = Integer.parseInt(rexp0.getStringValue(2).getStrval());
+    // 	for(int i=3;i< n;i++) infile[i-3] = rexp0.getStringValue(i).getStrval();
+    // 	S2B s = new S2B();
+    // 	if(!s.runme( infile, ofile,local==1 ? true:false,maxnum)){
+    // 	    throw new Exception("Could not convert sequence to binary");
+    // 	}
+    // }
+
     public void sequence2binary(REXP rexp0) throws Exception{
 	// System.out.println(rexp0);
 	int n = rexp0.getStringValueCount();
@@ -298,12 +314,36 @@ public class FileUtils {
 	String ofile = rexp0.getStringValue(0).getStrval();
 	int local = Integer.parseInt(rexp0.getStringValue(1).getStrval());
 	int maxnum = Integer.parseInt(rexp0.getStringValue(2).getStrval());
-	for(int i=3;i< n;i++) infile[i-3] = rexp0.getStringValue(i).getStrval();
-	S2B s = new S2B();
-	if(!s.runme( infile, ofile,local==1 ? true:false,maxnum)){
-	    throw new Exception("Could not convert sequence to binary");
+	for(int i=3;i< n;i++) {
+	    infile[i-3] = rexp0.getStringValue(i).getStrval();
 	}
+	// DataOutputStream bfo = new DataOutputStream(new BufferedOutputStream(System.out));
+	DataOutputStream bfo = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(ofile),2*1024*1024));
+	int counter=0;
+	boolean endd=false;
+	RHBytesWritable k=new RHBytesWritable();
+	RHBytesWritable v=new RHBytesWritable();
+	for(int i=0; i <infile.length;i++){
+	    SequenceFile.Reader sqr = new SequenceFile.Reader(FileSystem.get(cfg) ,new Path(infile[i]), getConf());
+	    while(true){
+		boolean gotone = sqr.next((Writable)k,(Writable)v);
+		if(gotone){
+		    counter++;
+		    k.writeAsInt(bfo); v.writeAsInt(bfo);
+		    // System.out.println("Key= "+k+" Value="+v);
+		}else break;
+		if(maxnum >0 && counter >= maxnum) {
+		    endd=true;
+		    break;
+		}
+	    }
+	    sqr.close();
+	    if(endd) break;
+	}
+	bfo.close();
     }
+
+
     public void sequence2map(REXP rexp0) throws Exception{
 	int n = rexp0.getStringValueCount();
 	String[] infile = new String[n-2];
@@ -343,7 +383,14 @@ public class FileUtils {
     public void getKeys(REXP rexp0) throws Exception{
 	REXP keys = rexp0.getRexpValue(0); 
 	REXP paths = rexp0.getRexpValue(1);
-	MapFile.Reader[] mr = RHMapFileOutputFormat.getReaders(new Path( paths.getStringValue(0).getStrval() ),getConf());
+	Configuration c=getConf();
+	c.setInt("io.map.index.skip",rexp0.getRexpValue(4).getIntValue(0));
+	MapFile.Reader[] mr = new MapFile.Reader[paths.getStringValueCount()];
+	FileSystem fs = FileSystem.get(c);
+	for(int i=0;i< mr.length;i++){
+	    mr[i] = new  MapFile.Reader(fs, paths.getStringValue(i).getStrval(), c);
+	}
+	// MapFile.Reader[] mr = RHMapFileOutputFormat.getReaders(new Path( paths.getStringValue(0).getStrval() ),c);
 	String tempdest = rexp0.getRexpValue(2).getStringValue(0).getStrval();
 	REXP.RBOOLEAN b = rexp0.getRexpValue(3).getBooleanValue(0);
 
@@ -360,7 +407,7 @@ public class FileUtils {
 		v.writeAsInt(out);
 	    }
 	    out.close();
-	}else{
+	}else{// these will be written out as a sequence file
 	    RHWriter rw = new RHWriter(tempdest,getConf());
 	    SequenceFile.Writer w = rw.getSQW();
 	    for(int i=0; i < numkeys; i++){

@@ -357,7 +357,7 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
 }
 
 
-rhex <- function (conf,changes,...) 
+rhex <- function (conf,mapred,...) 
 {
   exitf <- NULL
   ## browser()
@@ -371,9 +371,9 @@ rhex <- function (conf,changes,...)
   }else
   stop("Wrong class of list given")
 
-  if(!missing(changes)){
-    for(i in names(changes)){
-      lines[[i]] <- changes[[i]]
+  if(!missing(mapred)){
+    for(i in names(mapred)){
+      lines[[i]] <- mapred[[i]]
     }
   }
 

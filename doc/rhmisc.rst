@@ -128,18 +128,13 @@ rhread
 
 ::
 	
-	rhread <- function(files,max=-1,type="sequence",verbose=T,doLocal=T)
+	rhread <- function(files,max=-1,type="sequence",verbose=T)
 
 
 Reads files(s) from ``files`` (which could be a directory). Wildcards allowed.
 
 If ``verbose`` is True, information is displayed (useful when reading many
 files)
-``rhread`` read sequence files by running a mapreduce	job to convert the
-sequence file to a binary file. 
-This is then merged and read into R. If ``doLocal`` is True this mapreduce
-conversion job is a local mapreduce job (which can be slow for lots of part
-files) else a fully distributed job.
 
 If ``max`` is positive, ``max`` key-value pairs will be read.
 
@@ -231,28 +226,15 @@ mapreduce job will cause it to fail when it reads the non-map file.
 
 Use ``rhmap.sqs`` .
 
-rhmap.sqs
-^^^^^^^^^
 
-::
-
-	rhmap.sqs <-  function(x)
-
-Given a directory containing map part directories, e.g /a/part-r-00000/ etc,
-each part directory contains a data and an index file, this function picks up
-the data files (which are sequence files). This can be used as input to
-mapreduce job with inputformat sequence e.g.
-
-::
-
-	rhmap.sqs("/a/p*")
 
 rhgetkey
 ^^^^^^^^
 
 ::
 	
-	rhgetkey <- function (keys, paths, sequence=NULL,ignore.stderr = T, verbose = F) 
+	rhgetkey <- function (keys, paths, sequence=NULL,skip=0,ignore.stderr = T, verbose = F) 
 
 Given a list of keys and vector of  map directories (e.g /tmp/ou/mapoutput/p*"),
-returns a list of key,values. If sequence is a string, the output key,values will be written to the sequence files on the DFS(the values will not be read into R)
+returns a list of key,values. If sequence is a string, the output key,values will be written to the sequence files on the DFS(the values will not be read into R).
+Set skip to larger(integr) values to prevent reading in all keys of the table - slower to find your key, but can search a much large database.
