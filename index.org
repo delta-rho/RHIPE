@@ -96,7 +96,7 @@ See the documentation.
 The documentation can be found [[file:./doc/html/index.html][here]]. PDF version can be found [[file:./doc/rhipe.pdf][here]]
 * News
 ** Mon Apr 19 02:00:22 EDT 2010
-- Less memory allocation in the key/values.
+- Less memory allocation in the key/value(s).
 - =rhread= now does not do a mapreduce job to convert sequence files to binary. Also has a =head= like function.
   - if multicore is installed, then running rhread(..,mc=TRUE) will deserialize in parallel, which might or might be slower ...
 - =rhez= takes an option =mapred= which is of the same form as =mapred= in =rhmr=. This will override the =mapred= value in =rhmr=.
