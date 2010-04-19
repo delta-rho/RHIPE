@@ -294,7 +294,7 @@ rhwordcount <- function(infile,outfile,local=F){
 ##   })
 ## }
 
-rhread <- function(files,type="sequence",max=-1,ignore.stderr=T,verbose=F,...){
+rhread <- function(files,type="sequence",max=-1,ignore.stderr=T,verbose=F,mc=FALSE){
   type = match.arg(type,c("sequence","map","text"))
   on.exit({
     if(!keepfile)
@@ -326,10 +326,9 @@ rhread <- function(files,type="sequence",max=-1,ignore.stderr=T,verbose=F,...){
     }else{
       tf2<- tempfile(pattern=paste(sample(letters,8),sep='',collapse=''))
     }
-  Rhipe:::doCMD(rhoptions()$cmd['s2b'], infiles=files,ofile=tf1,ilocal=TRUE,howmany=max,ignore.stderr=ignore.stderr,
+  v <- Rhipe:::doCMD(rhoptions()$cmd['s2b'], infiles=files,ofile=tf1,ilocal=TRUE,howmany=max,ignore.stderr=ignore.stderr,
         verbose=verbose)
-  message("------ reading binary,please wait -----")
-  v <- rhreadBin(tf1,readbuf=1024*1024,...)
-  return(v)
+  if(mc) LL=mclapply else LL=lapply
+  LL(v,function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
 }
 #hread("/tmp/f")

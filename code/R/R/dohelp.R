@@ -48,6 +48,10 @@ doCMD <- function(CMD=0,needoutput=F,opts=rhoptions(),verbose=T,ignore.stderr=F
   }    
   cmd <- paste(ip," ",CMD, " ",tm,sep='',collapse='')
   if(verbose) cat(cmd,"\n")
+  if(CMD==6){ ##rhread
+    if(ignore.stderr) cmd <- sprintf("%s 2>/dev/null",cmd)
+    return(.Call("readSQFromPipe",cmd,as.integer(1024*1024L)))
+  }
   r <- system(cmd,
               intern=F,ignore.stderr=ignore.stderr)
   if(verbose) message("Error Code is ",r)

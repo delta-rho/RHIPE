@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
 
 using namespace std;
 using namespace google::protobuf;
@@ -413,6 +414,59 @@ extern "C" {
     free(_k);
     delete(rexp_container);
     return(R_NilValue);   
+  }
+
+
+  SEXP readSQFromPipe(SEXP jcmd,SEXP buf){
+    FILE* pipe = popen((char*)CHAR(STRING_ELT( jcmd , 0)), "r");
+    if (!pipe) {
+      Rf_error("Could not run java process: %s",(char*)CHAR(STRING_ELT( jcmd , 0)));
+      return(R_NilValue);
+    }
+    uint32_t n0;
+    FileInputStream *fis = new FileInputStream(fileno(pipe), INTEGER(buf)[0]);
+    CodedInputStream* cis = new CodedInputStream(fis);
+    cis->SetTotalBytesLimit(256*1024*1024,256*1024*1024);
+
+    SEXP rv;
+    uint32_t countsum=0;
+    PROTECT(rv = NewList());
+    while(true){
+      SEXP l,k,v;
+      if(!cis->ReadVarint32(&n0)) break;
+      PROTECT(l = Rf_allocVector(VECSXP,2));
+
+      PROTECT(k = Rf_allocVector(RAWSXP,n0));
+      cis->ReadRaw(RAW(k),n0);
+      SET_VECTOR_ELT( l, 0, k);
+      countsum+= n0;
+
+      cis->ReadVarint32(&n0);
+      PROTECT(v = Rf_allocVector(RAWSXP,n0));
+      cis->ReadRaw(RAW(v),n0);
+      SET_VECTOR_ELT( l, 1, v);
+      countsum+= n0;
+
+      rv = GrowList(rv, l);
+      UNPROTECT(3);
+    }
+    //http://stackoverflow.com/questions/478898/how-to-execute-a-command-and-get-output-of-command-within-c
+    pclose(pipe);
+    delete cis;
+    delete fis;
+    if(countsum< 12*1024)
+      printf("About to unserialize %.2f kb, please wait\n", ((double)countsum)/(1024));
+    else
+      printf("About to unserialize %.2f mb, please wait\n", ((double)countsum)/(1024*1024));
+  
+    rv = CDR(rv);
+    SEXP rval;
+    PROTECT(rval = Rf_allocVector(VECSXP, Rf_length(rv)));
+    for (int n = 0 ; n < LENGTH(rval) ; n++, rv = CDR(rv)){
+      SET_VECTOR_ELT(rval, n, CAR(rv));
+    }
+    UNPROTECT(2);
+    return(rval);
   }
 }
 

@@ -61,6 +61,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import org.apache.hadoop.io.SequenceFile;
+import com.google.protobuf.CodedOutputStream;
 
 public class FileUtils {
     private FsShell fsshell;
@@ -307,6 +308,42 @@ public class FileUtils {
     // 	}
     // }
 
+    // public void sequence2binary(REXP rexp0) throws Exception{
+    // 	// System.out.println(rexp0);
+    // 	int n = rexp0.getStringValueCount();
+    // 	String[] infile = new String[n-3];
+    // 	String ofile = rexp0.getStringValue(0).getStrval();
+    // 	int local = Integer.parseInt(rexp0.getStringValue(1).getStrval());
+    // 	int maxnum = Integer.parseInt(rexp0.getStringValue(2).getStrval());
+    // 	for(int i=3;i< n;i++) {
+    // 	    infile[i-3] = rexp0.getStringValue(i).getStrval();
+    // 	}
+    // 	// DataOutputStream bfo = new DataOutputStream(new BufferedOutputStream(System.out,2*1024*1024));
+    // 	DataOutputStream bfo = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(ofile),2*1024*1024));
+    // 	int counter=0;
+    // 	boolean endd=false;
+    // 	RHBytesWritable k=new RHBytesWritable();
+    // 	RHBytesWritable v=new RHBytesWritable();
+    // 	for(int i=0; i <infile.length;i++){
+    // 	    SequenceFile.Reader sqr = new SequenceFile.Reader(FileSystem.get(cfg) ,new Path(infile[i]), getConf());
+    // 	    while(true){
+    // 		boolean gotone = sqr.next((Writable)k,(Writable)v);
+    // 		if(gotone){
+    // 		    counter++;
+    // 		    k.writeAsInt(bfo); v.writeAsInt(bfo);
+    // 		    // System.out.println("Key= "+k+" Value="+v);
+    // 		}else break;
+    // 		if(maxnum >0 && counter >= maxnum) {
+    // 		    endd=true;
+    // 		    break;
+    // 		}
+    // 	    }
+    // 	    sqr.close();
+    // 	    if(endd) break;
+    // 	}
+    // 	bfo.close();
+    // }
+
     public void sequence2binary(REXP rexp0) throws Exception{
 	// System.out.println(rexp0);
 	int n = rexp0.getStringValueCount();
@@ -317,8 +354,9 @@ public class FileUtils {
 	for(int i=3;i< n;i++) {
 	    infile[i-3] = rexp0.getStringValue(i).getStrval();
 	}
-	// DataOutputStream bfo = new DataOutputStream(new BufferedOutputStream(System.out));
-	DataOutputStream bfo = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(ofile),2*1024*1024));
+	// DataOutputStream bfo = new DataOutputStream(new BufferedOutputStream(System.out,2*1024*1024));
+	CodedOutputStream cdo = CodedOutputStream.newInstance(System.out, 2*1024*1024);
+	// DataOutputStream bfo = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(ofile),2*1024*1024));
 	int counter=0;
 	boolean endd=false;
 	RHBytesWritable k=new RHBytesWritable();
@@ -329,8 +367,8 @@ public class FileUtils {
 		boolean gotone = sqr.next((Writable)k,(Writable)v);
 		if(gotone){
 		    counter++;
-		    k.writeAsInt(bfo); v.writeAsInt(bfo);
-		    // System.out.println("Key= "+k+" Value="+v);
+		    cdo.writeRawVarint32(k.getSize()); cdo.writeRawBytes(k.getBytes(),0,k.getSize());
+		    cdo.writeRawVarint32(v.getSize()); cdo.writeRawBytes(v.getBytes(),0,v.getSize());
 		}else break;
 		if(maxnum >0 && counter >= maxnum) {
 		    endd=true;
@@ -340,7 +378,7 @@ public class FileUtils {
 	    sqr.close();
 	    if(endd) break;
 	}
-	bfo.close();
+	cdo.flush();
     }
 
 
