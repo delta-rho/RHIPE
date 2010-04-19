@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Miscellaneous Commands &mdash; rhipe v0.58 documentation</title>
+    <title>Miscellaneous Commands &mdash; rhipe v0.59 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.58',
+        VERSION:     '0.59',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,7 +19,7 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="rhipe v0.58 documentation" href="index.html" />
+    <link rel="top" title="rhipe v0.59 documentation" href="index.html" />
     <link rel="next" title="Using RHIPE on EC2" href="ec2.html" />
     <link rel="prev" title="The rhmr Command" href="rhmr.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="rhmr.html" title="The rhmr Command"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">rhipe v0.58 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.59 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -67,7 +67,6 @@
 <li><a class="reference external" href="#map-files">Map Files</a><ul>
 <li><a class="reference external" href="#rhs2m">rhS2M</a></li>
 <li><a class="reference external" href="#rhm2m">rhM2M</a></li>
-<li><a class="reference external" href="#rhmap-sqs">rhmap.sqs</a></li>
 <li><a class="reference external" href="#rhgetkey">rhgetkey</a></li>
 </ul>
 </li>
@@ -205,17 +204,12 @@ to split the list into.  The default value of <tt class="docutils literal"><span
 </div>
 <div class="section" id="rhread">
 <h3>rhread<a class="headerlink" href="#rhread" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><div class="highlight"><pre>rhread <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>files<span class="p">,</span>max<span class="o">=</span><span class="m">-1</span><span class="p">,</span>type<span class="o">=</span><span class="s">&quot;sequence&quot;</span><span class="p">,</span>verbose<span class="o">=</span><span class="k-Variable">T</span><span class="p">,</span>doLocal<span class="o">=</span><span class="k-Variable">T</span><span class="p">)</span>
+<div class="highlight-r"><div class="highlight"><pre>rhread <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>files<span class="p">,</span>max<span class="o">=</span><span class="m">-1</span><span class="p">,</span>type<span class="o">=</span><span class="s">&quot;sequence&quot;</span><span class="p">,</span>verbose<span class="o">=</span><span class="k-Variable">T</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Reads files(s) from <tt class="docutils literal"><span class="pre">files</span></tt> (which could be a directory). Wildcards allowed.</p>
 <p>If <tt class="docutils literal"><span class="pre">verbose</span></tt> is True, information is displayed (useful when reading many
-files)
-<tt class="docutils literal"><span class="pre">rhread</span></tt> read sequence files by running a mapreduce   job to convert the
-sequence file to a binary file.
-This is then merged and read into R. If <tt class="docutils literal"><span class="pre">doLocal</span></tt> is True this mapreduce
-conversion job is a local mapreduce job (which can be slow for lots of part
-files) else a fully distributed job.</p>
+files)</p>
 <p>If <tt class="docutils literal"><span class="pre">max</span></tt> is positive, <tt class="docutils literal"><span class="pre">max</span></tt> key-value pairs will be read.</p>
 <p>Set <tt class="docutils literal"><span class="pre">type</span></tt> to &#8220;map&#8221; if the directory <tt class="docutils literal"><span class="pre">files</span></tt> contains map folders.</p>
 </div>
@@ -272,26 +266,14 @@ a sequence file and a non sequence file. Specifying the list of directories to a
 mapreduce job will cause it to fail when it reads the non-map file.</p>
 <p>Use <tt class="docutils literal"><span class="pre">rhmap.sqs</span></tt> .</p>
 </div>
-<div class="section" id="rhmap-sqs">
-<h3>rhmap.sqs<a class="headerlink" href="#rhmap-sqs" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><div class="highlight"><pre>rhmap.sqs <span class="o">&lt;-</span>  <span class="kr">function</span><span class="p">(</span>x<span class="p">)</span>
-</pre></div>
-</div>
-<p>Given a directory containing map part directories, e.g /a/part-r-00000/ etc,
-each part directory contains a data and an index file, this function picks up
-the data files (which are sequence files). This can be used as input to
-mapreduce job with inputformat sequence e.g.</p>
-<div class="highlight-r"><div class="highlight"><pre>rhmap.sqs<span class="p">(</span><span class="s">&quot;/a/p*&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
 <div class="section" id="rhgetkey">
 <h3>rhgetkey<a class="headerlink" href="#rhgetkey" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><div class="highlight"><pre>rhgetkey <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>keys<span class="p">,</span> paths<span class="p">,</span> sequence<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>ignore.stderr <span class="o">=</span> <span class="k-Variable">T</span><span class="p">,</span> verbose <span class="o">=</span> <span class="k-Variable">F</span><span class="p">)</span>
+<div class="highlight-r"><div class="highlight"><pre>rhgetkey <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>keys<span class="p">,</span> paths<span class="p">,</span> sequence<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>skip<span class="o">=</span><span class="m">0</span><span class="p">,</span>ignore.stderr <span class="o">=</span> <span class="k-Variable">T</span><span class="p">,</span> verbose <span class="o">=</span> <span class="k-Variable">F</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Given a list of keys and vector of  map directories (e.g /tmp/ou/mapoutput/p*&#8221;),
-returns a list of key,values. If sequence is a string, the output key,values will be written to the sequence files on the DFS(the values will not be read into R)</p>
+returns a list of key,values. If sequence is a string, the output key,values will be written to the sequence files on the DFS(the values will not be read into R).
+Set skip to larger(integr) values to prevent reading in all keys of the table - slower to find your key, but can search a much large database.</p>
 </div>
 </div>
 </div>
@@ -314,7 +296,7 @@ returns a list of key,values. If sequence is a string, the output key,values wil
         <li class="right" >
           <a href="rhmr.html" title="The rhmr Command"
              >previous</a> |</li>
-        <li><a href="index.html">rhipe v0.58 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.59 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
