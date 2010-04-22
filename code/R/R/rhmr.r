@@ -348,7 +348,7 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
         message("Reading in Data")
         message("---------------")
         #3
-        retdata <- rhread(paste(tempo.file,"/p*",sep=""),doLocal)
+        retdata <- rhread(paste(tempo.file,"/p*",sep=""),type='sequence')
         if(!is.null(aggr)) retdata <- aggr(lapply(retdata,"[[",2))
       }
     })

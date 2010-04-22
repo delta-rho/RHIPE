@@ -1,5 +1,11 @@
 .rhipeEnv <- new.env()
-assign("rhipeOptions" ,list(version="0.59") ,envir=.rhipeEnv )
+vvvv <- "0.59"
+attr(vvvv,"minor") <- '1'
+attr(vvvv,"date") <- 'Thu Apr 22 12:37:06 EDT 2010'
+attr(vvvv,'notes') <- 'Fixed rhlapply which failed to read in data properly'
+class(vvvv) <- "rhversion"
+
+assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )
 
 .onUnload <- function(libpath){
   file("/tmp/mogo")

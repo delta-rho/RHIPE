@@ -338,3 +338,11 @@ rhread <- function(files,type="sequence",max=-1,ignore.stderr=T,verbose=F,mc=FAL
 }
 #hread("/tmp/f")
 ## ffdata2=hread("/tmp/d/")
+
+print.rhversion <- function(x,...){
+  x <- sprintf("RHIPE: major is %s , minor is %s\nDate:%s\nNotes: %s\n", x,attr(x,"minor"),attr(x,'date'),attr(x,"notes"))
+  attr(x, "class") <- NULL
+  ## NextMethod("print", x, quote = FALSE, right = TRUE, ...)
+  cat(x)
+  invisible(x)
+}

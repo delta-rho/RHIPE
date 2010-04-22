@@ -18,7 +18,7 @@ ec2:
 
 code:
 	sed  -i ""  "s/Version: [0-9]*\.*[0-9]*/Version: ${VER}/" code/R/DESCRIPTION 
-	sed  -i ""  "s/version=\"[0-9]*\.*[0-9]*\"/version=\"${VER}\"/" code/R/R/zzz.R
+	sed  -i ""  "s/vvvv <- \"[0-9]*\.*[0-9]*\"/vvvv <- \"${VER}\"/" code/R/R/zzz.R
 
 	if test -d build;then rm -rf build;else	mkdir build; fi
 	rsync -a code/ build/
