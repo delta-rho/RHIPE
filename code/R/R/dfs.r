@@ -18,12 +18,16 @@ rhsz <- function(r) .Call("serializeUsingPB",r)
 
 rhuz <- function(r) .Call("unserializeUsingPB",r)
 
-rhload <- function(file,...){
-  on.exit({unlink(x)})
-  x <- tempfile(pattern='rhipe.load')
-  rhget(file,x)
-  load(x,...) ##Fix this..., does not load in current frame
+rhload <- function (file, envir=parent.frame()) 
+{
+    on.exit({
+        unlink(x)
+    })
+    x <- tempfile(pattern = "rhipe.load")
+    rhget(file, x)
+    load(x,envir )
 }
+
 
 rhsave <- function(...,file){
   on.exit({unlink(x)})
@@ -295,6 +299,7 @@ rhwordcount <- function(infile,outfile,local=F){
 ## }
 
 rhread <- function(files,type="sequence",max=-1,ignore.stderr=T,verbose=F,mc=FALSE){
+  ## browser()
   type = match.arg(type,c("sequence","map","text"))
   on.exit({
     if(!keepfile)
@@ -313,7 +318,7 @@ rhread <- function(files,type="sequence",max=-1,ignore.stderr=T,verbose=F,mc=FAL
                     uu=unclass(rhls(files,rec=TRUE)['file'])$file
                     uu[grep("data$",uu)]
                   })
-  remr <- c(grep("/_logs/",files))
+  remr <- c(grep("/_logs",files))
   if(length(remr)>0)
     files <- files[-remr]
   tf1<- tempfile(pattern=paste('rhread_',
@@ -332,3 +337,4 @@ rhread <- function(files,type="sequence",max=-1,ignore.stderr=T,verbose=F,mc=FAL
   LL(v,function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
 }
 #hread("/tmp/f")
+## ffdata2=hread("/tmp/d/")

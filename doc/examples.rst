@@ -55,7 +55,7 @@ Using Shared Files and Side Effects
       load("session.Rdata")
     }),
     hadoop=list(mapred.map.tasks=1000),
-    shared.files=("/tmp/session.Rdata"))
+    shared=("/tmp/session.Rdata")) ##session.Rdata created by rhsave(..., file="/tmp/session.Rdata")
 
 
 Here ``session.Rdata`` is copied from HDFS to local temporary directories (making for faster reads). This

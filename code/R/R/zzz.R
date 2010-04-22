@@ -1,7 +1,10 @@
 .rhipeEnv <- new.env()
 assign("rhipeOptions" ,list(version="0.59") ,envir=.rhipeEnv )
 
-
+.onUnload <- function(libpath){
+  file("/tmp/mogo")
+  print("Bye")
+}
 .onLoad <- function(libname,pkgname){
   require(methods)
 

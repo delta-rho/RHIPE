@@ -149,7 +149,7 @@ rhex<span class="p">(</span>r<span class="p">)</span>
     load<span class="p">(</span><span class="s">&quot;session.Rdata&quot;</span><span class="p">)</span>
   <span class="p">}),</span>
   hadoop<span class="o">=</span>list<span class="p">(</span>mapred.map.tasks<span class="o">=</span><span class="m">1000</span><span class="p">),</span>
-  shared.files<span class="o">=</span><span class="p">(</span><span class="s">&quot;/tmp/session.Rdata&quot;</span><span class="p">))</span>
+  shared<span class="o">=</span><span class="p">(</span><span class="s">&quot;/tmp/session.Rdata&quot;</span><span class="p">))</span> <span class="c1">##session.Rdata created by rhsave(..., file=&quot;/tmp/session.Rdata&quot;)</span>
 </pre></div>
 </td></tr></table></div>
 <p>Here <tt class="docutils literal"><span class="pre">session.Rdata</span></tt> is copied from HDFS to local temporary directories (making for faster reads). This
