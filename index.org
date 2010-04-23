@@ -95,6 +95,8 @@ See the documentation.
 * Documentation
 The documentation can be found [[file:./doc/html/index.html][here]]. PDF version can be found [[file:./doc/rhipe.pdf][here]]
 * News
+** Thu Apr 23 12:48:45 EDT 2010 - 
+- fixed comparators, =rhgetkey= working again. (0.59-2)
 ** Thu Apr 22 12:23:37 EDT 2010
 - Fixed a bug in =rhlapply=, would not read in data. Thanks to /eddyu/
 - =rhoptions()$version= now has displays major, minor , date and notes. I added

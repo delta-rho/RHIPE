@@ -375,12 +375,11 @@ public class FileUtils {
 	REXP paths = rexp0.getRexpValue(1);
 	Configuration c=getConf();
 	c.setInt("io.map.index.skip",rexp0.getRexpValue(4).getIntValue(0));
-	MapFile.Reader[] mr = new MapFile.Reader[paths.getStringValueCount()];
-	FileSystem fs = FileSystem.get(c);
-	for(int i=0;i< mr.length;i++){
-	    mr[i] = new  MapFile.Reader(fs, paths.getStringValue(i).getStrval(), c);
+	String[] pnames = new String[paths.getStringValueCount()];
+	for(int i=0;i< pnames.length;i++){
+	    pnames[i] = paths.getStringValue(i).getStrval();
 	}
-	// MapFile.Reader[] mr = RHMapFileOutputFormat.getReaders(new Path( paths.getStringValue(0).getStrval() ),c);
+	MapFile.Reader[] mr = RHMapFileOutputFormat.getReaders(pnames,c);
 	String tempdest = rexp0.getRexpValue(2).getStringValue(0).getStrval();
 	REXP.RBOOLEAN b = rexp0.getRexpValue(3).getBooleanValue(0);
 
@@ -395,6 +394,11 @@ public class FileUtils {
 		RHMapFileOutputFormat.getEntry(mr,k,v);
 		k.writeAsInt(out);
 		v.writeAsInt(out);
+		// MapFile.Reader rd = RHMapFileOutputFormat.getPartForKey(mr,k,v);
+		// while(rd.next(k,v)){
+		//     k.writeAsInt(out);
+		//     v.writeAsInt(out);
+		// }
 	    }
 	    out.close();
 	}else{// these will be written out as a sequence file
@@ -408,6 +412,7 @@ public class FileUtils {
 	    rw.close();
 	}
     }
+
     public static void main(String[] args) throws Exception{
 	int cmd = Integer.parseInt(args[0]);
 	//parse data

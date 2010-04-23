@@ -30,8 +30,8 @@ import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
 
-public class RHBytesWritable
-    implements WritableComparable<RHBytesWritable> {
+public class RHBytesWritable extends BinaryComparable
+    implements WritableComparable<BinaryComparable> {
     public static String fieldSep=" ";
 		
     int bytelength;
@@ -93,6 +93,9 @@ public class RHBytesWritable
 	    bytes = new_data;
 	}
     }
+    public int getLength() {
+	return this.bytelength;
+    }
     public int getSize() {
 	return this.bytelength;
     }
@@ -100,60 +103,21 @@ public class RHBytesWritable
 	return bytes.length;
     }
     public int hashCode() {
-	return WritableComparator.hashBytes(bytes, this.bytelength);
+	// return WritableComparator.hashBytes(bytes, this.bytelength);
+	return super.hashCode();
     }
 		
-    public int compareTo(RHBytesWritable right_obj) {
-	return compareTo(right_obj.getBytes());
-    }
-    public int compareTo(final byte [] that) {
-	   return WritableComparator.compareBytes(this.bytes, 0, this.bytes.length, that,
-					    0, that.length);
-    }
     public boolean equals(Object right_obj) {
 	// I changed this in 0.59!
-	// if (right_obj instanceof byte []) {
-	//     return compareTo((byte [])right_obj) == 0;
-	// }
-	// if (right_obj instanceof RHBytesWritable) {
-	    return compareTo((RHBytesWritable)right_obj) == 0;
-	// }
-	// return false;
+	// compare to byteswritable calling supers.equals
+	return compareTo((RHBytesWritable)right_obj) == 0;
     }
-    public static class Comparator extends WritableComparator {
-	// private BytesWritable.Comparator comparator =
-	//     new BytesWritable.Comparator();
-			
-	/** constructor */
-	public Comparator() {
-	    super(RHBytesWritable.class);
-	}
 
-	public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
-	    // return comparator.compare(b1, s1, l1, b2, s2, l2);
-	    return compareBytes(b1, s1, l1, b2, s2, l2);
-	}
-    }
-    static { // register this comparator
-	WritableComparator.define(RHBytesWritable.class, new Comparator());
-    }
-    // public void readFields(final DataInput in) throws IOException {
-    // 	this.bytelength = readVInt(in);
-    // 	this.bytes = new byte[this.bytelength];
-    // 	in.readFully(this.bytes, 0, this.bytelength);
-    // }
     public void readFields(final DataInput in) throws IOException {
-	// System.out.print("Old length="+bytelength);
     	setSize(0); // clear the old data
     	setSize(readVInt(in));
-	// System.out.println(" new Length= "+bytelength+" of "+getCapacity());
     	in.readFully(this.bytes, 0, bytelength);
     }
-    // public void readIntFields(final DataInput in) throws IOException {
-    // 	this.bytelength = in.readInt();
-    // 	this.bytes = new byte[this.bytelength];
-    // 	in.readFully(this.bytes, 0, this.bytelength);
-    // }
     public void readIntFields(final DataInput in) throws IOException {
     	setSize(0); // clear the old data
     	setSize(in.readInt());
@@ -162,13 +126,10 @@ public class RHBytesWritable
 	
     public void write(final DataOutput out) throws IOException {
 	WritableUtils.writeVInt(out,this.bytelength);
-	// out.writeInt(this.length);
 	out.write(this.bytes, 0, this.bytelength);
     }
-
     public void writeAsInt(final DataOutput out) throws IOException {
 	out.writeInt(this.bytelength);
-	// out.writeInt(this.length);
 	out.write(this.bytes, 0, this.bytelength);
     }
 
@@ -187,23 +148,18 @@ public class RHBytesWritable
 
     public static int readVInt(DataInput stream) throws IOException {
 	byte firstByte = stream.readByte();
-	// System.out.println("readVInt: Got FB ="+firstByte);
 	int len = decodeVIntSize(firstByte);
-	// System.out.println("readVInt: length="+len);
 	if (len == 1) {
 	    return firstByte;
 	}
 	long i = 0;
 	for (int idx = 0; idx < len-1; idx++) {
 	    byte b = stream.readByte();
-	    // System.out.println("readVInt: Got ="+b);
-
 	    i = i << 8;
 	    i = i | (b & 0xFF);
 	}
 	return (int) ((isNegativeVInt(firstByte) ? (i ^ -1L) : i));
     }
-    
 		
     public String toByteString() { 
 	StringBuffer sb = new StringBuffer(3*this.bytelength);
@@ -221,17 +177,23 @@ public class RHBytesWritable
 	}
 	return sb.toString();
     }
-		
-		
-		
-
-		
     public String toString() {
 	String s =  REXPHelper.toString(bytes,0,this.bytelength);
 	return(s);
 	// return(toByteString());
     }
-		
+    public static class Comparator extends WritableComparator {
+	public Comparator() {
+	    super(RHBytesWritable.class);
+	}
+
+	public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+	    return compareBytes(b1, s1, l1, b2, s2, l2);
+	}
+    }
+    static { // register this comparator
+	WritableComparator.define(RHBytesWritable.class, new Comparator());
+    }		
 		
 		
 }

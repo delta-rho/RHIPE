@@ -277,7 +277,7 @@ extern "C" {
 //   }
 
 
-  SEXP readBinaryFile(SEXP filename0, SEXP max0,SEXP bf){
+  SEXP readBinaryFile(SEXP filename0, SEXP max0,SEXP bf,SEXP vb){
     SEXP rv = R_NilValue;
     int max = INTEGER(max0)[0];
     char *filename =  (char*)CHAR(STRING_ELT( filename0 , 0));
@@ -289,7 +289,8 @@ extern "C" {
     if(buffsize == 0)
       buffsize = BUFSIZ;
     int w=2*1024*1024;
-    Rf_warning("Using read buffer size:%d, data store:%d",buffsize,w);
+    if(LOGICAL(vb)[0])
+      Rf_warning("Using read buffer size:%d, data store:%d",buffsize,w);
     char* buffer = (char*)malloc(buffsize*sizeof(char));
     setbuffer(fp,buffer, buffsize);
 

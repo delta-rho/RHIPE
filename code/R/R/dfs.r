@@ -6,10 +6,12 @@
 
 
 
-rhreadBin <- function(file,maxnum=-1, readbuf=0,mc=FALSE){
+rhreadBin <- function(file,maxnum=-1, readbuf=0,mc=FALSE,verb=FALSE){
   sz=file.info(file[1])['size']
-  x= .Call("readBinaryFile",file[1],as.integer(maxnum),as.integer(readbuf))
-  cat(sprintf("Read binary data(%s MB), deserializing\n",round(sz/1024^2),4))
+  x= .Call("readBinaryFile",file[1],as.integer(maxnum),as.integer(readbuf),as.logical(verb))
+  if(sz < 0.9*(1024^2)) { U="kb"; pw=1}
+  else if(sz < 0.9*(1024^3)) {U="mb";pw=2} else {U="gb";pw=3}
+  cat(sprintf("%s %s read,unserializing, please wait\n",round(sz/(1024^pw),2),U))
   if(mc) LL=mclapply else LL=lapply
   LL(x,function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
 }
@@ -92,7 +94,7 @@ rhput <- function(src,dest,deleteDest=TRUE,ignore.stderr=T,verbose=F){
 ##   Rhipe:::doCMD(rhoptions()$cmd['rename'],infiles=src,ofile=dest,ignore.stderr=T,verbose=F)
 ##   if(delete) rhdel(src)
 ## }
-rhgetkey <- function(keys,paths,sequence=NULL,skip=0,ignore.stderr=T,verbose=F){
+rhgetkey <- function(keys,paths,sequence=NULL,skip=0,ignore.stderr=T,verbose=F,...){
   on.exit({
     if(dodel) unlink(tmf)
   })
@@ -113,7 +115,7 @@ rhgetkey <- function(keys,paths,sequence=NULL,skip=0,ignore.stderr=T,verbose=F){
   paths=unlist(paths)
   Rhipe:::doCMD(rhoptions()$cmd['getkey'], keys=keys,src=paths,dest=tmf,skip=as.integer(skip),sequence=!is.null(sequence),
                 ignore.stderr=ignore.stderr,verbose=verbose)
-  if(is.null(sequence)) rhreadBin(tmf)
+  if(is.null(sequence)) rhreadBin(tmf,...,verb=verbose)
 }
 ## rhgetkey(list(c("f405ad5006b8dda3a7a1a819e4d13abfdbf8a","1"),c("f2b6a5390e9521397031f81c1a756e204fb18","1")) ,"/tmp/small.seq")
 
@@ -340,9 +342,11 @@ rhread <- function(files,type="sequence",max=-1,ignore.stderr=T,verbose=F,mc=FAL
 ## ffdata2=hread("/tmp/d/")
 
 print.rhversion <- function(x,...){
-  x <- sprintf("RHIPE: major is %s , minor is %s\nDate:%s\nNotes: %s\n", x,attr(x,"minor"),attr(x,'date'),attr(x,"notes"))
-  attr(x, "class") <- NULL
+  al <- paste(sapply(seq_along(attr(x,"notes")),function(y) sprintf("%s. %s",y,attr(x,"notes")[y])),collapse="\n")
+  y <- sprintf("RHIPE: major is %s , minor is %s\nDate: %s\nNotes:\n%s\n", x,attr(x,"minor"),attr(x,'date'),al)
+  y <- sprintf("%sEnjoy a cookie\n--------------\n%s\n",y,attr(x,'fortune'))
+  attr(y, "class") <- NULL
   ## NextMethod("print", x, quote = FALSE, right = TRUE, ...)
-  cat(x)
-  invisible(x)
+  cat(y)
+  invisible(y)
 }
