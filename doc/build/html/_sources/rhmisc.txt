@@ -64,6 +64,23 @@ rhsave.image
 
 Same as R's ``save.image``, except that the file goes to the HDFS.
 
+rhcp
+^^^^^
+::
+	
+	rhcp <- function(ifile,ofile)
+
+Copies a ``ifile`` to ``ofile`` on the HDFS, i.e. both files must be present on the HDFS.
+
+rhmv
+^^^^^
+::
+	
+	rhmv <- function(ifile,ofile)
+
+Moves ``ifile`` to ``ofile`` on the HDFS (and deletes ``ifile``).
+ 
+
 rhput
 ^^^^^
 ::

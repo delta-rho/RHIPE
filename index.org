@@ -75,7 +75,7 @@ Read the documentation for installation. Current is the latest version.
 
 | Version | Download           |                              |
 |---------+--------------------+------------------------------|
-|    0.59 | [[file:./dn/Rhipe_0.59.tar.gz][Rhipe_0.59.tar.gz]]  | Thu Apr 22 12:48:08 EDT 2010 |
+|    0.59 | [[file:./dn/Rhipe_0.59.tar.gz][Rhipe_0.59.tar.gz]]  | Tue May 04 18:15:26 EDT 2010 |
 |    0.58 | [[file:./dn/Rhipe_0.58.tar.gz][Rhipe_0.58.tar.gz]]  | Fri Apr 09 01:41:48 EDT 2010 |
 |    0.57 | [[file:./dn/Rhipe_0.57.tar.gz][Rhipe_0.57.tar.gz]]  | Sat Mar 20 11:20:21 EDT 2010 |
 |    0.56 | [[file:./dn/Rhipe_0.56.tar.gz][Rhipe_0.56.tar.gz]]  | Sat Feb 27 17:04:44 EST 2010 |
@@ -95,6 +95,10 @@ See the documentation.
 * Documentation
 The documentation can be found [[file:./doc/html/index.html][here]]. PDF version can be found [[file:./doc/rhipe.pdf][here]]
 * News
+** Thu May 06 21:29:36 EDT 2010
+- Added =rhcp= and =rhmv= to copy and moves files when both source and destination are on the HDFS (thanks to Jeff Li)
+** Tue May 04 18:15:35 EDT 2010
+- Some bugs in the comparator - fixed.
 ** Thu Apr 23 12:48:45 EDT 2010 - 
 - fixed comparators, =rhgetkey= working again. (0.59-2)
 ** Thu Apr 22 12:23:37 EDT 2010

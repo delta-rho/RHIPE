@@ -54,6 +54,8 @@
 <li><a class="reference external" href="#rhload">rhload</a></li>
 <li><a class="reference external" href="#rhsave">rhsave</a></li>
 <li><a class="reference external" href="#rhsave-image">rhsave.image</a></li>
+<li><a class="reference external" href="#rhcp">rhcp</a></li>
+<li><a class="reference external" href="#rhmv">rhmv</a></li>
 <li><a class="reference external" href="#rhput">rhput</a></li>
 <li><a class="reference external" href="#rhget">rhget</a></li>
 <li><a class="reference external" href="#rhls">rhls</a></li>
@@ -76,7 +78,7 @@
 
             <h4>Previous topic</h4>
             <p class="topless"><a href="rhmr.html"
-                                  title="previous chapter">The <tt class="docutils literal docutils literal"><span class="pre">rhmr</span></tt> Command</a></p>
+                                  title="previous chapter">The <tt class="docutils literal"><span class="pre">rhmr</span></tt> Command</a></p>
             <h4>Next topic</h4>
             <p class="topless"><a href="ec2.html"
                                   title="next chapter">Using RHIPE on EC2</a></p>
@@ -157,6 +159,20 @@ passed onto the R function <tt class="docutils literal"><span class="pre">save</
 </pre></div>
 </div>
 <p>Same as R&#8217;s <tt class="docutils literal"><span class="pre">save.image</span></tt>, except that the file goes to the HDFS.</p>
+</div>
+<div class="section" id="rhcp">
+<h3>rhcp<a class="headerlink" href="#rhcp" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhcp <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>ifile<span class="p">,</span>ofile<span class="p">)</span>
+</pre></div>
+</div>
+<p>Copies a <tt class="docutils literal"><span class="pre">ifile</span></tt> to <tt class="docutils literal"><span class="pre">ofile</span></tt> on the HDFS, i.e. both files must be present on the HDFS.</p>
+</div>
+<div class="section" id="rhmv">
+<h3>rhmv<a class="headerlink" href="#rhmv" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhmv <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>ifile<span class="p">,</span>ofile<span class="p">)</span>
+</pre></div>
+</div>
+<p>Moves <tt class="docutils literal"><span class="pre">ifile</span></tt> to <tt class="docutils literal"><span class="pre">ofile</span></tt> on the HDFS (and deletes <tt class="docutils literal"><span class="pre">ifile</span></tt>).</p>
 </div>
 <div class="section" id="rhput">
 <h3>rhput<a class="headerlink" href="#rhput" title="Permalink to this headline">¶</a></h3>

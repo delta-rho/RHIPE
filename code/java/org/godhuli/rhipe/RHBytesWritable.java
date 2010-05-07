@@ -30,113 +30,161 @@ import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
 
-public class RHBytesWritable extends BinaryComparable
-    implements WritableComparable<BinaryComparable> {
-    public static String fieldSep=" ";
-		
-    int bytelength;
-    // int offset;
-    private static final int LENGTH_BYTES = 0 ; // 4;
+public class RHBytesWritable 
+    implements WritableComparable<RHBytesWritable> 
+{
+    public static String fieldSep=" ";		
+    private int size;
+    private byte[] bytes;
     private static final byte[] EMPTY_BYTES = {};
-		
-    byte[] bytes;
-		
-		
-    public RHBytesWritable() {
-	this(EMPTY_BYTES);
-    }
-		
+    public RHBytesWritable() {this(EMPTY_BYTES);}
+
     public RHBytesWritable(byte[] bytes) {
 	this(bytes, bytes.length);
     }
-		
-    public RHBytesWritable(final byte[] bytes, 
-			   final int length) {
+    public RHBytesWritable(final byte[] bytes,final int length) {
 	this.bytes = bytes;
-	// this.offset = offset;
-	this.bytelength = length;
-    }
-    public RHBytesWritable(final RHBytesWritable ibw) {
-	this(ibw.getBytes(),  ibw.getSize());
-    }
-    public void set(final byte [] b) {
-	set(b, b.length);
-    }
-    public byte []  getBytes(){
-	return(this.bytes);
-    }
-    // public void set(final byte [] b, final int length) {
-    // 	this.bytes = b;
-    // 	this.bytelength = length;
-    // }
-    public void set(byte[] newData,  int length) {
-    	setSize(0);
-    	setSize(length);
-    	System.arraycopy(newData,0, bytes, 0, bytelength);
+	this.size = length;
     }
 
+    public int getLength() {
+	return size;
+    }
+    public byte[] getBytes() {
+	return bytes;
+    }
     public void setSize(int size) {
 	if (size > getCapacity()) {
 	    setCapacity(size * 3 / 2);
 	}
-	this.bytelength = size;
-    }
-    public void setCapacity(int new_cap) {
-	if (new_cap != getCapacity()) {
-	    byte[] new_data = new byte[new_cap];
-	    if (new_cap < this.bytelength) {
-		bytelength = new_cap;
-	    }
-	    if (bytelength != 0) {
-		System.arraycopy(bytes, 0, new_data, 0, bytelength);
-	    }
-	    bytes = new_data;
-	}
-    }
-    public int getLength() {
-	return this.bytelength;
-    }
-    public int getSize() {
-	return this.bytelength;
+	this.size = size;
     }
     public int getCapacity() {
 	return bytes.length;
     }
-    public int hashCode() {
-	// return WritableComparator.hashBytes(bytes, this.bytelength);
-	return super.hashCode();
+    public void setCapacity(int new_cap) {
+	if (new_cap != getCapacity()) {
+	    byte[] new_data = new byte[new_cap];
+	    if (new_cap < size) {
+		size = new_cap;
+	    }
+	    if (size != 0) {
+		System.arraycopy(bytes, 0, new_data, 0, size);
+	    }
+	    bytes = new_data;
+	}
     }
-		
-    public boolean equals(Object right_obj) {
-	// I changed this in 0.59!
-	// compare to byteswritable calling supers.equals
-	return compareTo((RHBytesWritable)right_obj) == 0;
+    public void set(final byte [] b) {
+	set(b,0, b.length);
     }
-
+    public void set(RHBytesWritable newData) {
+	set(newData.bytes, 0, newData.size);
+    }
+    public void set(byte[] newData, int offset, int length) {
+	// bytes = new byte[ length];
+	// System.arraycopy(newData, offset, bytes, 0, length);
+	// this.size = length;
+	////original
+	setSize(0);
+	setSize(length);
+	System.arraycopy(newData, offset, bytes, 0, size);
+    }
     public void readFields(final DataInput in) throws IOException {
-    	setSize(0); // clear the old data
+	// int k = readVInt(in);
+	// bytes = new byte[k];
+	// in.readFully(bytes, 0, k);
+	// this.size = k;
+	////original
+    	setSize(0); 
     	setSize(readVInt(in));
-    	in.readFully(this.bytes, 0, bytelength);
+    	in.readFully(bytes, 0, size);
     }
     public void readIntFields(final DataInput in) throws IOException {
+	// int k = in.readInt();
+	// bytes = new byte[k];
+	// in.readFully(bytes, 0, k);
+	// this.size = k;
+	//// original
     	setSize(0); // clear the old data
     	setSize(in.readInt());
-    	in.readFully(bytes, 0, bytelength);
+    	in.readFully(bytes, 0, size);
     }
 	
     public void write(final DataOutput out) throws IOException {
-	WritableUtils.writeVInt(out,this.bytelength);
-	out.write(this.bytes, 0, this.bytelength);
+	WritableUtils.writeVInt(out,size);
+	out.write(bytes, 0,size);
     }
     public void writeAsInt(final DataOutput out) throws IOException {
-	out.writeInt(this.bytelength);
-	out.write(this.bytes, 0, this.bytelength);
+	out.writeInt(size);
+	out.write(bytes, 0, size);
     }
 
-    public static boolean isNegativeVInt(byte value) {
+    //Equality
+    public int hashCode() {
+	return WritableComparator.hashBytes(bytes, size);
+    }
+
+    public boolean equals(Object other) {
+	if (!(other instanceof RHBytesWritable))
+	    return false;
+	RHBytesWritable that = (RHBytesWritable)other;
+	if (this.getLength() != that.getLength())
+	    return false;
+	return this.compareTo(that) == 0;
+    }
+    public int compareTo(byte[] other, int off, int len) {
+	return WritableComparator.compareBytes(this.bytes, 0, this.size,
+					       other, off, len);
+    }
+    public int compareTo(RHBytesWritable that) {
+	return WritableComparator.compareBytes(this.bytes, 0, this.size, that.bytes,
+					       0, that.size);
+    }
+
+    public static class Comparator extends WritableComparator {
+	private BytesWritable.Comparator comparator =  new BytesWritable.Comparator();
+	public Comparator() {
+	    super(RHBytesWritable.class);
+	}
+
+	public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+	 	    // return comparator.compare(b1, s1, l1, b2, s2, l2);
+	    int off1= decodeVIntSize(b1[s1]), off2 = decodeVIntSize(b2[s2]);
+	    
+	    return compareBytes(b1, s1+off1, l1-off1, b2, s2+off2, l2-off2); //why this serialized form?
+	}
+    }
+    static { // register this comparator
+	WritableComparator.define(RHBytesWritable.class, new Comparator());
+    }		
+    //PARSING
+    REXP getParsed() throws com.google.protobuf.InvalidProtocolBufferException{
+	return REXP.newBuilder().mergeFrom(bytes, 0, size).build(); 
+    }
+	
+    //DISPLAY
+    public String toByteString() { 
+	StringBuffer sb = new StringBuffer(3*this.size);
+	for (int idx = 0; idx < this.size; idx++) {
+	    if (idx != 0) {
+		sb.append(" 0x");
+	    }else sb.append("0x");
+	    String num = Integer.toHexString(0xff & bytes[idx]);
+	    if (num.length() < 2) {
+		sb.append('0');
+	    }
+	    sb.append(num);
+	}
+	return sb.toString();
+    }
+    public String toString() {
+	return REXPHelper.toString(bytes,0,size);
+    }
+		
+        public static boolean isNegativeVInt(byte value) {
 	return value < -120 || (value >= -112 && value < 0);
     }
-
+    // UTILITY
     public static int decodeVIntSize(byte value) {
 	if (value >= -112) {
 	    return 1;
@@ -160,40 +208,5 @@ public class RHBytesWritable extends BinaryComparable
 	}
 	return (int) ((isNegativeVInt(firstByte) ? (i ^ -1L) : i));
     }
-		
-    public String toByteString() { 
-	StringBuffer sb = new StringBuffer(3*this.bytelength);
-	for (int idx = 0; idx < this.bytelength; idx++) {
-	    // if not the first, put a blank separator in
-	    if (idx != 0) {
-		sb.append(" 0x");
-	    }else sb.append("0x");
-	    String num = Integer.toHexString(0xff & bytes[idx]);
-	    // if it is only one digit, add a leading 0.
-	    if (num.length() < 2) {
-		sb.append('0');
-	    }
-	    sb.append(num);
-	}
-	return sb.toString();
-    }
-    public String toString() {
-	String s =  REXPHelper.toString(bytes,0,this.bytelength);
-	return(s);
-	// return(toByteString());
-    }
-    public static class Comparator extends WritableComparator {
-	public Comparator() {
-	    super(RHBytesWritable.class);
-	}
 
-	public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
-	    return compareBytes(b1, s1, l1, b2, s2, l2);
-	}
-    }
-    static { // register this comparator
-	WritableComparator.define(RHBytesWritable.class, new Comparator());
-    }		
-		
-		
 }

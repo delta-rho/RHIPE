@@ -46,7 +46,11 @@ public class RHNumeric extends RHBytesWritable {
 
     public void readFields(DataInput in) throws IOException{
 	super.readFields(in);
-	REXP rexp0 = REXP.parseFrom(bytes);
-	this.l = (long)rexp0.getRealValue(0);
+	try{
+	    REXP rexp0 = getParsed();
+	    this.l = (long)rexp0.getRealValue(0);
+	}catch(com.google.protobuf.InvalidProtocolBufferException e){
+	    throw new IOException(e);
+	}
     }
 }

@@ -55,8 +55,13 @@ public class RHText extends RHBytesWritable{
 
 
     public void readFields(DataInput in) throws IOException{
+	
 	super.readFields(in);
-	REXP rexp0 = REXP.parseFrom(bytes);
-	textcontainer.set(rexp0.getStringValue(0).getStrval());
+	try{
+	    REXP rexp0= getParsed();
+	    textcontainer.set(rexp0.getStringValue(0).getStrval());
+	}catch(com.google.protobuf.InvalidProtocolBufferException e){
+	    throw new IOException(e);
+	}
     }
 }

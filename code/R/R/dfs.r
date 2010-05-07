@@ -350,3 +350,19 @@ print.rhversion <- function(x,...){
   cat(y)
   invisible(y)
 }
+
+rhcp <- function(ifile, ofile) {
+
+ system(command=paste(paste(Sys.getenv("HADOOP"), "bin", "hadoop",
+sep=.Platform$file.sep), "fs", "-cp", ifile, ofile, sep=" "))
+
+}
+
+
+rhmv <- function(ifile, ofile) {
+
+ system(command=paste(paste(Sys.getenv("HADOOP"), "bin", "hadoop",
+sep=.Platform$file.sep), "fs", "-mv", ifile, ofile, sep=" "))
+
+}
+

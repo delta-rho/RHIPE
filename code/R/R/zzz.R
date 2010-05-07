@@ -1,9 +1,11 @@
 .rhipeEnv <- new.env()
 vvvv <- "0.59"
-attr(vvvv,"minor") <- '2'
-attr(vvvv,"date") <- 'Thu Apr 22 17:44:04 EDT 2010'
-attr(vvvv,'fortune') <- 'Beware of low-flying butterflies.'
-attr(vvvv,'notes') <- c('Fixed comparators and others for rhgetkey','Fixed rhlapply which failed to read in data properly')
+attr(vvvv,"minor") <- '3'
+attr(vvvv,"date") <- 'Thu May 06 21:30:15 EDT 2010'
+attr(vvvv,'fortune') <- 'More are taken in by hope than by cunning.
+		-- Vauvenargues'
+attr(vvvv,'notes') <- c('Added rhcp and rhmv',
+                        'Once again, fixed the comparator','Fixed comparators and others for rhgetkey','Fixed rhlapply which failed to read in data properly')
 class(vvvv) <- "rhversion"
 
 assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )

@@ -113,7 +113,7 @@ rhmr <- function(map,reduce=NULL,
       uu[grep("data$",uu)]
     },
     "sequence"={
-      a <- rhls(ifolder)$file
+      a <- rhls(ifolder,rec=TRUE)$file
     },
     "text"={
       rhls(ifolder)$file

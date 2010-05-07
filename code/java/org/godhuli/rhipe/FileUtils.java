@@ -319,8 +319,8 @@ public class FileUtils {
 		boolean gotone = sqr.next((Writable)k,(Writable)v);
 		if(gotone){
 		    counter++;
-		    cdo.writeRawVarint32(k.getSize()); cdo.writeRawBytes(k.getBytes(),0,k.getSize());
-		    cdo.writeRawVarint32(v.getSize()); cdo.writeRawBytes(v.getBytes(),0,v.getSize());
+		    cdo.writeRawVarint32(k.getLength()); cdo.writeRawBytes(k.getBytes(),0,k.getLength());
+		    cdo.writeRawVarint32(v.getLength()); cdo.writeRawBytes(v.getBytes(),0,v.getLength());
 		}else break;
 		if(maxnum >0 && counter >= maxnum) {
 		    endd=true;
