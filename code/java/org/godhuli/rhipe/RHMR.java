@@ -195,19 +195,37 @@ public class RHMR  implements Tool {
 	// System.out.println("Conf done");
 	
     }
-
+    public int runasync(String configfile) throws Exception {
+	FileOutputStream out = new FileOutputStream (configfile);
+	DataOutputStream fout = new DataOutputStream(out);
+	String[] arl = new String[4];
+	arl[0] = job_.getTrackingURL().toString();
+	arl[1]= job_.getJobName().toString();
+	// System.out.println(job_.getJobID()); // returns null ??
+	arl[2]= arl[0].split("=")[1]; //job_.getJobID().toString();
+	arl[3] = RHMR.now();
+	REXP b = RObjects.makeStringVector(arl);
+	RHBytesWritable rb = new RHBytesWritable(b.toByteArray());
+	rb.writeAsInt(fout);
+	return(0);
+    }
+    public static String now() {
+	Calendar cal = Calendar.getInstance();
+	SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+	return sdf.format(cal.getTime());
+    }
     public int submitAndMonitorJob(String configfile) throws Exception {
 	int k =0;
 	job_.submit();
+	if(rhoptions_.get("rhipe_job_async").equals("TRUE")){
+	    return(runasync(configfile));
+	}
 	LOG.info("Tracking URL ----> "+ job_.getTrackingURL());
 	boolean verb = rhoptions_.get("rhipe_job_verbose").equals("TRUE")
 	    ? true: false;
 	long now = System.currentTimeMillis();
-	// System.err.println("Now="+now);
 	boolean result = job_.waitForCompletion( verb );
 	double tt = (System.currentTimeMillis() - now)/1000.0;
-	// System.err.println("End="+System.currentTimeMillis()+" diff="+tt+"\n");
-
 	//We will overwrite the input configfile
 	FileOutputStream out = new FileOutputStream (configfile);
 	DataOutputStream fout = new DataOutputStream(out);
@@ -217,7 +235,7 @@ public class RHMR  implements Tool {
 	    }else{
 		k=0;
 		org.apache.hadoop.mapreduce.Counters counter = job_.getCounters();
-		REXP r = buildListFromCounters(counter,tt);
+		REXP r = RHMR.buildListFromCounters(counter,tt);
 		RHBytesWritable rb = new RHBytesWritable(r.toByteArray());
 		rb.writeAsInt(fout);
 	    }
@@ -230,7 +248,7 @@ public class RHMR  implements Tool {
 	return k;
     }
     
-    public REXP buildListFromCounters(org.apache.hadoop.mapreduce.Counters counters,double tt){
+    public static REXP buildListFromCounters(org.apache.hadoop.mapreduce.Counters counters,double tt){
 	String[] groupnames = counters.getGroupNames().toArray(new String[]{});
 	String[] groupdispname = new String[groupnames.length+1];
 	Vector<REXP> cn = new Vector<REXP>();

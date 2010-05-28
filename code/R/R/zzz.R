@@ -1,11 +1,12 @@
 .rhipeEnv <- new.env()
-vvvv <- "0.59"
-attr(vvvv,"minor") <- '3'
-attr(vvvv,"date") <- 'Thu May 06 21:30:15 EDT 2010'
-attr(vvvv,'fortune') <- 'More are taken in by hope than by cunning.
-		-- Vauvenargues'
-attr(vvvv,'notes') <- c('Added rhcp and rhmv',
-                        'Once again, fixed the comparator','Fixed comparators and others for rhgetkey','Fixed rhlapply which failed to read in data properly')
+vvvv <- "0.60"
+attr(vvvv,"minor") <- '1'
+attr(vvvv,"date") <- 'Fri May 28 11:10:41 EDT 2010'
+attr(vvvv,'fortune') <- 'Some changes are so slow, you dont notice them.
+Others are so fast, they dont notice you.'
+
+
+attr(vvvv,'notes') <- c("Jobs submitted can run in background (async option to rhmr) and can be joined (rhjoin) or monitored using rhstatus")
 class(vvvv) <- "rhversion"
 
 assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )
@@ -46,7 +47,7 @@ assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )
 ##  print("WHY3")
 
   opts$runner <-opts$runner[-c(1,2)]
-  opts$cmd <- list(opt=0,ls=1,get=2,del=3,put=4,b2s=5,s2b=6,getkey=7,s2m=8,rename=9)
+  opts$cmd <- list(opt=0,ls=1,get=2,del=3,put=4,b2s=5,s2b=6,getkey=7,s2m=8,rename=9,join=10,status=11)
   ##print("WHY4")
   ## print(opts)
   opts$mropts <- doCMD(opts$cmd['opt'],opts=opts,needo=T,ignore=F,verbose=FALSE)

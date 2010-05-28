@@ -10,6 +10,16 @@ rhsetoptions <- function(li=NA,...){
   assign("rhipeOptions",v,envir=.rhipeEnv)
 }
 
+optmerge <- function(la,lb){
+  ##merges lists la and lb
+  ##lb overrides la
+
+  x <- la
+  for(n in names(lb)){
+    x[[n]] <- lb[[n]]
+  }
+  x
+}
        
 rhmr <- function(map,reduce=NULL,
                  combiner=F,
@@ -311,8 +321,13 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
                                                ,"/+")[[1]],1),"/",sep="")
 ##1
     message("Creating temporary input folder for list")
-    if(missing(N))
-      rhwrite(ll,f=tempi.file)#
+    if(missing(N)){
+      aa <- Rhipe:::optmerge( rhoptions()$mropts,mapred)
+      if(!is.null(aa$mapred.map.tasks) ){
+        a <- as.numeric(aa$mapred.map.tasks)
+        rhwrite(ll,f=tempi.file,N)
+      }else rhwrite(ll,f=tempi.file)#
+    }
     else
       rhwrite(ll,f=tempi.file,N=N)#
 
@@ -357,7 +372,7 @@ rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
 }
 
 
-rhex <- function (conf,mapred,...) 
+rhex <- function (conf,async=FALSE,mapred,...) 
 {
   exitf <- NULL
   ## browser()
@@ -376,6 +391,7 @@ rhex <- function (conf,mapred,...)
       lines[[i]] <- mapred[[i]]
     }
   }
+  lines$rhipe_job_async <- as.character(as.logical(async))
 
   conffile <- file(zonf,open='wb')
   writeBin(as.integer(length(lines)),conffile,size=4,endian='big')
@@ -401,8 +417,14 @@ rhex <- function (conf,mapred,...)
     close(f1)
   }
   unlink(zonf)
-  if(result==256 && !is.null(exitf)){
+  if(result==256 && !is.null(exitf) && !async){
     return(exitf())
+  }
+  if(async==TRUE){
+    y <- if(!is.null(exitf)) list(f3,exitf) else list(f3)
+    names(y[[1]]) <- c("job.url","job.name","job.id","job.start.time")
+    class(y) <- "jobtoken"
+    return(y)
   }
   return(if(result==256) {
     list(result=T, counters=f3)
@@ -410,6 +432,60 @@ rhex <- function (conf,mapred,...)
     list(result=F, counters=f3)
  })
 }
+
+print.jobtoken <- function(s,verbose=1,...){
+  r <- s[[1]]
+  v <- sprintf("RHIPE Job Token Information\n--------------------------\nURL: %s\nName: %s\nID: %s\nSubmission Time: %s\n",
+               r[1],r[2],r[3],r[4])
+  cat(v)
+  if(verbose>0){
+    result <- rhstatus(s)
+    cat(sprintf("State: %s\n",result[[1]]))
+    cat(sprintf("Duration(sec): %s\n",result[[2]]))
+    cat(sprintf("Progess\n"))
+    print(result[[3]])
+    if(verbose==2)
+      print(result[[4]])
+  }
+}
+
+rhstatus <- function(x){
+  if(class(x)!="jobtoken" && class(x)!="character" ) stop("Must give a jobtoken object(as obtained from rhex)")
+  if(class(x)=="character") id <- x else {
+    x <- x[[1]]
+    id <- x[['job.id']]
+  }
+  result <- Rhipe:::doCMD(rhoptions()$cmd['status'],jobid =id,
+                          needoutput=TRUE,ignore.stderr=TRUE,verbose=FALSE)
+  d <- data.frame("pct"=result[[3]],"numtasks"=c(result[[4]][1],result[[5]][[1]]),
+                  "pending"=c(result[[4]][2],result[[5]][[2]]),
+                  "running" = c(result[[4]][3],result[[5]][[3]]),
+                  "complete" = c(result[[4]][4],result[[5]][[4]])
+                  ,"failed" = c(result[[4]][5],result[[5]][[5]]))
+
+  rownames(d) <- c("map","reduce")
+  duration = result[[2]]
+  state = result[[1]]
+  return(list(state=state,duration=duration,progress=d, counters=result[[6]]));
+}
+
+  
+rhjoin <- function(x,verbose=TRUE,ignore.stderr=TRUE){
+  if(class(x)!="jobtoken") stop("Must give a jobtoken object(as obtained from rhex)")
+  job.id <-  x[[1]]['job.id']
+  result <- Rhipe:::doCMD(rhoptions()$cmd['join'], jobid =job.id,needoutput=TRUE,
+                          joinwordy = as.character(as.logical(verbose))
+                          ,ignore.stderr=ignore.stderr)
+                         
+  if(length(x)==2){
+    ## from rhlapply
+    return(x[[2]]())
+  }
+  return(    list(result=result[[1]], counters=result[[2]]))
+}
+
+
+
 
 ## rhsubset <- function(ifolder,ofolder,subs,inout=c('text','text'),local=T){
 ##   if(!is.function(subs)) stop('subs must be a function')

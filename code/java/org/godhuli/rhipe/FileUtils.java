@@ -57,12 +57,14 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.mapreduce.Job;
 import java.util.Calendar;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import org.apache.hadoop.io.SequenceFile;
 import com.google.protobuf.CodedOutputStream;
-
+import org.apache.hadoop.mapred.TIPStatus;
+import org.apache.hadoop.mapred.JobStatus;
 public class FileUtils {
     private FsShell fsshell;
     private Configuration cfg;
@@ -243,13 +245,13 @@ public class FileUtils {
 		    throw new IOException("Multiple IOExceptions: " + exceptions);
 	}
     }
-    private REXP readInfo(String file) throws IOException{
+    public REXP readInfo(String file) throws IOException{
 	DataInputStream in = new 
 	    DataInputStream(new FileInputStream(file));
 	return(REXP.parseFrom(in));
     }
 
-    private  REXP mapredopts() throws Exception{
+    public  REXP mapredopts() throws Exception{
 	Iterator<Map.Entry<String,String>> iter = cfg.iterator();
 	Vector<REXP> ent = new Vector<REXP>();
 	Vector<String> str = new Vector<String>();
@@ -263,7 +265,7 @@ public class FileUtils {
 	return(RObjects.makeList(str,ent));
     }
 
-    private static String getStackTrace(Throwable aThrowable) {
+    public static String getStackTrace(Throwable aThrowable) {
 	final Writer result = new StringWriter();
 	final PrintWriter printWriter = new PrintWriter(result);
 	aThrowable.printStackTrace(printWriter);
@@ -298,6 +300,7 @@ public class FileUtils {
 
     public void sequence2binary(REXP rexp0) throws Exception{
 	// System.out.println(rexp0);
+	
 	int n = rexp0.getStringValueCount();
 	String[] infile = new String[n-3];
 	String ofile = rexp0.getStringValue(0).getStrval();
@@ -306,9 +309,12 @@ public class FileUtils {
 	for(int i=3;i< n;i++) {
 	    infile[i-3] = rexp0.getStringValue(i).getStrval();
 	}
-	// DataOutputStream bfo = new DataOutputStream(new BufferedOutputStream(System.out,2*1024*1024));
-	CodedOutputStream cdo = CodedOutputStream.newInstance(System.out, 2*1024*1024);
-	// DataOutputStream bfo = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(ofile),2*1024*1024));
+	
+	DataOutputStream cdo = new DataOutputStream(new BufferedOutputStream(System.out,2*1024*1024));
+	// System.err.println("Writing output to "+ofile);
+	// DataOutputStream cdo = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(ofile),2*1024*1024));
+	// CodedOutputStream cdo = CodedOutputStream.newInstance(System.out, 2*1024*1024);
+
 	int counter=0;
 	boolean endd=false;
 	RHBytesWritable k=new RHBytesWritable();
@@ -319,8 +325,11 @@ public class FileUtils {
 		boolean gotone = sqr.next((Writable)k,(Writable)v);
 		if(gotone){
 		    counter++;
-		    cdo.writeRawVarint32(k.getLength()); cdo.writeRawBytes(k.getBytes(),0,k.getLength());
-		    cdo.writeRawVarint32(v.getLength()); cdo.writeRawBytes(v.getBytes(),0,v.getLength());
+		    // cdo.writeRawVarint32(k.getLength()); cdo.writeRawBytes(k.getBytes(),0,k.getLength());
+		    // cdo.writeRawVarint32(v.getLength()); cdo.writeRawBytes(v.getBytes(),0,v.getLength());
+		    k.write(cdo);v.write(cdo);
+		    // cdo.flush();
+		    // System.err.println(counter+": Key:"+k.getLength()+" Value:"+v.getLength());
 		}else break;
 		if(maxnum >0 && counter >= maxnum) {
 		    endd=true;
@@ -330,6 +339,7 @@ public class FileUtils {
 	    sqr.close();
 	    if(endd) break;
 	}
+	WritableUtils.writeVInt(cdo,0);
 	cdo.flush();
     }
 
@@ -412,6 +422,141 @@ public class FileUtils {
 	    rw.close();
 	}
     }
+    public REXP getstatus(REXP r) throws Exception{
+	String  jd = r.getRexpValue(0).getStringValue(0).getStrval();
+	org.apache.hadoop.mapreduce.JobID jid = org.apache.hadoop.mapreduce.JobID.forName(jd);
+	org.apache.hadoop.mapred.JobClient jclient = new org.apache.hadoop.mapred.JobClient(
+		  org.apache.hadoop.mapred.JobTracker.getAddress(new Configuration()),new Configuration());
+	org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.downgrade(jid);
+	org.apache.hadoop.mapred.RunningJob rj = jclient.getJob(jj);
+	String jobfile = rj.getJobFile();
+	Configuration c = new Configuration();
+	c.addResource(new Path(jobfile));
+	org.apache.hadoop.mapred.JobConf j = new org.apache.hadoop.mapred.JobConf(c);
+	org.apache.hadoop.mapred.Counters cc = rj.getCounters();
+	long startsec = getStart(jclient,jj);
+	double dura = ((double)System.currentTimeMillis()-startsec) /1000;
+	REXP ro = FileUtils.buildlistFromOldCounter(cc, dura );
+	int jobs = rj.getJobState();
+	String jobss = null;
+	if(jobs == JobStatus.FAILED) jobss = "FAILED";
+	else if(jobs == JobStatus.FAILED) jobss="KILLED";
+	else if(jobs == JobStatus.PREP) jobss="PREP";
+	else if(jobs == JobStatus.RUNNING) jobss="RUNNING";
+	else if(jobs == JobStatus.SUCCEEDED) jobss="SUCCEEDED";
+	float mapprog = rj.mapProgress(), reduprog = rj.reduceProgress();
+	
+	org.apache.hadoop.mapred.TaskReport[] maptr = jclient.getMapTaskReports( jj);
+	org.apache.hadoop.mapred.TaskReport[] redtr = jclient.getReduceTaskReports( jj);
+	
+	int totalmaps = maptr.length, totalreds = redtr.length;
+	int mappending =0,redpending=0, maprunning=0, redrunning=0, redfailed=0, mapfailed=0,mapcomp=0,redcomp=0;
+	for(int i =0;i < maptr.length;i++){
+	    TIPStatus t = maptr[i].getCurrentStatus();
+	    switch(t){
+	    case COMPLETE:
+		mapcomp++;
+		break;
+	    case FAILED:
+		mapfailed++;
+		break;
+	    case PENDING:
+		mappending++;
+		break;
+	    case RUNNING:
+		maprunning++;
+		break;
+	    }
+	}
+	for(int i =0;i < redtr.length;i++){
+	    TIPStatus t = redtr[i].getCurrentStatus();
+	    switch(t){
+	    case COMPLETE:
+		redcomp++;
+		break;
+	    case FAILED:
+		redfailed++;
+		break;
+	    case PENDING:
+		redpending++;
+		break;
+	    case RUNNING:
+		redrunning++;
+		break;
+	    }
+	}
+	REXP.Builder thevals   = REXP.newBuilder();
+	thevals.setRclass(REXP.RClass.LIST);
+	thevals.addRexpValue( RObjects.makeStringVector( new String[]{ jobss}));
+	thevals.addRexpValue( RObjects.buildDoubleVector( new double[]{ dura }));
+	thevals.addRexpValue( RObjects.buildDoubleVector( new double[]{ (double)mapprog, (double)reduprog}));
+	thevals.addRexpValue( RObjects.buildIntVector( new int[]{ totalmaps, mappending, maprunning, mapcomp,mapfailed}));
+	thevals.addRexpValue( RObjects.buildIntVector( new int[]{ totalreds, redpending, redrunning, redcomp,redfailed}));
+	thevals.addRexpValue(ro);
+	return(thevals.build());
+    }
+	
+	// System.out.println(rj.getJobName());
+    public long getStart(org.apache.hadoop.mapred.JobClient jc,org.apache.hadoop.mapred.JobID jj) throws Exception{
+	//this is not needed if i can get a reference to JobTracker (which rtruns the JobStatus for a given JobID)
+	org.apache.hadoop.mapred.JobStatus[] jbs = jc.getAllJobs();
+	for(int i=0; i< jbs.length;i++){
+	    if(jbs[i].getJobID().toString().equals(jj.toString())){
+		return(jbs[i].getStartTime());
+	    }
+	}
+	return(0);
+    }
+
+    public REXP joinjob(REXP r) throws Exception{
+	String  jd = r.getRexpValue(0).getStringValue(0).getStrval();
+	boolean verbose = r.getRexpValue(1).getStringValue(0).getStrval().equals("TRUE")? true:false;
+	org.apache.hadoop.mapreduce.JobID jid = org.apache.hadoop.mapreduce.JobID.forName(jd);
+	org.apache.hadoop.mapred.JobClient jclient = new org.apache.hadoop.mapred.JobClient(
+		  org.apache.hadoop.mapred.JobTracker.getAddress(new Configuration()),new Configuration());
+	org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.downgrade(jid);
+	org.apache.hadoop.mapred.RunningJob rj = jclient.getJob(jj);
+	String jobfile = rj.getJobFile();
+	Configuration c = new Configuration();
+	c.addResource(new Path(jobfile));
+	org.apache.hadoop.mapred.JobConf j = new org.apache.hadoop.mapred.JobConf(c);
+	boolean issuc  = jclient.monitorAndPrintJob(j,rj);
+	org.apache.hadoop.mapred.Counters cc = rj.getCounters();
+	long startsec = getStart(jclient,jj);
+	REXP ro = FileUtils.buildlistFromOldCounter(cc,((double)System.currentTimeMillis()-startsec) /1000);
+	
+	REXP.Builder thevals   = REXP.newBuilder();
+	thevals.setRclass(REXP.RClass.LIST);
+	thevals.addRexpValue(ro);
+	thevals.addRexpValue(RObjects.buildBooleanVector(new boolean[]{issuc}).build());
+	return(thevals.build());
+    }
+    public static REXP buildlistFromOldCounter(org.apache.hadoop.mapred.Counters c,double dur){
+	String[] groupnames = c.getGroupNames().toArray(new String[]{});
+	String[] groupdispname = new String[groupnames.length+1];
+	Vector<REXP> cn = new Vector<REXP>();
+	for(int i=0;i < groupnames.length; i++){
+	    org.apache.hadoop.mapred.Counters.Group
+		cgroup = c.getGroup( groupnames[i]);
+	    groupdispname[i] = cgroup.getDisplayName();
+	    REXP.Builder cvalues = REXP.newBuilder();
+	    Vector<String> cnames = new Vector<String>();
+	    cvalues.setRclass(REXP.RClass.REAL);
+	    for (org.apache.hadoop.mapred.Counters.Counter counter: cgroup){
+		cvalues.addRealValue((double)counter.getValue());
+		cnames.add(counter.getDisplayName());
+	    }
+	    cvalues.addAttrName("names");
+	    cvalues.addAttrValue(RObjects.makeStringVector(cnames.toArray(new String[]{})));
+	    cn.add( cvalues.build());
+	}
+	groupdispname[groupnames.length]="job_time";
+	REXP.Builder cvalues = REXP.newBuilder();
+	cvalues.setRclass(REXP.RClass.REAL);
+	cvalues.addRealValue(dur);
+	cn.add(cvalues.build());
+	return(RObjects.makeList(groupdispname,cn));
+    }
 
     public static void main(String[] args) throws Exception{
 	int cmd = Integer.parseInt(args[0]);
@@ -485,6 +630,16 @@ public class FileUtils {
 	    case 9:
 		r = fu.readInfo(args[1]);
 		fu.hdfsrename(r);
+		break;
+	    case 10:
+		r = fu.readInfo(args[1]);
+		b= fu.joinjob(r);
+		fu.writeTo(args[1], b);
+		break;
+	    case 11:
+		r = fu.readInfo(args[1]);
+		b= fu.getstatus(r);
+		fu.writeTo(args[1], b);
 		break;
 	    }
 	    

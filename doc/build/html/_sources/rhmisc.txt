@@ -11,6 +11,62 @@ Introduction
 This is a list of supporting functions for reading, writing sequence files and
 manipulating files on the Hadoop Distributed File System (HDFS).
 
+Running Mapreduce
+-----------------
+
+rhex
+^^^^
+Once an object is created using ``rhmr`` and ``rhlapply``, it must be sent to
+the Hadoop system. The function ``rhex`` does this
+
+::
+
+	rhex <- function(o, async=FALSE, mapred)
+
+Where ``o`` is the object that ``rhmr`` or ``rhlapply`` returns. ``mapred`` is a
+list of the same shape as in ``rhmr`` and ``rhlapply``. Values in this over-ride
+those passed in ``rhmr``(and ``rhlapply``). If ``async`` is FALSE, the function
+returns when the job has finished running. The value returned is a list of
+Hadoop Counters (e.g bytes sent, bytes written, time taken etc).
+
+If ``async`` is TRUE, the function returns immediately. In this case, the value
+returned can be printed (i.e just type the returned value at the REPL) or passed
+to ``rhstatus`` to monitor the job. 
+
+
+rhjoin
+^^^^^^
+
+::
+
+	rhjoin <- function(o,ignore.stderr=TRUE)
+
+where ``o`` is returned from ``rhex`` with async=TRUE. The function returns when
+the job is complete and the return value is the same as ``rhex`` when ``async``
+is FALSE (i.e counters and the result(failure/success) of the job). If
+``ignore.stderr`` is FALSE, the progress is displayed on the screen(exactly like
+``rhex``).
+
+rhstatus
+^^^^^^^^
+
+::
+
+	rhstatus <- function(o)
+
+where ``o`` is returned from ``rhex`` with async=TRUE (or a
+Hadoop job id (e.g "job_20091031_0001"). This will return list of counters and
+the progress status of the job(number of maps complete, % map complete etc).
+
+print
+^^^^^
+
+This a generic function for printing objects returned from ``rhex`` when
+async=TRUE. The default returns start time, job name and job id, and job state,
+map/reduce progress. For more verbosity, type ``print(o,verbose=2)`` which
+returns a list of counters too (like ``rhstatus``).
+
+
 Serialization
 -------------
 

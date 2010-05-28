@@ -418,43 +418,70 @@ extern "C" {
   }
 
 
-  SEXP readSQFromPipe(SEXP jcmd,SEXP buf){
+  SEXP readSQFromPipe(SEXP jcmd,SEXP buf,SEXP verb){
     FILE* pipe = popen((char*)CHAR(STRING_ELT( jcmd , 0)), "r");
     if (!pipe) {
       Rf_error("Could not run java process: %s",(char*)CHAR(STRING_ELT( jcmd , 0)));
       return(R_NilValue);
     }
+    // printf("Reading input from %s\n", (char*)CHAR(STRING_ELT( jcmd , 0)));
+    // FILE *pipe = fopen((char*)CHAR(STRING_ELT( jcmd , 0)), "r");
+    int a = INTEGER(verb)[0];
     uint32_t n0;
-    FileInputStream *fis = new FileInputStream(fileno(pipe), INTEGER(buf)[0]);
-    CodedInputStream* cis = new CodedInputStream(fis);
-    cis->SetTotalBytesLimit(256*1024*1024,256*1024*1024);
-
+    // FileInputStream *fis = new FileInputStream(fileno(pipe), INTEGER(buf)[0]);
+    // CodedInputStream* cis = new CodedInputStream(fis);
+    // cis->SetTotalBytesLimit(375*1024*1024,375*1024*1024);
+    
+    
     SEXP rv;
     uint32_t countsum=0;
     PROTECT(rv = NewList());
+    uint32_t co = 0;
     while(true){
       SEXP l,k,v;
-      if(!cis->ReadVarint32(&n0)) break;
+      if(a){
+	printf("reading %d key,value pair: ", co);
+      }
+      // if(!cis->ReadVarint32(&n0)) break;
+      n0 = readVInt64FromFileDescriptor(pipe);
+      if(n0==0) break;
       PROTECT(l = Rf_allocVector(VECSXP,2));
-
+      if(a) {
+	printf("\tkey: %d,", n0);
+	fflush(stdout);
+      }
       PROTECT(k = Rf_allocVector(RAWSXP,n0));
-      cis->ReadRaw(RAW(k),n0);
+      // cis->ReadRaw(RAW(k),n0);
+      fread(RAW(k),n0,1,pipe);
       SET_VECTOR_ELT( l, 0, k);
       countsum+= n0;
 
-      cis->ReadVarint32(&n0);
+      // cis->ReadVarint32(&n0);
+      n0 = readVInt64FromFileDescriptor(pipe);
+
       PROTECT(v = Rf_allocVector(RAWSXP,n0));
-      cis->ReadRaw(RAW(v),n0);
+      if(a) {
+	printf("value: %d ", n0);
+	fflush(stdout);
+      }
+
+      // cis->ReadRaw(RAW(v),n0);
+      fread(RAW(v),n0,1,pipe);
+
+      if(a){
+	printf("DONE\n");
+      }
+
       SET_VECTOR_ELT( l, 1, v);
       countsum+= n0;
-
       rv = GrowList(rv, l);
       UNPROTECT(3);
+      co++;
     }
     //http://stackoverflow.com/questions/478898/how-to-execute-a-command-and-get-output-of-command-within-c
     pclose(pipe);
-    delete cis;
-    delete fis;
+    // delete cis;
+    // delete fis;
     if(countsum< 12*1024)
       printf("About to unserialize %.2f kb, please wait\n", ((double)countsum)/(1024));
     else

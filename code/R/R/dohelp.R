@@ -2,7 +2,8 @@ doCMD <- function(CMD=0,needoutput=F,opts=rhoptions(),verbose=T,ignore.stderr=F
                   ,fold=NA,src=NA,dest=NA,locals=NA
                   ,overwrite=NA,tempf=NA,output=NA
                   ,groupsize=NA,howmany=NA,N=NA, sequence=F,skip=0,
-                  infiles=NA, ofile=NA,ilocal=NA,keys=NA,recursive='FALSE'){
+                  infiles=NA, ofile=NA,ilocal=NA,keys=NA,recursive='FALSE', jobid=NULL,
+                  joinwordy=TRUE,rhreaddebug=FALSE){
   on.exit({unlink(tm)})
   tm <- paste(tempfile(),paste(sample(letters,5),sep="",collapse=""),sep="",collapse="")
 ##   cp <- opts$cp
@@ -17,7 +18,7 @@ doCMD <- function(CMD=0,needoutput=F,opts=rhoptions(),verbose=T,ignore.stderr=F
                 rhsz(list(fold,recursive))
               },
               {
-                rhsz(c(src,dest))
+                rhsz(c(src,dest)) #
               },
               {
                 rhsz(fold)
@@ -39,6 +40,12 @@ doCMD <- function(CMD=0,needoutput=F,opts=rhoptions(),verbose=T,ignore.stderr=F
               },
               {
                 rhsz(list(infiles,ofile)) ##rename
+              },
+              {
+                rhsz(list(jobid,joinwordy)) ##join a running RHIPE job
+              },
+              {
+                rhsz(list(jobid)) ##find status of a running job
               }
               )
   if(!is.null(p)){
@@ -50,7 +57,11 @@ doCMD <- function(CMD=0,needoutput=F,opts=rhoptions(),verbose=T,ignore.stderr=F
   if(verbose) cat(cmd,"\n")
   if(CMD==6){ ##rhread
     if(ignore.stderr) cmd <- sprintf("%s 2>/dev/null",cmd)
-    return(.Call("readSQFromPipe",cmd,as.integer(1024*1024L)))
+    ## 
+    ## system(cmd,
+    ##           intern=F,ignore.stderr=ignore.stderr)
+    ## cmd = ofile
+    return(.Call("readSQFromPipe",cmd,as.integer(1024*1024L),rhreaddebug))
   }
   r <- system(cmd,
               intern=F,ignore.stderr=ignore.stderr)

@@ -259,48 +259,9 @@ rhwordcount <- function(infile,outfile,local=F){
   return(x)
 }
 
-  
-## rhSequenceToBin <- function(infile,outfile,local=F){
-##     pl <- rhsz(c(infile,outfile,local*1))
-##     writeBin(8L,if(is.null(socket)) rhoptions()$socket else socket,size=4,endian='big')
-##     writeBin(length(pl),if(is.null(socket)) rhoptions()$socket else socket,size=4,endian='big')
-##     writeBin(pl,if(is.null(socket)) rhoptions()$socket else socket,endian='big')
-##     checkEx(if(is.null(socket)) rhoptions()$socket else socket)
-##   }
 
 
-## rhGetConnection <- function(cp,port,show=F){
-##   cmd <- paste("java -cp ",paste(cp,collapse=":")," org.godhuli.rhipe.RHIPEClientDispatcher ",port,sep="",collapse="")
-##   if(show)  print(cmd)
-##   tryCatch({
-##     opts <- rhoptions()
-##     if(!is.null(opts$socket)) close(opts$socket)
-##     opts$cp <- cp
-##     opts$port <- port
-##     suppressWarnings(sock <- socketConnection('127.0.0.1',port,open='wb',blocking=T))
-##     opts$socket <- sock
-##     rhsetoptions(opts)
-##     message("===================================\n")
-##     message(paste("Connected to existing Client Server\n"))
-##     message("===================================\n")
-##     return(sock)
-##   },error=function(e){
-##     message("=============================\n")
-##     message(paste("Starting Client Server on ",port),"\n")
-##     message("=============================\n")
-##     system(cmd,wait=F)
-##     Sys.sleep(5)
-##     opts <- rhoptions()
-##     if(!is.null(opts$socket)) close(opts$socket)
-##     opts$cp <- cp
-##     opts$port <- port
-##     opts$socket <- socketConnection('127.0.0.1',port,open='wb',blocking=T)
-##     rhsetoptions(opts)
-##     return(opts$socket)
-##   })
-## }
-
-rhread <- function(files,type="sequence",max=-1,ignore.stderr=T,verbose=F,mc=FALSE){
+rhread <- function(files,type="sequence",max=-1,raw=FALSE,ignore.stderr=T,verbose=F,mc=FALSE,debug=FALSE){
   ## browser()
   type = match.arg(type,c("sequence","map","text"))
   on.exit({
@@ -334,9 +295,9 @@ rhread <- function(files,type="sequence",max=-1,ignore.stderr=T,verbose=F,mc=FAL
       tf2<- tempfile(pattern=paste(sample(letters,8),sep='',collapse=''))
     }
   v <- Rhipe:::doCMD(rhoptions()$cmd['s2b'], infiles=files,ofile=tf1,ilocal=TRUE,howmany=max,ignore.stderr=ignore.stderr,
-        verbose=verbose)
+        verbose=verbose,rhreaddebug = debug)
   if(mc) LL=mclapply else LL=lapply
-  LL(v,function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
+  if(!raw) LL(v,function(r) list(rhuz(r[[1]]),rhuz(r[[2]]))) else v
 }
 #hread("/tmp/f")
 ## ffdata2=hread("/tmp/d/")

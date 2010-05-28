@@ -3,6 +3,7 @@ useDynLib(Rhipe)
 ## export("...rdrbytes")
 ##importFrom(rhipe,rhsz,rhuz)
 exportPattern("^rh")
-exportPattern("print.rhversion")
+exportPattern(c("print.rhversion"))
+exportPattern("print.jobtoken")
 
 

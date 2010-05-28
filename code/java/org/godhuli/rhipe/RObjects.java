@@ -20,6 +20,33 @@ public class RObjects {
     public static REXP makeStringVector(String s){
 	return makeStringVector(new String[]{s});
     }
+    public static REXP.Builder buildBooleanVector(boolean[] b){
+	REXP.Builder cvalues = REXP.newBuilder();
+	cvalues.setRclass(REXP.RClass.LOGICAL);
+	for(int i=0;i<b.length;i++){
+	    if(b[i])
+		cvalues.addBooleanValue(org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN.T);
+	    else
+		cvalues.addBooleanValue(org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN.F);
+	}
+	return(cvalues);
+    }
+    public static REXP.Builder buildDoubleVector(double[] b){
+	REXP.Builder cvalues = REXP.newBuilder();
+	cvalues.setRclass(REXP.RClass.REAL);
+	for(int i=0;i<b.length;i++){
+	    cvalues.addRealValue(b[i]);
+	}
+	return(cvalues);
+    }
+    public static REXP.Builder buildIntVector(int[] b){
+	REXP.Builder cvalues = REXP.newBuilder();
+	cvalues.setRclass(REXP.RClass.INTEGER);
+	for(int i=0;i<b.length;i++){
+	    cvalues.addIntValue(b[i]);
+	}
+	return(cvalues);
+    }
 
     public static REXP makeList(String[] names, Vector<REXP> rexp){
 	REXP.Builder thevals   = REXP.newBuilder();

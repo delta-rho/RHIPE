@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Miscellaneous Commands &mdash; rhipe v0.59 documentation</title>
+    <title>Miscellaneous Commands &mdash; rhipe v0.60 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.59',
+        VERSION:     '0.60',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,7 +19,7 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="rhipe v0.59 documentation" href="index.html" />
+    <link rel="top" title="rhipe v0.60 documentation" href="index.html" />
     <link rel="next" title="Using RHIPE on EC2" href="ec2.html" />
     <link rel="prev" title="The rhmr Command" href="rhmr.html" /> 
   </head>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="rhmr.html" title="The rhmr Command"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">rhipe v0.59 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.60 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -45,6 +45,13 @@
             <ul>
 <li><a class="reference external" href="">Miscellaneous Commands</a><ul>
 <li><a class="reference external" href="#introduction">Introduction</a></li>
+<li><a class="reference external" href="#running-mapreduce">Running Mapreduce</a><ul>
+<li><a class="reference external" href="#rhex">rhex</a></li>
+<li><a class="reference external" href="#rhjoin">rhjoin</a></li>
+<li><a class="reference external" href="#rhstatus">rhstatus</a></li>
+<li><a class="reference external" href="#print">print</a></li>
+</ul>
+</li>
 <li><a class="reference external" href="#serialization">Serialization</a><ul>
 <li><a class="reference external" href="#rhsz">rhsz</a></li>
 <li><a class="reference external" href="#rhuz">rhuz</a></li>
@@ -114,6 +121,52 @@
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>This is a list of supporting functions for reading, writing sequence files and
 manipulating files on the Hadoop Distributed File System (HDFS).</p>
+</div>
+<div class="section" id="running-mapreduce">
+<h2>Running Mapreduce<a class="headerlink" href="#running-mapreduce" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rhex">
+<h3>rhex<a class="headerlink" href="#rhex" title="Permalink to this headline">¶</a></h3>
+<p>Once an object is created using <tt class="docutils literal"><span class="pre">rhmr</span></tt> and <tt class="docutils literal"><span class="pre">rhlapply</span></tt>, it must be sent to
+the Hadoop system. The function <tt class="docutils literal"><span class="pre">rhex</span></tt> does this</p>
+<div class="highlight-r"><div class="highlight"><pre>rhex <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>o<span class="p">,</span> async<span class="o">=</span><span class="kc">FALSE</span><span class="p">,</span> mapred<span class="p">)</span>
+</pre></div>
+</div>
+<p>Where <tt class="docutils literal"><span class="pre">o</span></tt> is the object that <tt class="docutils literal"><span class="pre">rhmr</span></tt> or <tt class="docutils literal"><span class="pre">rhlapply</span></tt> returns. <tt class="docutils literal"><span class="pre">mapred</span></tt> is a
+list of the same shape as in <tt class="docutils literal"><span class="pre">rhmr</span></tt> and <tt class="docutils literal"><span class="pre">rhlapply</span></tt>. Values in this over-ride
+those passed in <tt class="docutils literal"><span class="pre">rhmr``(and</span> <span class="pre">``rhlapply</span></tt>). If <tt class="docutils literal"><span class="pre">async</span></tt> is FALSE, the function
+returns when the job has finished running. The value returned is a list of
+Hadoop Counters (e.g bytes sent, bytes written, time taken etc).</p>
+<p>If <tt class="docutils literal"><span class="pre">async</span></tt> is TRUE, the function returns immediately. In this case, the value
+returned can be printed (i.e just type the returned value at the REPL) or passed
+to <tt class="docutils literal"><span class="pre">rhstatus</span></tt> to monitor the job.</p>
+</div>
+<div class="section" id="rhjoin">
+<h3>rhjoin<a class="headerlink" href="#rhjoin" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhjoin <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>o<span class="p">,</span>ignore.stderr<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">o</span></tt> is returned from <tt class="docutils literal"><span class="pre">rhex</span></tt> with async=TRUE. The function returns when
+the job is complete and the return value is the same as <tt class="docutils literal"><span class="pre">rhex</span></tt> when <tt class="docutils literal"><span class="pre">async</span></tt>
+is FALSE (i.e counters and the result(failure/success) of the job). If
+<tt class="docutils literal"><span class="pre">ignore.stderr</span></tt> is FALSE, the progress is displayed on the screen(exactly like
+<tt class="docutils literal"><span class="pre">rhex</span></tt>).</p>
+</div>
+<div class="section" id="rhstatus">
+<h3>rhstatus<a class="headerlink" href="#rhstatus" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhstatus <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>o<span class="p">)</span>
+</pre></div>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">o</span></tt> is returned from <tt class="docutils literal"><span class="pre">rhex</span></tt> with async=TRUE (or a
+Hadoop job id (e.g &#8220;job_20091031_0001&#8221;). This will return list of counters and
+the progress status of the job(number of maps complete, % map complete etc).</p>
+</div>
+<div class="section" id="print">
+<h3>print<a class="headerlink" href="#print" title="Permalink to this headline">¶</a></h3>
+<p>This a generic function for printing objects returned from <tt class="docutils literal"><span class="pre">rhex</span></tt> when
+async=TRUE. The default returns start time, job name and job id, and job state,
+map/reduce progress. For more verbosity, type <tt class="docutils literal"><span class="pre">print(o,verbose=2)</span></tt> which
+returns a list of counters too (like <tt class="docutils literal"><span class="pre">rhstatus</span></tt>).</p>
+</div>
 </div>
 <div class="section" id="serialization">
 <h2>Serialization<a class="headerlink" href="#serialization" title="Permalink to this headline">¶</a></h2>
@@ -312,7 +365,7 @@ Set skip to larger(integr) values to prevent reading in all keys of the table - 
         <li class="right" >
           <a href="rhmr.html" title="The rhmr Command"
              >previous</a> |</li>
-        <li><a href="index.html">rhipe v0.59 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.60 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

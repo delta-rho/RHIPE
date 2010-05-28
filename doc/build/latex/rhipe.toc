@@ -21,38 +21,43 @@
 \contentsline {section}{\numberline {3.8}IMPORTANT}{9}{section.3.8}
 \contentsline {chapter}{\numberline {4}Miscellaneous Commands}{11}{chapter.4}
 \contentsline {section}{\numberline {4.1}Introduction}{11}{section.4.1}
-\contentsline {section}{\numberline {4.2}Serialization}{11}{section.4.2}
-\contentsline {subsection}{\numberline {4.2.1}rhsz}{11}{subsection.4.2.1}
-\contentsline {subsection}{\numberline {4.2.2}rhuz}{11}{subsection.4.2.2}
-\contentsline {section}{\numberline {4.3}HDFS Related}{11}{section.4.3}
-\contentsline {subsection}{\numberline {4.3.1}rhload}{11}{subsection.4.3.1}
-\contentsline {subsection}{\numberline {4.3.2}rhsave}{12}{subsection.4.3.2}
-\contentsline {subsection}{\numberline {4.3.3}rhsave.image}{12}{subsection.4.3.3}
-\contentsline {subsection}{\numberline {4.3.4}rhcp}{12}{subsection.4.3.4}
-\contentsline {subsection}{\numberline {4.3.5}rhmv}{12}{subsection.4.3.5}
-\contentsline {subsection}{\numberline {4.3.6}rhput}{12}{subsection.4.3.6}
-\contentsline {subsection}{\numberline {4.3.7}rhget}{12}{subsection.4.3.7}
-\contentsline {subsection}{\numberline {4.3.8}rhls}{12}{subsection.4.3.8}
-\contentsline {subsection}{\numberline {4.3.9}rhdel}{13}{subsection.4.3.9}
-\contentsline {subsection}{\numberline {4.3.10}rhwrite}{13}{subsection.4.3.10}
-\contentsline {subsection}{\numberline {4.3.11}rhread}{13}{subsection.4.3.11}
-\contentsline {subsection}{\numberline {4.3.12}rhmerge}{13}{subsection.4.3.12}
-\contentsline {subsection}{\numberline {4.3.13}rhreadBin}{13}{subsection.4.3.13}
-\contentsline {section}{\numberline {4.4}Map Files}{13}{section.4.4}
-\contentsline {subsection}{\numberline {4.4.1}rhS2M}{13}{subsection.4.4.1}
-\contentsline {subsection}{\numberline {4.4.2}rhM2M}{14}{subsection.4.4.2}
-\contentsline {subsection}{\numberline {4.4.3}rhgetkey}{14}{subsection.4.4.3}
-\contentsline {chapter}{\numberline {5}Using RHIPE on EC2}{15}{chapter.5}
-\contentsline {section}{\numberline {5.1}Introduction}{15}{section.5.1}
-\contentsline {subsection}{\numberline {5.1.1}Download}{15}{subsection.5.1.1}
-\contentsline {subsection}{\numberline {5.1.2}Using RHIPE on EC2}{15}{subsection.5.1.2}
-\contentsline {chapter}{\numberline {6}Examples}{17}{chapter.6}
-\contentsline {section}{\numberline {6.1}\texttt {rhlapply}}{17}{section.6.1}
-\contentsline {subsection}{\numberline {6.1.1}Simple Example}{17}{subsection.6.1.1}
-\contentsline {subsection}{\numberline {6.1.2}Using Shared Files and Side Effects}{17}{subsection.6.1.2}
-\contentsline {section}{\numberline {6.2}\texttt {rhmr}}{18}{section.6.2}
-\contentsline {subsection}{\numberline {6.2.1}Word Count}{18}{subsection.6.2.1}
-\contentsline {subsection}{\numberline {6.2.2}Subset a file}{18}{subsection.6.2.2}
-\contentsline {chapter}{\numberline {7}FAQ}{19}{chapter.7}
-\contentsline {chapter}{\numberline {8}Protobuffer and R}{21}{chapter.8}
-\contentsline {chapter}{\numberline {9}Datatypes}{23}{chapter.9}
+\contentsline {section}{\numberline {4.2}Running Mapreduce}{11}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}rhex}{11}{subsection.4.2.1}
+\contentsline {subsection}{\numberline {4.2.2}rhjoin}{11}{subsection.4.2.2}
+\contentsline {subsection}{\numberline {4.2.3}rhstatus}{11}{subsection.4.2.3}
+\contentsline {subsection}{\numberline {4.2.4}print}{12}{subsection.4.2.4}
+\contentsline {section}{\numberline {4.3}Serialization}{12}{section.4.3}
+\contentsline {subsection}{\numberline {4.3.1}rhsz}{12}{subsection.4.3.1}
+\contentsline {subsection}{\numberline {4.3.2}rhuz}{12}{subsection.4.3.2}
+\contentsline {section}{\numberline {4.4}HDFS Related}{12}{section.4.4}
+\contentsline {subsection}{\numberline {4.4.1}rhload}{12}{subsection.4.4.1}
+\contentsline {subsection}{\numberline {4.4.2}rhsave}{12}{subsection.4.4.2}
+\contentsline {subsection}{\numberline {4.4.3}rhsave.image}{12}{subsection.4.4.3}
+\contentsline {subsection}{\numberline {4.4.4}rhcp}{13}{subsection.4.4.4}
+\contentsline {subsection}{\numberline {4.4.5}rhmv}{13}{subsection.4.4.5}
+\contentsline {subsection}{\numberline {4.4.6}rhput}{13}{subsection.4.4.6}
+\contentsline {subsection}{\numberline {4.4.7}rhget}{13}{subsection.4.4.7}
+\contentsline {subsection}{\numberline {4.4.8}rhls}{13}{subsection.4.4.8}
+\contentsline {subsection}{\numberline {4.4.9}rhdel}{13}{subsection.4.4.9}
+\contentsline {subsection}{\numberline {4.4.10}rhwrite}{13}{subsection.4.4.10}
+\contentsline {subsection}{\numberline {4.4.11}rhread}{14}{subsection.4.4.11}
+\contentsline {subsection}{\numberline {4.4.12}rhmerge}{14}{subsection.4.4.12}
+\contentsline {subsection}{\numberline {4.4.13}rhreadBin}{14}{subsection.4.4.13}
+\contentsline {section}{\numberline {4.5}Map Files}{14}{section.4.5}
+\contentsline {subsection}{\numberline {4.5.1}rhS2M}{14}{subsection.4.5.1}
+\contentsline {subsection}{\numberline {4.5.2}rhM2M}{14}{subsection.4.5.2}
+\contentsline {subsection}{\numberline {4.5.3}rhgetkey}{15}{subsection.4.5.3}
+\contentsline {chapter}{\numberline {5}Using RHIPE on EC2}{17}{chapter.5}
+\contentsline {section}{\numberline {5.1}Introduction}{17}{section.5.1}
+\contentsline {subsection}{\numberline {5.1.1}Download}{17}{subsection.5.1.1}
+\contentsline {subsection}{\numberline {5.1.2}Using RHIPE on EC2}{17}{subsection.5.1.2}
+\contentsline {chapter}{\numberline {6}Examples}{19}{chapter.6}
+\contentsline {section}{\numberline {6.1}\texttt {rhlapply}}{19}{section.6.1}
+\contentsline {subsection}{\numberline {6.1.1}Simple Example}{19}{subsection.6.1.1}
+\contentsline {subsection}{\numberline {6.1.2}Using Shared Files and Side Effects}{19}{subsection.6.1.2}
+\contentsline {section}{\numberline {6.2}\texttt {rhmr}}{20}{section.6.2}
+\contentsline {subsection}{\numberline {6.2.1}Word Count}{20}{subsection.6.2.1}
+\contentsline {subsection}{\numberline {6.2.2}Subset a file}{20}{subsection.6.2.2}
+\contentsline {chapter}{\numberline {7}FAQ}{21}{chapter.7}
+\contentsline {chapter}{\numberline {8}Protobuffer and R}{23}{chapter.8}
+\contentsline {chapter}{\numberline {9}Datatypes}{25}{chapter.9}
