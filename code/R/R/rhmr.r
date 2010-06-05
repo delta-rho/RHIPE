@@ -187,8 +187,8 @@ rhmr <- function(map,reduce=NULL,
   switch(inout[2],
          'text' = {
            lines$rhipe_outputformat_class <-
-             ## 'org.godhuli.rhipe.RXTextOutputFormat'
-              'org.apache.hadoop.mapreduce.lib.output.TextOutputFormat'
+             'org.godhuli.rhipe.RXTextOutputFormat'
+              ## 'org.apache.hadoop.mapreduce.lib.output.TextOutputFormat'
 ##'org.apache.hadoop.mapred.TextOutputFormat'
            lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
            lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
@@ -210,7 +210,8 @@ rhmr <- function(map,reduce=NULL,
            lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
            lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
          })
-  
+
+  lines$mapred.textoutputformat.usekey <-  "TRUE"
   lines$rhipe_reduce_buff_size <- 10000
   lines$rhipe_map_buff_size <- 10000
   lines$rhipe_job_verbose <- "TRUE"
@@ -426,11 +427,13 @@ rhex <- function (conf,async=FALSE,mapred,...)
     class(y) <- "jobtoken"
     return(y)
   }
-  return(if(result==256) {
-    list(result=T, counters=f3)
- }else{
-    list(result=F, counters=f3)
- })
+  if(result == 256){
+    if(!is.null(f3) && !is.null(f3$R_ERRORS)){
+      rr <- FALSE
+      stop(sprintf("ERROR\n%s",paste(names(f3$R_ERRORS),collapse="\n")))
+    }else rr <- TRUE
+  }else rr <- FALSE
+  return(list(rr, counters=f3))
 }
 
 print.jobtoken <- function(s,verbose=1,...){

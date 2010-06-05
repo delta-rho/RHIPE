@@ -4,6 +4,14 @@
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
+#include <unistd.h>
+#include <stdint.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+#include <signal.h>
+#include <stdio.h>
+#include <errno.h>
+
 using namespace std;
 using namespace google::protobuf;
 using namespace google::protobuf::io;

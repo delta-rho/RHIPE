@@ -591,8 +591,10 @@ public class FileUtils {
 	    case 3:
 		//delete from the hdfs
 		r = fu.readInfo(args[1]);
-		String s = r.getStringValue(0).getStrval();
-		fu.delete(s,true);
+		for(int i=0;i< r.getStringValueCount();i++){
+		    String s = r.getStringValue(i).getStrval();
+		    fu.delete(s,true);
+		}
 		break;
 	    case 4:
 		//copy local files to hdfs

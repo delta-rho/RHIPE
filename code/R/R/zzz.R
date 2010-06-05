@@ -1,12 +1,12 @@
 .rhipeEnv <- new.env()
 vvvv <- "0.60"
-attr(vvvv,"minor") <- '1'
-attr(vvvv,"date") <- 'Fri May 28 11:10:41 EDT 2010'
+attr(vvvv,"minor") <- '2'
+attr(vvvv,"date") <- 'Tue Jun 01 12:41:34 EDT 2010'
 attr(vvvv,'fortune') <- 'Some changes are so slow, you dont notice them.
 Others are so fast, they dont notice you.'
 
 
-attr(vvvv,'notes') <- c("Jobs submitted can run in background (async option to rhmr) and can be joined (rhjoin) or monitored using rhstatus")
+attr(vvvv,'notes') <- c("Jobs submitted can run in background (async option to rhmr) and can be joined (rhjoin) or monitored using rhstatus","rhdel deletes a string vector of files")
 class(vvvv) <- "rhversion"
 
 assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )

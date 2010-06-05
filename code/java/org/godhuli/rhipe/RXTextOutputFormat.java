@@ -49,11 +49,14 @@ public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable,RHBytes
     private static final byte[] newLine = "\r\n".getBytes();
     private static  byte[] keyvaluesep = " ".getBytes();
     private static final String utf8 = "UTF-8";
+    private boolean useKey;
     protected DataOutputStream out;
 
+
     public RXTextRecordWriter(DataOutputStream out,
-			      String keyValueSeparator,String fieldSep) {
+			      String keyValueSeparator,String fieldSep,boolean useKey) {
 	this.out=out;
+	this.useKey = useKey;
 	try{
 	    keyvaluesep =keyValueSeparator.getBytes(utf8);;
 	    REXPHelper.setFieldSep(fieldSep);
@@ -65,13 +68,15 @@ public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable,RHBytes
 
     public synchronized void write(RHBytesWritable key, 
                                    RHBytesWritable value) throws IOException {
-	    out.write(key.toString().getBytes(utf8));
-	    out.write(keyvaluesep);
+	    if(useKey){
+		out.write(key.toString().getBytes(utf8));
+		out.write(keyvaluesep);
+	    }
 	    out.write(value.toString().getBytes(utf8));
 	    out.write(newLine, 0, newLine.length);
 
-	    System.out.println("Key="+key.toString());
-	    System.out.println("Value="+value.toString());
+	    // System.out.println("Key="+key.toString());
+	    // System.out.println("Value="+value.toString());
 	}
  
 
@@ -93,6 +98,7 @@ public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable,RHBytes
 					 "\t");
       String fieldSeparator= conf.get("mapred.field.separator",
 				    " ");
+      boolean usekey = conf.get("mapred.textoutputformat.usekey").equals("TRUE")? true:false;
       CompressionCodec codec = null;
       String extension = "";
       if (isCompressed) {
@@ -105,12 +111,12 @@ public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable,RHBytes
       FileSystem fs = file.getFileSystem(conf);
       if (!isCompressed) {
 	  FSDataOutputStream fileOut = fs.create(file, false);
-	  return new RXTextRecordWriter(fileOut, keyValueSeparator,fieldSeparator);
+	  return new RXTextRecordWriter(fileOut, keyValueSeparator,fieldSeparator,usekey);
       } else {
 	  FSDataOutputStream fileOut = fs.create(file, false);
 	  return new RXTextRecordWriter(new DataOutputStream
 					    (codec.createOutputStream(fileOut)),
-					keyValueSeparator,fieldSeparator);
+					keyValueSeparator,fieldSeparator,usekey);
     }
 
   }
