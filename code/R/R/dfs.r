@@ -154,7 +154,7 @@ rhwrite <- function(lo,f,N=NULL,ignore.stderr=T,verbose=F){
   doCMD(rhoptions()$cmd['b2s'],tempf=tmf,
         output=f,groupsize = as.integer(length(lo)/N),
         howmany=as.integer(N),
-        N=as.integer(length(lo),needoutput=F),ignore.stderr=ignore.stderr,verbose=verbose)
+        N=as.integer(length(lo)),needoutput=F,ignore.stderr=ignore.stderr,verbose=verbose)
 }
 
 rhS2M <- function(files,ofile,dolocal=T,ignore.stderr=F,verbose=F,keep=NULL){
@@ -313,16 +313,14 @@ print.rhversion <- function(x,...){
 }
 
 rhcp <- function(ifile, ofile) {
-
- system(command=paste(paste(Sys.getenv("HADOOP"), "bin", "hadoop",
-sep=.Platform$file.sep), "fs", "-cp", ifile, ofile, sep=" "))
+  system(command=paste(paste(Sys.getenv("HADOOP"), "bin", "hadoop",
+           sep=.Platform$file.sep), "fs", "-cp", ifile, ofile, sep=" "))
 
 }
 
 
 rhmv <- function(ifile, ofile) {
-
- system(command=paste(paste(Sys.getenv("HADOOP"), "bin", "hadoop",
+  system(command=paste(paste(Sys.getenv("HADOOP"), "bin", "hadoop",
 sep=.Platform$file.sep), "fs", "-mv", ifile, ofile, sep=" "))
 
 }

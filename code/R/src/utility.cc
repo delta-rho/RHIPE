@@ -147,25 +147,25 @@ void writeVInt64ToFileDescriptor( int64_t  i , FILE* fd) {
   
 }
 
-// int64_t readVInt64FromFileDescriptor(int fd){
-//   uint8_t  firstByte = 0 ;
-//   Readn(fd,&firstByte,sizeof(uint8_t));
-//   int len = decodeVIntSize((int8_t)firstByte);
-//   if (len == 1) {
-//     return (int8_t)firstByte;
-//   }
-//   int64_t  i = 0;
-//   int32_t idx;
-//   for (idx = 0; idx < len-1; idx++) {
-//     int8_t b;
-//     int32_t x;
-//     Readn(fd,&x,sizeof(b));
-//     b=(int8_t)x;
-//     i = i << 8;
-//     i = i | (b & 0xFF);
-//   }
-//   return  (isNegativeVInt(firstByte) ? (i ^ -1L) : i);
-// }
+int64_t readVInt64FromFD(int fd){
+  uint8_t  firstByte = 0 ;
+  Readn(fd,&firstByte,sizeof(uint8_t));
+  int len = decodeVIntSize((int8_t)firstByte);
+  if (len == 1) {
+    return (int8_t)firstByte;
+  }
+  int64_t  i = 0;
+  int32_t idx;
+  for (idx = 0; idx < len-1; idx++) {
+    int8_t b;
+    int32_t x;
+    Readn(fd,&x,sizeof(b));
+    b=(int8_t)x;
+    i = i << 8;
+    i = i | (b & 0xFF);
+  }
+  return  (isNegativeVInt(firstByte) ? (i ^ -1L) : i);
+}
 
 
 int64_t readVInt64FromFileDescriptor(FILE* fd){

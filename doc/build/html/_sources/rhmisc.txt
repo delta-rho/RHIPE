@@ -201,7 +201,7 @@ rhread
 
 ::
 	
-	rhread <- function(files,max=-1,type="sequence",verbose=T)
+	rhread <- function(files,max=-1,type="sequence",verbose=T,mc=FALSE)
 
 
 Reads files(s) from ``files`` (which could be a directory). Wildcards allowed.
@@ -212,6 +212,9 @@ files)
 If ``max`` is positive, ``max`` key-value pairs will be read.
 
 Set ``type`` to "map" if the directory ``files`` contains map folders.
+
+Provided you have the ``multicore`` package, set ``mc`` to TRUE and the deserialization will occur in parallel.
+You have to load ``multicore`` beforehand.
 
 rhmerge
 ^^^^^^^

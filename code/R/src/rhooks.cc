@@ -139,7 +139,7 @@ extern "C" {
   }
  
 
-  static SEXP NewList(void)
+static  SEXP NewList(void)
   {
     SEXP s = Rf_cons(R_NilValue, R_NilValue);
     SETCAR(s, s);
@@ -148,7 +148,7 @@ extern "C" {
   
   /* Add a new element at the end of a stretchy list */
   
-  static SEXP GrowList(SEXP l, SEXP s)
+ static  SEXP GrowList(SEXP l, SEXP s)
   {
     SEXP tmp;
     PROTECT(s);

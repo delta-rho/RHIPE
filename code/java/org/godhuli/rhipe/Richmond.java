@@ -12,6 +12,7 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.io.*;
 
 public class Richmond {
     DataOutputStream _toR;
@@ -20,13 +21,12 @@ public class Richmond {
     PrintStream out;
     byte[] bbuf;
     Hashtable<String,Method> memdic;
-    public Richmond(PrintStream ps,String toR,String fromR,String error) throws FileNotFoundException,IOException{
+    public Richmond(PrintStream ps,String fromR,String toR,String error) throws FileNotFoundException,IOException{
 	out = ps;
 	_toR = new DataOutputStream(new FileOutputStream(toR));
 	_toR.write(new byte[]{0x9});
-	_fromR = new DataInputStream(new FileInputStream(fromR));
 	_error = new DataOutputStream(new FileOutputStream(error));
-	_error.write(new byte[]{0x9});
+	_fromR = new DataInputStream(new FileInputStream(fromR));
 	bbuf = new byte[100];
 	memdic = new Hashtable<String, Method>();
 	insertIntomemdic();
@@ -50,28 +50,27 @@ public class Richmond {
 	}catch (NoSuchMethodException e) {
 	    send_error_message(e);
 	}
-	send_result("OK");
+	send_result("OK\n");
     }
 
     public void sendMessage(REXP r){
 	sendMessage(r, false);
     }
-    public void sendMessage(REXP r,boolean b) {
+    public void sendMessage(REXP r,boolean bb) {
 	try{
 	    byte[] b = r.toByteArray();
 	    // _toR.writeInt(b.length);
 	    // _toR.write(b);
 	    // _toR.flush();
-	    CodedOutputStream cdo;
-	    if(b) cdo = CodedOutputStream.newInstance(_error);
-	    else cdo = CodedOutputStream.newInstance(_toR);
-
-	    cdo.writeRawVarint32(b.length);
-	    cdo.writeRawBytes(b,0,b.length);
-	    cdo.flush();
+	    DataOutputStream dos = _toR;
+	    if(bb) dos = _error;
+	    WritableUtils.writeVInt(dos,b.length);
+	    dos.write(b,0,b.length);
+	    dos.flush();
 	}catch(IOException e){
 	    System.err.println("RHIPE: Could not send data back to R master, sending to standard error");
 	    System.err.println(r);
+	    System.exit(1);
 	}
     }
     public void send_error_message(Exception e){
@@ -83,6 +82,7 @@ public class Richmond {
     public void send_error_message(String s){
 	REXP clattr = RObjects.makeStringVector("worker_error");
 	REXP r = RObjects.addAttr(RObjects.buildStringVector(new String[]{s}), "class",clattr).build();
+	// System.err.println(s);
 	sendMessage(r,true);
     }
     public void send_result(String s){
@@ -142,12 +142,16 @@ public class Richmond {
 
     public void rhdel(REXP r) throws IOException{ //works
 	FileUtils fu= new FileUtils(new Configuration());
-	String s = r.getRexpValue(1).getStringValue(0).getStrval();
-	fu.delete(s,true);
+	for(int i = 0;i <r.getRexpValue(1).getStringValueCount();i++){
+	    String s = r.getRexpValue(1).getStringValue(i).getStrval();
+	    fu.delete(s,true);
+	}
 	send_result("OK");
     }
 
-    public void rhgetkeys(REXP r){
+    public void rhgetkeys(REXP r) throws Exception{
+	FileUtils fu= new FileUtils(new Configuration());
+	fu.getKeys(r.getRexpValue(1), _toR, true);
     }
 
     public void binaryAsSequence(REXP r) throws Exception{ //works
@@ -156,10 +160,10 @@ public class Richmond {
 	int groupsize = r.getRexpValue(2).getIntValue(0);
 	int howmany = r.getRexpValue(3).getIntValue(0);
 	int N = r.getRexpValue(4).getIntValue(0);
-	String tf= r.getRexpValue(5).getStringValue(0).getStrval();
-	DataInputStream in = new DataInputStream(new FileInputStream(tf));
-	// DataInputStream  in = _fromR;
+	DataInputStream  in = _fromR;
 	int count=0;
+	// System.out.println("Got"+r);
+	// System.out.println("Waiting for input");
 	for(int i=0;i < howmany-1;i++){
 	    String f = ofolder+"/"+i;
 	    RHWriter w = new RHWriter(f,cfg);
@@ -167,6 +171,7 @@ public class Richmond {
 	    count=count+groupsize;
 	    w.close();
 	}
+
 	if(count < N){
 	    count=N-count;
 	    String f = ofolder+"/"+(howmany-1);
@@ -186,7 +191,7 @@ public class Richmond {
 	}
 	int maxnum = r.getRexpValue(2).getIntValue(0);
 	// as this rexp is written into
-	CodedOutputStream cdo = CodedOutputStream.newInstance(_toR, 2*1024*1024);
+	DataOutputStream cdo = _toR;
 	int counter=0;
 	boolean endd=false;
 	RHBytesWritable k=new RHBytesWritable();
@@ -197,8 +202,8 @@ public class Richmond {
 		boolean gotone = sqr.next((Writable)k,(Writable)v);
 		if(gotone){
 		    counter++;
-		    cdo.writeRawVarint32(k.getLength()); cdo.writeRawBytes(k.getBytes(),0,k.getLength());
-		    cdo.writeRawVarint32(v.getLength()); cdo.writeRawBytes(v.getBytes(),0,v.getLength());
+		    k.write(cdo);
+		    v.write(cdo);
 		    cdo.flush();
 		}else break;
 		if(maxnum >0 && counter >= maxnum) {
@@ -209,10 +214,23 @@ public class Richmond {
 	    sqr.close();
 	    if(endd) break;
 	}
+	WritableUtils.writeVInt(cdo,0);
 	cdo.flush();
-	cdo.close();
     }
 	
+    public void rhstatus(REXP r) throws Exception{
+	FileUtils fu= new FileUtils(new Configuration());
+	REXP jid = r.getRexpValue(1);
+	REXP result = fu.joinjob(jid);
+	send_result(result);
+    }
+
+    public void rhjoin(REXP r) throws Exception{
+	FileUtils fu= new FileUtils(new Configuration());
+	REXP result = fu.joinjob(r.getRexpValue(1));
+	send_result(result);
+    }
+
     public void startme(){
 	while(true){
 	    try{
@@ -226,10 +244,20 @@ public class Richmond {
 		// am going to use a hash table lookup on strings
 		// the first element of list is function, the rest are arguments
 		String tag = r.getRexpValue(0).getStringValue(0).getStrval();
-		Method m = memdic.get(tag);
-		if(m== null) send_error_message("Could not find method with name:"+tag+"\n");
-		else m.invoke(this, r);
-	    
+		// Method m = memdic.get(tag);
+		// if(m== null) send_error_message("Could not find method with name:"+tag+"\n");
+		// else m.invoke(this, r);
+		if(tag.equals("rhmropts")) rhmropts(r);
+		else if(tag.equals("rhls")) rhls(r);
+		else if(tag.equals("rhget")) rhget(r);
+		else if(tag.equals("rhput")) rhput(r);
+		else if(tag.equals("rhdel")) rhdel(r);
+		else if(tag.equals("rhgetkeys")) rhgetkeys(r);
+		else if(tag.equals("binaryAsSequence")) binaryAsSequence(r);
+		else if(tag.equals("sequenceAsBinary")) sequenceAsBinary(r);
+		else if(tag.equals("rhstatus")) rhstatus(r);
+		else if(tag.equals("rhjoin")) rhjoin(r);
+		else send_error_message("Could not find method with name: "+tag+"\n");
 	}catch (SecurityException e) {
 	    send_error_message(e);
 	}catch (IllegalArgumentException e) {
@@ -253,10 +281,12 @@ public class Richmond {
 	FileOutputStream outFile = new FileOutputStream("/tmp/fox");
 	PrintStream out = new PrintStream(outFile);
 	Richmond r = new Richmond(out,args[0],args[1],args[2]);
-	try{
-	    r.startme();
-	}catch(Exception e){
-	    out.println(Thread.currentThread().getStackTrace());
+	while(true){
+	    try{
+		r.startme();
+	    }catch(Exception e){
+		out.println(Thread.currentThread().getStackTrace());
+	    }
 	}
     }
 

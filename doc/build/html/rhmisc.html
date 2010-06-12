@@ -273,7 +273,7 @@ to split the list into.  The default value of <tt class="docutils literal"><span
 </div>
 <div class="section" id="rhread">
 <h3>rhread<a class="headerlink" href="#rhread" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-r"><div class="highlight"><pre>rhread <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>files<span class="p">,</span>max<span class="o">=</span><span class="m">-1</span><span class="p">,</span>type<span class="o">=</span><span class="s">&quot;sequence&quot;</span><span class="p">,</span>verbose<span class="o">=</span><span class="k-Variable">T</span><span class="p">)</span>
+<div class="highlight-r"><div class="highlight"><pre>rhread <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>files<span class="p">,</span>max<span class="o">=</span><span class="m">-1</span><span class="p">,</span>type<span class="o">=</span><span class="s">&quot;sequence&quot;</span><span class="p">,</span>verbose<span class="o">=</span><span class="k-Variable">T</span><span class="p">,</span>mc<span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Reads files(s) from <tt class="docutils literal"><span class="pre">files</span></tt> (which could be a directory). Wildcards allowed.</p>
@@ -281,6 +281,8 @@ to split the list into.  The default value of <tt class="docutils literal"><span
 files)</p>
 <p>If <tt class="docutils literal"><span class="pre">max</span></tt> is positive, <tt class="docutils literal"><span class="pre">max</span></tt> key-value pairs will be read.</p>
 <p>Set <tt class="docutils literal"><span class="pre">type</span></tt> to &#8220;map&#8221; if the directory <tt class="docutils literal"><span class="pre">files</span></tt> contains map folders.</p>
+<p>Provided you have the <tt class="docutils literal"><span class="pre">multicore</span></tt> package, set <tt class="docutils literal"><span class="pre">mc</span></tt> to TRUE and the deserialization will occur in parallel.
+You have to load <tt class="docutils literal"><span class="pre">multicore</span></tt> beforehand.</p>
 </div>
 <div class="section" id="rhmerge">
 <h3>rhmerge<a class="headerlink" href="#rhmerge" title="Permalink to this headline">¶</a></h3>

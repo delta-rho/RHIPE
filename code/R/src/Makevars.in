@@ -47,7 +47,7 @@ main.o: main.cc
 	 $(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
 rhooks.o: rhooks.cc
 	 $(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
-pipecontroller.o: pipecontroler.cc
+pipecontroller.o: pipecontroller.cc
 	 $(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
 
 app:  rexp.pb.o message.o utility.o display.o reducer.o mapper.o main.o

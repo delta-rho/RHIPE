@@ -87,6 +87,8 @@ uint32_t decodeVIntSize(const int8_t);
 uint32_t reverseUInt (uint32_t );
 void writeVInt64ToFileDescriptor( int64_t , FILE* );
 int64_t readVInt64FromFileDescriptor(FILE* );
+int64_t readVInt64FromFD(int );
+
 int32_t readJavaInt(FILE* );
 
 /************************
@@ -156,6 +158,7 @@ SEXP persUnser(SEXP);
 SEXP dbgstr(SEXP);
 void spill_to_reducer(void);
 void mcount(char *,char*, uint32_t);
+
 
 extern  R_CallMethodDef callMethods[];
 

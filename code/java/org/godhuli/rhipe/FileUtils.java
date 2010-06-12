@@ -381,36 +381,52 @@ public class FileUtils {
 	}
     }
     public void getKeys(REXP rexp0) throws Exception{
-	REXP keys = rexp0.getRexpValue(0); 
-	REXP paths = rexp0.getRexpValue(1);
+	getKeys(rexp0,null,false);
+    }
+    public void getKeys(REXP rexp0, DataOutputStream out,boolean vint) throws Exception{
+	REXP keys = rexp0.getRexpValue(0); //keys
+	REXP paths = rexp0.getRexpValue(1); //paths to read from
+	String tempdest = rexp0.getRexpValue(2).getStringValue(0).getStrval(); //tempdest
+	REXP.RBOOLEAN b = rexp0.getRexpValue(3).getBooleanValue(0); //as sequence or binary
 	Configuration c=getConf();
-	c.setInt("io.map.index.skip",rexp0.getRexpValue(4).getIntValue(0));
+	c.setInt("io.map.index.skip",rexp0.getRexpValue(4).getIntValue(0)); //skipindex
 	String[] pnames = new String[paths.getStringValueCount()];
 	for(int i=0;i< pnames.length;i++){
 	    pnames[i] = paths.getStringValue(i).getStrval();
 	}
 	MapFile.Reader[] mr = RHMapFileOutputFormat.getReaders(pnames,c);
-	String tempdest = rexp0.getRexpValue(2).getStringValue(0).getStrval();
-	REXP.RBOOLEAN b = rexp0.getRexpValue(3).getBooleanValue(0);
 
 	int numkeys = keys.getRexpValueCount();
 	RHBytesWritable k = new RHBytesWritable();
 	RHBytesWritable v = new RHBytesWritable();
+	// System.out.println(rexp0);
+	boolean closeOut = false;
 	if(b==REXP.RBOOLEAN.F){ //binary style
-	    DataOutputStream out = new 
-		DataOutputStream(new FileOutputStream(tempdest));
+	    if(out==null){
+		closeOut=true;
+		out = new DataOutputStream(new FileOutputStream(tempdest));
+	    }
 	    for(int i=0; i < numkeys; i++){
 		k.set(keys.getRexpValue(i).getRawValue().toByteArray());
 		RHMapFileOutputFormat.getEntry(mr,k,v);
-		k.writeAsInt(out);
-		v.writeAsInt(out);
+		if(!vint){
+		    k.writeAsInt(out);
+		    v.writeAsInt(out);
+		}else{
+		    k.write(out);
+		    v.write(out);
+		}
 		// MapFile.Reader rd = RHMapFileOutputFormat.getPartForKey(mr,k,v);
 		// while(rd.next(k,v)){
 		//     k.writeAsInt(out);
 		//     v.writeAsInt(out);
 		// }
 	    }
-	    out.close();
+	    if (closeOut) out.close();
+	    else {
+		WritableUtils.writeVInt(out,0);
+		out.flush();
+	    }
 	}else{// these will be written out as a sequence file
 	    RHWriter rw = new RHWriter(tempdest,getConf());
 	    SequenceFile.Writer w = rw.getSQW();
