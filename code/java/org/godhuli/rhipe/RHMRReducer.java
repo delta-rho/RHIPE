@@ -24,16 +24,20 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.io.WritableComparable;
 
 
-
-public class RHMRReducer extends Reducer<RHBytesWritable,
-				 RHBytesWritable,RHBytesWritable,RHBytesWritable> {
+public class RHMRReducer extends Reducer<WritableComparable,
+				 RHBytesWritable,WritableComparable,RHBytesWritable> {
     protected static final Log LOG = LogFactory.getLog(RHMRReducer.class.getName());
     boolean isAMap;
     RHMRHelper helper;
     boolean doPipe_;
     boolean justCollect;
+    Class<?> _kc =null;
+    Class<? extends RHBytesWritable> keyclass;
+
+    WritableComparable wck= null;
     String getPipeCommand(Configuration cfg) {
 	String str = System.getenv("RHIPECOMMAND");
 	if (str == null) {
@@ -52,8 +56,7 @@ public class RHMRReducer extends Reducer<RHBytesWritable,
     
     public void run(Context context) throws IOException, InterruptedException {
 	helper = new RHMRHelper("Reduce");
-	justCollect = context.getConfiguration().
-	    get("rhipe_reduce_justcollect").equals("TRUE")?true:false;
+	justCollect = context.getConfiguration().get("rhipe_reduce_justcollect").equals("TRUE")?true:false;
 	if(!justCollect){
 	    setup(context);
 	    helper.startOutputThreads(context);
@@ -62,6 +65,21 @@ public class RHMRReducer extends Reducer<RHBytesWritable,
 	    }
 	    cleanup(context);
 	}else{
+	  
+	    try{
+		_kc = Class.forName( context.getConfiguration().get("rhipe_outputformat_keyclass"));
+		keyclass = _kc.asSubclass( RHBytesWritable.class );
+		wck = keyclass.newInstance();
+	    }catch(InstantiationException e){
+		throw new RuntimeException(e);
+	    }catch(IllegalAccessException e){
+		throw new RuntimeException(e);
+	    }catch(ClassNotFoundException e){
+		throw new RuntimeException(e);
+	    }
+
+
+
 	    while (context.nextKey()) {
 		simplereduce(context.getCurrentKey(), context.getValues(), context);
 	    }
@@ -81,7 +99,7 @@ public class RHMRReducer extends Reducer<RHBytesWritable,
       }
   }
 
-  public void pipereduce(RHBytesWritable key, Iterable<RHBytesWritable> values, 
+  public void pipereduce(WritableComparable key, Iterable<RHBytesWritable> values, 
 		     Context ctx) throws IOException,InterruptedException {
       try {	    
 	    helper.writeCMD(RHTypes.EVAL_REDUCE_THEKEY);
@@ -105,8 +123,13 @@ public class RHMRReducer extends Reducer<RHBytesWritable,
   }
 
 
-  public void simplereduce(RHBytesWritable key, Iterable<RHBytesWritable> values, 
+  public void simplereduce(WritableComparable key, Iterable<RHBytesWritable> values, 
 		     Context ctx) throws IOException,InterruptedException {
+      // wck = keyclass.cast(key);
+      // System.out.println("Class of key = "+wck.getClass().getName());
+      // RHBytesWritable awb = RHBytesWritable.getClass().cast(key);
+      // System.out.println("Class of key = "+awb.getClass().getName());
+
       try {	    
 	  for(RHBytesWritable val : values)
 	      ctx.write(key,val);
@@ -127,12 +150,12 @@ public class RHMRReducer extends Reducer<RHBytesWritable,
 
   public void cleanup(Context ctx) {
       try{
-		  if(!justCollect) {
-		      if(!isAMap)
-			  helper.writeCMD(RHTypes.EVAL_CLEANUP_REDUCE);
-		      helper.writeCMD(RHTypes.EVAL_FLUSH);
-		  }
-
+	  if(!justCollect) {
+	      if(!isAMap)
+		  helper.writeCMD(RHTypes.EVAL_CLEANUP_REDUCE);
+	      helper.writeCMD(RHTypes.EVAL_FLUSH);
+	  }
+	  
 	  helper.mapRedFinished(ctx);
 	  if(!isAMap) helper.copyFiles(System.getProperty("java.io.tmpdir"));
       }catch(IOException e){

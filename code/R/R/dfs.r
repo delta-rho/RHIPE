@@ -229,7 +229,10 @@ rhmerge <- function(inr,ou){
 
 
 rhkill <- function(w,...){
-  if(length(grep("^job_",w))==0) w=paste("job_",w,sep="",collapse="")
+  if(class(w)=="jobtoken")
+    w= w[[1]][['job.id']] else {
+      if(length(grep("^job_",w))==0) w=paste("job_",w,sep="",collapse="")
+    }
   system(command=paste(paste(Sys.getenv("HADOOP"),"bin","hadoop",sep=.Platform$file.sep,collapse=""),"job","-kill",w,collapse=" "),...)
 }
 
@@ -261,7 +264,7 @@ rhwordcount <- function(infile,outfile,local=F){
 
 
 
-rhread <- function(files,type="sequence",max=-1,raw=FALSE,ignore.stderr=T,verbose=F,mc=FALSE,debug=FALSE){
+rhread <- function(files,type="sequence",max=-1,asraw=FALSE,ignore.stderr=T,verbose=F,mc=FALSE,debug=FALSE){
   ## browser()
   type = match.arg(type,c("sequence","map","text"))
   on.exit({
@@ -273,6 +276,7 @@ rhread <- function(files,type="sequence",max=-1,raw=FALSE,ignore.stderr=T,verbos
   files <- switch(type,
                   "text"={
                     unclass(rhls(files)['file'])$file
+                    stop("cannot read text files")
                   },
                   "sequence"={
                     unclass(rhls(files)['file'])$file
@@ -297,7 +301,7 @@ rhread <- function(files,type="sequence",max=-1,raw=FALSE,ignore.stderr=T,verbos
   v <- Rhipe:::doCMD(rhoptions()$cmd['s2b'], infiles=files,ofile=tf1,ilocal=TRUE,howmany=max,ignore.stderr=ignore.stderr,
         verbose=verbose,rhreaddebug = debug)
   if(mc) LL=mclapply else LL=lapply
-  if(!raw) LL(v,function(r) list(rhuz(r[[1]]),rhuz(r[[2]]))) else v
+  if(!asraw) LL(v,function(r) list(rhuz(r[[1]]),rhuz(r[[2]]))) else v
 }
 #hread("/tmp/f")
 ## ffdata2=hread("/tmp/d/")

@@ -104,9 +104,9 @@ extern "C" {
     return(r);
   }
   
-  SEXP createProcess(SEXP program,SEXP processpipes,SEXP whatclose){
+  SEXP createProcess(SEXP program,SEXP processpipes,SEXP whatclose,SEXP bufsz){
     
-    int errorpipe, fromJ, toJ;
+    // int errorpipe, fromJ, toJ;
     if(       
        mkfifo((const char*)CHAR(STRING_ELT(processpipes,0)),S_IRUSR|S_IWUSR)    // writing to child
        |mkfifo((const char*)CHAR(STRING_ELT(processpipes,1)),S_IRUSR|S_IWUSR)  // reading from child
@@ -138,12 +138,24 @@ extern "C" {
       fprintf(stderr, "Program faild to run, errno=%d errstr=%s\n",errno,strerror(errno));
       _exit(255);
     }
-    fromJ = open((const char*)CHAR(STRING_ELT(processpipes,1)), O_RDONLY) ;
-    errorpipe = open((const char*)CHAR(STRING_ELT(processpipes,2)), O_RDONLY) ; 
+    // fromJ = open((const char*)CHAR(STRING_ELT(processpipes,1)), O_RDONLY) ;
+    // errorpipe = open((const char*)CHAR(STRING_ELT(processpipes,2)), O_RDONLY) ; 
+    // char u;
+    // read(fromJ, &u,1);
+    // toJ = open((const char*)CHAR(STRING_ELT(processpipes,0)),O_WRONLY);
+    // int r[] = {pid, toJ,fromJ,errorpipe};
+
+
+    FILE *fJ = fopen((const char*)CHAR(STRING_ELT(processpipes,1)), "r") ;
+    FILE *eP = fopen((const char*)CHAR(STRING_ELT(processpipes,2)), "r") ;
+    setvbuf(fJ, 0, _IOFBF , INTEGER(bufsz)[0]);
+    setvbuf(eP, 0, _IOFBF , INTEGER(bufsz)[0]);
     char u;
-    read(fromJ, &u,1);
-    toJ = open((const char*)CHAR(STRING_ELT(processpipes,0)),O_WRONLY);
-    int r[] = {pid, toJ,fromJ,errorpipe};
+    read(fileno(fJ),&u,1);
+    FILE *tJ = fopen((const char*)CHAR(STRING_ELT(processpipes,0)),"w");
+    setvbuf(tJ, 0, _IOFBF, INTEGER(bufsz)[0]);
+    int r[] = {pid, fileno(tJ),fileno(fJ),fileno(eP)};
+
     SEXP result;
     PROTECT(result = Rf_allocVector(VECSXP,2));
     SET_VECTOR_ELT(result,0,processpipes);
@@ -257,6 +269,8 @@ extern "C" {
     SEXP errsxp;
     uint32_t countsum = 0;
     for(int i=0;i < LENGTH(data);i++){
+      R_CheckUserInterrupt();
+
       SEXP a = VECTOR_ELT(data,i);
       SEXP k = VECTOR_ELT(a,0);
       SEXP v = VECTOR_ELT(a,1);
@@ -309,50 +323,98 @@ extern "C" {
     return(res);   
   }
 
-  SEXP readKVpossiblyE(int fromworker,int errorfd, int *errsignal,
-		       timeval* tv, uint32_t* countsum){
+  // SEXP readKVpossiblyE(int fromworker,int errorfd, int *errsignal,
+  // 		       timeval* tv, uint32_t* countsum){
+  //   fd_set rfds;
+  //   FD_ZERO(&rfds);
+  //   FD_SET(fromworker, &rfds); FD_SET(errorfd,&rfds);
+  //   int maxfd = fromworker > errorfd ? fromworker+1 : errorfd+1;
+  //   int retval = select(maxfd, &rfds,NULL,NULL, tv);
+  //   SEXP v = R_NilValue;
+  //   int myfd=0;
+  //   *errsignal = 1 ;
+  //   switch(retval){
+  //   case -1:// Rprintf("Got SUPER bad error value from worker\n");
+  //     *errsignal = 2;
+  //     SEXP r;
+  //     PROTECT(v = Rf_allocVector(STRSXP,1));
+  //     SET_STRING_ELT(r,0,Rf_mkChar(strerror(errno)));
+  //     UNPROTECT(1);
+  //     break;
+  //   case 0:
+  //     break;
+  //   default:
+  //     if(FD_ISSET(errorfd,&rfds)){
+  // 	*errsignal = 3;
+  // 	myfd = errorfd;
+  //     }else if(FD_ISSET(fromworker,&rfds)){
+  // 	*errsignal = 0;
+  // 	myfd = fromworker;
+  //     }
+  //     uint32_t n00 = readVInt64FromFD(myfd);
+  //     if(n00 == 0) { *errsignal = 4;return(v);} //end of data
+  //     *countsum = *countsum+n00;
+  //     // printf(" [size:%d] ", n00);
+  //     PROTECT(v = Rf_allocVector(RAWSXP,n00));
+  //     read(myfd,RAW(v),n00);
+  //     UNPROTECT(1);
+  //   }
+  //   return(v);
+  //   //errsignal:  
+  //   //            0  something read (good)
+  //   //            1  nothing read, but should not occur
+  //   //            2  error in select (contains errno)
+  //   //            3  error from worker (contains error)
+  //   //            4  the end
+  // }
+
+  SEXP readKVpossiblyE(int fromworker, int errorfd,FILE* fromworkerFP,FILE* errorfdFP, int *errsignal,
+  		       timeval* tv, uint32_t* countsum){
     fd_set rfds;
+    // int fromworker = fileno(fromworkerFP), errorfd = fileno(errorfdFP);
     FD_ZERO(&rfds);
     FD_SET(fromworker, &rfds); FD_SET(errorfd,&rfds);
     int maxfd = fromworker > errorfd ? fromworker+1 : errorfd+1;
     int retval = select(maxfd, &rfds,NULL,NULL, tv);
     SEXP v = R_NilValue;
-    int myfd=0;
-    *errsignal = -1;
-    if(retval == -1){
-      *errsignal = 1;
+    FILE* myfd=NULL;
+    *errsignal = 1 ;
+
+
+    switch(retval){
+    case -1:// Rprintf("Got SUPER bad error value from worker\n");
+      *errsignal = 2;
       SEXP r;
-      PROTECT(r = Rf_allocVector(STRSXP,1));
+      PROTECT(v = Rf_allocVector(STRSXP,1));
       SET_STRING_ELT(r,0,Rf_mkChar(strerror(errno)));
       UNPROTECT(1);
-      return(r); //error
-    }
-    if(retval >0 ){
+      break;
+    case 0:
+      break;
+    default:
       if(FD_ISSET(errorfd,&rfds)){
-	// Rprintf("Got error value from worker\n");
-	*errsignal = 2;
-	myfd = errorfd;
+  	*errsignal = 3;
+  	myfd = errorfdFP;
       }else if(FD_ISSET(fromworker,&rfds)){
-	*errsignal = 0;
-	// Rprintf("Got a value from worker\n");
-	myfd = fromworker;
+  	*errsignal = 0;
+  	myfd = fromworkerFP;
       }
-      uint32_t n00 = readVInt64FromFD(myfd);
-      if(n00 == 0) { *errsignal = 3;return(v);}
+      uint32_t n00 = readVInt64FromFileDescriptor(myfd);
+      if(n00 == 0) { *errsignal = 4;return(v);} //end of data
       *countsum = *countsum+n00;
+      // printf(" [size:%d] ", n00);
       PROTECT(v = Rf_allocVector(RAWSXP,n00));
-      read(myfd,RAW(v),n00);
+      fread(RAW(v),n00,1,myfd);
       UNPROTECT(1);
-      // Rf_PrintValue(v);
     }
     return(v);
-    //errsignal: -1  nothing read 
-    //            0  something read
-    //            1  error in select
-    //            2  error from worker
-    //            3  the end
+    //errsignal:  
+    //            0  something read (good)
+    //            1  nothing read, but should not occur
+    //            2  error in select (contains errno)
+    //            3  error from worker (contains error)
+    //            4  the end
   }
-
   /************************************************
    * this function returns a list if successful
    * if there is an error
@@ -366,8 +428,12 @@ extern "C" {
     if (TYPEOF(eref)!=EXTPTRSXP) 
       Rf_error("RHIPE: At the very least, not a pointer\n");
     SEXP ref = (SEXP)R_ExternalPtrAddr(eref);
-    int fromworker = INTEGER(VECTOR_ELT(ref,1))[2];
-    int errorfd = INTEGER(VECTOR_ELT(ref,1))[3];
+    int fromworkerFD = INTEGER(VECTOR_ELT(ref,1))[2];
+    int errorfdFD = INTEGER(VECTOR_ELT(ref,1))[3];
+
+    FILE* fromworker = fdopen(INTEGER(VECTOR_ELT(ref,1))[2],"r");
+    FILE* errorfd = fdopen(INTEGER(VECTOR_ELT(ref,1))[3],"r");
+
     struct timeval *tv = (struct timeval*)calloc(sizeof(struct timeval),1);
 
     tv->tv_sec = 0;
@@ -380,50 +446,49 @@ extern "C" {
     int errsignal=0;
     uint32_t j=0;
     while(!abort){
-      SEXP l=R_NilValue,k;
-      k = readKVpossiblyE(fromworker,errorfd,&errsignal, NULL,&countsum);
-      //is it possible from here to SET_VECTOR_ELT, k will be gc'd?
-      // we have an error we need to abort
-      if(errsignal!=0){
-	switch(errsignal){
-	case -1:
-	  UNPROTECT(1);
-	  return(k); //this should never happen
-	case 1:
-	case 2:
-	  UNPROTECT(1); //rv
-	  return(k);
-	case 3:
-	  // Rprintf("Got a value = 3\n");
-	  abort =true;
-	  goto skipvalue;
-	}
-      }else{
-	PROTECT(l = Rf_allocVector(VECSXP,2));
-	// j++;
-	SET_VECTOR_ELT( l, 0,k) ;
+      // R_ProcessEvents(); 
+      R_CheckUserInterrupt();
+      SEXP l=R_NilValue,k,val;
+      PROTECT(k = readKVpossiblyE(fromworkerFD,errorfdFD,fromworker,errorfd,&errsignal, NULL,&countsum));
+      //we have an error we need to abort
+      switch(errsignal){
+      case 0:
+      PROTECT(l = Rf_allocVector(VECSXP,2));
+      SET_VECTOR_ELT( l, 0,k) ;
+      // printf("Read 1 of 2,");
+      break;
+      case 1:
+      case 2:
+      case 3:
+	UNPROTECT(2); //rv & k
+	return(k);
+      case 4:
+	UNPROTECT(1); //k
+	abort =true;
+	goto skipvalue;
       }
-      k = readKVpossiblyE(fromworker,errorfd,&errsignal, NULL,&countsum);
-      if(errsignal!=0){
-	switch(errsignal){
-	case -1:
-	  UNPROTECT(2);
-	  return(k); //this should never happen
-	case 1:
-	case 2:
-	  UNPROTECT(2); //rv and l
-	  return(k);
-	}
-      }else{
+
+      // printf(" ... reading value ..., ");
+      PROTECT(val = readKVpossiblyE(fromworkerFD,errorfdFD,fromworker,errorfd,&errsignal, NULL,&countsum));
+      switch(errsignal){
+      case 0:
 	j++;
-	SET_VECTOR_ELT( l, 1,k) ;
+	// printf("... setting value of pair .... ");
+	SET_VECTOR_ELT( l, 1,val) ;
+	UNPROTECT(3); //l,val,k
 	rv = GrowList1(rv, l);
-	UNPROTECT(1); //l
+	// printf("2 of 2: %d pairs\n",j);
+	break;
+      case 1:
+      case 2:
+      case 3:
+	UNPROTECT(3); //rv and l,k
+	return(k);
       }
  skipvalue:
       ;
     }
-    
+    fflush(fromworker);fflush(errorfd);
     rv = CDR(rv);
     SEXP rval;
     PROTECT(rval = Rf_allocVector(VECSXP, Rf_length(rv)));
@@ -434,7 +499,7 @@ extern "C" {
       Rprintf("RHIPE: %d pairs, about to unserialize %.2f KB, please wait.\n", j,((double)countsum)/(1024));
     else
       Rprintf("RHIPE: %d pairs, about to unserialize %.2f MB, please wait.\n", j,((double)countsum)/(1024*1024));
-    UNPROTECT(2);
+    UNPROTECT(2); //rval, rv
     return(rval);
   }
 

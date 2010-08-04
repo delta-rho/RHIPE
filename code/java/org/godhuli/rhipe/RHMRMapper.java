@@ -24,9 +24,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.apache.hadoop.io.WritableComparable;
 
-public class RHMRMapper extends Mapper<RHBytesWritable,
-				RHBytesWritable,RHBytesWritable,RHBytesWritable>{
+public class RHMRMapper extends Mapper<WritableComparable,
+				RHBytesWritable,WritableComparable,RHBytesWritable>{
     protected static final Log LOG = LogFactory.getLog(RHMRMapper.class.getName());
     boolean copyFile=false;
     String getPipeCommand(Configuration cfg) {
@@ -48,6 +49,8 @@ public class RHMRMapper extends Mapper<RHBytesWritable,
 	setup(context);
 	helper.startOutputThreads(context);
 	while (context.nextKeyValue()) {
+	    // System.err.println(context.getCurrentKey());
+	    // System.err.println(context.getCurrentValue());
 	    map(context.getCurrentKey(), context.getCurrentValue(), context);
 	}
 	cleanup(context);
@@ -76,7 +79,7 @@ public class RHMRMapper extends Mapper<RHBytesWritable,
     }
 
 
-    public void map(RHBytesWritable key, RHBytesWritable value, Context ctx) 
+    public void map(WritableComparable key, RHBytesWritable value, Context ctx) 
 	throws IOException,InterruptedException {
 	helper.checkOuterrThreadsThrowable();
 	try {

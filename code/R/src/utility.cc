@@ -2,6 +2,7 @@
 #include <netinet/in.h>
 #include <google/protobuf/stubs/common.h>
 #include <unistd.h>
+#include <time.h>
 
 const int i___ = 1;
 #define is_bigendian() ( (*(char*)&i___) == 0 )
@@ -321,6 +322,5 @@ uint32_t reverseUInt (uint32_t i) {
         return ((uint32_t)c1 << 24) + ((uint32_t)c2 << 16) + ((uint32_t)c3 << 8) + c4;
     }
 }
-
 
 

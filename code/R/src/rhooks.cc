@@ -34,7 +34,6 @@ extern "C" {
   {
     R_CStackLimit = (uintptr_t)-1;
     google::protobuf::SetLogHandler(&CaptureLogInLibrary);
-    printf("Rhipe lnitializing\n");
   }
   
 
@@ -360,6 +359,7 @@ static  SEXP NewList(void)
        rv = GrowList(rv, l);
        
        count++;
+       // R_ProcessEvents(); 
        R_CheckUserInterrupt();
 
        if(max >=0 && count >= max) break;

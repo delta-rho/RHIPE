@@ -323,6 +323,7 @@ public class FileUtils {
 	    SequenceFile.Reader sqr = new SequenceFile.Reader(FileSystem.get(cfg) ,new Path(infile[i]), getConf());
 	    while(true){
 		boolean gotone = sqr.next((Writable)k,(Writable)v);
+		// System.out.println("Key="+k);
 		if(gotone){
 		    counter++;
 		    // cdo.writeRawVarint32(k.getLength()); cdo.writeRawBytes(k.getBytes(),0,k.getLength());

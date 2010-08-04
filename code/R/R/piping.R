@@ -1,10 +1,10 @@
-rhinit <- function(errors=TRUE, info=TRUE,path=NULL){
+rhinit <- function(errors=TRUE, info=TRUE,path=NULL,bufsize=as.integer(3*1024*1024)){
   f1 <- c(tempfile(pattern=c("rhipe.toworker.","rhipe.fromworker.","rhipe.error.")))
   names(f1) <- c("toj","fromj","error")
   if(is.null(path))
     cmda <- paste(c("$HADOOP/bin/hadoop jar ",rhoptions()$jarloc,"org.godhuli.rhipe.Richmond",f1),collapse=" ")
   else cmda <- path
-  j <- .Call("createProcess", cmda, f1,c(as.integer(errors),as.integer(info)))
+  j <- .Call("createProcess", cmda, f1,c(as.integer(errors),as.integer(info)),as.integer(bufsize))
   if(!is.character(j))
     .Call("robjectForRef",j)
   else stop(j)
@@ -12,7 +12,7 @@ rhinit <- function(errors=TRUE, info=TRUE,path=NULL){
     x=rhuz(.Call("readSomething",j,1L))
     cat(x[[1]])
   }
-  rhsetoptions(child=list(errors=errors,info=info,hdl=j))
+  rhsetoptions(child=list(errors=errors,info=info,hdl=j,bufsize=bufsize))
 }
 
 cmd <- function(f,cmd,getresponse=1L,contin=NULL,...){
@@ -82,7 +82,7 @@ rhgetkey.1 <- function(keys,paths,sequence="",skip=0L,mc=FALSE,...){
   }
 }
 
-rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE){
+rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE,asraw=FALSE){
   type = match.arg(type,c("sequence","map","text"))
   files <- switch(type,
                   "text"={
@@ -99,7 +99,7 @@ rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE){
   if(length(remr)>0)
     files <- files[-remr]
   max <- as.integer(max)
-  p <- Rhipe:::cmd(rhoptions()$child$hdl, list("sequenceAsBinary", files,max),
+  p <- Rhipe:::cmd(rhoptions()$child$hdl, list("sequenceAsBinary", files,max,as.integer(rhoptions()$child$bufsize)),
            getresponse=0L,
            conti = function(){
              return(.Call("rbFile",rhoptions()$child$hdl))
@@ -109,7 +109,8 @@ rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE){
     stop(sprintf("RHIPE: select returned an error: %s",p))
   if(is.raw(p)) stop(rhuz(p))
   MCL <- if(mc) mclapply else lapply
-  MCL(p,function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
+  
+  if (!asraw) MCL(p,function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
 }
 
 rhwrite.1 <- function(lo,dest,N=NULL){

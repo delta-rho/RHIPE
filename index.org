@@ -75,6 +75,7 @@ Read the documentation for installation. Current is the latest version.
 
 | Version | Download           |                              |
 |---------+--------------------+------------------------------|
+|    0.61 | [[file:./dn/Rhipe_0.61.tar.gz][Rhipe_0.61.tar.gz]]  | Wed Aug 04 13:30:18 EDT 2010 |
 |    0.60 | [[file:./dn/Rhipe_0.60.tar.gz][Rhipe_0.60.tar.gz]]  | Fri May 28 17:13:16 EDT 2010 |
 |    0.59 | [[file:./dn/Rhipe_0.59.tar.gz][Rhipe_0.59.tar.gz]]  | Tue May 04 18:15:26 EDT 2010 |
 |    0.58 | [[file:./dn/Rhipe_0.58.tar.gz][Rhipe_0.58.tar.gz]]  | Fri Apr 09 01:41:48 EDT 2010 |
@@ -101,6 +102,13 @@ sguha -AT- purdue -DOT- edu
 
 
 * News
+****** Wed Aug 04 13:19:09 EDT 2010
+- Version 0.61, minor=2
+- Ordering of numeric and alphabetical keys (not default)
+****** Wed Jun 30 13:28:21 EDT 2010
+- Version 0.61
+- Added a partitioner that partitions on the i'th element of a scalar vector
+  (strings, numerics and integers)
 ****** Fri May 28 17:11:16 EDT 2010
 - Now version 0.60       
 - Added asynch options to =rhex=, so jobs can run in the background freeing the

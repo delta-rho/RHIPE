@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -5,21 +7,22 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>The rhmr Command &mdash; rhipe v0.60 documentation</title>
+    <title>The rhmr Command &mdash; rhipe v0.61 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.60',
-        COLLAPSE_MODINDEX: false,
+        VERSION:     '0.61',
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="rhipe v0.60 documentation" href="index.html" />
+    <link rel="top" title="rhipe v0.61 documentation" href="index.html" />
     <link rel="next" title="Miscellaneous Commands" href="rhmisc.html" />
     <link rel="prev" title="The rhlapply Command" href="rhlapply.html" /> 
   </head>
@@ -36,54 +39,54 @@
         <li class="right" >
           <a href="rhlapply.html" title="The rhlapply Command"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">rhipe v0.60 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.61 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-            <h3><a href="index.html">Table Of Contents</a></h3>
-            <ul>
-<li><a class="reference external" href="">The <tt class="docutils literal"><span class="pre">rhmr</span></tt> Command</a><ul>
-<li><a class="reference external" href="#introduction">Introduction</a></li>
-<li><a class="reference external" href="#return-value">Return Value</a></li>
-<li><a class="reference external" href="#function">Function</a></li>
-<li><a class="reference external" href="#rhipe-options">RHIPE Options</a></li>
-<li><a class="reference external" href="#status-counters-and-writing-output">Status, Counters and Writing Output</a><ul>
-<li><a class="reference external" href="#status">Status</a></li>
-<li><a class="reference external" href="#counter">Counter</a></li>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">The <tt class="docutils literal"><span class="pre">rhmr</span></tt> Command</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#return-value">Return Value</a></li>
+<li><a class="reference internal" href="#function">Function</a></li>
+<li><a class="reference internal" href="#rhipe-options">RHIPE Options</a></li>
+<li><a class="reference internal" href="#status-counters-and-writing-output">Status, Counters and Writing Output</a><ul>
+<li><a class="reference internal" href="#status">Status</a></li>
+<li><a class="reference internal" href="#counter">Counter</a></li>
 </ul>
 </li>
-<li><a class="reference external" href="#side-effect-files">Side Effect files</a></li>
-<li><a class="reference external" href="#mapreduce-options">Mapreduce Options</a></li>
-<li><a class="reference external" href="#important">IMPORTANT</a></li>
+<li><a class="reference internal" href="#side-effect-files">Side Effect files</a></li>
+<li><a class="reference internal" href="#mapreduce-options">Mapreduce Options</a></li>
+<li><a class="reference internal" href="#important">IMPORTANT</a></li>
 </ul>
 </li>
 </ul>
 
-            <h4>Previous topic</h4>
-            <p class="topless"><a href="rhlapply.html"
-                                  title="previous chapter">The <tt class="docutils literal docutils literal docutils literal"><span class="pre">rhlapply</span></tt> Command</a></p>
-            <h4>Next topic</h4>
-            <p class="topless"><a href="rhmisc.html"
-                                  title="next chapter">Miscellaneous Commands</a></p>
-            <h3>This Page</h3>
-            <ul class="this-page-menu">
-              <li><a href="_sources/rhmr.txt"
-                     rel="nofollow">Show Source</a></li>
-            </ul>
-          <div id="searchbox" style="display: none">
-            <h3>Quick search</h3>
-              <form class="search" action="search.html" method="get">
-                <input type="text" name="q" size="18" />
-                <input type="submit" value="Go" />
-                <input type="hidden" name="check_keywords" value="yes" />
-                <input type="hidden" name="area" value="default" />
-              </form>
-              <p class="searchtip" style="font-size: 90%">
-              Enter search terms or a module, class or function name.
-              </p>
-          </div>
-          <script type="text/javascript">$('#searchbox').show(0);</script>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="rhlapply.html"
+                        title="previous chapter">The <tt class="docutils literal docutils literal docutils literal"><span class="pre">rhlapply</span></tt> Command</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="rhmisc.html"
+                        title="next chapter">Miscellaneous Commands</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/rhmr.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
 
@@ -118,7 +121,8 @@ can be any R data structure.</p>
  9
 10
 11
-12</pre></div></td><td class="code"><div class="highlight"><pre>rhmr <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>map<span class="p">,</span>reduce<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>
+12
+13</pre></div></td><td class="code"><div class="highlight"><pre>rhmr <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>map<span class="p">,</span>reduce<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>
          combiner<span class="o">=</span><span class="k-Variable">F</span><span class="p">,</span>
          setup<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>
          cleanup<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>
@@ -129,6 +133,7 @@ can be any R data structure.</p>
          shared<span class="o">=</span>c<span class="p">(),</span>
          jarfiles<span class="o">=</span>c<span class="p">(),</span>
          copyFiles<span class="o">=</span><span class="k-Variable">F</span><span class="p">,</span>
+         partitioner<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>
          opts<span class="o">=</span>rhoptions<span class="p">(),</span>jobname<span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
@@ -182,6 +187,8 @@ Map Output formats can be used an input format. Use the function <tt class="docu
 <dd>For side effects to be copied back to the DFS, set this to TRUE, otherwise they wont be copied.</dd>
 <dt><tt class="docutils literal"><span class="pre">mapred</span></tt></dt>
 <dd>Set Hadoop options here and RHIPE options.</dd>
+<dt><tt class="docutils literal"><span class="pre">partitioner</span></tt></dt>
+<dd>A list with two names: lims and type. type can be one of string, numeric, integer and lims must be positive. The vector lims is used as a partitioner, that is if <tt class="docutils literal"><span class="pre">c(&quot;a&quot;,&quot;b&quot;,&quot;c&quot;)</span></tt> is the key and <tt class="docutils literal"><span class="pre">lims=c(1,2)</span></tt> the first two elements will be used for partitioning. If a partitioner is used, all the emitted keys must of be the same type. If <tt class="docutils literal"><span class="pre">lims</span></tt> is of length 1, it will partitioned on that element.</dd>
 <dt><tt class="docutils literal"><span class="pre">jobname</span></tt></dt>
 <dd>the jobname, if not given, then current date and time is the job title.</dd>
 </dl>
@@ -268,12 +275,12 @@ java client will read this first before reading the above variable.</p>
         <li class="right" >
           <a href="rhlapply.html" title="The rhlapply Command"
              >previous</a> |</li>
-        <li><a href="index.html">rhipe v0.60 documentation</a> &raquo;</li> 
+        <li><a href="index.html">rhipe v0.61 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2009, Saptarshi Guha.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+        &copy; Copyright 2009, Saptarshi Guha.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.
     </div>
   </body>
 </html>

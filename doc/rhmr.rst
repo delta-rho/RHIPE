@@ -32,6 +32,7 @@ Function
                  shared=c(),
                  jarfiles=c(),
                  copyFiles=F,
+		 partitioner=NULL,
                  opts=rhoptions(),jobname="")
 
 
@@ -85,6 +86,9 @@ Function
 
 ``mapred``
 	Set Hadoop options here and RHIPE options. 
+
+``partitioner``
+	A list with two names: lims and type. type can be one of string, numeric, integer and lims must be positive. The vector lims is used as a partitioner, that is if ``c("a","b","c")`` is the key and ``lims=c(1,2)`` the first two elements will be used for partitioning. If a partitioner is used, all the emitted keys must of be the same type. If ``lims`` is of length 1, it will partitioned on that element.
 
 ``jobname``
 	the jobname, if not given, then current date and time is the job title.

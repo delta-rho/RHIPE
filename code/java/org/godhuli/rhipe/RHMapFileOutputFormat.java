@@ -144,10 +144,6 @@ extends FileOutputFormat<RHBytesWritable, RHBytesWritable> {
 		    RHBytesWritable value) throws IOException {
 	int part = hp.getPartition(key, value, readers.length);
 	return (RHBytesWritable)readers[part].get(key, value);
-	// RHBytesWritable af= (RHBytesWritable)readers[part].get(key, value);
-	// // System.out.println("Part for "+key+" is "+part+" and returned is null? "+ (af==null? "YES":"NO"));
-	// // System.out.println("Value="+value.toByteString());
-	// return(af);
     }
     public static 
 	MapFile.Reader getPartForKey(MapFile.Reader[] readers,

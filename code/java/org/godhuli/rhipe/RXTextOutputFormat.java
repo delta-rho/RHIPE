@@ -39,6 +39,7 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.util.*;
 
+import org.apache.hadoop.io.*;
 
 
 

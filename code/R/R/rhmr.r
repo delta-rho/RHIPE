@@ -31,6 +31,7 @@ rhmr <- function(map,reduce=NULL,
                  mapred=NULL,
                  shared=c(),
                  jarfiles=c(),
+                 partitioner=NULL,
                  copyFiles=F,
                  N=NA,
                  opts=rhoptions(),
@@ -116,6 +117,13 @@ rhmr <- function(map,reduce=NULL,
       ofolder <- paste(ofolder,"/",sep="")
   }
   flagclz <- NULL
+  if(length(inout)==1) inout=c(inout,"null") 
+
+  iftable <- c("sequence","text","lapply","map","null")
+  ## browser()
+  inout.a <- sapply(inout,pmatch,iftable)
+  inout <- iftable[inout.a]
+
   ifolder=switch(inout[1],
     "map"={
       flagclz="sequence"
@@ -158,8 +166,8 @@ rhmr <- function(map,reduce=NULL,
   lines$rhipe_shared <- shared.files
   
   inout <- as.vector(matrix(inout,ncol=2))
-  lines$map_output_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-  lines$map_output_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
+  lines$rhipe_map_output_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
+  lines$rhipe_map_output_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
   switch(inout[1],
          'text' = {
            lines$rhipe_inputformat_class <- 'org.godhuli.rhipe.RXTextInputFormat'
@@ -183,7 +191,7 @@ rhmr <- function(map,reduce=NULL,
          'binary'={
            stop("'binary' cannot be used as input format")
          })
-         
+
   switch(inout[2],
          'text' = {
            lines$rhipe_outputformat_class <-
@@ -205,18 +213,41 @@ rhmr <- function(map,reduce=NULL,
            lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
            lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
          },
+         'null'= {
+           lines$rhipe_outputformat_class <-'org.apache.hadoop.mapreduce.lib.output.NullOutputFormat'
+           lines$rhipe_outputformat_keyclass <- 'org.apache.hadoop.io.NullWritable'
+           lines$rhipe_outputformat_valueclass <- 'org.apache.hadoop.io.NullWritable'
+         },
          'map' = {
            lines$rhipe_outputformat_class <-'org.godhuli.rhipe.RHMapFileOutputFormat'
            lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
            lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
          })
-
+  lines$rhipe_map_output_keyclass <- "org.godhuli.rhipe.RHBytesWritable"
+  lines$rhipe_map_output_valueclass <- "org.godhuli.rhipe.RHBytesWritable"
+  lines$rhipe_partitioner_class <- "none"
+  if(!is.null(partitioner) && is.list(partitioner)){
+    if(is.null(partitioner$lims) || is.null(partitioner$type))
+      stop("Must provide partitioner limits and type")
+    lines$rhipe_partitioner_class <- if(!is.null(partitioner$class)) partitioner$class
+    else "org.godhuli.rhipe.RHPartitioner"
+    if(length(partitioner$lims)==1) partitioner$lims = rep(partitioner$lims,2)
+    lines$rhipe_partitioner_start <- partitioner$lims[1] 
+    lines$rhipe_partitioner_end <- partitioner$lims[2]
+    if(!all(partitioner$lims>0)) stop("limits must be greater than zero")
+    ttable <- c("string","numeric",'integer')
+    lines$rhipe_partitioner_type <- ttable[pmatch(partitioner$type,ttable)]
+    if(is.na(lines$rhipe_partitioner_type))
+      stop(sprintf("Invalid type:%s",partitioner$type))
+  }
+  
   lines$mapred.textoutputformat.usekey <-  "TRUE"
   lines$rhipe_reduce_buff_size <- 10000
   lines$rhipe_map_buff_size <- 10000
   lines$rhipe_job_verbose <- "TRUE"
   lines$rhipe_stream_buffer <- 10*1024
   lines$mapred.compress.map.output="true"
+  lines$rhipe.use.hadoop.combiner="FALSE"
   ##If user does not provide
   ##a reduce function,set reduce to NULL
   ##however can be over ridden by
@@ -238,7 +269,9 @@ rhmr <- function(map,reduce=NULL,
   lines$rhipe_combiner <- paste(as.integer(combiner))
   if(lines$rhipe_combiner=="1")
     lines$rhipe_reduce_justcollect <- "FALSE"
-  
+
+  ## parttype = c("string","integer","numeric","complex","logical","raw")
+
   lines <- lapply(lines,as.character);
   conf <- tempfile(pattern='rhipe')
 
@@ -474,13 +507,13 @@ rhstatus <- function(x){
 
   
 rhjoin <- function(x,verbose=TRUE,ignore.stderr=TRUE){
-  if(class(x)!="jobtoken") stop("Must give a jobtoken object(as obtained from rhex)")
-  job.id <-  x[[1]]['job.id']
+  if(class(x)!="jobtoken" && class(x)!="character") stop("Must give a jobtoken object(as obtained from rhex) or the Job id")
+  if(class(x) == "jobtoken") job.id <-  x[[1]]['job.id'] else job.id = x
   result <- Rhipe:::doCMD(rhoptions()$cmd['join'], jobid =job.id,needoutput=TRUE,
                           joinwordy = as.character(as.logical(verbose))
                           ,ignore.stderr=ignore.stderr)
                          
-  if(length(x)==2){
+  if(class(x) == "jobtoken" && length(x)==2){
     ## from rhlapply
     return(x[[2]]())
   }

@@ -6,6 +6,7 @@ import org.apache.hadoop.io.Text;
 import java.io.IOException;
 import java.io.DataOutput;
 import java.io.DataInput;
+import org.apache.hadoop.io.WritableComparator;
 
 public class RHText extends RHBytesWritable{
 
@@ -64,4 +65,37 @@ public class RHText extends RHBytesWritable{
 	    throw new IOException(e);
 	}
     }
+
+    public static class Comparator extends WritableComparator {
+	public Comparator() {
+	    super(RHText.class);
+	}
+
+	public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+	 	    // return comparator.compare(b1, s1, l1, b2, s2, l2);
+	    int off1= decodeVIntSize(b1[s1]), off2 = decodeVIntSize(b2[s2]);
+	    REXP tir=null,thr=null;
+	    byte[] thisValue,thatValue;
+	    thisValue=thatValue=null;
+	    try{
+		tir = REXP.newBuilder().mergeFrom(b1, s1+off1, l1-off1).build();
+	        thr = REXP.newBuilder().mergeFrom(b2, s2+off1, l2-off1).build();
+	    }catch(com.google.protobuf.InvalidProtocolBufferException e){
+		System.err.println(e);
+	    }
+	    int til=tir.getStringValueCount(), thl=thr.getStringValueCount();
+	    int minl = til < thl? til: thl;
+	    for(int i=0; i< minl;i++){
+		thisValue = tir.getStringValue(i).getStrval().getBytes();
+		thatValue = thr.getStringValue(i).getStrval().getBytes();
+		int a = compareBytes(thisValue,0,thisValue.length,thatValue,0,thatValue.length);
+		if(a !=0) return(a);
+	    }
+	    return(0);
+	}
+    }
+    static { // register this comparator
+	WritableComparator.define(RHText.class, new Comparator());
+    }
+
 }

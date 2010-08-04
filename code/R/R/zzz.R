@@ -1,27 +1,22 @@
 .rhipeEnv <- new.env()
-vvvv <- "0.60"
+vvvv <- "0.61"
 attr(vvvv,"minor") <- '2'
-attr(vvvv,"date") <- 'Tue Jun 01 12:41:34 EDT 2010'
-attr(vvvv,'fortune') <- 'Some changes are so slow, you dont notice them.
-Others are so fast, they dont notice you.'
+attr(vvvv,"date") <- 'Wed Aug 04 13:12:45 EDT 2010'
+attr(vvvv,'fortune') <- "The minute a man is convinced that he is interesting, he isn't."
 
 
-attr(vvvv,'notes') <- c("Jobs submitted can run in background (async option to rhmr) and can be joined (rhjoin) or monitored using rhstatus","rhdel deletes a string vector of files")
+attr(vvvv,'notes') <- c("Added ordering by keys")
 class(vvvv) <- "rhversion"
 
 assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )
 
-.onUnload <- function(libpath){
-  file("/tmp/mogo")
-  print("Bye")
-}
 .onLoad <- function(libname,pkgname){
   require(methods)
   onload.1(libname,pkgname)
 }
 onload.1 <- function(libname, pkgname){
   opts <- get("rhipeOptions",envir=.rhipeEnv)
-
+  
   ## start server
   opts$jarloc <- list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
 ##   cp <- c(list.files(Sys.getenv("HADOOP"),pattern="jar$",full=T),
@@ -52,7 +47,7 @@ onload.1 <- function(libname, pkgname){
   opts$cmd <- list(opt=0,ls=1,get=2,del=3,put=4,b2s=5,s2b=6,getkey=7,s2m=8,rename=9,join=10,status=11)
   ##print("WHY4")
   ## print(opts)
-  opts$mropts <- doCMD(opts$cmd['opt'],opts=opts,needo=T,ignore=F,verbose=FALSE)
+  opts$mropts <- doCMD(opts$cmd['opt'],opts=opts,needo=T,ignore=FALSE,verbose=FALSE)
   assign("rhipeOptions",opts,envir=.rhipeEnv)
 ##  print("WHY")
 }

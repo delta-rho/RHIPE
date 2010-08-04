@@ -81,30 +81,16 @@ public class RHBytesWritable
 	set(newData.bytes, 0, newData.size);
     }
     public void set(byte[] newData, int offset, int length) {
-	// bytes = new byte[ length];
-	// System.arraycopy(newData, offset, bytes, 0, length);
-	// this.size = length;
-	////original
 	setSize(0);
 	setSize(length);
 	System.arraycopy(newData, offset, bytes, 0, size);
     }
     public void readFields(final DataInput in) throws IOException {
-	// int k = readVInt(in);
-	// bytes = new byte[k];
-	// in.readFully(bytes, 0, k);
-	// this.size = k;
-	////original
     	setSize(0); 
     	setSize(readVInt(in));
     	in.readFully(bytes, 0, size);
     }
     public void readIntFields(final DataInput in) throws IOException {
-	// int k = in.readInt();
-	// bytes = new byte[k];
-	// in.readFully(bytes, 0, k);
-	// this.size = k;
-	//// original
     	setSize(0); // clear the old data
     	setSize(in.readInt());
     	in.readFully(bytes, 0, size);

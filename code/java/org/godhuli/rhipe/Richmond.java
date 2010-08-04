@@ -190,8 +190,9 @@ public class Richmond {
 	    infile[i] = r.getRexpValue(1).getStringValue(i).getStrval();
 	}
 	int maxnum = r.getRexpValue(2).getIntValue(0);
+	int bufsz = r.getRexpValue(3).getIntValue(0);
 	// as this rexp is written into
-	DataOutputStream cdo = _toR;
+	DataOutputStream cdo = new DataOutputStream(new java.io.BufferedOutputStream(_toR,1024*1024));
 	int counter=0;
 	boolean endd=false;
 	RHBytesWritable k=new RHBytesWritable();

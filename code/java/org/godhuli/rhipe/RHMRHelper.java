@@ -45,7 +45,9 @@ public class RHMRHelper {
     private String callID;
     private String hostname;
     private RHMRMapper mapper;
-    
+    protected static int PARTITION_START=0, PARTITION_END=0;
+    protected static REXP.RClass PARTITION_TYPE=REXP.RClass.REAL;
+
     public RHMRHelper(String fromWHo,RHMRMapper m){
 	callID=fromWHo;
 	mapper = m;
@@ -85,18 +87,47 @@ public class RHMRHelper {
 	    env.put(name, value);
 	}
     }
-
+    void doPartitionRelatedSetup(Configuration cfg){
+	if(!cfg.get("rhipe_partitioner_class").equals("none")){
+	    RHMRHelper.PARTITION_START = Integer.parseInt(cfg.get("rhipe_partitioner_start"))-1;
+	    RHMRHelper.PARTITION_END = Integer.parseInt(cfg.get("rhipe_partitioner_end"))-1;
+	    String pt = cfg.get("rhipe_partitioner_type");
+	    if(pt.equals("numeric")){
+		RHMRHelper.PARTITION_TYPE = REXP.RClass.REAL;
+	    }else if(pt.equals("string")){
+		RHMRHelper.PARTITION_TYPE = REXP.RClass.STRING;
+	    }else if(pt.equals("integer")){
+		RHMRHelper.PARTITION_TYPE = REXP.RClass.INTEGER;
+	    }
+	}
+    }
     void setup(Configuration cfg, String argv,boolean doPipe){     
 	try {
 // 	    InetAddress addr = InetAddress.getLocalHost();
 // 	    hostname = addr.getHostName();
-
+	    doPartitionRelatedSetup(cfg);
 	    BUFFER_SIZE = cfg.getInt("rhipe_stream_buffer",10*1024);
 	    joinDelay_ = cfg.getLong("rhipe_joindelay_milli", 0);
 	    nonZeroExitIsFailure_ = cfg.getBoolean("rhipe_non_zero_exit_is_failure", true);
 	    doPipe_ = doPipe;
 	    thisfs=FileSystem.get(cfg);
-	    outputFolder = new Path(cfg.get("rhipe_output_folder"));
+	    
+	    Class<?> _kc =null;
+	    
+	    if( callID.equals("Mapper")){
+		if( cfg.getInt("mapred.reduce.tasks",0) == 0)
+		    _kc = Class.forName( cfg.get("rhipe_outputformat_keyclass"));
+		else
+		    _kc = Class.forName( cfg.get("rhipe_map_output_keyclass"));
+	    }else{
+		_kc = Class.forName( cfg.get("rhipe_outputformat_keyclass"));
+	    }
+	    keyclass = _kc.asSubclass( RHBytesWritable.class );
+
+
+
+	    if(cfg.get("rhipe_output_folder")!=null)
+		outputFolder = new Path(cfg.get("rhipe_output_folder"));
 	    if(!doPipe_) return;
 	    copyFile=cfg.get("rhipe_copy_file").equals("TRUE")? true: false;
 	    String[] argvSplit = argv.split(" ");
@@ -128,8 +159,8 @@ public class RHMRHelper {
     }
 
 
-    void startOutputThreads(TaskInputOutputContext<RHBytesWritable,RHBytesWritable,
-			    RHBytesWritable,RHBytesWritable> ctx) {
+    void startOutputThreads(TaskInputOutputContext<WritableComparable,RHBytesWritable,
+			    WritableComparable,RHBytesWritable> ctx) {
 	outThread_ = new MROutputThread(ctx,true);
 	outThread_.start();
 	errThread_.setContext(ctx);
@@ -138,8 +169,8 @@ public class RHMRHelper {
     
  
 
-    public void mapRedFinished(TaskInputOutputContext<RHBytesWritable,RHBytesWritable,
-			       RHBytesWritable,RHBytesWritable> ctx) {
+    public void mapRedFinished(TaskInputOutputContext<WritableComparable,RHBytesWritable,
+			       WritableComparable,RHBytesWritable> ctx) {
 	try {
 	    if (!doPipe_) {
 		return;
@@ -162,8 +193,8 @@ public class RHMRHelper {
 
 	
     
-    void waitOutputThreads(TaskInputOutputContext<RHBytesWritable,RHBytesWritable
-			   ,RHBytesWritable,RHBytesWritable> ctx) {
+    void waitOutputThreads(TaskInputOutputContext<WritableComparable,RHBytesWritable
+			   ,WritableComparable,RHBytesWritable> ctx) {
 	try {
 	    if (outThread_ == null) {
 		startOutputThreads(new DummyContext(ctx)); //will fail
@@ -203,10 +234,10 @@ public class RHMRHelper {
 	return(extraInfo);
     }
 
-    class DummyContext extends TaskInputOutputContext<RHBytesWritable,RHBytesWritable,
-			       RHBytesWritable,RHBytesWritable> {
-	DummyContext(TaskInputOutputContext<RHBytesWritable,RHBytesWritable,
-		     RHBytesWritable,RHBytesWritable>ctx){
+    class DummyContext extends TaskInputOutputContext<WritableComparable,RHBytesWritable,
+			       WritableComparable,RHBytesWritable> {
+	DummyContext(TaskInputOutputContext<WritableComparable,RHBytesWritable,
+		     WritableComparable,RHBytesWritable>ctx){
 	    super(null, null, null, null, null); //wont work
 	}
 	public RHBytesWritable getCurrentKey() throws IOException, InterruptedException {
@@ -233,25 +264,28 @@ public class RHMRHelper {
 	
     public void write(RHBytesWritable c) throws IOException{
 	c.write(clientOut_);
-// //	System.out.println(c.getBytes());
-// 	WritableUtils.writeVInt(clientOut_,c.getLength());
-// 	byte[] b = c.getBytes();
-// 	clientOut_.write(b,0,b.length);
+    }
+
+    public void write(WritableComparable c) throws IOException{
+	c.write(clientOut_);
     }
 
 	
  
     class MROutputThread extends Thread {
-	volatile TaskInputOutputContext <RHBytesWritable,RHBytesWritable,
-	    RHBytesWritable,RHBytesWritable> ctx;
+	volatile TaskInputOutputContext <WritableComparable,RHBytesWritable,
+	    WritableComparable,RHBytesWritable> ctx;
+	// volatile TaskInputOutputContext <Object,Object,
+	//     Object,Object> ctx;
+
 	long lastStdoutReport = 0;
 
-	MROutputThread(TaskInputOutputContext<RHBytesWritable,RHBytesWritable,
-		       RHBytesWritable,RHBytesWritable> ctx,boolean isD) {
+	MROutputThread(TaskInputOutputContext<WritableComparable,RHBytesWritable,
+		       WritableComparable,RHBytesWritable> ctx,boolean isD) {
 	    setDaemon(isD);
 	    this.ctx = ctx;
 	}
-	boolean readRecord(RHBytesWritable k, RHBytesWritable v) {
+	boolean readRecord(WritableComparable k, Writable v) {
 	    try{
 		k.readFields(clientIn_);
 		v.readFields(clientIn_);
@@ -263,12 +297,24 @@ public class RHMRHelper {
 	}
 
 	public void run() {
-	    RHBytesWritable key = new RHBytesWritable();
+	    // Writable key 
+	    // RHBytesWritable key = new RHBytesWritable();
 	    RHBytesWritable value = new RHBytesWritable();
+	    WritableComparable key=  null ;
+	    try{
+		key= keyclass.newInstance();
+	    }catch(InstantiationException e){
+		throw new RuntimeException(e);
+	    }catch(IllegalAccessException e){
+		throw new RuntimeException(e);
+	    }
+
 	    try {
 		while (readRecord(key,value) ) {
-		    // LOG.info("KEY="+key.toDebugString());
+		    // LOG.info("KEY="+value.toString());
 		    // LOG.info("Value="+value.toDebugString());
+		    // System.out.println(value.getClass().getName());
+
 		    ctx.write(key,value);
 		    numRecWritten_++;
 		    long now = System.currentTimeMillis();
@@ -442,6 +488,7 @@ public class RHMRHelper {
     FileSystem thisfs;
     Path outputFolder;
     Process sim;
+    Class<? extends RHBytesWritable> keyclass;
     public MROutputThread outThread_;
     public MRErrorThread errThread_;
     volatile DataOutputStream clientOut_;
