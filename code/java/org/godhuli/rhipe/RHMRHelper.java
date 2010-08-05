@@ -47,7 +47,6 @@ public class RHMRHelper {
     private RHMRMapper mapper;
     protected static int PARTITION_START=0, PARTITION_END=0;
     protected static REXP.RClass PARTITION_TYPE=REXP.RClass.REAL;
-
     public RHMRHelper(String fromWHo,RHMRMapper m){
 	callID=fromWHo;
 	mapper = m;
@@ -91,14 +90,14 @@ public class RHMRHelper {
 	if(!cfg.get("rhipe_partitioner_class").equals("none")){
 	    RHMRHelper.PARTITION_START = Integer.parseInt(cfg.get("rhipe_partitioner_start"))-1;
 	    RHMRHelper.PARTITION_END = Integer.parseInt(cfg.get("rhipe_partitioner_end"))-1;
-	    String pt = cfg.get("rhipe_partitioner_type");
-	    if(pt.equals("numeric")){
-		RHMRHelper.PARTITION_TYPE = REXP.RClass.REAL;
-	    }else if(pt.equals("string")){
-		RHMRHelper.PARTITION_TYPE = REXP.RClass.STRING;
-	    }else if(pt.equals("integer")){
-		RHMRHelper.PARTITION_TYPE = REXP.RClass.INTEGER;
-	    }
+	    // String pt = cfg.get("rhipe_partitioner_type");
+	    // if(pt.equals("numeric")){
+	    // 	RHMRHelper.PARTITION_TYPE = REXP.RClass.REAL;
+	    // }else if(pt.equals("string")){
+	    // 	RHMRHelper.PARTITION_TYPE = REXP.RClass.STRING;
+	    // }else if(pt.equals("integer")){
+	    // 	RHMRHelper.PARTITION_TYPE = REXP.RClass.INTEGER;
+	    // }
 	}
     }
     void setup(Configuration cfg, String argv,boolean doPipe){     
@@ -106,6 +105,7 @@ public class RHMRHelper {
 // 	    InetAddress addr = InetAddress.getLocalHost();
 // 	    hostname = addr.getHostName();
 	    doPartitionRelatedSetup(cfg);
+
 	    BUFFER_SIZE = cfg.getInt("rhipe_stream_buffer",10*1024);
 	    joinDelay_ = cfg.getLong("rhipe_joindelay_milli", 0);
 	    nonZeroExitIsFailure_ = cfg.getBoolean("rhipe_non_zero_exit_is_failure", true);

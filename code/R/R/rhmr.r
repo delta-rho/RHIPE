@@ -223,14 +223,13 @@ rhmr <- function(map,reduce=NULL,
            lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
            lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
          })
+  lines$rhipe_string_quote <- ""
   lines$rhipe_map_output_keyclass <- "org.godhuli.rhipe.RHBytesWritable"
   lines$rhipe_map_output_valueclass <- "org.godhuli.rhipe.RHBytesWritable"
   lines$rhipe_partitioner_class <- "none"
   if(!is.null(partitioner) && is.list(partitioner)){
     if(is.null(partitioner$lims) || is.null(partitioner$type))
       stop("Must provide partitioner limits and type")
-    lines$rhipe_partitioner_class <- if(!is.null(partitioner$class)) partitioner$class
-    else "org.godhuli.rhipe.RHPartitioner"
     if(length(partitioner$lims)==1) partitioner$lims = rep(partitioner$lims,2)
     lines$rhipe_partitioner_start <- partitioner$lims[1] 
     lines$rhipe_partitioner_end <- partitioner$lims[2]
@@ -239,8 +238,15 @@ rhmr <- function(map,reduce=NULL,
     lines$rhipe_partitioner_type <- ttable[pmatch(partitioner$type,ttable)]
     if(is.na(lines$rhipe_partitioner_type))
       stop(sprintf("Invalid type:%s",partitioner$type))
+    lines$rhipe_partitioner_class <- if(!is.null(partitioner$class)) partitioner$class
+    else {
+          switch(lines$rhipe_partitioner_type,
+           "string"= { "org.godhuli.rhipe.RHPartitionerText" },
+           "numeric"= { "org.godhuli.rhipe.RHPartitionerNumeric" },
+           "integer"= { "org.godhuli.rhipe.RHPartitionerInteger" }
+                 )
+        }
   }
-  
   lines$mapred.textoutputformat.usekey <-  "TRUE"
   lines$rhipe_reduce_buff_size <- 10000
   lines$rhipe_map_buff_size <- 10000

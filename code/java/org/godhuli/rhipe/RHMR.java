@@ -181,14 +181,14 @@ public class RHMR  implements Tool {
 	    Class<? extends org.apache.hadoop.mapreduce.Partitioner> pc = clz3.asSubclass(org.apache.hadoop.mapreduce.Partitioner.class);
 
 	    job_.setPartitionerClass(pc);
-	    String pt = rhoptions_.get("rhipe_partitioner_type");
-	    if(pt.equals("numeric")){
-		RHMRHelper.PARTITION_TYPE = REXP.RClass.REAL;
-	    }else if(pt.equals("string")){
-		RHMRHelper.PARTITION_TYPE = REXP.RClass.STRING;
-	    }else if(pt.equals("integer")){
-		RHMRHelper.PARTITION_TYPE = REXP.RClass.INTEGER;
-	    }else throw new IOException("Invalid class for the partitioner, must be one  of numeric, string, integer");
+	    // String pt = rhoptions_.get("rhipe_partitioner_type");
+	    // if(pt.equals("numeric")){
+	    // 	RHMRHelper.PARTITION_TYPE = REXP.RClass.REAL;
+	    // }else if(pt.equals("string")){
+	    // 	RHMRHelper.PARTITION_TYPE = REXP.RClass.STRING;
+	    // }else if(pt.equals("integer")){
+	    // 	RHMRHelper.PARTITION_TYPE = REXP.RClass.INTEGER;
+	    // }else throw new IOException("Invalid class for the partitioner, must be one  of numeric, string, integer");
 	}
 	if(! output_folder.equals("")){
 		Path ofp = new Path(output_folder);

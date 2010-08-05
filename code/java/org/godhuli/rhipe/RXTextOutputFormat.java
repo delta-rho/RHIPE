@@ -55,12 +55,13 @@ public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable,RHBytes
 
 
     public RXTextRecordWriter(DataOutputStream out,
-			      String keyValueSeparator,String fieldSep,boolean useKey) {
+			      String keyValueSeparator,String fieldSep,String squote,boolean useKey) {
 	this.out=out;
 	this.useKey = useKey;
 	try{
 	    keyvaluesep =keyValueSeparator.getBytes(utf8);;
 	    REXPHelper.setFieldSep(fieldSep);
+	    REXPHelper.setStringQuote(squote);
 	}catch (UnsupportedEncodingException uee) {
 	    throw new IllegalArgumentException("can't find " + utf8 + " encoding");
 	}
@@ -100,6 +101,8 @@ public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable,RHBytes
       String fieldSeparator= conf.get("mapred.field.separator",
 				    " ");
       boolean usekey = conf.get("mapred.textoutputformat.usekey").equals("TRUE")? true:false;
+      String squote = conf.get("rhipe_string_quote");
+      if(squote == null) squote="";
       CompressionCodec codec = null;
       String extension = "";
       if (isCompressed) {
@@ -112,12 +115,12 @@ public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable,RHBytes
       FileSystem fs = file.getFileSystem(conf);
       if (!isCompressed) {
 	  FSDataOutputStream fileOut = fs.create(file, false);
-	  return new RXTextRecordWriter(fileOut, keyValueSeparator,fieldSeparator,usekey);
+	  return new RXTextRecordWriter(fileOut, keyValueSeparator,fieldSeparator,squote,usekey);
       } else {
 	  FSDataOutputStream fileOut = fs.create(file, false);
 	  return new RXTextRecordWriter(new DataOutputStream
 					    (codec.createOutputStream(fileOut)),
-					keyValueSeparator,fieldSeparator,usekey);
+					keyValueSeparator,fieldSeparator,squote,usekey);
     }
 
   }

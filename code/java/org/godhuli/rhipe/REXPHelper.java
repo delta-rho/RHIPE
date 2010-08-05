@@ -22,7 +22,11 @@ import org.godhuli.rhipe.REXPProtos.REXP.RClass;
 
 public class REXPHelper  {
     public static String fsep = " ";
+    public static String squote = "\"";
+
     public static void setFieldSep(String s){ fsep=s;}
+    public static void setStringQuote(String s){ squote=s;}
+
     public static String debugString(byte[] b){
 	REXP r = null;
 	try{
@@ -57,8 +61,8 @@ public class REXPHelper  {
 		    if( si.getIsNA() )
 			sb.append("NA");
 		    else{
-			sb.append("\"");sb.append(si.getStrval());
-			sb.append("\"");
+			sb.append(squote);sb.append(si.getStrval());
+			sb.append(squote);
 		    }
 		    sb.append(fsep);
 		}
@@ -66,8 +70,8 @@ public class REXPHelper  {
 		if( si.getIsNA() )
 		    sb.append("NA");
 		else{
-		    sb.append("\"");sb.append(si.getStrval());
-		    sb.append("\"");
+		    sb.append(squote);sb.append(si.getStrval());
+		    sb.append(squote);
 		}
 		return(sb.toString());
 	    }
