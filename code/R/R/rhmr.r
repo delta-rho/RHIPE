@@ -223,7 +223,7 @@ rhmr <- function(map,reduce=NULL,
            lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
            lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
          })
-  lines$rhipe_string_quote <- ""
+  lines$rhipe_string_quote <- ''
   lines$rhipe_map_output_keyclass <- "org.godhuli.rhipe.RHBytesWritable"
   lines$rhipe_map_output_valueclass <- "org.godhuli.rhipe.RHBytesWritable"
   lines$rhipe_partitioner_class <- "none"
@@ -276,6 +276,15 @@ rhmr <- function(map,reduce=NULL,
   if(lines$rhipe_combiner=="1")
     lines$rhipe_reduce_justcollect <- "FALSE"
 
+  if(lines$rhipe_map_output_keyclass %in% c("org.godhuli.rhipe.RHText","org.godhuli.rhipe.RHNumeric")
+     && is.null(reduce)){
+    stop("If using ordered keys, provide a reduce e.g.
+
+reduce = expression({
+  reduce={ lapply(reduce.values,function(r) rhcollect(reduce.key,r)) }
+})
+")
+  }
   ## parttype = c("string","integer","numeric","complex","logical","raw")
 
   lines <- lapply(lines,as.character);

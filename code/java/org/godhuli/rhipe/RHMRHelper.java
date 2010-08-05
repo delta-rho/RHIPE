@@ -105,6 +105,12 @@ public class RHMRHelper {
 // 	    InetAddress addr = InetAddress.getLocalHost();
 // 	    hostname = addr.getHostName();
 	    doPartitionRelatedSetup(cfg);
+	    String squote = cfg.get("rhipe_string_quote");
+	    if(squote == null) squote="";
+
+	    REXPHelper.setFieldSep(cfg.get("mapred.field.separator"," "));
+	    REXPHelper.setStringQuote(squote);
+
 
 	    BUFFER_SIZE = cfg.getInt("rhipe_stream_buffer",10*1024);
 	    joinDelay_ = cfg.getLong("rhipe_joindelay_milli", 0);
