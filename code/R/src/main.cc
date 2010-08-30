@@ -149,7 +149,8 @@ int main(int argc,char **argv){
   // rexpress("options(width=200)");
   rexpress("rhstatus<-function(string) .Call('rh_status',string);");
   rexpress("rhcounter<-function(group,counter='',n=1) .Call('rh_counter',list(group,counter,n))");
-  rexpress("rhcollect<-function(key,value) .Call('rh_collect',key,value)");
+  if(!strcmp(getenv("rhipe_outputformat_class"),"org.apache.hadoop.mapreduce.lib.output.NullOutputFormat"))
+    rexpress("rhcollect<-function(key,value) {}");
   LOGG(9,"Loaded R Wrappers\n");
 
 

@@ -13,6 +13,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.*;
+import org.apache.hadoop.io.IOUtils;
 
 public class PersonalServer {
     byte[] bbuf;
@@ -21,6 +22,7 @@ public class PersonalServer {
     REXP yesalive;
     FileUtils fu;
     public static String getPID() throws IOException,InterruptedException {
+	//Taken from http://www.coderanch.com/t/109334/Linux-UNIX/UNIX-process-ID-java-program
 	Vector<String> commands=new Vector<String>();
 	commands.add("/bin/bash");
 	commands.add("-c");
@@ -68,16 +70,93 @@ public class PersonalServer {
 	 a = errsock.accept();
 	 _err = new DataOutputStream(new BufferedOutputStream(a.getOutputStream(),1024));
     }
-
-    public void send_error_message(Exception e){
-    }
-    public void send_error_message(String e){
-    }
-
     public void rhmropts(REXP r) throws Exception{
 	REXP b = fu.mapredopts();
 	send_result(b);
     }
+    // void copy(String srcf, String dstf, Configuration conf) throws IOException {
+    // 	Path srcPath = new Path(srcf);
+    // 	FileSystem srcFs = srcPath.getFileSystem(getConf());
+    // 	Path dstPath = new Path(dstf);
+    // 	FileSystem dstFs = dstPath.getFileSystem(getConf());
+    // 	Path [] srcs = FileUtil.stat2Paths(srcFs.globStatus(srcPath), srcPath);
+    // 	if (srcs.length > 1 && !dstFs.isDirectory(dstPath)) {
+    // 	    throw new IOException("When copying multiple files, " 
+    // 				  + "destination should be a directory.");
+    // 	}
+    // 	for(int i=0; i<srcs.length; i++) {
+    // 	    FileUtil.copy(srcFs, srcs[i], dstFs, dstPath, false, conf);
+    // 	}
+    // }
+    // public void rhcp(REXP r) throws Exception{
+    // 	String[] argv = new String[r.getRexpValue(1).getStringValueCount()+1];
+    // 	for(int i=0;i<argv.length;i++) 
+    // 	    argv[i] = r.getRexpValue(1).getStringValue(i).getStrval();
+    // 	argv[argv.length] = r.getRexpValue(2).getStringValue(0).getStrval();
+    // 	int i = 0;
+    // 	String dest = argv[argv.length-1];
+    // 	if (argv.length > 3) {
+    // 	    Path dst = new Path(dest);
+    // 	    if (!fu.getConf().isDirectory(dst)) {
+    // 		throw new IOException("When copying multiple files, " 
+    //                           + "destination " + dest + " should be a directory.");
+    // 	    }
+    // 	}
+    // 	for (; i < argv.length - 1; i++) {
+    // 	    try {
+    // 		copy(argv[i], dest, conf);
+    // 	    } catch (RemoteException e) {
+    //     exitCode = -1;
+    //     try {
+    //       String[] content;
+    //       content = e.getLocalizedMessage().split("\n");
+    //       System.err.println(cmd.substring(1) + ": " +
+    //                          content[0]);
+    //     } catch (Exception ex) {
+    //       System.err.println(cmd.substring(1) + ": " +
+    //                          ex.getLocalizedMessage());
+    //     }
+    //   } catch (IOException e) {
+    //     //
+    //     // IO exception encountered locally.
+    //     //
+    //     exitCode = -1;
+    //     System.err.println(cmd.substring(1) + ": " +
+    //                        e.getLocalizedMessage());
+    //   }
+    // }
+    // return exitCode;
+    // }
+
+    // private void printToStdout(InputStream in) throws IOException {
+    // 	try {
+    // 	    IOUtils.copyBytes(in, System.out, fu.getConf(), false);
+    // 	} finally {
+    // 	    in.close();
+    // 	}
+    // }
+
+    // public void rhmerge(REXP r) throws Exception{
+    // 	Path srcPattern = new Path(src);
+    // 	new DelayedExceptionThrowing() {
+    // 	    void process(Path p, FileSystem srcFs) throws IOException {
+    // 		if (srcFs.getFileStatus(p).isDir()) {
+    // 		    throw new IOException("Source must be a file.");
+    // 		}
+    // 		printToStdout(srcFs.open(p));
+    // 	    }
+    // 	}.globAndProcess(srcPattern, getSrcFileSystem(srcPattern, true));
+    // }
+
+    // public void rhmv(REXP r) throws Exception{
+    // 	String[] fromfiles = new String[r.getRexpValue(1).getStringValueCount()+1];
+    // 	for(int i=0;i<fromfiles.length;i++) 
+    // 	    fromfiles[i] = r.getRexpValue(1).getStringValue(i).getStrval();
+    // 	fromfiles[fromfiles.length] = r.getRexpValue(2).getStringValue(i).getStrval();
+    // 	fu.getFsShell().rename(fromfiles, fu.getConf());
+
+    // }
+
     public void rhls(REXP r) throws Exception{
 	String[] result0 = fu.ls(r.getRexpValue(1) // This is a string vector
 				 ,r.getRexpValue(2).getIntValue(0));
@@ -94,10 +173,27 @@ public class PersonalServer {
     }
 
     public void rhget(REXP r) throws Exception{
+	String src = r.getRexpValue(1).getStringValue(0).getStrval();
+	String dest = r.getRexpValue(2).getStringValue(0).getStrval();
+	System.err.println("Copying "+src+" to "+dest);
+	fu.copyMain(src,dest);
+	send_result("OK");
     }
     public void rhput(REXP r) throws Exception{
-    }
-    public void rhgetkeys(REXP r) throws Exception{
+	String[] locals = new String[r.getRexpValue(1).getStringValueCount()];
+	for(int i=0;i<locals.length;i++) 
+	    locals[i] = r.getRexpValue(1).getStringValue(i).getStrval();
+	String dest2 = r.getRexpValue(2).getStringValue(0).getStrval();
+	REXP.RBOOLEAN overwrite_ = r.getRexpValue(3).getBooleanValue(0);
+	boolean overwrite;
+	if(overwrite_==REXP.RBOOLEAN.F)
+	    overwrite=false;
+	else if(overwrite_==REXP.RBOOLEAN.T)
+	    overwrite=true;
+	else
+	    overwrite=false;
+	fu.copyFromLocalFile(locals,dest2,overwrite);
+	send_result("OK");
     }
     public void sequenceAsBinary(REXP r) throws Exception{ //works
 	Configuration cfg = new Configuration();
@@ -138,7 +234,7 @@ public class PersonalServer {
 
     public void rhstatus(REXP r) throws Exception{
 	REXP jid = r.getRexpValue(1);
-	REXP result = fu.joinjob(jid);
+	REXP result = fu.getstatus(jid);
 	send_result(result);
     }
 
@@ -165,6 +261,19 @@ public class PersonalServer {
 	}
     }
     
+    public void send_error_message(Exception e){
+	ByteArrayOutputStream bs = new ByteArrayOutputStream();
+	e.printStackTrace(new PrintStream(bs));
+	String s = bs.toString();
+	send_error_message(s);
+    }
+    public void send_error_message(String s){
+	REXP clattr = RObjects.makeStringVector("worker_error");
+	REXP r = RObjects.addAttr(RObjects.buildStringVector(new String[]{s}), "class",clattr).build();
+	System.err.println(s);
+	sendMessage(r,true);
+    }
+
     public void sendMessage(REXP r){
 	sendMessage(r, false);
     }
@@ -172,8 +281,8 @@ public class PersonalServer {
 	try{
 	    byte[] b = r.toByteArray();
 	    DataOutputStream dos = _toR;
-	    if(bb) dos = _err;
-	    dos.writeInt(b.length);
+	    // if(bb) dos = _err;
+	    if(bb) dos.writeInt(-b.length); else dos.writeInt(b.length);
 	    dos.write(b,0,b.length);
 	    dos.flush();
 	}catch(IOException e){
@@ -196,6 +305,59 @@ public class PersonalServer {
 	thevals.addRexpValue(r);
 	RObjects.addAttr(thevals,"class",RObjects.makeStringVector("worker_result"));
 	sendMessage(thevals.build());
+    }
+    public void rhgetkeys(REXP rexp00) throws Exception{
+	REXP rexp0 = rexp00.getRexpValue(1);
+	REXP keys = rexp0.getRexpValue(0); //keys
+	REXP paths = rexp0.getRexpValue(1); //paths to read from
+	String tempdest = rexp0.getRexpValue(2).getStringValue(0).getStrval(); //tempdest
+	REXP.RBOOLEAN b = rexp0.getRexpValue(3).getBooleanValue(0); //as sequence or binary
+	Configuration c=fu.getConf();
+	DataOutputStream out = _toR;
+	c.setInt("io.map.index.skip",rexp0.getRexpValue(4).getIntValue(0)); //skipindex
+	String[] pnames = new String[paths.getStringValueCount()];
+	for(int i=0;i< pnames.length;i++){
+	    pnames[i] = paths.getStringValue(i).getStrval();
+	}
+	MapFile.Reader[] mr = RHMapFileOutputFormat.getReaders(pnames,c);
+
+	int numkeys = keys.getRexpValueCount();
+	RHBytesWritable k = new RHBytesWritable();
+	RHBytesWritable v = new RHBytesWritable();
+	boolean closeOut = false;
+	if(b==REXP.RBOOLEAN.F){ //binary style
+	    if(out==null){
+		closeOut=true;
+		out = new DataOutputStream(new FileOutputStream(tempdest));
+	    }
+	    for(int i=0; i < numkeys; i++){
+		k.set(keys.getRexpValue(i).getRawValue().toByteArray());
+		RHMapFileOutputFormat.getEntry(mr,k,v);
+		k.writeAsInt(out);
+		v.writeAsInt(out);
+	    }
+	    if (closeOut) 
+		out.close();
+	    else {
+		out.writeInt(0);
+		out.flush();
+	    }
+	}else{// these will be written out as a sequence file
+	    RHWriter rw = new RHWriter(tempdest,fu.getConf());
+	    SequenceFile.Writer w = rw.getSQW();
+	    for(int i=0; i < numkeys; i++){
+		k.set(keys.getRexpValue(i).getRawValue().toByteArray());
+		RHMapFileOutputFormat.getEntry(mr,k,v);
+		w.append(k,v);
+	    }
+	    rw.close();
+	}
+    }
+
+    public void rhex(REXP rexp0) throws Exception{
+	String[] zonf = new String[]{rexp0.getRexpValue(1).getStringValue(0).getStrval()}; 
+	int result = RHMR.fmain(zonf);
+	send_result(""+result);
     }
 
     public void binaryAsSequence(REXP r) throws Exception{ //works
@@ -233,7 +395,8 @@ public class PersonalServer {
 		if(size> bbuf.length){
 		    bbuf = new byte[size];
 		}
-		if(size == 0)
+		if(size<0) break;
+		else if(size == 0)
 		    send_alive();
 		else {
 		_fromR.readFully(bbuf,0,size);
@@ -253,9 +416,16 @@ public class PersonalServer {
 		else if(tag.equals("rhstatus")) rhstatus(r);
 		else if(tag.equals("rhjoin")) rhjoin(r);
 		else if(tag.equals("rhkill")) rhkill(r);
+		else if(tag.equals("rhex")) rhex(r);
+
+		// else if(tag.equals("rhcp")) rhcp(r);
+		// else if(tag.equals("rhmv")) rhmv(r);
+		// else if(tag.equals("rhmerge")) rhmerge(r);
 
 		else send_error_message("Could not find method with name: "+tag+"\n");
 		}
+	}catch(EOFException e){
+		System.exit(0);
 	}catch (SecurityException e) {
 	    send_error_message(e);
 	}catch (IllegalArgumentException e) {
@@ -278,6 +448,7 @@ public class PersonalServer {
 	while(true){
 	    try{
 		r.startme();
+
 	    }catch(Exception e){
 		System.err.println(Thread.currentThread().getStackTrace());
 	    }

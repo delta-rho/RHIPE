@@ -81,6 +81,15 @@ public class RHMR  implements Tool {
 	System.exit(res);
     }
 
+    public static int fmain(String[] args) throws Exception  {
+	int res;
+	// (new RHMR()).doTest();
+	// System.exit(0);
+	RHMR r = new RHMR();
+	r.setConfig(new Configuration());
+	res = ToolRunner.run(r.getConfig(), r, args);
+	return(res);
+    }
     public void doTest(){
 	int i;
 	for(i=0;i<1;i++){System.out.println("I="+i);};

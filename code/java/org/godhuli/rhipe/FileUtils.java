@@ -82,6 +82,7 @@ public class FileUtils {
     public FsShell getFsShell(){
 	return fsshell;
     }
+
     public void copyFromLocalFile(String[] src,String dst,boolean overwrite)
     throws IOException{
 	Path dstPath = new Path(dst);
@@ -227,7 +228,7 @@ public class FileUtils {
     }
     
     
-    private abstract class DelayedExceptionThrowing {
+    protected abstract class DelayedExceptionThrowing {
 	abstract void process(Path p, FileSystem srcFs) throws IOException;
 	
 	final void globAndProcess(Path srcPattern, FileSystem srcFs
@@ -438,6 +439,7 @@ public class FileUtils {
 	    }
 	    rw.close();
 	}
+
     }
     public REXP getstatus(REXP r) throws Exception{
 	String  jd = r.getRexpValue(0).getStringValue(0).getStrval();

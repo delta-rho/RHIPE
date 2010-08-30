@@ -28,10 +28,13 @@ rhinit <- function(errors=TRUE, info=TRUE,path=NULL,cleanup=TRUE,bufsize=as.inte
   reg.finalizer(y, function(r){
     if(cleanup) {
       cat(sprintf("RHIPE: Cleaning up  associated server (PID=%s)\n",r$ports['PID']));
+      writeBin(as.integer(-1),con=r$tojava,endian="big")     
       for(x in list(r$tojava, r$fromjava,r$err)) close(x)
       system(sprintf("kill -9 %s", r$ports['PID']))
     }
   },onexit=TRUE)
+  if(is.null(errors)) errors <- TRUE
+  if(is.null(info)) info <- TRUE
   rhsetoptions(child=list(errors=errors,info=info,handle=y,bufsize=bufsize))
 }
  
@@ -62,20 +65,19 @@ send.cmd <- function(z,command, getresponse=TRUE,continuation=NULL...){
     z <- rhoptions()$child$handle
   }
   ## browser()
-  command <- rhsz(command)
+  command <- rhsz.1(command)
   writeBin(length(command),z$tojava, endian='big')
   writeBin(command, z$tojava, endian='big')
   if(getresponse){
     sz <- readBin(z$fromjava,integer(),n=1,endian="big")
+    if(sz<0) {
+      resp <- readBin(z$fromjava,raw(),n=sz,endian="big")
+      resp <- rhuz.1(resp)
+      stop(resp)
+    }
     resp <- readBin(z$fromjava,raw(),n=sz,endian="big")
-    resp <- rhuz(resp)
-    nx <- switch(class(resp),
-                 "worker_result" = {
-                   unclass(resp)
-                 },
-                 "worker_error" = {
-                   
-                 })
+    resp <- rhuz.1(resp)
+    nx <- unclass(resp)
     return(nx)
   }
   if(!is.null(continuation)) return(continuation())
@@ -86,6 +88,28 @@ rhmropts.1 <- function(){
   v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhmropts"))
   v
 }
+
+rhsz.1 <- function(r) .Call("serializeUsingPB",r)
+
+rhuz.1 <- function(r) .Call("unserializeUsingPB",r)
+
+rhcp.1 <- function(ifile, ofile) {
+  system(command=paste(paste(Sys.getenv("HADOOP"), "bin", "hadoop",
+           sep=.Platform$file.sep), "fs", "-cp", ifile, ofile, sep=" "))
+  v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhcp",ifile, ofile))
+}
+
+rhmv.1 <- function(ifile, ofile) {
+  system(command=paste(paste(Sys.getenv("HADOOP"), "bin", "hadoop",
+           sep=.Platform$file.sep), "fs", "-mv", ifile, ofile, sep=" "))
+  v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhmv",ifile, ofile))
+}
+
+rhmerge.1 <- function(inr,ou){
+  system(paste(paste(Sys.getenv("HADOOP"),"bin","hadoop",
+                     sep=.Platform$file.sep,collapse=""),"dfs","-cat",inr,">", ou,collapse=" "))
+}
+
 
 rhls.1 <- function(folder,recurse=FALSE){
   ## List of files,
@@ -104,11 +128,11 @@ rhdel.1 <- function(folder){
 }
 
 rhget.1 <- function(src, dest){
-  Rhipe:::send.cmd(rhoptions()$child$handle, list("rhget",src,dest))
+  x <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhget",src,dest))
 }
 
 rhput.1 <- function(src, dest,deletedest=TRUE){
-  Rhipe:::send.cmd(rhoptions()$child$handle, list("rhput",src,dest,as.logical(deletedest)))
+  x <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhput",src,dest,as.logical(deletedest)))
 }
 
 
@@ -116,13 +140,13 @@ rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE,asraw=FALSE,size=
   type = match.arg(type,c("sequence","map","text"))
   files <- switch(type,
                   "text"={
-                    unclass(rhls(files)['file'])$file
+                    unclass(rhls.1(files)['file'])$file
                   },
                   "sequence"={
-                    unclass(rhls(files)['file'])$file
+                    unclass(rhls.1(files)['file'])$file
                   },
                   "map"={
-                    uu=unclass(rhls(files,rec=TRUE)['file'])$file
+                    uu=unclass(rhls.1(files,rec=TRUE)['file'])$file
                     uu[grep("data$",uu)]
                   })
   remr <- c(grep("/_logs",files))
@@ -131,36 +155,26 @@ rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE,asraw=FALSE,size=
   max <- as.integer(max)
   p <- Rhipe:::send.cmd(rhoptions()$child$handle, list("sequenceAsBinary", files,max,as.integer(rhoptions()$child$bufsize)),
            getresponse=0L,
-           continuation = function(){
-              z <- rhoptions()$child$handle
-              v <- vector(mode='list',length=size)
-              i <- 0;by <- 0
-              while(TRUE){
-                sz1 <- readBin(z$fromjava,integer(),n=1,endian="big")
-                if(sz1==0) break
-                rw.k <- readBin(z$fromjava,raw(),n=sz1,endian="big")
-                sz2 <- readBin(z$fromjava,integer(),n=1,endian="big")
-                rw.v <- readBin(z$fromjava,raw(),n=sz2,endian="big")
-                i <- i+1
-                if(i %% size == 0) v <- append(v,vector(mode='list',length=size))
-                v[[i]] <- list(rw.k,rw.v)
-                by <- by+ sz1+sz2
-                
-                
-              }
-              if( (by < 1024))
-                message(sprintf("RHIPE: Read %s pairs occupying %s bytes, deserializing", i,by))
-              else if( (by < 1024*1024))
-                message(sprintf("RHIPE: Read %s pairs occupying %s KB, deserializing", i, round(by/1024,3)))
-              else
-                message(sprintf("RHIPE: Read %s pairs occupying %s MB, deserializing", i, round(by/1024^2,3)))
-              v[unlist(lapply(v,function(r) !is.null(r)))]
-           })
-  
-  MCL <- if(mc) mclapply else lapply
-  if (!asraw) MCL(p,function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
+           continuation = function() Rhipe:::rbstream(rhoptions()$child$handle,size,mc,asraw))
+  p
 }
 
+rhgetkey.1 <- function(keys,paths,sequence="",skip=0L,mc=FALSE,size=3000,...){
+  pat <- rhls.1(paths)
+  if (substr(pat[1, "permission"], 1, 1) != "-")  paths <- pat$file
+  if (!all(is.character(paths))) 
+    stop("paths must be a character vector of mapfiles( a directory containing them or a single one)")
+  keys <- lapply(keys, rhsz.1)
+  paths <- unlist(paths)
+  p <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhgetkeys", list(keys,paths,sequence,
+                   if(sequence=="") FALSE else TRUE,
+                   as.integer(skip)))
+           ,getresponse=0L,
+           conti = function(){
+             return(Rhipe:::rbstream(rhoptions()$child$handle,size,mc))
+           })
+  p
+}
 
 rhwrite.1 <- function(lo,dest,N=NULL){
   if(!is.list(lo))
@@ -193,7 +207,7 @@ rhwrite.1 <- function(lo,dest,N=NULL){
              z <- rhoptions()$child$handle
              lapply(lo,function(l){
                lapply(l,function(r){
-                 k <- rhsz(r);kl <- length(k)
+                 k <- rhsz.1(r);kl <- length(k)
                  by<<- by+kl
                  writeBin(kl,z$tojava, endian='big')
                  writeBin(k, z$tojava, endian='big')
@@ -201,7 +215,7 @@ rhwrite.1 <- function(lo,dest,N=NULL){
              })
              sz <- readBin(z$fromjava,integer(),n=1,endian="big")
              resp <- readBin(z$fromjava,raw(),n=sz,endian="big")
-             resp <- rhuz(resp)
+             resp <- rhuz.1(resp)
              message(sprintf("Wrote %s pairs occupying %s bytes", length(lo), by))
              return(resp)
            })
@@ -239,7 +253,7 @@ rhstatus.1 <- function(x){
     x <- x[[1]]
     id <- x[['job.id']]
   }
-  result <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhstatus", list(id)))
+  result <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhstatus", list(id)))[[1]]
   d <- data.frame("pct"=result[[3]],"numtasks"=c(result[[4]][1],result[[5]][[1]]),
                   "pending"=c(result[[4]][2],result[[5]][[2]]),
                   "running" = c(result[[4]][3],result[[5]][[3]]),
@@ -254,13 +268,61 @@ rhstatus.1 <- function(x){
 
 
 rhjoin.1 <- function(x,verbose=TRUE){
-  if(class(x)!="jobtoken") stop("Must give a jobtoken object(as obtained from rhex)")
-  job.id <-  x[[1]]['job.id']
-  result <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhjoin", list(job.id,FALSE)))
+  ntimeout <- options("timeout")
+  on.exit({
+    options(timeout = ntimeout)
+  })
+  options(timeout=15552000) #6 months!
+  if(class(x)!="jobtoken" && class(x)!="character" ) stop("Must give a jobtoken object(as obtained from rhex)")
+  if(class(x)=="character") id <- x else {
+    x <- x[[1]]
+    id <- x[['job.id']]
+  }
+  result <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhjoin", list(id,
+                                                                          needoutput=as.character(TRUE),
+                                                                          joinwordy = as.character(as.logical(verbose)))))[[1]]
   if(length(x)==2){
     ## from rhlapply
     return(x[[2]]())
   }
   return(    list(result=result[[1]], counters=result[[2]]))
 }
+
+
+
+rbstream <- function(z,size=3000,mc,asraw=FALSE){
+  v <- vector(mode='list',length=size)
+  i <- 0;by <- 0;ed <- 0
+  while(TRUE){
+    sz1 <- readBin(z$fromjava,integer(),n=1,endian="big")
+    if(sz1<=0) { ed=sz1;break}
+    rw.k <- readBin(z$fromjava,raw(),n=sz1,endian="big")
+    sz2 <- readBin(z$fromjava,integer(),n=1,endian="big")
+    if(sz2<=0) {ed = sz2;break}
+    rw.v <- readBin(z$fromjava,raw(),n=sz2,endian="big")
+    i <- i+1
+    if(i %% size == 0) v <- append(v,vector(mode='list',length=size))
+    v[[i]] <- list(rw.k,rw.v)
+    by <- by+ sz1+sz2
+  }
+  if(ed<0) {
+    rwe <- rhuz(readBin(z$fromjava,raw(),n=-ed,endian="big"))
+    stop(rwe)
+  }
+  prs <- if(i>1) "pairs" else "pair"
+  if( (by < 1024))
+    message(sprintf("RHIPE: Read %s %s occupying %s bytes, deserializing", i,prs,by))
+  else if( (by < 1024*1024))
+    message(sprintf("RHIPE: Read %s %s occupying %s KB, deserializing", i,prs, round(by/1024,3)))
+  else
+    message(sprintf("RHIPE: Read %s %s occupying %s MB, deserializing", i,prs, round(by/1024^2,3)))
+  MCL <- if(mc) {
+    require(multicore)
+    mclapply
+  }else lapply
+  p <- v[unlist(MCL(v,function(r) !is.null(r)))]
+  if (!asraw) MCL(p,function(r) list(rhuz(r[[1]]),rhuz(r[[2]]))) else p
+
+}
+
 

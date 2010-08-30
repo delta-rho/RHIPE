@@ -2,8 +2,8 @@ rhoptions <- function(){
   get("rhipeOptions",envir=.rhipeEnv)
 }
 
-rhsetoptions <- function(li=NA,...){
-  N <- list(...)
+rhsetoptions <- function(li=NULL,...){
+  N <- if(is.null(li)) list(...) else li
   v <- rhoptions()
   for(x in names(N))
     v[[x]] <- N[[x]]
@@ -161,7 +161,7 @@ rhmr <- function(map,reduce=NULL,
   if(! all(sapply(shared.files,is.character)))
     stop("shared  must be all characters")
   shared.files <- unlist(sapply(shared.files,function(r){
-    r1 <- strsplit(r,"/",extended=F)[[1]]
+    r1 <- strsplit(r,"/")[[1]]
     return(paste(r,r1[length(r1)],sep="#",collapse=''))
   },simplify=T))
   shared.files <- paste(shared.files,collapse=",")
@@ -217,8 +217,10 @@ rhmr <- function(map,reduce=NULL,
          },
          'null'= {
            lines$rhipe_outputformat_class <-'org.apache.hadoop.mapreduce.lib.output.NullOutputFormat'
-           lines$rhipe_outputformat_keyclass <- 'org.apache.hadoop.io.NullWritable'
-           lines$rhipe_outputformat_valueclass <- 'org.apache.hadoop.io.NullWritable'
+           lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
+           lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
+           lines$rhipe_map_output_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
+           lines$rhipe_map_output_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
          },
          'map' = {
            lines$rhipe_outputformat_class <-'org.godhuli.rhipe.RHMapFileOutputFormat'
@@ -469,7 +471,14 @@ rhex <- function (conf,async=FALSE,mapred,...)
   x. <- paste("Running: ", cmd)
   y. <- paste(rep("-",min(nchar(x.),40)))
   message(y.);message(x.);message(y.)
-  result <- system(cmd,...)
+  if(rhoptions()$mode=="current"){
+    result <- system(cmd,...)
+  }else if (rhoptions()$mode=="experimental"){
+    result <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhex", zonf))
+    result <- as.integer(result[[1]])
+    if(result == 1) result <- 256
+    cat(sprintf("result:%s\n",result))
+  }
   f3=NULL
   if(result==256){
     f1=file(zonf,"rb")
@@ -493,7 +502,7 @@ rhex <- function (conf,async=FALSE,mapred,...)
       stop(sprintf("ERROR\n%s",paste(names(f3$R_ERRORS),collapse="\n")))
     }else rr <- TRUE
   }else rr <- FALSE
-  return(list(rr, counters=f3))
+  return(list(state=rr, counters=f3))
 }
 
 print.jobtoken <- function(s,verbose=1,...){

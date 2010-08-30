@@ -120,11 +120,11 @@ rhgetkey <- function(keys,paths,sequence=NULL,skip=0,ignore.stderr=T,verbose=F,.
 ## rhgetkey(list(c("f405ad5006b8dda3a7a1a819e4d13abfdbf8a","1"),c("f2b6a5390e9521397031f81c1a756e204fb18","1")) ,"/tmp/small.seq")
 
 ##returns the data files in a directory of map files (the index files can't be sent to ##a mapreduce), which can be used for mapreduce jobs as the ifolder param
-rhmap.sqs <- function(x){
-  v=rhls(x)
-  sapply(v$file,function(r){
-    sprintf("%s/data",r)
-  },USE.NAMES=F)}
+## rhmap.sqs <- function(x){
+##   v=rhls(x)
+##   sapply(v$file,function(r){
+##     sprintf("%s/data",r)
+##   },USE.NAMES=F)}
 
 rhwrite <- function(lo,f,N=NULL,ignore.stderr=T,verbose=F){
   on.exit({
@@ -157,70 +157,6 @@ rhwrite <- function(lo,f,N=NULL,ignore.stderr=T,verbose=F){
         N=as.integer(length(lo)),needoutput=F,ignore.stderr=ignore.stderr,verbose=verbose)
 }
 
-rhS2M <- function(files,ofile,dolocal=T,ignore.stderr=F,verbose=F,keep=NULL){
-  files <- unclass(rhls(files)['file'])$file
-  doCMD(rhoptions()$cmd['s2m'], infiles=files,ofile=ofile,ilocal=dolocal,
-        ignore.stderr=ignore.stderr,
-        verbose=verbose)
-}
-rhM2M <- function(files,ofile,dolocal=T,ignore.stderr=F,verbose=F,keep=NULL){
-  Rhipe:::doCMD(rhoptions()$cmd['s2m'], infiles=files,ofile=ofile,ilocal=dolocal,
-        ignore.stderr=ignore.stderr,
-        verbose=verbose)
-}
-
-## rhread <- function(files,type="sequence",max=-1,dolocal=T,ignore.stderr=T,verbose=F,keep=NULL){
-##   ##need to specify /f/p* if there are other
-##   ##files present (not sequence files)
-##   type = match.arg(type,c("sequence","map","text"))
-##   ## on.exit({
-##   ##   if(!keepfile)
-##   ##     unlink(tf2)
-##   ## })
-##   keepfile=F
-##   ## files <- unclass(rhls(files)['file'])$file
-##   files <- switch(type,
-##                   "text"={
-##                     unclass(rhls(files)['file'])$file
-##                   },
-                  
-##                   "sequence"={
-##                     unclass(rhls(files)['file'])$file
-##                   },
-##                   "map"={
-##                     uu=unclass(rhls(files,rec=TRUE)['file'])$file
-##                     uu[grep("data$",uu)]
-##                   })
-##   ## print(files)
-##   ## return(files)
-##   remr <- c(grep("/_logs/",files))
-##   if(length(remr)>0)
-##     files <- files[-remr]
-
-##   ## print(files)
-##   tf1<- tempfile(pattern=paste('rhread_',
-##                    paste(sample(letters,4),sep='',collapse='')
-##                    ,sep="",collapse=""),tmpdir="/tmp")
-
-##   if(!is.null(keep))
-##     {
-##       tf2 <- keep
-##       keepfile=T
-##     }else{
-##       tf2<- tempfile(pattern=paste(sample(letters,8),sep='',collapse=''))
-##     }
-##   message("----- converting to binary -----")
-##   doCMD(rhoptions()$cmd['s2b'], infiles=files,ofile=tf1,ilocal=dolocal,howmany=max,ignore.stderr=ignore.stderr,
-##         verbose=verbose)
-##   message("------ merging -----")
-
-##   rhmerge(paste(tf1,"/p*",sep="",collapse=""),tf2)
-##   rhdel(tf1);
-##   message("------ reading binary,please wait -----")
-
-##   v <- rhreadBin(tf2,maxnum=max)
-##   return(v)
-## }
 
 rhmerge <- function(inr,ou){
   system(paste(paste(Sys.getenv("HADOOP"),"bin","hadoop",sep=.Platform$file.sep,collapse=""),"dfs","-cat",inr,">", ou,collapse=" "))
@@ -234,32 +170,6 @@ rhkill <- function(w,...){
       if(length(grep("^job_",w))==0) w=paste("job_",w,sep="",collapse="")
     }
   system(command=paste(paste(Sys.getenv("HADOOP"),"bin","hadoop",sep=.Platform$file.sep,collapse=""),"job","-kill",w,collapse=" "),...)
-}
-
-rhwordcount <- function(infile,outfile,local=F){
-  m <- expression({
-    for(x in map.values){
-      y <- strsplit(x," +")[[1]]
-      for(w in y) rhcollect(w,T)
-    }})
-  r <- expression(pre={
-    count <- 0
-  },
-      reduce={
-        count <- count+sum(unlist(reduce.values))
-      },
-      post={
-        rhcollect(reduce.key,as.integer(count))
-      })
-  if(local) 
-  z=rhmr(map=m,reduce=r,comb=F,inout=c("text","sequence"),ifolder=infile,ofolder=outfile,mapred=list(mapred.job.tracker='local'))
-  else
-    z=rhmr(map=m,reduce=r,comb=F,inout=c("text","sequence"),ifolder=infile,ofolder=outfile)
-
-  rhex(z)
-  x <- rhread(paste(outfile,"/p*",sep="",collapse=""),dolocal=local)
-  ##rhdel(outfile)
-  return(x)
 }
 
 
