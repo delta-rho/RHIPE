@@ -133,7 +133,7 @@ const int mapper_run2(void){
 	if(mapbuf_cnt == MAPBUFFER){
 	  Rf_setVar(Rf_install("map.keys"),kvector,R_GlobalEnv);
 	  Rf_setVar(Rf_install("map.values"),vvector,R_GlobalEnv);
-	  do_unser();
+	  // do_unser();
 #ifdef FILEREADER
 	    R_tryEval(runner2,NULL,&Rerr);
 #else

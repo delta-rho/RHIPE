@@ -163,7 +163,7 @@ int main(int argc,char **argv){
   
   LOGG(10,"Running in STATE=%d\n",_STATE_);
   google::protobuf::SetLogHandler(&CaptureLog);
-  rexpress("Sys.setenv(rhipe_iscombining=0)");
+  rexpress("Sys.setenv(rhipe_iscombining=0);rhipe_iscombining=FALSE");
   combiner_inplace=false;
   switch(_STATE_){
   case 0: 
@@ -180,7 +180,7 @@ int main(int argc,char **argv){
 
 	// mmessage("\n\nSPILL_SIZE==%d bytes\n\n",spill_size);
 	// map_output_buffer = map<string, vector<string> >();
-	rexpress("Sys.setenv(rhipe_iscombining=1);rhcollect<-function(key,value) .Call('rh_collect_buffer',key,value)");
+	rexpress("Sys.setenv(rhipe_iscombining=1);rhipe_iscombining=TRUE;rhcollect<-function(key,value) .Call('rh_collect_buffer',key,value)");
 	SEXP reducesetup;
 	int Rerr=0;
 	PROTECT(reducesetup=rexpress(REDUCESETUP));

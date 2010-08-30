@@ -524,6 +524,15 @@ public class FileUtils {
 	}
 	return(0);
     }
+    public void killjob(REXP r) throws Exception{
+	String  jd = r.getRexpValue(0).getStringValue(0).getStrval();
+	org.apache.hadoop.mapreduce.JobID jid = org.apache.hadoop.mapreduce.JobID.forName(jd);
+	org.apache.hadoop.mapred.JobClient jclient = new org.apache.hadoop.mapred.JobClient(
+		  org.apache.hadoop.mapred.JobTracker.getAddress(new Configuration()),new Configuration());
+	org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.downgrade(jid);
+	org.apache.hadoop.mapred.RunningJob rj = jclient.getJob(jj);
+	rj.killJob();
+    }
 
     public REXP joinjob(REXP r) throws Exception{
 	String  jd = r.getRexpValue(0).getStringValue(0).getStrval();

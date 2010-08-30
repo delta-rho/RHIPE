@@ -22,7 +22,7 @@ Requirements
 
 2. *R* , tested on 2.8
 
-3. *rJava* The R package needs rJava.
+
 
 
 Tested on RHEL Linux, Mac OS 10.5.5 (Leopard).

@@ -28,6 +28,7 @@ rhmr <- function(map,reduce=NULL,
                  ofolder='',
                  ifolder='',
                  inout=c("text","text"),
+                 orderby='bytes',
                  mapred=NULL,
                  shared=c(),
                  jarfiles=c(),
@@ -153,6 +154,7 @@ rhmr <- function(map,reduce=NULL,
                      ,rhipe_setup_reduce= rawToChar(setup.r)
                      ,rhipe_command=paste(opts$runner,collapse=" ")
                      ,rhipe_input_folder=paste(ifolder,collapse=",")
+                           
                      ,rhipe_output_folder=paste(ofolder)))
 
   shared.files <- unlist(as.character(shared))
@@ -223,8 +225,18 @@ rhmr <- function(map,reduce=NULL,
            lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
            lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
          })
+  ordert <- c("bytes","integer","numeric","character")
+  orderp <- switch(
+                   pmatch(orderby,ordert),
+                   "1"={"org.godhuli.rhipe.RHBytesWritable"},
+                   "2"={"org.godhuli.rhipe.RHInteger"},
+                   "3"={"org.godhuli.rhipe.RHNumeric"},
+                   "4"={"org.godhuli.rhipe.RHText"},
+                   )
+  if(is.null(orderp)) stop(sprintf("Wrong ordering %s: try bytes,integer,numeric,character"))
+  lines$rhipe_map_output_keyclass <- orderp
+  
   lines$rhipe_string_quote <- ''
-  lines$rhipe_map_output_keyclass <- "org.godhuli.rhipe.RHBytesWritable"
   lines$rhipe_map_output_valueclass <- "org.godhuli.rhipe.RHBytesWritable"
   lines$rhipe_partitioner_class <- "none"
   if(!is.null(partitioner) && is.list(partitioner)){
@@ -248,7 +260,7 @@ rhmr <- function(map,reduce=NULL,
         }
   }
   lines$mapred.textoutputformat.usekey <-  "TRUE"
-  lines$rhipe_reduce_buff_size <- 10000
+  lines$rhipe_reduce_buff_size <- 3000
   lines$rhipe_map_buff_size <- 10000
   lines$rhipe_job_verbose <- "TRUE"
   lines$rhipe_stream_buffer <- 10*1024
@@ -276,13 +288,13 @@ rhmr <- function(map,reduce=NULL,
   if(lines$rhipe_combiner=="1")
     lines$rhipe_reduce_justcollect <- "FALSE"
 
-  if(lines$rhipe_map_output_keyclass %in% c("org.godhuli.rhipe.RHText","org.godhuli.rhipe.RHNumeric")
+  if(lines$rhipe_map_output_keyclass != c("org.godhuli.rhipe.RHBytesWritable")
      && is.null(reduce)){
     stop("If using ordered keys, provide a reduce e.g.
 
-reduce = expression({
+reduce = expression(
   reduce={ lapply(reduce.values,function(r) rhcollect(reduce.key,r)) }
-})
+)
 ")
   }
   ## parttype = c("string","integer","numeric","complex","logical","raw")

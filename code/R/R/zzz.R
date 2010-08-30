@@ -1,11 +1,11 @@
 .rhipeEnv <- new.env()
 vvvv <- "0.61"
-attr(vvvv,"minor") <- '2'
-attr(vvvv,"date") <- 'Wed Aug 04 13:12:45 EDT 2010'
+attr(vvvv,"minor") <- '3'
+attr(vvvv,"date") <- 'Mon Aug 30 01:08:30 EDT 2010'
 attr(vvvv,'fortune') <- "The minute a man is convinced that he is interesting, he isn't."
 
 
-attr(vvvv,'notes') <- c("Added ordering by keys")
+attr(vvvv,'notes') <- c("Experimental server implementation instead of running java for every command")
 class(vvvv) <- "rhversion"
 
 assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )
@@ -69,7 +69,7 @@ onload.2 <- function(libname, pkgname){
                    "--max-nsize=1G")
   opts$runner <-opts$runner[-c(1,2)]
   rhinit(errors=FALSE,info=FALSE)
-  opts$mropts <- cmd(opts$childHDL,"rhmropts")
+  opts$mropts <- rhmropts.1()
 }
 
 
