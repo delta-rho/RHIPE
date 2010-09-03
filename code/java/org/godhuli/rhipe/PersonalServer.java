@@ -5,6 +5,7 @@ import org.godhuli.rhipe.REXPProtos.REXP;
 import java.io.*;
 import java.util.*;
 import java.net.*;
+import org.apache.hadoop.fs.FileUtil;
 
 
 import org.apache.hadoop.conf.Configuration;
@@ -74,6 +75,69 @@ public class PersonalServer {
 	REXP b = fu.mapredopts();
 	send_result(b);
     }
+    public void rhcat(REXP r) throws Exception {
+	final int buff = r.getRexpValue(2).getIntValue(0);
+	final int mx = r.getRexpValue(3).getIntValue(0);
+
+	    for(int i=0; i<r.getRexpValue(1).getStringValueCount();i++){
+		Path srcPattern = new Path(r.getRexpValue(1).getStringValue(i).getStrval());
+		new DelayedExceptionThrowing() {
+		    void process(Path p, FileSystem srcFs) throws IOException {
+			if (srcFs.getFileStatus(p).isDir()) {
+			    throw new IOException("Source must be a file.");
+			}
+			// System.err.println("INPUT="+p);
+			printToStdout(srcFs.open(p),buff,mx);
+		    }
+		}.globAndProcess(srcPattern, srcPattern.getFileSystem(fu.getConf()));
+	    }
+	    _toR.writeInt(-1);
+	    _toR.flush();
+    }
+    private void printToStdout(InputStream in,int buffsize,int mx) throws IOException {
+	try {
+	    byte buf[] = new byte[buffsize];
+	    int bytesRead = in.read(buf);
+	    while (bytesRead >= 0) {
+		// System.err.println("Wrote "+bytesRead);
+		_toR.writeInt(bytesRead);
+		_toR.write(buf, 0, bytesRead);
+		_toR.flush();
+		if(mx > -1 && bytesRead >=mx) break;
+		bytesRead = in.read(buf);
+	    }
+	} finally {
+	    in.close();
+	}
+    }
+    // private void printToStdout(InputStream in) throws IOException {
+    //     BufferedReader br;
+    //     PrintStream ps=null;
+    //     try {
+    //         br = new BufferedReader(new InputStreamReader(in),1024*1024);
+    //         ps = new PrintStream(_toR,true);
+    //         // byte buf[] = new byte[1024*1024];                                                                                                            
+    //         while(true){
+    //             String line = br.readLine();
+    //             if(line == null) break;
+    //             ps.print(line);
+    //             System.out.println(line);
+    //         // int bytesRead = in.read(buf);                                                                                                                
+    //         // System.err.println("Read "+bytesRead);                                                                                                       
+    //         // while (bytesRead >= 0) {                                                                                                                     
+    //         //  ps.write(buf, 0, bytesRead);                                                                                                                
+    //         //  for(int i=0;i < bytesRead;i++) System.err.print((char)buf[i]);                                                                              
+    //         //  if (ps.checkError()) {                                                                                                                      
+    //         //      throw new IOException("Unable to write to output stream.");                                                                             
+    //         //  }                                                                                                                                           
+    //         //  bytesRead = in.read(buf);                                                                                                                   
+    //         }
+    //     } finally {
+    //         if(ps !=null) ps.flush();
+    //         in.close();
+    //     }
+    // }
+
     // void copy(String srcf, String dstf, Configuration conf) throws IOException {
     // 	Path srcPath = new Path(srcf);
     // 	FileSystem srcFs = srcPath.getFileSystem(getConf());
@@ -417,6 +481,7 @@ public class PersonalServer {
 		else if(tag.equals("rhjoin")) rhjoin(r);
 		else if(tag.equals("rhkill")) rhkill(r);
 		else if(tag.equals("rhex")) rhex(r);
+		else if(tag.equals("rhcat")) rhcat(r);
 
 		// else if(tag.equals("rhcp")) rhcp(r);
 		// else if(tag.equals("rhmv")) rhmv(r);
@@ -454,5 +519,23 @@ public class PersonalServer {
 	    }
 	}
     }
+    public abstract class DelayedExceptionThrowing {
+	abstract void process(Path p, FileSystem srcFs) throws IOException;
+	final void globAndProcess(Path srcPattern, FileSystem srcFs
+				  ) throws IOException {
+	    ArrayList<IOException> exceptions = new ArrayList<IOException>();
+	    for(Path p : FileUtil.stat2Paths(srcFs.globStatus(srcPattern), 
+					     srcPattern))
+		try { process(p, srcFs); } 
+		catch(IOException ioe) { exceptions.add(ioe); }
+    
+	    if (!exceptions.isEmpty())
+		if (exceptions.size() == 1)
+		    throw exceptions.get(0);
+		else 
+		    throw new IOException("Multiple IOExceptions: " + exceptions);
+	}
+    }
+
 
 }

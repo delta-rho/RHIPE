@@ -8,6 +8,7 @@ attr(vvvv,'notes') <- c("Experimental server implementation instead of running j
 class(vvvv) <- "rhversion"
 
 assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )
+Mode <-  "experimental"
 
 if(TRUE){
   rhls <- rhls.1
@@ -64,7 +65,7 @@ onload.1 <- function(libname, pkgname){
   ##print("WHY4")
   ## print(opts)
   opts$mropts <- doCMD(opts$cmd['opt'],opts=opts,needo=T,ignore=FALSE,verbose=FALSE)
-  opts$mode <- "ready"
+  opts$mode <- Mode #mode = "current"
   assign("rhipeOptions",opts,envir=.rhipeEnv)
 ##  print("WHY")
 }
@@ -88,8 +89,11 @@ onload.2 <- function(libname, pkgname){
   opts$runner <-opts$runner[-c(1,2)]
   assign("rhipeOptions",opts,envir=.rhipeEnv)
   rhinit(errors=FALSE,info=FALSE)
+  opts$mode <- Mode # "experimental"
   opts$mropts <- rhmropts.1()
   assign("rhipeOptions",opts,envir=.rhipeEnv)
+  rhinit(errors=TRUE,info=TRUE)
+
 }
 
 

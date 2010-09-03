@@ -1,5 +1,8 @@
-rhinit <- function(errors=TRUE, info=TRUE,path=NULL,cleanup=TRUE,bufsize=as.integer(3*1024*1024)){
+rhinit <- function(errors=FALSE, info=FALSE,path=NULL,cleanup=TRUE,bufsize=as.integer(3*1024*1024)){
+  ntimeout <- options("timeout")[[1]]
+  if(!is.null(rhoptions()$timeout)) as.integer(rhoptions()$timeout) else 15552000L
   on.exit({
+    options(timeout = ntimeout)
     unlink(r)
     unlink(r2)
   })
@@ -28,13 +31,13 @@ rhinit <- function(errors=TRUE, info=TRUE,path=NULL,cleanup=TRUE,bufsize=as.inte
   reg.finalizer(y, function(r){
     if(cleanup) {
       cat(sprintf("RHIPE: Cleaning up  associated server (PID=%s)\n",r$ports['PID']));
-      writeBin(as.integer(-1),con=r$tojava,endian="big")     
-      for(x in list(r$tojava, r$fromjava,r$err)) close(x)
+      tryCatch({writeBin(as.integer(-1),con=r$tojava,endian="big")},error=function(e) {})
+      for(x in list(r$tojava, r$fromjava,r$err)) tryCatch(close(x),error=function(e){})
       system(sprintf("kill -9 %s", r$ports['PID']))
     }
   },onexit=TRUE)
-  if(is.null(errors)) errors <- TRUE
-  if(is.null(info)) info <- TRUE
+  if(is.null(errors)) errors <- FALSE
+  if(is.null(info)) info <- FALSE
   rhsetoptions(child=list(errors=errors,info=info,handle=y,bufsize=bufsize))
 }
  
@@ -58,6 +61,7 @@ restartR <- function(){
 }
 
 send.cmd <- function(z,command, getresponse=TRUE,continuation=NULL...){
+
   if(!Rhipe:::isalive(z)){
     rm(z);gc()
     warning("RHIPE: Creating a new RHIPE connection object, previous one died!")
@@ -96,19 +100,15 @@ rhuz.1 <- function(r) .Call("unserializeUsingPB",r)
 rhcp.1 <- function(ifile, ofile) {
   system(command=paste(paste(Sys.getenv("HADOOP"), "bin", "hadoop",
            sep=.Platform$file.sep), "fs", "-cp", ifile, ofile, sep=" "))
-  v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhcp",ifile, ofile))
+  ## v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhcp",ifile, ofile))
 }
 
 rhmv.1 <- function(ifile, ofile) {
   system(command=paste(paste(Sys.getenv("HADOOP"), "bin", "hadoop",
            sep=.Platform$file.sep), "fs", "-mv", ifile, ofile, sep=" "))
-  v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhmv",ifile, ofile))
+  ## v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhmv",ifile, ofile))
 }
 
-rhmerge.1 <- function(inr,ou){
-  system(paste(paste(Sys.getenv("HADOOP"),"bin","hadoop",
-                     sep=.Platform$file.sep,collapse=""),"dfs","-cat",inr,">", ou,collapse=" "))
-}
 
 
 rhls.1 <- function(folder,recurse=FALSE){
@@ -136,7 +136,7 @@ rhput.1 <- function(src, dest,deletedest=TRUE){
 }
 
 
-rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE,asraw=FALSE,size=1000){
+rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE,asraw=FALSE,size=3000,buffsize=1024*1024){
   type = match.arg(type,c("sequence","map","text"))
   files <- switch(type,
                   "text"={
@@ -153,9 +153,13 @@ rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE,asraw=FALSE,size=
   if(length(remr)>0)
     files <- files[-remr]
   max <- as.integer(max)
-  p <- Rhipe:::send.cmd(rhoptions()$child$handle, list("sequenceAsBinary", files,max,as.integer(rhoptions()$child$bufsize)),
-           getresponse=0L,
-           continuation = function() Rhipe:::rbstream(rhoptions()$child$handle,size,mc,asraw))
+  p <- if(type=="text"){
+    Rhipe:::hmerge(files, buffsize=as.integer(buffsize),max=max)
+  }else{
+    Rhipe:::send.cmd(rhoptions()$child$handle, list("sequenceAsBinary", files,max,as.integer(rhoptions()$child$bufsize)),
+                          getresponse=0L,
+                          continuation = function() Rhipe:::rbstream(rhoptions()$child$handle,size,mc,asraw))
+  }
   p
 }
 
@@ -268,11 +272,6 @@ rhstatus.1 <- function(x){
 
 
 rhjoin.1 <- function(x,verbose=TRUE){
-  ntimeout <- options("timeout")
-  on.exit({
-    options(timeout = ntimeout)
-  })
-  options(timeout=15552000) #6 months!
   if(class(x)!="jobtoken" && class(x)!="character" ) stop("Must give a jobtoken object(as obtained from rhex)")
   if(class(x)=="character") id <- x else {
     x <- x[[1]]
@@ -325,4 +324,31 @@ rbstream <- function(z,size=3000,mc,asraw=FALSE){
 
 }
 
+rhmerge.1 <- function(inr,ou){
+  system(paste(paste(Sys.getenv("HADOOP"),"bin","hadoop",
+                     sep=.Platform$file.sep,collapse=""),"dfs","-cat",inr,">", ou,collapse=" "))
+}
 
+hmerge <- function(inputfiles,buffsize=2*1024*1024,max=-1L){
+  
+  x <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhcat",inputfiles,as.integer(buffsize),as.integer(max)),
+                   getresponse=0L,conti=function(){
+                     k <- length(inputfiles)
+                     z <- rhoptions()$child$handle
+                      su <- 0;nlines <- 0
+                     byt <- c()
+                     while(TRUE){
+                       a=readBin(z$fromjava,integer(),n=1,endian="big")
+                       if(a<0) break
+                       byt <- c(byt,readBin(z$fromjava,raw(),n=a))
+                       su <- su+a
+                     }
+                     lines <- rawToChar(byt)
+                     lines <- matrix(strsplit(lines,"\n")[[1]],ncol=1)
+                     nlines <- nrow(lines);
+                     cat(sprintf("Read %s bytes, %s lines from %s files\n",prettyNum(su,big.mark = ",")
+                                 ,prettyNum(nlines,big.mark = ","),prettyNum(k,big.mark = ",")))
+                     lines
+                   })
+  x
+}

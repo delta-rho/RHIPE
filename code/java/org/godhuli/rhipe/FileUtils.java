@@ -228,7 +228,7 @@ public class FileUtils {
     }
     
     
-    protected abstract class DelayedExceptionThrowing {
+    public abstract class DelayedExceptionThrowing {
 	abstract void process(Path p, FileSystem srcFs) throws IOException;
 	
 	final void globAndProcess(Path srcPattern, FileSystem srcFs
