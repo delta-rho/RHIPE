@@ -30,15 +30,16 @@ rhinit <- function(errors=FALSE, info=FALSE,path=NULL,cleanup=TRUE,bufsize=as.in
 
   reg.finalizer(y, function(r){
     if(cleanup) {
-      cat(sprintf("RHIPE: Cleaning up  associated server (PID=%s)\n",r$ports['PID']));
-      tryCatch({writeBin(as.integer(-1),con=r$tojava,endian="big")},error=function(e) {})
+      if(!is.null(rhoptions()$quiet) && !rhoptions()$quiet)
+         cat(sprintf("RHIPE: Cleaning up  associated server (PID=%s)\n",r$ports['PID']));
+      tryCatch({writeBin(as.integer(-1),con=r$tojava,endian="big")},error=function(e) {},warning=function(e){})
       for(x in list(r$tojava, r$fromjava,r$err)) tryCatch(close(x),error=function(e){})
       system(sprintf("kill -9 %s", r$ports['PID']))
     }
   },onexit=TRUE)
   if(is.null(errors)) errors <- FALSE
   if(is.null(info)) info <- FALSE
-  rhsetoptions(child=list(errors=errors,info=info,handle=y,bufsize=bufsize))
+  rhoptions(child=list(errors=errors,info=info,handle=y,bufsize=bufsize))
 }
  
 isalive <- function(z) {
@@ -55,7 +56,8 @@ isalive <- function(z) {
 restartR <- function(){
     z <- rhoptions()$child$hdl
     rm(z);gc()
-    warning("RHIPE: restarting server")
+    if(!is.null(rhoptions()$quiet) && !rhoptions()$quiet)
+      warning("RHIPE: restarting server")
     rhinit(errors = rhoptions()$child$errors,info=rhoptions()$child$info)
     z <- rhoptions()$child$hdl
 }
@@ -64,7 +66,8 @@ send.cmd <- function(z,command, getresponse=TRUE,continuation=NULL...){
 
   if(!Rhipe:::isalive(z)){
     rm(z);gc()
-    warning("RHIPE: Creating a new RHIPE connection object, previous one died!")
+    if(!is.null(rhoptions()$quiet) && !rhoptions()$quiet)
+      warning("RHIPE: Creating a new RHIPE connection object, previous one died!")
     rhinit(errors = rhoptions()$child$errors,info=rhoptions()$child$info)
     z <- rhoptions()$child$handle
   }
@@ -136,7 +139,7 @@ rhput.1 <- function(src, dest,deletedest=TRUE){
 }
 
 
-rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE,asraw=FALSE,size=3000,buffsize=1024*1024){
+rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE,asraw=FALSE,size=3000,buffsize=1024*1024,...){
   type = match.arg(type,c("sequence","map","text"))
   files <- switch(type,
                   "text"={
@@ -154,7 +157,7 @@ rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE,asraw=FALSE,size=
     files <- files[-remr]
   max <- as.integer(max)
   p <- if(type=="text"){
-    Rhipe:::hmerge(files, buffsize=as.integer(buffsize),max=max)
+    Rhipe:::hmerge(files, buffsize=as.integer(buffsize),max=max,...)
   }else{
     Rhipe:::send.cmd(rhoptions()$child$handle, list("sequenceAsBinary", files,max,as.integer(rhoptions()$child$bufsize)),
                           getresponse=0L,
@@ -329,7 +332,7 @@ rhmerge.1 <- function(inr,ou){
                      sep=.Platform$file.sep,collapse=""),"dfs","-cat",inr,">", ou,collapse=" "))
 }
 
-hmerge <- function(inputfiles,buffsize=2*1024*1024,max=-1L){
+hmerge <- function(inputfiles,buffsize=2*1024*1024,max=-1L,verb=FALSE){
   
   x <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhcat",inputfiles,as.integer(buffsize),as.integer(max)),
                    getresponse=0L,conti=function(){
@@ -342,12 +345,20 @@ hmerge <- function(inputfiles,buffsize=2*1024*1024,max=-1L){
                        if(a<0) break
                        byt <- c(byt,readBin(z$fromjava,raw(),n=a))
                        su <- su+a
+                       if(verb) cat(sprintf("Read %s bytes\n", su))
                      }
+                     if(verb) cat("Converting to characters\n")
                      lines <- rawToChar(byt)
-                     lines <- matrix(strsplit(lines,"\n")[[1]],ncol=1)
+                     if(verb) cat("Splitfiying\n")
+                     t.t <- strsplit(lines,"\n")
+                     if(verb) cat("Extracting\n")
+                     t.t <- t.t[[1]]
+                     if(verb) cat("As Matrix\n")
+                     lines <- matrix(t.t,ncol=1)
                      nlines <- nrow(lines);
-                     cat(sprintf("Read %s bytes, %s lines from %s files\n",prettyNum(su,big.mark = ",")
-                                 ,prettyNum(nlines,big.mark = ","),prettyNum(k,big.mark = ",")))
+                     pfx <- if(k>1) "s" else ""
+                     cat(sprintf("Read %s bytes, %s lines from %s file%s\n",prettyNum(su,big.mark = ",")
+                                 ,prettyNum(nlines,big.mark = ","),prettyNum(k,big.mark = ","),pfx))
                      lines
                    })
   x

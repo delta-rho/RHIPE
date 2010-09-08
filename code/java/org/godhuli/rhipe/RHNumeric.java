@@ -69,22 +69,22 @@ public class RHNumeric extends RHBytesWritable {
     }
 
     // new additions
-    public int hashCode() {
-	// if(rexp0 == null)
-	//     try{
-	// 	this.rexp0 = getParsed();
-	// 	this.dl = rexp0.getRealValue(0);
-	// 	this.l = (long)this.dl;
-	//     }catch(com.google.protobuf.InvalidProtocolBufferException e){
-	// 	throw new RuntimeException(e);
-	//     }
-	// int v=(int)this.dl ;
-	int v = (int)Double.doubleToLongBits(this.dl);
-	// System.out.println("DL="+this.dl+" V="+v);// this.dl is correct,  but Double.double is  zero!
+    // public int hashCode() {
+    // 	// if(rexp0 == null)
+    // 	//     try{
+    // 	// 	this.rexp0 = getParsed();
+    // 	// 	this.dl = rexp0.getRealValue(0);
+    // 	// 	this.l = (long)this.dl;
+    // 	//     }catch(com.google.protobuf.InvalidProtocolBufferException e){
+    // 	// 	throw new RuntimeException(e);
+    // 	//     }
+    // 	// int v=(int)this.dl ;
+    // 	int v = (int)Double.doubleToLongBits(this.dl);
+    // 	// System.out.println("DL="+this.dl+" V="+v);// this.dl is correct,  but Double.double is  zero!
 
-	// System.out.println("V="+this);
-	return(v);
-    }
+    // 	// System.out.println("V="+this);
+    // 	return(v);
+    // }
  
     // public String toString(){
     // 	return "NUMERIC="+this.l;

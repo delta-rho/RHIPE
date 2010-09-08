@@ -1,13 +1,18 @@
-rhoptions <- function(){
-  get("rhipeOptions",envir=.rhipeEnv)
+rhoptions <- function(li=NULL,...){
+  if(missing(li) && length(list(...))==0){
+    get("rhipeOptions",envir=.rhipeEnv)
+  }else{
+    N <- if(is.null(li)) list(...) else li
+    v <- rhoptions()
+    for(x in names(N))
+      v[[x]] <- N[[x]]
+    assign("rhipeOptions",v,envir=.rhipeEnv)
+  }
 }
 
 rhsetoptions <- function(li=NULL,...){
-  N <- if(is.null(li)) list(...) else li
-  v <- rhoptions()
-  for(x in names(N))
-    v[[x]] <- N[[x]]
-  assign("rhipeOptions",v,envir=.rhipeEnv)
+  warning(sprintf("Use rhoptions instead\n"))
+  rhoptions(li,...)
 }
 
 optmerge <- function(la,lb){
@@ -262,8 +267,8 @@ rhmr <- function(map,reduce=NULL,
         }
   }
   lines$mapred.textoutputformat.usekey <-  "TRUE"
-  lines$rhipe_reduce_buff_size <- 3000
-  lines$rhipe_map_buff_size <- 10000
+  lines$rhipe_reduce_buff_size <- 6000
+  lines$rhipe_map_buff_size <- 3000
   lines$rhipe_job_verbose <- "TRUE"
   lines$rhipe_stream_buffer <- 10*1024
   lines$mapred.compress.map.output="true"

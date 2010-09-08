@@ -49,6 +49,8 @@ public class RHInteger extends RHBytesWritable {
 	super.readFields(in);
 	try{
 	    REXP rexp0 = getParsed();
+	    // System.err.println(rexp0.getRclass());
+	    // System.err.println(rexp0);
 	    this.dl = rexp0.getIntValue(0);
 	}catch(com.google.protobuf.InvalidProtocolBufferException e){
 	    throw new IOException(e);
@@ -56,11 +58,12 @@ public class RHInteger extends RHBytesWritable {
     }
 
     // new additions
-    public int hashCode() {
-	int v=(int)this.dl ;//need to change for vectors ...
-	return(v);
-    }
+    // public int hashCode() {
+    // 	int v=(int)this.dl ;//need to change for vectors ...
+    // 	return(v);
+    // }
 
+    // WRONG
     public boolean equals(Object other) {
 	if (!(other instanceof RHInteger))
 	    return false;

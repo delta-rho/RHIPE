@@ -91,6 +91,7 @@ onload.2 <- function(libname, pkgname){
   rhinit(errors=FALSE,info=FALSE)
   opts$mode <- Mode # "experimental"
   opts$mropts <- rhmropts.1()
+  opts$quiet=FALSE
   assign("rhipeOptions",opts,envir=.rhipeEnv)
   rhinit(errors=TRUE,info=TRUE)
 

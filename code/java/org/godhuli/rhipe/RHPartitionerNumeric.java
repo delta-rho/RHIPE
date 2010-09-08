@@ -26,22 +26,24 @@ public class RHPartitionerNumeric extends Partitioner<RHBytesWritable,RHBytesWri
     public int getPartition(RHBytesWritable key, RHBytesWritable value,
 			    int numReduceTasks) {
 	int hashcode = 0;
+	double hash2 = 0;
+	// this is a crude and almost uses paritioning scheme.
 	try{
 	    REXP r = key.getParsed();
 	    for(int i=RHMRHelper.PARTITION_START;i<=RHMRHelper.PARTITION_END;i++){
-		double a = r.getRealValue(i);
-		hashcode = (hashcode & ((int)Double.doubleToLongBits(a))) & Integer.MAX_VALUE;
+		hash2 = 10*hash2+r.getRealValue(i);
 	    }
+	    hashcode = ((int)Double.doubleToLongBits(hash2));
 	}catch(com.google.protobuf.InvalidProtocolBufferException e){
 	    System.err.println(e);
 	}
 	return (hashcode & Integer.MAX_VALUE) % numReduceTasks;
     }
-  protected int hashCode(byte[] b, int currentHash) {
-    for (int i = 0; i < b.length; i++) {
-      currentHash = 31*currentHash + b[i];
-    }
-    return currentHash;
-  }
+  // protected int hashCode(byte[] b, int currentHash) {
+  //   for (int i = 0; i < b.length; i++) {
+  //     currentHash = 31*currentHash + b[i];
+  //   }
+  //   return currentHash;
+  // }
 
 }
