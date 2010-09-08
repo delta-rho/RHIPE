@@ -1,6 +1,6 @@
 rhinit <- function(errors=FALSE, info=FALSE,path=NULL,cleanup=TRUE,bufsize=as.integer(3*1024*1024)){
   ntimeout <- options("timeout")[[1]]
-  if(!is.null(rhoptions()$timeout)) as.integer(rhoptions()$timeout) else 15552000L
+  options(timeout = if(!is.null(rhoptions()$timeout)) as.integer(rhoptions()$timeout) else 15552000L)
   on.exit({
     options(timeout = ntimeout)
     unlink(r)
@@ -335,7 +335,7 @@ rhmerge.1 <- function(inr,ou){
 hmerge <- function(inputfiles,buffsize=2*1024*1024,max=-1L,verb=FALSE){
   
   x <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhcat",inputfiles,as.integer(buffsize),as.integer(max)),
-                   getresponse=0L,conti=function(){
+                        getresponse=0L,conti=function(){
                      k <- length(inputfiles)
                      z <- rhoptions()$child$handle
                       su <- 0;nlines <- 0

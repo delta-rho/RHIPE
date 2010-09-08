@@ -1,0 +1,32 @@
+\BOOKMARK [0][-]{chapter.1}{Installation}{}
+\BOOKMARK [1][-]{section.1.1}{Tests}{chapter.1}
+\BOOKMARK [0][-]{chapter.2}{Introduction}{}
+\BOOKMARK [1][-]{section.2.1}{Hadoop}{chapter.2}
+\BOOKMARK [1][-]{section.2.2}{Hadoop Distributed Filesystem}{chapter.2}
+\BOOKMARK [1][-]{section.2.3}{Hadoop MapReduce}{chapter.2}
+\BOOKMARK [1][-]{section.2.4}{R and Hadoop Integrated Programming Environment}{chapter.2}
+\BOOKMARK [0][-]{chapter.3}{Airline Dataset}{}
+\BOOKMARK [1][-]{section.3.1}{Copying the Data to the HDFS \(or a Distributed Downloader!\)}{chapter.3}
+\BOOKMARK [1][-]{section.3.2}{Converting to R Objects}{chapter.3}
+\BOOKMARK [1][-]{section.3.3}{Demonstration of using Hadoop as a Queryable Database}{chapter.3}
+\BOOKMARK [1][-]{section.3.4}{Analyses}{chapter.3}
+\BOOKMARK [1][-]{section.3.5}{Streaming Data?}{chapter.3}
+\BOOKMARK [1][-]{section.3.6}{Simple Debugging}{chapter.3}
+\BOOKMARK [0][-]{chapter.4}{Transforming Text Data}{}
+\BOOKMARK [1][-]{section.4.1}{Subset}{chapter.4}
+\BOOKMARK [1][-]{section.4.2}{Transformations}{chapter.4}
+\BOOKMARK [0][-]{chapter.5}{Simulations}{}
+\BOOKMARK [1][-]{section.5.1}{A Note on Random Number Generators}{chapter.5}
+\BOOKMARK [0][-]{chapter.6}{RHIPE Functions}{}
+\BOOKMARK [1][-]{section.6.1}{HDFS Related}{chapter.6}
+\BOOKMARK [1][-]{section.6.2}{MapReduce Administration}{chapter.6}
+\BOOKMARK [0][-]{chapter.7}{Packaging a Job for MapReduce}{}
+\BOOKMARK [1][-]{section.7.1}{Creating a MapReduce Object}{chapter.7}
+\BOOKMARK [1][-]{section.7.2}{Functions to Communicate with Hadoop during MapReduce}{chapter.7}
+\BOOKMARK [0][-]{chapter.8}{RHIPE Serialization}{}
+\BOOKMARK [1][-]{section.8.1}{About}{chapter.8}
+\BOOKMARK [1][-]{section.8.2}{String Representations and TextOutput Format}{chapter.8}
+\BOOKMARK [1][-]{section.8.3}{Proto File}{chapter.8}
+\BOOKMARK [0][-]{chapter.9}{RHIPE Options}{}
+\BOOKMARK [0][-]{chapter*.21}{Bibliography}{}
+\BOOKMARK [0][-]{section*.30}{Index}{}

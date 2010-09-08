@@ -1,0 +1,205 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The rhlapply Command &mdash; RHIPE v0.61 documentation</title>
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.61',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="RHIPE v0.61 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">RHIPE v0.61 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">The <tt class="docutils literal"><span class="pre">rhlapply</span></tt> Command</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#return-value">Return Value</a></li>
+<li><a class="reference internal" href="#function-usage">Function Usage</a><ul>
+<li><a class="reference internal" href="#return">RETURN</a></li>
+<li><a class="reference internal" href="#important">IMPORTANT</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/old/rhlapply.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="the-rhlapply-command">
+<h1>The <tt class="docutils literal"><span class="pre">rhlapply</span></tt> Command<a class="headerlink" href="#the-rhlapply-command" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">rhapply</span></tt> applies a user defined function to the elements of a given
+R list or the function can be run over the set of numbers from 1 to
+n. In the former case the list is written to a sequence file,whose length is the
+default setting of <tt class="docutils literal"><span class="pre">rhwrite</span></tt>.</p>
+<p>Running a hundreds of thousadands of seperate trials
+can be terribly inefficient, instead consider grouping them, i.e set
+<tt class="docutils literal"><span class="pre">mapred.max.tasks</span></tt> to a value much smaller than the length of the
+list.</p>
+</div>
+<div class="section" id="return-value">
+<h2>Return Value<a class="headerlink" href="#return-value" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">rhlapply</span></tt> returns a list, the names of which is equal to the names
+of the input list (if given).</p>
+</div>
+<div class="section" id="function-usage">
+<h2>Function Usage<a class="headerlink" href="#function-usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9</pre></div></td><td class="code"><div class="highlight"><pre>rhlapply <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span> ll<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>
+                     fun<span class="p">,</span>
+                     ifolder<span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span>
+                     ofolder<span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span>
+                     readIn<span class="o">=</span><span class="k-Variable">T</span><span class="p">,</span>
+                     inout<span class="o">=</span>c<span class="p">(</span><span class="s">&#39;lapply&#39;</span><span class="p">,</span><span class="s">&#39;sequence&#39;</span><span class="p">)</span>
+                     mapred<span class="o">=</span>list<span class="p">()</span>
+                     setup<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>jobname<span class="o">=</span><span class="s">&quot;rhlapply&quot;</span><span class="p">,</span>doLocal<span class="o">=</span><span class="k-Variable">F</span><span class="p">,</span><span class="m">...</span>
+                     <span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>Description follows</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">ll</span></tt></dt>
+<dd>The list object, optional. Applies <tt class="docutils literal"><span class="pre">fun</span></tt> to <tt class="docutils literal"><span class="pre">ll[[i]]</span></tt> .
+If instead <tt class="docutils literal"><span class="pre">ll</span></tt> is a numeric, applies <tt class="docutils literal"><span class="pre">fun</span></tt> to each element of
+<tt class="docutils literal"><span class="pre">seq(1,ll)</span></tt>. If not given, must provide a value for <tt class="docutils literal"><span class="pre">ifolder</span></tt></dd>
+<dt><tt class="docutils literal"><span class="pre">fun</span></tt></dt>
+<dd>A function that takes only one argument.</dd>
+<dt><tt class="docutils literal"><span class="pre">ifolder</span></tt></dt>
+<dd>If <tt class="docutils literal"><span class="pre">ll</span></tt> is null, provide a source here. Also change the value of
+<tt class="docutils literal"><span class="pre">inout[1]</span></tt> to either <tt class="docutils literal"><span class="pre">text</span></tt> or <tt class="docutils literal"><span class="pre">sequence</span></tt>.</dd>
+<dt><tt class="docutils literal"><span class="pre">readIn</span></tt></dt>
+<dd>The results are stored in a temporary sequence file on the DFS which is
+deleted. Should the results be returned in a list? Default is TRUE. For
+large number of output key-values (e.g 1MM) set this to FALSE, using the
+default options to <tt class="docutils literal"><span class="pre">rhread</span></tt> is extremely slow.</dd>
+<dt><tt class="docutils literal"><span class="pre">ofolder</span></tt></dt>
+<dd>If given the results are written to this folder and not deleted. If not,
+they are written to temporary folder, read back in (assuming <tt class="docutils literal"><span class="pre">readIn</span></tt>
+is TRUE) and deleted.</dd>
+<dt><tt class="docutils literal"><span class="pre">N</span></tt></dt>
+<dd>The number of task to create, i.e the mapred.map.tasks and is passes onto the <tt class="docutils literal"><span class="pre">rhwrite</span></tt> function</dd>
+<dt><tt class="docutils literal"><span class="pre">mapred</span></tt></dt>
+<dd>Options passed onto <tt class="docutils literal"><span class="pre">rhmr</span></tt></dd>
+<dt><tt class="docutils literal"><span class="pre">setup</span></tt></dt>
+<dd>And expression that is called before running <tt class="docutils literal"><span class="pre">func</span></tt>. Called once per
+JVM.</dd>
+<dt><tt class="docutils literal"><span class="pre">aggr</span></tt></dt>
+<dd>A function (default is NULL) to aggregate results. If NULL (default), every list element is written to disk.
+This can be difficult to read back into R (especially when one has nearly 1MN trials, R has to combine a list
+of 1MN elements!). <tt class="docutils literal"><span class="pre">aggr</span></tt> is a function that takes one argument a list of values, each value being the result
+apply the user function to an element of the input list. E.g. if <tt class="docutils literal"><span class="pre">fun</span></tt> returns a data frame, one could write</dd>
+</dl>
+<div class="highlight-r"><div class="highlight"><pre>aggr<span class="o">=</span><span class="kr">function</span><span class="p">(</span>x<span class="p">)</span> do.call<span class="p">(</span><span class="s">&quot;rbind&quot;</span><span class="p">,</span>x<span class="p">)</span>
+
+and the result of rhlapply will be one big data frame.
+</pre></div>
+</div>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">doLocal</span></tt></dt>
+<dd>Default is <tt class="docutils literal"><span class="pre">F</span></tt>. Sent to <tt class="docutils literal"><span class="pre">rhread</span></tt></dd>
+<dt><tt class="docutils literal"><span class="pre">...</span></tt></dt>
+<dd>passed onto RHMR.</dd>
+</dl>
+<div class="section" id="return">
+<h3>RETURN<a class="headerlink" href="#return" title="Permalink to this headline">¶</a></h3>
+<p>An object that is passed onto <tt class="docutils literal"><span class="pre">rhex</span></tt>.</p>
+</div>
+<div class="section" id="important">
+<h3>IMPORTANT<a class="headerlink" href="#important" title="Permalink to this headline">¶</a></h3>
+<p>The object passed to rhex has variable called <tt class="docutils literal"><span class="pre">rhipe_command</span></tt> which is the
+command of the program that Hadoop sends information to. In case the client
+machine&#8217;s (machine from which commands are being sent ) R installation is different from the
+tasktrackers&#8217; R installation the RHIPE command runner wont be found. For example
+suppose my cluster is linux and my client is OS X , then the <tt class="docutils literal"><span class="pre">rhipe_command</span></tt>
+variable will reflect the location of the rhipe command runner on OS X and not
+that of the taskttrackers(Linux) R distribution.</p>
+<p>There are two ways to fix this
+a) after <tt class="docutils literal"><span class="pre">z</span> <span class="pre">&lt;-</span> <span class="pre">rhlapply(...)</span></tt> change <tt class="docutils literal"><span class="pre">r[[1]][[1]]$rhipe_command</span></tt> to the
+value it should be on the tasktrackers.</p>
+<p>or</p>
+<p>b) set the environment variable <tt class="docutils literal"><span class="pre">RHIPECOMMAND</span></tt> on each of tasktrackers. RHIPE
+java client will read this first before reading the above variable.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../index.html">RHIPE v0.61 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Saptarshi Guha.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.
+    </div>
+  </body>
+</html>

@@ -36,9 +36,9 @@ code:
 doc: 
 	sed -i "" "/^[(version)|(release)]/ s/\"[0-9]*\.*[0-9]*\"/\"${VER}\"/" doc/conf.py
 	make -C doc -f Makefile html latex
-	make -C doc/build/latex -f Makefile all-pdf
-	rsync -av doc/build/html/ website/doc/html/
-	rsync -av doc/build/latex/rhipe.pdf website/doc/
+	make -C doc/_build/latex -f Makefile all-pdf
+	rsync -av doc/_build/html/ website/doc/html/
+	rsync -av doc/_build/latex/RHIPE.pdf website/doc/
 clean:
 	rm -rf doc/build
 

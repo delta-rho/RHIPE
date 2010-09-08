@@ -1,0 +1,216 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Using RHIPE on EC2 &mdash; RHIPE v0.61 documentation</title>
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.61',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="RHIPE v0.61 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">RHIPE v0.61 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Using RHIPE on EC2</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a><ul>
+<li><a class="reference internal" href="#download">Download</a></li>
+<li><a class="reference internal" href="#id1">Using RHIPE on EC2</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/old/ec2.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="using-rhipe-on-ec2">
+<h1>Using RHIPE on EC2<a class="headerlink" href="#using-rhipe-on-ec2" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>RHIPE also works on EC2 using Cloudera&#8217;s scripts. Let me demonstrate</p>
+<div class="section" id="download">
+<h3>Download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h3>
+<p>The Cloudera scripts can be found at <a class="reference external" href="http://archive.cloudera.com/docs/_getting_started.html">http://archive.cloudera.com/docs/_getting_started.html</a></p>
+<p>Follow the instructions to test your working EC2 installation.</p>
+</div>
+<div class="section" id="id1">
+<h3>Using RHIPE on EC2<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li>You need to create an entry in your <cite>~/.hadoop-ec2/ec2-clusters.cfg</cite>, e.g.</li>
+</ol>
+<div class="highlight-sh"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8</pre></div></td><td class="code"><div class="highlight"><pre><span class="o">[</span>test2<span class="o">]</span>
+<span class="nv">ami</span><span class="o">=</span>ami-6159bf08 <span class="c"># Fedora 32 bit instance</span>
+<span class="nv">instance_type</span><span class="o">=</span>c1.medium
+<span class="nv">key_name</span><span class="o">=</span>saptarshiguha <span class="c">## Your key name</span>
+<span class="nv">availability_zone</span><span class="o">=</span>us-east-1c
+<span class="nv">private_key</span><span class="o">=</span>PATH_TO_PRIVATE_KEY
+<span class="nv">ssh_options</span><span class="o">=</span> -i %<span class="o">(</span>private_key<span class="o">)</span>s -o <span class="nv">StrictHostKeyChecking</span><span class="o">=</span>no
+<span class="nv">user_data_file</span><span class="o">=</span>the file you download in step 2
+</pre></div>
+</td></tr></table></div>
+<p>In particular, RHIPE only works with 32/64 bit Fedora instance types, so choose those AMIs.</p>
+<ol class="arabic simple" start="2">
+<li>Download this file( <a class="reference external" href="http://github.com/saptarshiguha/RHIPE/blob/master/code/hadoop-ec2-init-remote.sh">http://github.com/saptarshiguha/RHIPE/blob/master/code/hadoop-ec2-init-remote.sh</a> ) and replace the file of the same name (it is in the Cloudera distribution). This file contains one extra shell function to install code RHIPE requires: R, Google&#8217;s protobuf and RHIPE</li>
+<li>Now start your cluster</li>
+</ol>
+<div class="highlight-sh"><div class="highlight"><pre>python hadoop-ec2 launch-cluster --env <span class="nv">REPO</span><span class="o">=</span>testing --env <span class="nv">HADOOP_VERSION</span><span class="o">=</span>0.20 test2 3
+</pre></div>
+</div>
+<p>The number (3) must be greater than 1.</p>
+<ol class="arabic simple" start="4">
+<li><em>Wait</em>, till you it completely finishes booting up (the cloudera scripts tell you the url of the jobtracker). Login to the cluster</li>
+</ol>
+<div class="highlight-sh"><div class="highlight"><pre>python hadoop-ec2 login test2
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li>Start <cite>R</cite>, and try the following</li>
+</ol>
+<div class="highlight-sh"><div class="highlight"><pre>library<span class="o">(</span>Rhipe<span class="o">)</span>
+z &lt;- rhlapply<span class="o">(</span>10,runif<span class="o">)</span>
+<span class="c">## Runs on a local machine(i.e the master)</span>
+rhex<span class="o">(</span>z,changes<span class="o">=</span>list<span class="o">(</span>mapred.job.tracker<span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="o">))</span>
+</pre></div>
+</div>
+<div class="highlight-sh"><div class="highlight"><pre>library<span class="o">(</span>Rhipe<span class="o">)</span>
+<span class="c">## Runs on the cluster</span>
+z &lt;- rhlapply<span class="o">(</span>10,runif<span class="o">)</span>
+rhex<span class="o">(</span>z<span class="o">)</span>
+</pre></div>
+</div>
+<p>6. Consider the more involved problem of bootstrapping. See this question posed on the
+R-HPC mailing list (<a class="reference external" href="http://permalink.gmane.org/gmane.comp.lang.r.hpc/221">http://permalink.gmane.org/gmane.comp.lang.r.hpc/221</a>).
+Using Rhipe( chunksize (see the posting) is 1000 per task which results in 100 tasks)</p>
+<div class="highlight-sh"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23</pre></div></td><td class="code"><div class="highlight"><pre>y &lt;- iris<span class="o">[</span>which<span class="o">(</span>iris<span class="o">[</span>,5<span class="o">]</span> !<span class="o">=</span> <span class="s2">&quot;setosa&quot;</span><span class="o">)</span>, c<span class="o">(</span>1,5<span class="o">)]</span>
+rhsave<span class="o">(</span>y,file<span class="o">=</span><span class="s2">&quot;/tmp/tmp.Rdata&quot;</span><span class="o">)</span>
+
+<span class="c">## The function &#39;f&#39; depends on &#39;x&#39; so we must save it</span>
+<span class="c">## using rhsave and then load it in the setup</span>
+
+setup &lt;- expression<span class="o">({</span>
+   load<span class="o">(</span><span class="s2">&quot;tmp.Rdata&quot;</span><span class="o">)</span>
+  <span class="o">})</span>
+
+f&lt;- <span class="k">function</span><span class="o">(</span>i<span class="o">){</span>
+   ind &lt;- sample<span class="o">(</span>100, 100, <span class="nv">replace</span><span class="o">=</span>TRUE<span class="o">)</span>
+   result1 &lt;- glm<span class="o">(</span>y<span class="o">[</span>ind,2<span class="o">]</span>~y<span class="o">[</span>ind,1<span class="o">]</span>, <span class="nv">family</span><span class="o">=</span>binomial<span class="o">(</span>logit<span class="o">))</span>
+   <span class="k">return</span><span class="o">(</span>structure<span class="o">(</span>coefficients<span class="o">(</span>result1<span class="o">)</span>, <span class="nv">names</span><span class="o">=</span>NULL<span class="o">))</span>
+<span class="o">}</span>
+
+z &lt;- rhlapply<span class="o">(</span>100000L,f,shared<span class="o">=</span><span class="s2">&quot;/tmp/tmp.Rdata&quot;</span>,setup<span class="o">=</span>setup,
+             <span class="nv">mapred</span><span class="o">=</span>list<span class="o">(</span>mapred.map.tasks<span class="o">=</span>100000L/1000
+               ,mapred.reduce.tasks<span class="o">=</span>5<span class="o">))</span>
+
+g &lt;- rhex<span class="o">(</span>z<span class="o">)</span>
+g1 &lt;- <span class="k">do</span>.call<span class="o">(</span><span class="s2">&quot;rbind&quot;</span>,lapply<span class="o">(</span>g,function<span class="o">(</span>r<span class="o">)</span> r<span class="o">[[</span>2<span class="o">]]))</span>
+g2 &lt;- cbind<span class="o">(</span>unlist<span class="o">(</span>lapply<span class="o">(</span>g,function<span class="o">(</span>r<span class="o">)</span> r<span class="o">[[</span>1<span class="o">]]))</span>,g1<span class="o">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>I used 3 c1.xlarge nodes(each $0.68/hr). This took 2 minutes and  5 seconds to run and another minute to read the data back in.</p>
+<p>On 10 similar nodes, this took 1 minute and 2 seconds. There is a point where it won&#8217;t become any faster.</p>
+<p>On 20 nodes(with <cite>mapred.map.tasks=160</cite>), it takes 52 seconds (probably not worth the extra cost ... )</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../index.html">RHIPE v0.61 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Saptarshi Guha.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.
+    </div>
+  </body>
+</html>

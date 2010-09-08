@@ -1,0 +1,361 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Miscellaneous Commands &mdash; RHIPE v0.61 documentation</title>
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.61',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="RHIPE v0.61 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">RHIPE v0.61 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Miscellaneous Commands</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#running-mapreduce">Running Mapreduce</a><ul>
+<li><a class="reference internal" href="#rhex">rhex</a></li>
+<li><a class="reference internal" href="#rhjoin">rhjoin</a></li>
+<li><a class="reference internal" href="#rhstatus">rhstatus</a></li>
+<li><a class="reference internal" href="#print">print</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#serialization">Serialization</a><ul>
+<li><a class="reference internal" href="#rhsz">rhsz</a></li>
+<li><a class="reference internal" href="#rhuz">rhuz</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#hdfs-related">HDFS Related</a><ul>
+<li><a class="reference internal" href="#rhload">rhload</a></li>
+<li><a class="reference internal" href="#rhsave">rhsave</a></li>
+<li><a class="reference internal" href="#rhsave-image">rhsave.image</a></li>
+<li><a class="reference internal" href="#rhcp">rhcp</a></li>
+<li><a class="reference internal" href="#rhmv">rhmv</a></li>
+<li><a class="reference internal" href="#rhput">rhput</a></li>
+<li><a class="reference internal" href="#rhget">rhget</a></li>
+<li><a class="reference internal" href="#rhls">rhls</a></li>
+<li><a class="reference internal" href="#rhdel">rhdel</a></li>
+<li><a class="reference internal" href="#rhwrite">rhwrite</a></li>
+<li><a class="reference internal" href="#rhread">rhread</a></li>
+<li><a class="reference internal" href="#rhmerge">rhmerge</a></li>
+<li><a class="reference internal" href="#rhreadbin">rhreadBin</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#map-files">Map Files</a><ul>
+<li><a class="reference internal" href="#rhs2m">rhS2M</a></li>
+<li><a class="reference internal" href="#rhm2m">rhM2M</a></li>
+<li><a class="reference internal" href="#rhgetkey">rhgetkey</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/old/rhmisc.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="miscellaneous-commands">
+<h1>Miscellaneous Commands<a class="headerlink" href="#miscellaneous-commands" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>This is a list of supporting functions for reading, writing sequence files and
+manipulating files on the Hadoop Distributed File System (HDFS).</p>
+</div>
+<div class="section" id="running-mapreduce">
+<h2>Running Mapreduce<a class="headerlink" href="#running-mapreduce" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rhex">
+<h3>rhex<a class="headerlink" href="#rhex" title="Permalink to this headline">¶</a></h3>
+<p>Once an object is created using <tt class="docutils literal"><span class="pre">rhmr</span></tt> and <tt class="docutils literal"><span class="pre">rhlapply</span></tt>, it must be sent to
+the Hadoop system. The function <tt class="docutils literal"><span class="pre">rhex</span></tt> does this</p>
+<div class="highlight-r"><div class="highlight"><pre>rhex <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>o<span class="p">,</span> async<span class="o">=</span><span class="kc">FALSE</span><span class="p">,</span> mapred<span class="p">)</span>
+</pre></div>
+</div>
+<p>Where <tt class="docutils literal"><span class="pre">o</span></tt> is the object that <tt class="docutils literal"><span class="pre">rhmr</span></tt> or <tt class="docutils literal"><span class="pre">rhlapply</span></tt> returns. <tt class="docutils literal"><span class="pre">mapred</span></tt> is a
+list of the same shape as in <tt class="docutils literal"><span class="pre">rhmr</span></tt> and <tt class="docutils literal"><span class="pre">rhlapply</span></tt>. Values in this over-ride
+those passed in <tt class="docutils literal"><span class="pre">rhmr``(and</span> <span class="pre">``rhlapply</span></tt>). If <tt class="docutils literal"><span class="pre">async</span></tt> is FALSE, the function
+returns when the job has finished running. The value returned is a list of
+Hadoop Counters (e.g bytes sent, bytes written, time taken etc).</p>
+<p>If <tt class="docutils literal"><span class="pre">async</span></tt> is TRUE, the function returns immediately. In this case, the value
+returned can be printed (i.e just type the returned value at the REPL) or passed
+to <tt class="docutils literal"><span class="pre">rhstatus</span></tt> to monitor the job.</p>
+</div>
+<div class="section" id="rhjoin">
+<h3>rhjoin<a class="headerlink" href="#rhjoin" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhjoin <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>o<span class="p">,</span>ignore.stderr<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">o</span></tt> is returned from <tt class="docutils literal"><span class="pre">rhex</span></tt> with async=TRUE. The function returns when
+the job is complete and the return value is the same as <tt class="docutils literal"><span class="pre">rhex</span></tt> when <tt class="docutils literal"><span class="pre">async</span></tt>
+is FALSE (i.e counters and the result(failure/success) of the job). If
+<tt class="docutils literal"><span class="pre">ignore.stderr</span></tt> is FALSE, the progress is displayed on the screen(exactly like
+<tt class="docutils literal"><span class="pre">rhex</span></tt>).</p>
+</div>
+<div class="section" id="rhstatus">
+<h3>rhstatus<a class="headerlink" href="#rhstatus" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhstatus <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>o<span class="p">)</span>
+</pre></div>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">o</span></tt> is returned from <tt class="docutils literal"><span class="pre">rhex</span></tt> with async=TRUE (or a
+Hadoop job id (e.g &#8220;job_20091031_0001&#8221;). This will return list of counters and
+the progress status of the job(number of maps complete, % map complete etc).</p>
+</div>
+<div class="section" id="print">
+<h3>print<a class="headerlink" href="#print" title="Permalink to this headline">¶</a></h3>
+<p>This a generic function for printing objects returned from <tt class="docutils literal"><span class="pre">rhex</span></tt> when
+async=TRUE. The default returns start time, job name and job id, and job state,
+map/reduce progress. For more verbosity, type <tt class="docutils literal"><span class="pre">print(o,verbose=2)</span></tt> which
+returns a list of counters too (like <tt class="docutils literal"><span class="pre">rhstatus</span></tt>).</p>
+</div>
+</div>
+<div class="section" id="serialization">
+<h2>Serialization<a class="headerlink" href="#serialization" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rhsz">
+<h3>rhsz<a class="headerlink" href="#rhsz" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhsz <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>object<span class="p">)</span>
+</pre></div>
+</div>
+<p>Serializes a given R object. Currently the only objects that can be serialized
+are vectors of Raws,Numerics, Integers, Strings(including NA), Logical(including NA)
+and lists of these and lists of lists of these. Attributes are copied to(e.g
+names attributes). It appears objects like matrices, factors also get serialized
+and unserialized sucessfully.</p>
+</div>
+<div class="section" id="rhuz">
+<h3>rhuz<a class="headerlink" href="#rhuz" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhuz <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>object<span class="p">)</span>
+</pre></div>
+</div>
+<p>Unserializes a raw object returned from <tt class="docutils literal"><span class="pre">rhsz</span></tt></p>
+</div>
+</div>
+<div class="section" id="hdfs-related">
+<h2>HDFS Related<a class="headerlink" href="#hdfs-related" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rhload">
+<h3>rhload<a class="headerlink" href="#rhload" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhload <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>file<span class="p">,</span><span class="m">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Loads an R data set stored on the DFS.</p>
+</div>
+<div class="section" id="rhsave">
+<h3>rhsave<a class="headerlink" href="#rhsave" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhsave <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span><span class="m">...</span><span class="p">,</span> file<span class="p">)</span>
+</pre></div>
+</div>
+<p>Saves the objects in <tt class="docutils literal"><span class="pre">...</span></tt> to <tt class="docutils literal"><span class="pre">file</span></tt> on the HDFS. All other options are
+passed onto the R function <tt class="docutils literal"><span class="pre">save</span></tt></p>
+</div>
+<div class="section" id="rhsave-image">
+<h3>rhsave.image<a class="headerlink" href="#rhsave-image" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhsave.image <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span><span class="m">...</span><span class="p">,</span> file<span class="p">)</span>
+</pre></div>
+</div>
+<p>Same as R&#8217;s <tt class="docutils literal"><span class="pre">save.image</span></tt>, except that the file goes to the HDFS.</p>
+</div>
+<div class="section" id="rhcp">
+<h3>rhcp<a class="headerlink" href="#rhcp" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhcp <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>ifile<span class="p">,</span>ofile<span class="p">)</span>
+</pre></div>
+</div>
+<p>Copies a <tt class="docutils literal"><span class="pre">ifile</span></tt> to <tt class="docutils literal"><span class="pre">ofile</span></tt> on the HDFS, i.e. both files must be present on the HDFS.</p>
+</div>
+<div class="section" id="rhmv">
+<h3>rhmv<a class="headerlink" href="#rhmv" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhmv <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>ifile<span class="p">,</span>ofile<span class="p">)</span>
+</pre></div>
+</div>
+<p>Moves <tt class="docutils literal"><span class="pre">ifile</span></tt> to <tt class="docutils literal"><span class="pre">ofile</span></tt> on the HDFS (and deletes <tt class="docutils literal"><span class="pre">ifile</span></tt>).</p>
+</div>
+<div class="section" id="rhput">
+<h3>rhput<a class="headerlink" href="#rhput" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhput <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>src<span class="p">,</span>dest<span class="p">,</span>deleteDest<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Copies the file in <tt class="docutils literal"><span class="pre">src</span></tt> to the <tt class="docutils literal"><span class="pre">dest</span></tt> on the HDFS, deleting destination if
+<tt class="docutils literal"><span class="pre">deleteDest</span></tt> is TRUE.</p>
+</div>
+<div class="section" id="rhget">
+<h3>rhget<a class="headerlink" href="#rhget" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhget <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>src<span class="p">,</span>dest<span class="p">)</span>
+</pre></div>
+</div>
+<p>Copies <tt class="docutils literal"><span class="pre">src``(on</span> <span class="pre">the</span> <span class="pre">HDFS)</span> <span class="pre">to</span> <span class="pre">``dest</span></tt> on the local. If <tt class="docutils literal"><span class="pre">src</span></tt> is a directory and <tt class="docutils literal"><span class="pre">dest</span></tt> exists,
+<tt class="docutils literal"><span class="pre">src</span></tt> is copied inside <tt class="docutils literal"><span class="pre">dest``(i.e</span> <span class="pre">a</span> <span class="pre">folder</span> <span class="pre">inside</span> <span class="pre">``dest</span></tt>).If not(i.e
+<tt class="docutils literal"><span class="pre">dest</span></tt> does not exist), <tt class="docutils literal"><span class="pre">src</span></tt>&#8216;s contents is copied to a new folder called
+<tt class="docutils literal"><span class="pre">dest</span></tt>.  If <tt class="docutils literal"><span class="pre">src</span></tt> is a file, and <tt class="docutils literal"><span class="pre">dest</span></tt> is a directory <tt class="docutils literal"><span class="pre">src</span></tt> is copied
+inside <tt class="docutils literal"><span class="pre">dest</span></tt> . If <tt class="docutils literal"><span class="pre">dest</span></tt> does not exist, it is copied to that file</p>
+<p>Wildcards allowed</p>
+<p>OVERWRITES!</p>
+</div>
+<div class="section" id="rhls">
+<h3>rhls<a class="headerlink" href="#rhls" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhls <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>dir<span class="p">,</span>recur<span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Lists the path at <tt class="docutils literal"><span class="pre">dir</span></tt>. Wildcards allowed. Use <tt class="docutils literal"><span class="pre">recur</span></tt> (FALSE/TRUE) to not recurse or to recurse.</p>
+</div>
+<div class="section" id="rhdel">
+<h3>rhdel<a class="headerlink" href="#rhdel" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhdel <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>dir<span class="p">)</span>
+</pre></div>
+</div>
+<p>Deletes file(s) at/in <tt class="docutils literal"><span class="pre">dir</span></tt>. Wildcards allowed.</p>
+</div>
+<div class="section" id="rhwrite">
+<h3>rhwrite<a class="headerlink" href="#rhwrite" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhwrite <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>lo<span class="p">,</span>f<span class="p">,</span>n<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="m">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Writes the list <tt class="docutils literal"><span class="pre">lo</span></tt>  to the file <tt class="docutils literal"><span class="pre">f</span></tt>. <tt class="docutils literal"><span class="pre">n</span></tt> is the number of sequence files
+to split the list into.  The default value of <tt class="docutils literal"><span class="pre">n</span></tt> is
+<tt class="docutils literal"><span class="pre">mapred.map.tasks</span></tt> * <tt class="docutils literal"><span class="pre">mapred.tasktracker.map.tasks.maximum</span></tt> .</p>
+</div>
+<div class="section" id="rhread">
+<h3>rhread<a class="headerlink" href="#rhread" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhread <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>files<span class="p">,</span>max<span class="o">=</span><span class="m">-1</span><span class="p">,</span>type<span class="o">=</span><span class="s">&quot;sequence&quot;</span><span class="p">,</span>verbose<span class="o">=</span><span class="k-Variable">T</span><span class="p">,</span>mc<span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Reads files(s) from <tt class="docutils literal"><span class="pre">files</span></tt> (which could be a directory). Wildcards allowed.</p>
+<p>If <tt class="docutils literal"><span class="pre">verbose</span></tt> is True, information is displayed (useful when reading many
+files)</p>
+<p>If <tt class="docutils literal"><span class="pre">max</span></tt> is positive, <tt class="docutils literal"><span class="pre">max</span></tt> key-value pairs will be read.</p>
+<p>Set <tt class="docutils literal"><span class="pre">type</span></tt> to &#8220;map&#8221; if the directory <tt class="docutils literal"><span class="pre">files</span></tt> contains map folders.</p>
+<p>Provided you have the <tt class="docutils literal"><span class="pre">multicore</span></tt> package, set <tt class="docutils literal"><span class="pre">mc</span></tt> to TRUE and the deserialization will occur in parallel.
+You have to load <tt class="docutils literal"><span class="pre">multicore</span></tt> beforehand.</p>
+</div>
+<div class="section" id="rhmerge">
+<h3>rhmerge<a class="headerlink" href="#rhmerge" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhmerge<span class="p">(</span>inr<span class="p">,</span>ou<span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">inr</span></tt> can have wildcards. Usually used to merge all files in a directory into one file <tt class="docutils literal"><span class="pre">ou</span></tt> on the local file system.</p>
+</div>
+<div class="section" id="rhreadbin">
+<h3>rhreadBin<a class="headerlink" href="#rhreadbin" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhreadBin <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>filename<span class="p">,</span> max<span class="o">=</span>as.integer<span class="p">(</span><span class="m">-1</span><span class="p">),</span> bf<span class="o">=</span>as.integer<span class="p">(</span><span class="m">0</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Reads data outputed in &#8216;binary&#8217; form. <tt class="docutils literal"><span class="pre">max</span></tt> is the maximum number to read, -1
+is all. <tt class="docutils literal"><span class="pre">bf</span></tt> is the read buffer, 0 implies the os specified default <tt class="docutils literal"><span class="pre">BUFSIZ</span></tt></p>
+</div>
+</div>
+<div class="section" id="map-files">
+<h2>Map Files<a class="headerlink" href="#map-files" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rhs2m">
+<h3>rhS2M<a class="headerlink" href="#rhs2m" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhS2M <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>files<span class="p">,</span> ofile<span class="p">,</span> dolocal <span class="o">=</span> <span class="k-Variable">T</span><span class="p">,</span> ignore.stderr <span class="o">=</span> <span class="k-Variable">F</span><span class="p">,</span> verbose <span class="o">=</span> <span class="k-Variable">F</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Converts the sequence files specified by <tt class="docutils literal"><span class="pre">files</span></tt> and places them in
+destination <tt class="docutils literal"><span class="pre">ofile</span></tt>. If <tt class="docutils literal"><span class="pre">dolocal</span></tt> is True the conversion is done on the
+local machine, otherwise over the cluster (which is much faster for anything
+greater than hundreds of megabytes). If <tt class="docutils literal"><span class="pre">ignore.stderr</span></tt> is True, the mapreduce
+output is displayed on the R console. e.g</p>
+<div class="highlight-r"><div class="highlight"><pre>rhS2m<span class="p">(</span><span class="s">&quot;/tmp/so/p*&quot;</span><span class="p">,</span><span class="s">&quot;/tmp/so.map&quot;</span><span class="p">,</span>dolocal<span class="o">=</span><span class="k-Variable">F</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="rhm2m">
+<h3>rhM2M<a class="headerlink" href="#rhm2m" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhM2M <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>files<span class="p">,</span> ofile<span class="p">,</span> dolocal <span class="o">=</span> <span class="k-Variable">T</span><span class="p">,</span> ignore.stderr <span class="o">=</span> <span class="k-Variable">F</span><span class="p">,</span> verbose <span class="o">=</span> <span class="k-Variable">F</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Same as S2M, except it converts a group of Map files to Map files.Why?
+Consider a mapreduce job that outputs modified keys in the reduce part, i.e the
+reduce receives key K0 but emits f(K0), where f(K0) &lt;&gt; K0, the result of this
+the keys in the reduce output part files wont be sorted even though the K0 are
+sorted.</p>
+<p>So, if the reducer emits K0, the output part files constitute a valid collection
+of sorted map files. If the reducer emits f(K0), this does not hold any
+more. Running <tt class="docutils literal"><span class="pre">rhM2M</span></tt> on this output produces another output in which the keys
+are now sorted (i.e we just run an identity mapreduce emitting f(K0), though now
+the input to the reducers are f(K0)).</p>
+<p>To specify the input files, it is not enough to specify the directory
+containing the part files, because the part files are directories which contain
+a sequence file and a non sequence file. Specifying the list of directories to a
+mapreduce job will cause it to fail when it reads the non-map file.</p>
+<p>Use <tt class="docutils literal"><span class="pre">rhmap.sqs</span></tt> .</p>
+</div>
+<div class="section" id="rhgetkey">
+<h3>rhgetkey<a class="headerlink" href="#rhgetkey" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-r"><div class="highlight"><pre>rhgetkey <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>keys<span class="p">,</span> paths<span class="p">,</span> sequence<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>skip<span class="o">=</span><span class="m">0</span><span class="p">,</span>ignore.stderr <span class="o">=</span> <span class="k-Variable">T</span><span class="p">,</span> verbose <span class="o">=</span> <span class="k-Variable">F</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Given a list of keys and vector of  map directories (e.g /tmp/ou/mapoutput/p*&#8221;),
+returns a list of key,values. If sequence is a string, the output key,values will be written to the sequence files on the DFS(the values will not be read into R).
+Set skip to larger(integr) values to prevent reading in all keys of the table - slower to find your key, but can search a much large database.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../index.html">RHIPE v0.61 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Saptarshi Guha.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.
+    </div>
+  </body>
+</html>
