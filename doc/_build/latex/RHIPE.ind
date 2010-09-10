@@ -7,19 +7,19 @@
 
   \indexspace
   \bigletter C
-  \item cleanup, \hyperpage{53}
-  \item combiner, \hyperpage{10}, \hyperpage{18}, \hyperpage{53}
-    \subitem io.sort.mb, \hyperpage{54}
+  \item cleanup, \hyperpage{55}
+  \item combiner, \hyperpage{10}, \hyperpage{18}, \hyperpage{55}
+    \subitem io.sort.mb, \hyperpage{56}
   \item copyFiles
     \subitem copying side effect files side effect files, \hyperpage{13}
   \item copying side effect files
     \subitem side effect files copyFiles, \hyperpage{13}
   \item correlation, \hyperpage{8}
-  \item counter, \hyperpage{41}, \hyperpage{56}
+  \item counter, \hyperpage{42}, \hyperpage{58}
 
   \indexspace
   \bigletter D
-  \item debugging, \hyperpage{40}
+  \item debugging, \hyperpage{42}
 
   \indexspace
   \bigletter H
@@ -28,8 +28,8 @@
   \indexspace
   \bigletter I
   \item inner join, \hyperpage{9}
-  \item input formats, \hyperpage{53}
-  \item io.sort.mb, \hyperpage{59}
+  \item input formats, \hyperpage{55}
+  \item io.sort.mb, \hyperpage{61}
 
   \indexspace
   \bigletter K
@@ -38,34 +38,34 @@
 
   \indexspace
   \bigletter L
-  \item lapply, \hyperpage{45}
+  \item lapply, \hyperpage{47}
 
   \indexspace
   \bigletter M
   \item map files, \hyperpage{18}
   \item map.keys, \hyperpage{13}, \hyperpage{17}
   \item map.values, \hyperpage{13}, \hyperpage{17}
-  \item mapfile, \hyperpage{50}
-  \item mapred.field.separator, \hyperpage{41}, \hyperpage{59}
-  \item mapred.input.filename, \hyperpage{59}
-  \item mapred.map.tasks, \hyperpage{59}
-  \item mapred.reduce.tasks, \hyperpage{53}, \hyperpage{59}
-  \item mapred.task.id, \hyperpage{48}
-  \item mapred.task.timeout, \hyperpage{13}, \hyperpage{56}, \hyperpage{59}
-  \item mapred.textoutputformat.separator, \hyperpage{59}
-  \item mapred.textoutputformat.usekey, \hyperpage{41}, \hyperpage{59}
-  \item maximum size of objects, \hyperpage{56}
+  \item mapfile, \hyperpage{52}
+  \item mapred.field.separator, \hyperpage{43}, \hyperpage{61}
+  \item mapred.input.filename, \hyperpage{61}
+  \item mapred.map.tasks, \hyperpage{61}
+  \item mapred.reduce.tasks, \hyperpage{55}, \hyperpage{61}
+  \item mapred.task.id, \hyperpage{50}
+  \item mapred.task.timeout, \hyperpage{13}, \hyperpage{58}, \hyperpage{61}
+  \item mapred.textoutputformat.separator, \hyperpage{61}
+  \item mapred.textoutputformat.usekey, \hyperpage{43}, \hyperpage{61}
+  \item maximum size of objects, \hyperpage{58}
 
   \indexspace
   \bigletter O
-  \item orderby, \hyperpage{17}, \hyperpage{39}, \hyperpage{50}
+  \item orderby, \hyperpage{17}, \hyperpage{39}, \hyperpage{52}
   \item ordering of keys
     \subitem key ordering, \hyperpage{17}
-  \item output formats, \hyperpage{53}
+  \item output formats, \hyperpage{55}
 
   \indexspace
   \bigletter P
-  \item partitioner, \hyperpage{39}, \hyperpage{43}, \hyperpage{53}
+  \item partitioner, \hyperpage{39}, \hyperpage{45}, \hyperpage{55}
 
   \indexspace
   \bigletter Q
@@ -74,57 +74,57 @@
 
   \indexspace
   \bigletter R
-  \item random number generation, \hyperpage{48}
+  \item random number generation, \hyperpage{50}
   \item reduce.key, \hyperpage{17}
   \item reduce.values, \hyperpage{17}
-  \item rhcollect, \hyperpage{56}
-  \item rhcounter, \hyperpage{13}, \hyperpage{51}, \hyperpage{56}
-  \item rhcp, \hyperpage{49}
-  \item rhdel, \hyperpage{49}
-  \item rhex, \hyperpage{13}, \hyperpage{19}, \hyperpage{51}
-  \item rhget, \hyperpage{49}
-  \item rhgetkey, \hyperpage{18}, \hyperpage{50}
+  \item rhcollect, \hyperpage{58}
+  \item rhcounter, \hyperpage{13}, \hyperpage{53}, \hyperpage{58}
+  \item rhcp, \hyperpage{51}
+  \item rhdel, \hyperpage{51}
+  \item rhex, \hyperpage{13}, \hyperpage{19}, \hyperpage{53}
+  \item rhget, \hyperpage{51}
+  \item rhgetkey, \hyperpage{18}, \hyperpage{52}
   \item rhipe\_map\_buff\_size, \hyperpage{18}
-  \item rhipe\_map\_buffsize, \hyperpage{59}
-  \item rhipe\_reduce\_buffsize, \hyperpage{59}
-  \item rhipe\_stream\_buffer, \hyperpage{59}
-  \item rhipe\_string\_quote, \hyperpage{41}
+  \item rhipe\_map\_buffsize, \hyperpage{61}
+  \item rhipe\_reduce\_buffsize, \hyperpage{61}
+  \item rhipe\_stream\_buffer, \hyperpage{61}
+  \item rhipe\_string\_quote, \hyperpage{43}
   \item rhipeopts, \hyperpage{1}
-  \item rhjoin, \hyperpage{51}
-  \item rhkill, \hyperpage{51, 52}
-  \item rhlapply, \hyperpage{45}, \hyperpage{48}
-  \item rhls, \hyperpage{49}
-  \item rhmr, \hyperpage{13}, \hyperpage{17}, \hyperpage{19}, \hyperpage{50, 51}, \hyperpage{53}, 
-		\hyperpage{57}
-  \item rhput, \hyperpage{49}
-  \item rhread, \hyperpage{19, 20}, \hyperpage{50}
-  \item rhstatus, \hyperpage{13, 14}, \hyperpage{51}, \hyperpage{56}
-  \item rhsz, \hyperpage{56}
-  \item rhuz, \hyperpage{56}
-  \item rhwrite, \hyperpage{50}
+  \item rhjoin, \hyperpage{53}
+  \item rhkill, \hyperpage{53, 54}
+  \item rhlapply, \hyperpage{47}, \hyperpage{50}
+  \item rhls, \hyperpage{51}
+  \item rhmr, \hyperpage{13}, \hyperpage{17}, \hyperpage{19}, \hyperpage{52, 53}, \hyperpage{55}, 
+		\hyperpage{59}
+  \item rhput, \hyperpage{51}
+  \item rhread, \hyperpage{19, 20}, \hyperpage{52}
+  \item rhstatus, \hyperpage{13, 14}, \hyperpage{53}, \hyperpage{58}
+  \item rhsz, \hyperpage{58}
+  \item rhuz, \hyperpage{58}
+  \item rhwrite, \hyperpage{52}
 
   \indexspace
   \bigletter S
-  \item sequencefile, \hyperpage{17}, \hyperpage{50}
-    \subitem convert seqeuncefile to mapfile, \hyperpage{50}
-  \item serialization, \hyperpage{57}
-    \subitem string representations, \hyperpage{57}
-  \item setup, \hyperpage{53}
-  \item shared files, \hyperpage{53}
+  \item sequencefile, \hyperpage{17}, \hyperpage{52}
+    \subitem convert seqeuncefile to mapfile, \hyperpage{52}
+  \item serialization, \hyperpage{59}
+    \subitem string representations, \hyperpage{59}
+  \item setup, \hyperpage{55}
+  \item shared files, \hyperpage{55}
   \item side effect files
     \subitem copyFiles, copying side effect files, \hyperpage{13}
-  \item simulations, \hyperpage{45}
+  \item simulations, \hyperpage{47}
   \item streaming, \hyperpage{39}
 
   \indexspace
   \bigletter T
   \item textouput
-    \subitem subsets of text files, \hyperpage{41}
-    \subitem transformations on text files, \hyperpage{41}
-    \subitem writing to text, \hyperpage{57}
+    \subitem subsets of text files, \hyperpage{43}
+    \subitem transformations on text files, \hyperpage{43}
+    \subitem writing to text, \hyperpage{59}
   \item textoutput
-    \subitem quoting text, \hyperpage{41}
-    \subitem separators for vectors, \hyperpage{41}
-  \item tryCatch, \hyperpage{40}
+    \subitem quoting text, \hyperpage{43}
+    \subitem separators for vectors, \hyperpage{43}
+  \item tryCatch, \hyperpage{42}
 
 \end{theindex}

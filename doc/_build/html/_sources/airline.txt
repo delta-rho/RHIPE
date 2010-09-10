@@ -1153,6 +1153,74 @@ by the reducer and R is about to quit.
        part=list(lims=1,type='numeric'))
   
 
+Concrete (but artifical) Example
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ We will create a data set with three columns: the level of a categorical variable *A*, a time variable *B* and a value *C*. For each level of *A*, we want the sum of differences of *C* ordered by *B* within *A*.
+
+**Creating the Data set** The column *A* is the key, but this is not important. There are 5000 levels of *A*, each level has 10,000 observations. By design the values of *B* are randomly written (``sample``), also for simplicity *C* is equal to *B*, though this need not be. 
+
+::
+  library(Rhipe)
+  map <- expression({
+    N <- 10000
+    for( first.col in map.values ){
+      w <- sample(N,N,replace=FALSE)
+      for( i in w){
+        rhcollect(first.col,c(i,i))
+      }
+    }})
+  mapred <- list(mapred.reduce.tasks=0)
+  z=rhmr(map=map, N=5000, inout=c("lapply","sequence"),ofolder="/tmp/sort",
+       mapred=mapred)
+  rhex(z)
+
+
+**Sum of Differences** 
+The key is the value of *A* and *B*, the value is *C*.
+
+::
+  map <- expression({
+    lapply(seq_along(map.values),function(r){
+      f <- map.values[[r]]
+      rhcollect(as.integer(c(map.keys[[r]],f[1])),f[2])
+  })})
+
+Thus each output from a map is a key (assuming there are not any duplicates for *B* for a given level of *A*), thus *reduce.values* has only one observation. All keys sharing the same level of *A* will be sent to one R process and the tuples *as.integer(c(map.keys[[r]],f[1]))* will be sorted. *reduce.setup* is called once when the R process starts processing its assigned partition of keys and *reduce.post* is called at the end (when all keys have been processed)
+::
+  reduce.setup <- expression({
+    newp <- -Inf
+    diffsum <- NULL
+  })
+  reduce <- expression(
+      pre={
+        if(reduce.key[[1]][1] != newp) {
+          if(newp>-Inf) rhcollect(newp, diffsum) #prevents -Inf from being collected
+          diffsum <- 0
+          lastval <- 0
+          newp <- reduce.key[[1]][1]
+          skip <- TRUE
+        }
+      },
+      reduce={
+        current <- unlist(reduce.values) #only one value!
+        if(!skip) diffsum <- diffsum + (current-lastval) else skip <- FALSE
+        lastval <- current
+      }      
+    )
+  reduce.post <- expression({
+    if(newp>-Inf) rhcollect(newp,diffsum) #for the last key
+  })
+
+
+To turn on the partitioning and ordering of keys, 
+
+::
+  z <- rhmr(map=map,reduce=reduce, inout=c("sequence","sequence"),ifolder="/tmp/sort",
+    ofolder="/tmp/sort2", part=list(lims=1,type='integer'),
+    orderby="integer",cleanup=list(reduce=reduce.post),
+    setup=list(reduce=reduce.setup))
+  rhex(z)
 
 Simple Debugging
 ----------------

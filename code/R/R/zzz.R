@@ -25,6 +25,7 @@ if(TRUE){
   rhstatus <- rhstatus.1
   rhjoin <- rhjoin.1
   rhmerge <- rhmerge.1
+  rhkill <- rhkill.1
 }
 
 .onLoad <- function(libname,pkgname){

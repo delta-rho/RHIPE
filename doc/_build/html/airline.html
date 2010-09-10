@@ -59,7 +59,10 @@
 <li><a class="reference internal" href="#busy-routes">Busy Routes</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#streaming-data">Streaming Data?</a></li>
+<li><a class="reference internal" href="#streaming-data">Streaming Data?</a><ul>
+<li><a class="reference internal" href="#concrete-but-artifical-example">Concrete (but artifical) Example</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#simple-debugging">Simple Debugging</a></li>
 </ul>
 </li>
@@ -1603,6 +1606,111 @@ rhmr<span class="p">(</span><span class="m">...</span><span class="p">,</span> c
      part<span class="o">=</span>list<span class="p">(</span>lims<span class="o">=</span><span class="m">1</span><span class="p">,</span>type<span class="o">=</span><span class="s">&#39;numeric&#39;</span><span class="p">))</span>
 </pre></div>
 </td></tr></table></div>
+<div class="section" id="concrete-but-artifical-example">
+<h3>Concrete (but artifical) Example<a class="headerlink" href="#concrete-but-artifical-example" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+We will create a data set with three columns: the level of a categorical variable <em>A</em>, a time variable <em>B</em> and a value <em>C</em>. For each level of <em>A</em>, we want the sum of differences of <em>C</em> ordered by <em>B</em> within <em>A</em>.</blockquote>
+<p><strong>Creating the Data set</strong> The column <em>A</em> is the key, but this is not important. There are 5000 levels of <em>A</em>, each level has 10,000 observations. By design the values of <em>B</em> are randomly written (<tt class="docutils literal"><span class="pre">sample</span></tt>), also for simplicity <em>C</em> is equal to <em>B</em>, though this need not be.</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd><p class="first">library(Rhipe)
+map &lt;- expression({</p>
+<blockquote>
+<p>N &lt;- 10000
+for( first.col in map.values ){</p>
+<blockquote>
+<p>w &lt;- sample(N,N,replace=FALSE)
+for( i in w){</p>
+<blockquote>
+rhcollect(first.col,c(i,i))</blockquote>
+<p>}</p>
+</blockquote>
+<p>}})</p>
+</blockquote>
+<p>mapred &lt;- list(mapred.reduce.tasks=0)
+z=rhmr(map=map, N=5000, inout=c(&#8220;lapply&#8221;,&#8221;sequence&#8221;),ofolder=&#8221;/tmp/sort&#8221;,</p>
+<blockquote>
+mapred=mapred)</blockquote>
+<p class="last">rhex(z)</p>
+</dd>
+</dl>
+<p><strong>Sum of Differences</strong>
+The key is the value of <em>A</em> and <em>B</em>, the value is <em>C</em>.</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd><dl class="first docutils">
+<dt>map &lt;- expression({</dt>
+<dd><dl class="first last docutils">
+<dt>lapply(seq_along(map.values),function(r){</dt>
+<dd>f &lt;- map.values[[r]]
+rhcollect(as.integer(c(map.keys[[r]],f[1])),f[2])</dd>
+</dl>
+</dd>
+</dl>
+<p class="last">})})</p>
+</dd>
+</dl>
+<p>Thus each output from a map is a key (assuming there are not any duplicates for <em>B</em> for a given level of <em>A</em>), thus <em>reduce.values</em> has only one observation. All keys sharing the same level of <em>A</em> will be sent to one R process and the tuples <em>as.integer(c(map.keys[[r]],f[1]))</em> will be sorted. <em>reduce.setup</em> is called once when the R process starts processing its assigned partition of keys and <em>reduce.post</em> is called at the end (when all keys have been processed)</p>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23</pre></div></td><td class="code"><div class="highlight"><pre>reduce.setup <span class="o">&lt;-</span> expression<span class="p">({</span>
+  newp <span class="o">&lt;-</span> <span class="o">-</span>Inf
+  diffsum <span class="o">&lt;-</span> <span class="kc">NULL</span>
+<span class="p">})</span>
+reduce <span class="o">&lt;-</span> expression<span class="p">(</span>
+    pre<span class="o">=</span><span class="p">{</span>
+      <span class="kr">if</span><span class="p">(</span>reduce.key<span class="p">[[</span><span class="m">1</span><span class="p">]][</span><span class="m">1</span><span class="p">]</span> <span class="o">!=</span> newp<span class="p">)</span> <span class="p">{</span>
+        <span class="kr">if</span><span class="p">(</span>newp<span class="o">&gt;-</span>Inf<span class="p">)</span> rhcollect<span class="p">(</span>newp<span class="p">,</span> diffsum<span class="p">)</span> <span class="c1">#prevents -Inf from being collected</span>
+        diffsum <span class="o">&lt;-</span> <span class="m">0</span>
+        lastval <span class="o">&lt;-</span> <span class="m">0</span>
+        newp <span class="o">&lt;-</span> reduce.key<span class="p">[[</span><span class="m">1</span><span class="p">]][</span><span class="m">1</span><span class="p">]</span>
+        skip <span class="o">&lt;-</span> <span class="kc">TRUE</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    reduce<span class="o">=</span><span class="p">{</span>
+      current <span class="o">&lt;-</span> unlist<span class="p">(</span>reduce.values<span class="p">)</span> <span class="c1">#only one value!</span>
+      <span class="kr">if</span><span class="p">(</span>!skip<span class="p">)</span> diffsum <span class="o">&lt;-</span> diffsum <span class="o">+</span> <span class="p">(</span>current<span class="o">-</span>lastval<span class="p">)</span> <span class="kr">else</span> skip <span class="o">&lt;-</span> <span class="kc">FALSE</span>
+      lastval <span class="o">&lt;-</span> current
+    <span class="p">}</span>
+  <span class="p">)</span>
+reduce.post <span class="o">&lt;-</span> expression<span class="p">({</span>
+  <span class="kr">if</span><span class="p">(</span>newp<span class="o">&gt;-</span>Inf<span class="p">)</span> rhcollect<span class="p">(</span>newp<span class="p">,</span>diffsum<span class="p">)</span> <span class="c1">#for the last key</span>
+<span class="p">})</span>
+</pre></div>
+</td></tr></table></div>
+<p>To turn on the partitioning and ordering of keys,</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd><dl class="first docutils">
+<dt>z &lt;- rhmr(map=map,reduce=reduce, inout=c(&#8220;sequence&#8221;,&#8221;sequence&#8221;),ifolder=&#8221;/tmp/sort&#8221;,</dt>
+<dd>ofolder=&#8221;/tmp/sort2&#8221;, part=list(lims=1,type=&#8217;integer&#8217;),
+orderby=&#8221;integer&#8221;,cleanup=list(reduce=reduce.post),
+setup=list(reduce=reduce.setup))</dd>
+</dl>
+<p class="last">rhex(z)</p>
+</dd>
+</dl>
+</div>
 </div>
 <div class="section" id="simple-debugging">
 <h2>Simple Debugging<a class="headerlink" href="#simple-debugging" title="Permalink to this headline">¶</a></h2>

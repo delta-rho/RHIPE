@@ -41,77 +41,77 @@
 \indexentry{orderby|hyperpage}{39}
 \indexentry{streaming|hyperpage}{39}
 \indexentry{partitioner|hyperpage}{39}
-\indexentry{debugging|hyperpage}{40}
-\indexentry{tryCatch|hyperpage}{40}
-\indexentry{counter|hyperpage}{41}
-\indexentry{textouput!transformations on text files|hyperpage}{41}
-\indexentry{textouput!subsets of text files|hyperpage}{41}
-\indexentry{textoutput!quoting text|hyperpage}{41}
-\indexentry{textoutput!separators for vectors|hyperpage}{41}
-\indexentry{rhipe\_string\_quote|hyperpage}{41}
-\indexentry{mapred.field.separator|hyperpage}{41}
-\indexentry{mapred.textoutputformat.usekey|hyperpage}{41}
-\indexentry{partitioner|hyperpage}{43}
-\indexentry{simulations|hyperpage}{45}
-\indexentry{rhlapply|hyperpage}{45}
-\indexentry{lapply|hyperpage}{45}
-\indexentry{rhlapply|hyperpage}{48}
-\indexentry{random number generation|hyperpage}{48}
-\indexentry{mapred.task.id|hyperpage}{48}
-\indexentry{rhdel|hyperpage}{49}
-\indexentry{rhls|hyperpage}{49}
-\indexentry{rhget|hyperpage}{49}
-\indexentry{rhput|hyperpage}{49}
-\indexentry{rhcp|hyperpage}{49}
-\indexentry{rhwrite|hyperpage}{50}
-\indexentry{rhread|hyperpage}{50}
-\indexentry{sequencefile|hyperpage}{50}
-\indexentry{mapfile|hyperpage}{50}
-\indexentry{rhgetkey|hyperpage}{50}
-\indexentry{mapfile|hyperpage}{50}
-\indexentry{orderby|hyperpage}{50}
-\indexentry{rhmr|hyperpage}{50}
-\indexentry{sequencefile!convert seqeuncefile to mapfile|hyperpage}{50}
-\indexentry{rhex|hyperpage}{51}
-\indexentry{rhmr|hyperpage}{51}
-\indexentry{rhstatus|hyperpage}{51}
-\indexentry{rhjoin|hyperpage}{51}
-\indexentry{rhkill|hyperpage}{51}
-\indexentry{rhstatus|hyperpage}{51}
-\indexentry{rhcounter|hyperpage}{51}
-\indexentry{rhjoin|hyperpage}{51}
-\indexentry{rhex|hyperpage}{51}
-\indexentry{rhkill|hyperpage}{52}
+\indexentry{debugging|hyperpage}{42}
+\indexentry{tryCatch|hyperpage}{42}
+\indexentry{counter|hyperpage}{42}
+\indexentry{textouput!transformations on text files|hyperpage}{43}
+\indexentry{textouput!subsets of text files|hyperpage}{43}
+\indexentry{textoutput!quoting text|hyperpage}{43}
+\indexentry{textoutput!separators for vectors|hyperpage}{43}
+\indexentry{rhipe\_string\_quote|hyperpage}{43}
+\indexentry{mapred.field.separator|hyperpage}{43}
+\indexentry{mapred.textoutputformat.usekey|hyperpage}{43}
+\indexentry{partitioner|hyperpage}{45}
+\indexentry{simulations|hyperpage}{47}
+\indexentry{rhlapply|hyperpage}{47}
+\indexentry{lapply|hyperpage}{47}
+\indexentry{rhlapply|hyperpage}{50}
+\indexentry{random number generation|hyperpage}{50}
+\indexentry{mapred.task.id|hyperpage}{50}
+\indexentry{rhdel|hyperpage}{51}
+\indexentry{rhls|hyperpage}{51}
+\indexentry{rhget|hyperpage}{51}
+\indexentry{rhput|hyperpage}{51}
+\indexentry{rhcp|hyperpage}{51}
+\indexentry{rhwrite|hyperpage}{52}
+\indexentry{rhread|hyperpage}{52}
+\indexentry{sequencefile|hyperpage}{52}
+\indexentry{mapfile|hyperpage}{52}
+\indexentry{rhgetkey|hyperpage}{52}
+\indexentry{mapfile|hyperpage}{52}
+\indexentry{orderby|hyperpage}{52}
+\indexentry{rhmr|hyperpage}{52}
+\indexentry{sequencefile!convert seqeuncefile to mapfile|hyperpage}{52}
+\indexentry{rhex|hyperpage}{53}
 \indexentry{rhmr|hyperpage}{53}
-\indexentry{combiner|hyperpage}{53}
-\indexentry{partitioner|hyperpage}{53}
-\indexentry{setup|hyperpage}{53}
-\indexentry{cleanup|hyperpage}{53}
-\indexentry{input formats|hyperpage}{53}
-\indexentry{output formats|hyperpage}{53}
-\indexentry{shared files|hyperpage}{53}
-\indexentry{mapred.reduce.tasks|hyperpage}{53}
-\indexentry{combiner!io.sort.mb|hyperpage}{54}
-\indexentry{rhcollect|hyperpage}{56}
-\indexentry{rhcounter|hyperpage}{56}
-\indexentry{counter|hyperpage}{56}
-\indexentry{rhstatus|hyperpage}{56}
-\indexentry{mapred.task.timeout|hyperpage}{56}
-\indexentry{rhsz|hyperpage}{56}
-\indexentry{rhuz|hyperpage}{56}
-\indexentry{maximum size of objects|hyperpage}{56}
-\indexentry{serialization|hyperpage}{57}
-\indexentry{serialization!string representations|hyperpage}{57}
-\indexentry{textouput!writing to text|hyperpage}{57}
-\indexentry{rhmr|hyperpage}{57}
-\indexentry{rhipe\_map\_buffsize|hyperpage}{59}
-\indexentry{rhipe\_reduce\_buffsize|hyperpage}{59}
-\indexentry{io.sort.mb|hyperpage}{59}
-\indexentry{mapred.textoutputformat.separator|hyperpage}{59}
-\indexentry{mapred.field.separator|hyperpage}{59}
-\indexentry{mapred.textoutputformat.usekey|hyperpage}{59}
-\indexentry{mapred.map.tasks|hyperpage}{59}
-\indexentry{mapred.reduce.tasks|hyperpage}{59}
-\indexentry{mapred.task.timeout|hyperpage}{59}
-\indexentry{rhipe\_stream\_buffer|hyperpage}{59}
-\indexentry{mapred.input.filename|hyperpage}{59}
+\indexentry{rhstatus|hyperpage}{53}
+\indexentry{rhjoin|hyperpage}{53}
+\indexentry{rhkill|hyperpage}{53}
+\indexentry{rhstatus|hyperpage}{53}
+\indexentry{rhcounter|hyperpage}{53}
+\indexentry{rhjoin|hyperpage}{53}
+\indexentry{rhex|hyperpage}{53}
+\indexentry{rhkill|hyperpage}{54}
+\indexentry{rhmr|hyperpage}{55}
+\indexentry{combiner|hyperpage}{55}
+\indexentry{partitioner|hyperpage}{55}
+\indexentry{setup|hyperpage}{55}
+\indexentry{cleanup|hyperpage}{55}
+\indexentry{input formats|hyperpage}{55}
+\indexentry{output formats|hyperpage}{55}
+\indexentry{shared files|hyperpage}{55}
+\indexentry{mapred.reduce.tasks|hyperpage}{55}
+\indexentry{combiner!io.sort.mb|hyperpage}{56}
+\indexentry{rhcollect|hyperpage}{58}
+\indexentry{rhcounter|hyperpage}{58}
+\indexentry{counter|hyperpage}{58}
+\indexentry{rhstatus|hyperpage}{58}
+\indexentry{mapred.task.timeout|hyperpage}{58}
+\indexentry{rhsz|hyperpage}{58}
+\indexentry{rhuz|hyperpage}{58}
+\indexentry{maximum size of objects|hyperpage}{58}
+\indexentry{serialization|hyperpage}{59}
+\indexentry{serialization!string representations|hyperpage}{59}
+\indexentry{textouput!writing to text|hyperpage}{59}
+\indexentry{rhmr|hyperpage}{59}
+\indexentry{rhipe\_map\_buffsize|hyperpage}{61}
+\indexentry{rhipe\_reduce\_buffsize|hyperpage}{61}
+\indexentry{io.sort.mb|hyperpage}{61}
+\indexentry{mapred.textoutputformat.separator|hyperpage}{61}
+\indexentry{mapred.field.separator|hyperpage}{61}
+\indexentry{mapred.textoutputformat.usekey|hyperpage}{61}
+\indexentry{mapred.map.tasks|hyperpage}{61}
+\indexentry{mapred.reduce.tasks|hyperpage}{61}
+\indexentry{mapred.task.timeout|hyperpage}{61}
+\indexentry{rhipe\_stream\_buffer|hyperpage}{61}
+\indexentry{mapred.input.filename|hyperpage}{61}
