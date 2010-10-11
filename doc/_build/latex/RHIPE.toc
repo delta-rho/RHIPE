@@ -6,9 +6,9 @@
 \contentsline {section}{\numberline {2.2}Hadoop Distributed Filesystem}{5}{section.2.2}
 \contentsline {section}{\numberline {2.3}Hadoop MapReduce}{6}{section.2.3}
 \contentsline {subsection}{\numberline {2.3.1}Examples}{7}{subsection.2.3.1}
-\contentsline {subsubsection}{Approximate Quantile}{7}{subsubsection*.4}
-\contentsline {subsubsection}{Correlation}{8}{subsubsection*.5}
-\contentsline {subsubsection}{Computing an Inner Join}{9}{subsubsection*.6}
+\contentsline {subsubsection}{Approximate Quantile}{7}{subsubsection*.3}
+\contentsline {subsubsection}{Correlation}{8}{subsubsection*.4}
+\contentsline {subsubsection}{Computing an Inner Join}{9}{subsubsection*.5}
 \contentsline {subsection}{\numberline {2.3.2}Combiners : An Optimization}{10}{subsection.2.3.2}
 \contentsline {section}{\numberline {2.4}R and Hadoop Integrated Programming Environment}{10}{section.2.4}
 \contentsline {chapter}{\numberline {3}Airline Dataset}{13}{chapter.3}
@@ -58,5 +58,5 @@
 \contentsline {section}{\numberline {8.2}String Representations and TextOutput Format}{59}{section.8.2}
 \contentsline {section}{\numberline {8.3}Proto File}{60}{section.8.3}
 \contentsline {chapter}{\numberline {9}RHIPE Options}{61}{chapter.9}
-\contentsline {chapter}{Bibliography}{63}{chapter*.21}
-\contentsline {chapter}{Index}{65}{section*.30}
+\contentsline {chapter}{Bibliography}{63}{chapter*.13}
+\contentsline {chapter}{Index}{65}{section*.22}

@@ -226,7 +226,7 @@ specified by <tt class="docutils literal"><span class="pre">ofolder</span></tt> 
 <p>Once a file has been downloaded, we inform Hadoop of our change in status, via
 <tt class="docutils literal"><span class="pre">rhastatus</span></tt>. The figure <a class="reference internal" href="#example-of-rhstatus"><em>Example of rhstatus</em></a> displays the various status of each
 of the 22 splits (also called Tasks)</p>
-<div align="center" class="figure" id="example-of-rhstatus">
+<div class="figure align-center" id="example-of-rhstatus">
 <img alt="_images/rhstatus1.pdf" src="_images/rhstatus1.pdf" />
 <p class="caption">Example of <tt class="docutils literal"><span class="pre">rhstatus</span></tt></p>
 </div>
@@ -720,7 +720,7 @@ trials for different values of <em>rhipe_map_buff_size</em>. The trials set
 <em>rhipe_map_buff_size</em> to 5,10,15,20,25 and 125. All experiments (like the rest
 in the manual) were performed on a 72 core cluster across 8 servers with RAM
 varying from 16 to 64 GB.</p>
-<div align="center" class="figure" id="time-to-complete-vs-rhipe-map-buff-size">
+<div class="figure align-center" id="time-to-complete-vs-rhipe-map-buff-size">
 <a class="reference internal image-reference" href="_images/rhipemapbuff.pdf"><img alt="_images/rhipemapbuff.pdf" src="_images/rhipemapbuff.pdf" /></a>
 <p class="caption">Log of time to complete vs log of <em>rhipe_map_buff_size</em>.</p>
 </div>
@@ -758,7 +758,7 @@ dotplot<span class="p">(</span>af~log<span class="p">(</span>r<span class="p">[,
 </td></tr></table></div>
 <p>There are 352 locations (airports) of which the top 20 serve 50% of the volume
 (see <a class="reference internal" href="#figvolume"><em>Top 20 airports by volume of all flights.</em></a>)</p>
-<div align="center" class="figure" id="figvolume">
+<div class="figure align-center" id="figvolume">
 <a class="reference internal image-reference" href="_images/volume.pdf"><img alt="_images/volume.pdf" src="_images/volume.pdf" /></a>
 <p class="caption">Top 20 airports by volume of all flights.</p>
 </div>
@@ -902,11 +902,11 @@ flights delayed in a day across the years. Each year a panel. 22 panels. A
 flight is delayed if the delay is greater than 15 minutes.</p>
 <p>It is clear that proportion increases in the holidays (the ends of the
 panels). The code for this comes after the figures.</p>
-<div align="center" class="figure">
+<div class="figure align-center">
 <img alt="_images/propdelayed_1.pdf" src="_images/propdelayed_1.pdf" />
 <p class="caption">Proportion of flights delayed</p>
 </div>
-<div align="center" class="figure">
+<div class="figure align-center">
 <img alt="_images/propdelayed_2.pdf" src="_images/propdelayed_2.pdf" />
 <p class="caption">Proportion of flights delayed (cont&#8217;d)</p>
 </div>
@@ -990,7 +990,7 @@ plot<span class="p">(</span>stl<span class="p">(</span>tprop<span class="p">,</s
 dev.off<span class="p">()</span>
 </pre></div>
 </td></tr></table></div>
-<div align="center" class="figure" id="stl-decomposition">
+<div class="figure align-center" id="stl-decomposition">
 <a class="reference internal image-reference" href="_images/propdelayedxyplot-fromtiff.pdf"><img alt="_images/propdelayedxyplot-fromtiff.pdf" src="_images/propdelayedxyplot-fromtiff.pdf" /></a>
 <p class="caption">STL decomposition of proportion of flights delayed</p>
 </div>
@@ -998,13 +998,13 @@ dev.off<span class="p">()</span>
 flights delayed by day of week. The code for this identical to the previous one
 except we split on <tt class="docutils literal"><span class="pre">a$wday</span></tt> and the key is <tt class="docutils literal"><span class="pre">r[1,c(&quot;wday&quot;)]</span></tt>. It appears
 Thursdays and Fridays can be quite trying.</p>
-<div align="center" class="figure" id="delay-by-day-of-week">
+<div class="figure align-center" id="delay-by-day-of-week">
 <a class="reference internal image-reference" href="_images/propdelayeddow.pdf"><img alt="_images/propdelayeddow.pdf" src="_images/propdelayeddow.pdf" /></a>
 <p class="caption">Proportion of flights delayed by day of week.</p>
 </div>
 <p>Does the delay proportion change with hour? It appears it does (see <a class="reference internal" href="#delay-by-hour"><em>Proportion of flights delayed by hour of day</em></a>). The hours are scheduled
 departure times. <em>Why are so many flights leaving in the wee hours (12-3) delayed?</em></p>
-<div align="center" class="figure" id="delay-by-hour">
+<div class="figure align-center" id="delay-by-hour">
 <a class="reference internal image-reference" href="_images/propdelaybyhour.pdf"><img alt="_images/propdelaybyhour.pdf" src="_images/propdelaybyhour.pdf" /></a>
 <p class="caption">Proportion of flights delayed by hour of day</p>
 </div>
@@ -1196,7 +1196,7 @@ xyplot<span class="p">(</span>log<span class="p">(</span>qt<span class="p">,</sp
 <span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
-<div align="center" class="figure">
+<div class="figure align-center">
 <img alt="_images/quantiles_by_month.pdf" src="_images/quantiles_by_month.pdf" />
 <p class="caption">Quantile of minute delay (for delay &gt; 15 minutes) across months</p>
 </div>
@@ -1253,11 +1253,11 @@ z <span class="o">&lt;-</span> rhmr<span class="p">(</span>map<span class="o">=<
 z<span class="o">=</span>rhex<span class="p">(</span>z<span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
-<div align="center" class="figure">
+<div class="figure align-center">
 <img alt="_images/quantiles_by_hr_1.pdf" src="_images/quantiles_by_hr_1.pdf" />
 <p class="caption">Quantile of minute delay (for delay &gt; 15 minutes) by hour of day</p>
 </div>
-<div align="center" class="figure">
+<div class="figure align-center">
 <img alt="_images/quantiles_by_hr_2.pdf" src="_images/quantiles_by_hr_2.pdf" />
 <p class="caption">Quantile of minute delay (for delay &gt; 15 minutes) by hour of day (cont&#8217;d)</p>
 </div>
@@ -1328,7 +1328,7 @@ reduce <span class="o">&lt;-</span> expression<span class="p">(</span>
  z<span class="o">=</span>rhex<span class="p">(</span>z<span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
-<div align="center" class="figure" id="quantilebyairport">
+<div class="figure align-center" id="quantilebyairport">
 <img alt="_images/quantiles_by_airport.pdf" src="_images/quantiles_by_airport.pdf" />
 <p class="caption">Quantile of minute delay for inbound and outbound for 4 different
 airports. Dotted red lines are 25%,50% and 75% uniform proportions.</p>
@@ -1375,11 +1375,11 @@ reduce <span class="o">&lt;-</span> expression<span class="p">(</span>
     <span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
-<div align="center" class="figure">
+<div class="figure align-center">
 <img alt="_images/carrvol.pdf" src="_images/carrvol.pdf" />
 <p class="caption">Log base 2 volume of flights by carrier</p>
 </div>
-<div align="center" class="figure">
+<div class="figure align-center">
 <img alt="_images/carrdelay.pdf" src="_images/carrdelay.pdf" />
 <p class="caption">Proportion of flights delayed by carrier. Compare this with the previous graph.</p>
 </div>
@@ -1495,7 +1495,7 @@ other destinations. The black points are the airports that handle 90% of the
 total air traffic volume. The grey points are the remaining airports. The
 flights from Chicago (ORD) are color coded based on volume carried e.g. red
 implies those routes carry the top 25% of traffic in/out of ORD.</p>
-<div align="center" class="figure">
+<div class="figure align-center">
 <img alt="_images/flightord.pdf" src="_images/flightord.pdf" />
 <p class="caption">Flights in and out of Chicago color coded by % cumulative contribution.</p>
 </div>
@@ -1842,7 +1842,7 @@ this case, <tt class="docutils literal"><span class="pre">shared.files</span></t
     </div>
     <div class="footer">
         &copy; Copyright 2010, Saptarshi Guha.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
     </div>
   </body>
 </html>

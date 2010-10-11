@@ -1,5 +1,5 @@
 .rhipeEnv <- new.env()
-vvvv <- "0.61"
+vvvv <- "0.63"
 attr(vvvv,"minor") <- '3'
 attr(vvvv,"date") <- 'Mon Aug 30 01:08:30 EDT 2010'
 attr(vvvv,'fortune') <- "Eloquence is logic on fire."
