@@ -339,7 +339,10 @@ Running R across massive data can be illuminating. Without the calls to
 .. index:: orderby
 
 
-**Sorted keys** A reduce is not needed in this example. The text data is blocked
+
+Sorted keys
+^^^^^^^^^^^
+A reduce is not needed in this example. The text data is blocked
 into data frames and written to disk. With 128MB block sizes and each block a
 split, each split being mapped by one R session, there 96 files each
 containing several data frames.  The reduce expression writes each incoming
@@ -1077,6 +1080,19 @@ implies those routes carry the top 25% of traffic in/out of ORD.
 
    Flights in and out of Chicago color coded by % cumulative contribution.
 
+.. index:: biglm, QR, out-of-core regression
+
+.. _Out of Core Regression:
+
+Out of Core Regression using ``biglm``
+--------------------------------------
+RHIPE can be used as a means to transfer massive data sets sitting on the HDFS to the package [biglm]_
+``biglm`` takes a function that returns chunks of data frames. We can easily use this to compute the results of a linear
+regression on the airline data set. These functions work assuming the values are chunked data frames
+as the airline data set is stored (see above).
+
+.. [biglm] biglm: bounded memory linear and generalized linear models `<http://cran.r-project.org/web/packages/biglm/index.html>`_
+
 .. _Streaming Data:
 
 Streaming Data?
@@ -1111,56 +1127,58 @@ by the reducer and R is about to quit.
 
 ::
 
-
-  map <- expression({
-    lapply(seq_along(map.values),function(r){
-      catlevel <- map.keys[[r]] #numeric
-      timepoint <- map.values[[r]]$timepoint #numeric
-      datastructure <- map.values[[r]]$data
-      key <- c(catlevel,timepoint)
-      rhcollect(key,datastructure)
-    })
-  })
-  redsetup <- expression({
-    currentkey <- NULL
-  })
-  reduce <- expression(
-      pre={
-        catlevel <- reduce.key[1]
-        time <- reduce.key[2]
-        if(!identical(catlevel,currentkey)){
-          ## new categorical level
-          ## so finalize the computation for
-          ## the previous level e.g. use rhcollect
-          if(!identical(currentkey,NULL))
-            FINALIZE(F)
-          ## store current categorical level
-          currentkey <- catlevel
-          ## initialize computation for new level
-          INITIALIZE(F)
-        }
-      },
-      reduce={
-        F <- UPDATE(F, reduce.values[[1]])
+   map <- expression({
+      lapply(seq_along(map.values),function(r){
+        catlevel <- map.keys[[r]] #numeric
+        timepoint <- map.values[[r]]$timepoint #numeric
+        datastructure <- map.values[[r]]$data
+        key <- c(catlevel,timepoint)
+        rhcollect(key,datastructure)
       })
-  redclose <- expression({
-    ## need to run this, otherwise the last catlevel 
-    ## will not get finalized
-   FINALIZE(F)
-  })
-  rhmr(..., combiner=FALSE,setup=list(reduce=redsetup),cleanup=list(reduce=redclose),
-       orderby="numeric",
-       part=list(lims=1,type='numeric'))
-  
+    })
+    redsetup <- expression({
+      currentkey <- NULL
+    })
+    reduce <- expression(
+        pre={
+          catlevel <- reduce.key[1]
+          time <- reduce.key[2]
+          if(!identical(catlevel,currentkey)){
+            ## new categorical level
+            ## so finalize the computation for
+            ## the previous level e.g. use rhcollect
+            if(!identical(currentkey,NULL))
+              FINALIZE(F)
+            ## store current categorical level
+            currentkey <- catlevel
+            ## initialize computation for new level
+            INITIALIZE(F)
+          }
+        },
+        reduce={
+          F <- UPDATE(F, reduce.values[[1]])
+        })
+    redclose <- expression({
+      ## need to run this, otherwise the last catlevel 
+      ## will not get finalized
+     FINALIZE(F)
+    })
+    rhmr(..., combiner=FALSE,setup=list(reduce=redsetup),cleanup=list(reduce=redclose),
+         orderby="numeric",
+         part=list(lims=1,type='numeric'))
+    
 
 Concrete (but artifical) Example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
- We will create a data set with three columns: the level of a categorical variable *A*, a time variable *B* and a value *C*. For each level of *A*, we want the sum of differences of *C* ordered by *B* within *A*.
+We will create a data set with three columns: the level of a categorical
+variable *A*, a time variable *B* and a value *C*. For each level of *A*, we
+want the sum of differences of *C* ordered by *B* within *A*.
 
 **Creating the Data set** The column *A* is the key, but this is not important. There are 5000 levels of *A*, each level has 10,000 observations. By design the values of *B* are randomly written (``sample``), also for simplicity *C* is equal to *B*, though this need not be. 
 
 ::
+
   library(Rhipe)
   map <- expression({
     N <- 10000
@@ -1180,6 +1198,7 @@ Concrete (but artifical) Example
 The key is the value of *A* and *B*, the value is *C*.
 
 ::
+
   map <- expression({
     lapply(seq_along(map.values),function(r){
       f <- map.values[[r]]
@@ -1188,6 +1207,7 @@ The key is the value of *A* and *B*, the value is *C*.
 
 Thus each output from a map is a key (assuming there are not any duplicates for *B* for a given level of *A*), thus *reduce.values* has only one observation. All keys sharing the same level of *A* will be sent to one R process and the tuples *as.integer(c(map.keys[[r]],f[1]))* will be sorted. *reduce.setup* is called once when the R process starts processing its assigned partition of keys and *reduce.post* is called at the end (when all keys have been processed)
 ::
+
   reduce.setup <- expression({
     newp <- -Inf
     diffsum <- NULL
@@ -1216,6 +1236,7 @@ Thus each output from a map is a key (assuming there are not any duplicates for 
 To turn on the partitioning and ordering of keys, 
 
 ::
+
   z <- rhmr(map=map,reduce=reduce, inout=c("sequence","sequence"),ifolder="/tmp/sort",
     ofolder="/tmp/sort2", part=list(lims=1,type='integer'),
     orderby="integer",cleanup=list(reduce=reduce.post),
@@ -1263,13 +1284,14 @@ debugging. See the error in line 7, there is no such variable ``isdelayed``
   z=rhex(z)
   
 
-Produces a slew of errors like
+Produces a slew of errors like (output slightly modified to fit page)
 
 .. index:: counter
 
 ::
 
-  10/08/04 00:41:20 INFO mapred.JobClient: Task Id : attempt_201007281701_0273_m_000023_0, Status : FAILED
+  10/08/04 00:41:20 INFO mapred.JobClient: Task Id : 
+    attempt_201007281701_0273_m_000023_0, Status : FAILED
   java.io.IOException: MROutput/MRErrThread failed:java.lang.RuntimeException: 
   R ERROR
   =======

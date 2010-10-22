@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Simulations &mdash; RHIPE v0.61 documentation</title>
+    <title>Simulations &mdash; RHIPE v0.64 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.61',
+        VERSION:     '0.64',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="RHIPE v0.61 documentation" href="index.html" />
+    <link rel="top" title="RHIPE v0.64 documentation" href="index.html" />
     <link rel="next" title="RHIPE Functions" href="functions.html" />
     <link rel="prev" title="Transforming Text Data" href="texttransfirm.html" /> 
   </head>
@@ -39,7 +39,7 @@
         <li class="right" >
           <a href="texttransfirm.html" title="Transforming Text Data"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">RHIPE v0.61 documentation</a> &raquo;</li> 
+        <li><a href="index.html">RHIPE v0.64 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -158,10 +158,9 @@ function to aggregate the intermediate results. With this function, the user can
 distribute the <tt class="docutils literal"><span class="pre">lapply</span></tt> command and rely on Hadoop to handle fault-tolerancy
 and the scheduling of processors in an optimal fashion. The <tt class="docutils literal"><span class="pre">rhlapply</span></tt>
 function is present to do this.</p>
-<dl class="docutils">
-<dt>::</dt>
-<dd>rhlapply(ll, F, ofolder,setup=NULL,readIn = TRUE, N, aggr=NULL,...)</dd>
-</dl>
+<div class="highlight-r" id="index-1"><div class="highlight"><pre>rhlapply<span class="p">(</span>ll<span class="p">,</span> <span class="k-Variable">F</span><span class="p">,</span> ofolder<span class="p">,</span>setup<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span>readIn <span class="o">=</span> <span class="kc">TRUE</span><span class="p">,</span> N<span class="p">,</span> aggr<span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="m">...</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>This applies <tt class="docutils literal"><span class="pre">F</span></tt> to the elements of <tt class="docutils literal"><span class="pre">ll</span></tt>. If provided a value, it will save
 the results to <tt class="docutils literal"><span class="pre">ofolder</span></tt> and the results are returned as a list if <tt class="docutils literal"><span class="pre">readIn</span></tt>
 is TRUE. The value of <tt class="docutils literal"><span class="pre">N</span></tt> is passed to <tt class="docutils literal"><span class="pre">rhwrite</span></tt> (if <tt class="docutils literal"><span class="pre">ll</span></tt> is a list, they
@@ -213,7 +212,7 @@ random generator packages for R with RHIPE.</p>
         <li class="right" >
           <a href="texttransfirm.html" title="Transforming Text Data"
              >previous</a> |</li>
-        <li><a href="index.html">RHIPE v0.61 documentation</a> &raquo;</li> 
+        <li><a href="index.html">RHIPE v0.64 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

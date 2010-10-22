@@ -22,6 +22,7 @@ public class PersonalServer {
     DataInputStream _fromR;
     REXP yesalive;
     FileUtils fu;
+    Hashtable<String, SequenceFile.Reader> seqhash;
     public static String getPID() throws IOException,InterruptedException {
 	//Taken from http://www.coderanch.com/t/109334/Linux-UNIX/UNIX-process-ID-java-program
 	Vector<String> commands=new Vector<String>();
@@ -48,6 +49,7 @@ public class PersonalServer {
     public PersonalServer(String ipaddress,String tempfile,String tempfile2) throws InterruptedException,
 								   FileNotFoundException,UnknownHostException, SecurityException,IOException{
 	bbuf = new byte[100];
+	seqhash = new Hashtable<String, SequenceFile.Reader>();
 	REXP.Builder thevals   = REXP.newBuilder();
 	thevals.setRclass(REXP.RClass.LOGICAL);
 	thevals.addBooleanValue( REXP.RBOOLEAN.T);
@@ -296,6 +298,50 @@ public class PersonalServer {
 	cdo.flush();
     }
 
+    public void rhopensequencefile(REXP r) throws Exception{
+	// System.out.println("----Called-----");
+	String  name = r.getRexpValue(1).getStringValue(0).getStrval();
+	Configuration cfg = new Configuration();
+	SequenceFile.Reader sqr = new SequenceFile.Reader(FileSystem.get(cfg) ,new Path(name), cfg);
+	seqhash.put(name, sqr);
+	send_result("OK");
+    }
+    public void rhgetnextkv(REXP r) throws Exception{
+	String name = r.getRexpValue(1).getStringValue(0).getStrval();
+	int quant = r.getRexpValue(2).getIntValue(0);
+	SequenceFile.Reader sqr = seqhash.get(name);
+	RHBytesWritable k=new RHBytesWritable();
+	RHBytesWritable v=new RHBytesWritable();
+	DataOutputStream cdo = new DataOutputStream(new java.io.BufferedOutputStream(_toR,1024*1024));
+	if(sqr!=null){
+	    for(int i=0; i < quant;i++){
+		boolean gotone = sqr.next((Writable)k,(Writable)v);
+		if(gotone){
+		    k.writeAsInt(cdo);
+		    v.writeAsInt(cdo);
+		    cdo.flush();
+		}else{
+		    sqr.close();
+		    seqhash.remove(name);
+		    break;
+		}
+	    }
+	}
+	cdo.writeInt(0);
+	cdo.flush();
+    }
+
+    public void rhclosesequencefile(REXP r) throws Exception{
+	String name = r.getRexpValue(1).getStringValue(0).getStrval();
+	SequenceFile.Reader sqr = seqhash.get(name);
+	if(sqr!=null){
+	    try{
+		sqr.close();
+		seqhash.remove(name);
+	    }catch(Exception e){}
+	}
+	    send_result("OK");
+    }
     public void rhstatus(REXP r) throws Exception{
 	REXP jid = r.getRexpValue(1);
 	REXP result = fu.getstatus(jid);
@@ -482,6 +528,10 @@ public class PersonalServer {
 		else if(tag.equals("rhkill")) rhkill(r);
 		else if(tag.equals("rhex")) rhex(r);
 		else if(tag.equals("rhcat")) rhcat(r);
+		else if(tag.equals("rhopensequencefile")) rhopensequencefile(r);
+		else if(tag.equals("rhgetnextkv")) rhgetnextkv(r);
+		else if(tag.equals("rhclosesequencefile")) rhclosesequencefile(r);
+
 
 		// else if(tag.equals("rhcp")) rhcp(r);
 		// else if(tag.equals("rhmv")) rhmv(r);

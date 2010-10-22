@@ -6,7 +6,7 @@
 \contentsline {section}{\numberline {2.2}Hadoop Distributed Filesystem}{5}{section.2.2}
 \contentsline {section}{\numberline {2.3}Hadoop MapReduce}{6}{section.2.3}
 \contentsline {subsection}{\numberline {2.3.1}Examples}{7}{subsection.2.3.1}
-\contentsline {subsubsection}{Approximate Quantile}{7}{subsubsection*.3}
+\contentsline {subsubsection}{Approximate Quantile}{8}{subsubsection*.3}
 \contentsline {subsubsection}{Correlation}{8}{subsubsection*.4}
 \contentsline {subsubsection}{Computing an Inner Join}{9}{subsubsection*.5}
 \contentsline {subsection}{\numberline {2.3.2}Combiners : An Optimization}{10}{subsection.2.3.2}
@@ -14,17 +14,19 @@
 \contentsline {chapter}{\numberline {3}Airline Dataset}{13}{chapter.3}
 \contentsline {section}{\numberline {3.1}Copying the Data to the HDFS (or a \emph {Distributed Downloader}!)}{13}{section.3.1}
 \contentsline {section}{\numberline {3.2}Converting to R Objects}{16}{section.3.2}
-\contentsline {section}{\numberline {3.3}Demonstration of using Hadoop as a Queryable Database}{18}{section.3.3}
-\contentsline {section}{\numberline {3.4}Analyses}{19}{section.3.4}
-\contentsline {subsection}{\numberline {3.4.1}Top 20 cities by total volume of flights.}{19}{subsection.3.4.1}
+\contentsline {subsection}{\numberline {3.2.1}Sorted keys}{18}{subsection.3.2.1}
+\contentsline {section}{\numberline {3.3}Demonstration of using Hadoop as a Queryable Database}{19}{section.3.3}
+\contentsline {section}{\numberline {3.4}Analyses}{20}{section.3.4}
+\contentsline {subsection}{\numberline {3.4.1}Top 20 cities by total volume of flights.}{20}{subsection.3.4.1}
 \contentsline {subsection}{\numberline {3.4.2}Carrier Popularity}{21}{subsection.3.4.2}
-\contentsline {subsection}{\numberline {3.4.3}Proportion of Flights Delayed}{23}{subsection.3.4.3}
-\contentsline {subsection}{\numberline {3.4.4}Distribution of Delays}{29}{subsection.3.4.4}
-\contentsline {subsection}{\numberline {3.4.5}Carrier Delays}{34}{subsection.3.4.5}
-\contentsline {subsection}{\numberline {3.4.6}Busy Routes}{38}{subsection.3.4.6}
-\contentsline {section}{\numberline {3.5}Streaming Data?}{39}{section.3.5}
-\contentsline {subsection}{\numberline {3.5.1}Concrete (but artifical) Example}{40}{subsection.3.5.1}
-\contentsline {section}{\numberline {3.6}Simple Debugging}{42}{section.3.6}
+\contentsline {subsection}{\numberline {3.4.3}Proportion of Flights Delayed}{24}{subsection.3.4.3}
+\contentsline {subsection}{\numberline {3.4.4}Distribution of Delays}{30}{subsection.3.4.4}
+\contentsline {subsection}{\numberline {3.4.5}Carrier Delays}{35}{subsection.3.4.5}
+\contentsline {subsection}{\numberline {3.4.6}Busy Routes}{39}{subsection.3.4.6}
+\contentsline {section}{\numberline {3.5}Out of Core Regression using \texttt {biglm}}{40}{section.3.5}
+\contentsline {section}{\numberline {3.6}Streaming Data?}{41}{section.3.6}
+\contentsline {subsection}{\numberline {3.6.1}Concrete (but artifical) Example}{42}{subsection.3.6.1}
+\contentsline {section}{\numberline {3.7}Simple Debugging}{43}{section.3.7}
 \contentsline {chapter}{\numberline {4}Transforming Text Data}{45}{chapter.4}
 \contentsline {section}{\numberline {4.1}Subset}{45}{section.4.1}
 \contentsline {section}{\numberline {4.2}Transformations}{46}{section.4.2}
@@ -40,23 +42,24 @@
 \contentsline {subsection}{\numberline {6.1.6}rhwrite - Writing R data to the HDFS}{52}{subsection.6.1.6}
 \contentsline {subsection}{\numberline {6.1.7}rhread - Reading data from HDFS into R}{52}{subsection.6.1.7}
 \contentsline {subsection}{\numberline {6.1.8}rhgetkeys - Reading Values from Map Files}{52}{subsection.6.1.8}
-\contentsline {section}{\numberline {6.2}MapReduce Administration}{53}{section.6.2}
-\contentsline {subsection}{\numberline {6.2.1}rhex - Submitting a MapReduce R Object to Hadoop}{53}{subsection.6.2.1}
-\contentsline {subsection}{\numberline {6.2.2}rhstatus - Monitoring a MapReduce Job}{53}{subsection.6.2.2}
+\contentsline {subsection}{\numberline {6.1.9}rhstreamsequence - Reading from a sequence file in a streaming fashion}{53}{subsection.6.1.9}
+\contentsline {section}{\numberline {6.2}MapReduce Administration}{54}{section.6.2}
+\contentsline {subsection}{\numberline {6.2.1}rhex - Submitting a MapReduce R Object to Hadoop}{54}{subsection.6.2.1}
+\contentsline {subsection}{\numberline {6.2.2}rhstatus - Monitoring a MapReduce Job}{54}{subsection.6.2.2}
 \contentsline {subsection}{\numberline {6.2.3}rhjoin - Waiting on Completion of a MapReduce Job}{54}{subsection.6.2.3}
-\contentsline {subsection}{\numberline {6.2.4}rhkill - Stopping a MapReduce Job}{54}{subsection.6.2.4}
-\contentsline {chapter}{\numberline {7}Packaging a Job for MapReduce}{55}{chapter.7}
-\contentsline {section}{\numberline {7.1}Creating a MapReduce Object}{55}{section.7.1}
-\contentsline {subsection}{\numberline {7.1.1}rhmr - Creating the MapReduce Object}{55}{subsection.7.1.1}
-\contentsline {section}{\numberline {7.2}Functions to Communicate with Hadoop during MapReduce}{58}{section.7.2}
-\contentsline {subsection}{\numberline {7.2.1}rhcollect - Writing Data to Hadoop MapReduce}{58}{subsection.7.2.1}
-\contentsline {subsection}{\numberline {7.2.2}rhcounter - Distributed Counters}{58}{subsection.7.2.2}
-\contentsline {subsection}{\numberline {7.2.3}rhstatus - Updating the Status of the Job during Runtime}{58}{subsection.7.2.3}
-\contentsline {subsection}{\numberline {7.2.4}rhsz,rhuz - Functions for Serialization}{58}{subsection.7.2.4}
-\contentsline {chapter}{\numberline {8}RHIPE Serialization}{59}{chapter.8}
-\contentsline {section}{\numberline {8.1}About}{59}{section.8.1}
-\contentsline {section}{\numberline {8.2}String Representations and TextOutput Format}{59}{section.8.2}
-\contentsline {section}{\numberline {8.3}Proto File}{60}{section.8.3}
-\contentsline {chapter}{\numberline {9}RHIPE Options}{61}{chapter.9}
-\contentsline {chapter}{Bibliography}{63}{chapter*.13}
-\contentsline {chapter}{Index}{65}{section*.22}
+\contentsline {subsection}{\numberline {6.2.4}rhkill - Stopping a MapReduce Job}{55}{subsection.6.2.4}
+\contentsline {chapter}{\numberline {7}Packaging a Job for MapReduce}{57}{chapter.7}
+\contentsline {section}{\numberline {7.1}Creating a MapReduce Object}{57}{section.7.1}
+\contentsline {subsection}{\numberline {7.1.1}rhmr - Creating the MapReduce Object}{57}{subsection.7.1.1}
+\contentsline {section}{\numberline {7.2}Functions to Communicate with Hadoop during MapReduce}{60}{section.7.2}
+\contentsline {subsection}{\numberline {7.2.1}rhcollect - Writing Data to Hadoop MapReduce}{60}{subsection.7.2.1}
+\contentsline {subsection}{\numberline {7.2.2}rhcounter - Distributed Counters}{60}{subsection.7.2.2}
+\contentsline {subsection}{\numberline {7.2.3}rhstatus - Updating the Status of the Job during Runtime}{60}{subsection.7.2.3}
+\contentsline {subsection}{\numberline {7.2.4}rhsz,rhuz - Functions for Serialization}{61}{subsection.7.2.4}
+\contentsline {chapter}{\numberline {8}RHIPE Serialization}{63}{chapter.8}
+\contentsline {section}{\numberline {8.1}About}{63}{section.8.1}
+\contentsline {section}{\numberline {8.2}String Representations and TextOutput Format}{63}{section.8.2}
+\contentsline {section}{\numberline {8.3}Proto File}{64}{section.8.3}
+\contentsline {chapter}{\numberline {9}RHIPE Options}{65}{chapter.9}
+\contentsline {chapter}{Bibliography}{67}{chapter*.13}
+\contentsline {chapter}{Index}{69}{section*.23}

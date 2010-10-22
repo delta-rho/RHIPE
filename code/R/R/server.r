@@ -1,4 +1,5 @@
 rhinit <- function(errors=FALSE, info=FALSE,path=NULL,cleanup=TRUE,bufsize=as.integer(3*1024*1024)){
+  rhoptions(.code.in=sample(1e6,1))
   ntimeout <- options("timeout")[[1]]
   options(timeout = if(!is.null(rhoptions()$timeout)) as.integer(rhoptions()$timeout) else 15552000L)
   on.exit({
@@ -138,8 +139,7 @@ rhput.1 <- function(src, dest,deletedest=TRUE){
   x <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhput",src,dest,as.logical(deletedest)))
 }
 
-
-rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE,asraw=FALSE,size=3000,buffsize=1024*1024,...){
+getypes <- function(files,type){
   type = match.arg(type,c("sequence","map","text"))
   files <- switch(type,
                   "text"={
@@ -155,13 +155,17 @@ rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE,asraw=FALSE,size=
   remr <- c(grep("/_logs",files))
   if(length(remr)>0)
     files <- files[-remr]
+  return(files)
+}
+rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE,asraw=FALSE,size=3000,buffsize=1024*1024,quiet=FALSE,...){
+  files <- getypes(files,type)
   max <- as.integer(max)
   p <- if(type=="text"){
     Rhipe:::hmerge(files, buffsize=as.integer(buffsize),max=max,...)
   }else{
     Rhipe:::send.cmd(rhoptions()$child$handle, list("sequenceAsBinary", files,max,as.integer(rhoptions()$child$bufsize)),
                           getresponse=0L,
-                          continuation = function() Rhipe:::rbstream(rhoptions()$child$handle,size,mc,asraw))
+                          continuation = function() Rhipe:::rbstream(rhoptions()$child$handle,size,mc,asraw,quiet))
   }
   p
 }
@@ -188,8 +192,8 @@ rhwrite.1 <- function(lo,dest,N=NULL){
     stop("lo must be a list")
   namv <- names(lo)
   if(is.null(N)){
-    x1 <- rhoptions()$mropts$mapred.map.tasks
-    x2 <- rhoptions()$mropts$mapred.tasktracker.map.tasks.maximum
+    x1 <- rhoptions()$mropts[[1]]$mapred.map.tasks
+    x2 <- rhoptions()$mropts[[1]]$mapred.tasktracker.map.tasks.maximum
     N <- as.numeric(x1)*as.numeric(x2) #number of files to write to
   }
   if(is.null(N) || N==0 || N>length(lo))
@@ -235,7 +239,7 @@ rhkill.1 <- function(x){
     x <- x[[1]]
     id <- x[['job.id']]
   }
-  result <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhkill", list(job.id)))
+  result <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhkill", list(id)))
 }
 
 ## print.jobtoken <- function(s,verbose=1,...){
@@ -292,7 +296,7 @@ rhjoin.1 <- function(x,verbose=TRUE){
 
 
 
-rbstream <- function(z,size=3000,mc,asraw=FALSE){
+rbstream <- function(z,size=3000,mc,asraw=FALSE,quiet=FALSE){
   v <- vector(mode='list',length=size)
   i <- 0;by <- 0;ed <- 0
   while(TRUE){
@@ -312,12 +316,14 @@ rbstream <- function(z,size=3000,mc,asraw=FALSE){
     stop(rwe)
   }
   prs <- if(i>1) "pairs" else "pair"
-  if( (by < 1024))
-    message(sprintf("RHIPE: Read %s %s occupying %s bytes, deserializing", i,prs,by))
-  else if( (by < 1024*1024))
-    message(sprintf("RHIPE: Read %s %s occupying %s KB, deserializing", i,prs, round(by/1024,3)))
-  else
-    message(sprintf("RHIPE: Read %s %s occupying %s MB, deserializing", i,prs, round(by/1024^2,3)))
+  if(!quiet){
+    if( (by < 1024))
+      message(sprintf("RHIPE: Read %s %s occupying %s bytes, deserializing", i,prs,by))
+    else if( (by < 1024*1024))
+      message(sprintf("RHIPE: Read %s %s occupying %s KB, deserializing", i,prs, round(by/1024,3)))
+    else
+      message(sprintf("RHIPE: Read %s %s occupying %s MB, deserializing", i,prs, round(by/1024^2,3)))
+  }
   MCL <- if(mc) {
     require(multicore)
     mclapply
@@ -363,3 +369,64 @@ hmerge <- function(inputfiles,buffsize=2*1024*1024,max=-1L,verb=FALSE){
                    })
   x
 }
+
+rhstreamsequence.1 <- function(inputfile,type='sequence',batch=1000,quiet=TRUE,...){
+  ## We can't afford the java server to crash now, else it will
+  ## throw all the reads off sync
+  calledcode <- rhoptions()[[".code.in"]]
+  files <- Rhipe:::getypes(inputfile,type)
+  index <- 1;max.file <- length(files)
+  if(!quiet) cat(sprintf("Moved to file %s (%s/%s)\n", files[index],index,max.file))
+  x <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhopensequencefile",files[1]),getresponse=1L)
+  if(x[[1]]=="OK"){
+    return(list(get=function(mc=FALSE){
+      quantum <- batch
+      ## if (rhoptions()[[".code.in"]]!=calledcode) warning("Server has been restarted, excpect an error")
+      p <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhgetnextkv", files[index],as.integer(quantum))
+                               ,getresponse=0L,
+                               conti = function(){
+                                 return(Rhipe:::rbstream(rhoptions()$child$handle,size=quantum,mc=mc,quiet=quiet,...))
+                               })
+      if(length(p)==quantum) return(p)
+      ## if p is of length 0, either fast forward to next file in files
+      ## that is not empty! OR if already at end, return empty list
+      ## also user requested quantum but we got less, so read some more
+      ## p <- list()
+      while(TRUE){
+        index<<-index+1
+        if(index> max.file) break
+        if(!quiet) cat(sprintf("Moved to file %s (%s/%s)\n", files[index],index,max.file))
+        x <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhopensequencefile",files[index]),getresponse=1L)
+        if(x[[1]]!="OK") error(sprintf("Problem reading next in sequence %s",files[index]))
+        p <- append(p,Rhipe:::send.cmd(rhoptions()$child$handle, list("rhgetnextkv", files[index],as.integer(quantum))
+                               ,getresponse=0L,
+                               conti = function(){
+                                 return(Rhipe:::rbstream(rhoptions()$child$handle,size=quantum,mc=mc,quiet=quiet,...))
+                               }))
+        if(length(p)==quantum) break
+      }
+      return(p)
+        },close=function(){
+         ## if (rhoptions()[[".code.in"]]!=calledcode) warning("Server has been restarted, excpect an error")
+         x <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhclosesequencefile",files[index],getresponse=1L))
+         }))
+  }else error(sprintf("Could not open %s for readin",inputfile))
+}
+
+
+rhbiglm.stream.hdfs.1 <- function(filename,type='sequence',modifier=NULL,batch=100,...){
+  a <- NULL
+  return(function(reset=FALSE){
+    if(reset){
+      index<<-1
+      if(!is.null(a)) a$close()
+      a <<- Rhipe::rhstreamsequence(filename,type,batch,...)
+      modifier(NULL,TRUE)
+    }else{
+      dd <- a$get()
+      if(length(dd)==0) return(NULL)
+      p=do.call("rbind",lapply(dd,"[[",2))
+      p <- if(!is.null(modifier)) modifier(p,reset) else p
+      return(p)
+    }})}
+

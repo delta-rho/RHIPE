@@ -174,6 +174,56 @@ but this will
 
    rhgetkey(list(c(x=1)),path)
 
+rhstreamsequence - Reading from a sequence file in a streaming fashion
+----------------------------------------------------------------------
+
+::
+
+	rhstreamsequence(inputfile,type='sequence',batch=100,...)
+
+``rhread`` only reads from the beginning a prechosen number or all of the
+data. This function enables the user to open a file and read in blocks till the
+end of the file or all files in the folder specified by ``inputfile`` . The
+function returns a list of two closures ``get`` and ``close``. The former takes
+one parameter ``mc``. The ``mc`` option is given to the multi-core package to
+deserialize in parallel. Call the ``close`` closure to close the file. Note, due
+to a bug in the logic, the ``get`` function may retrieve from ``batch`` to
+``2*batch`` values.
+
+::
+
+	e <- rhstreamsequence("/tmp/x/0",batch=100)
+        a <- e$get()
+        a <- e$get() # returns an empty list if reached end.
+        e$close()
+
+This is particularly useful for the ``biglm`` package which accepts a function
+to return blocks of data (typically data frames). If your data source is stored
+as key/value pairs where the values are data frames, you can use
+``rhbiglm.stream.hdfs`` to provide data to ``biglm`` as in 
+
+::
+
+  modifier <- function(df,reset){
+    ## different chunks might not all display all the levels
+    ## of rm.site, so we have to predefine all levels visible
+    ## across data site
+    if(!reset){
+      total.rows<<-total.rows+nrow(df)
+      cat(sprintf("Total rows:%s\n",total.rows))
+    }else {total.rows<<-0;return()}
+    df$rm.site <- factor(df$rm.site, levels=names(remote.site.table))
+    df$traffic.rate <- df$traffic.rate/1e6
+    df
+  }
+  pp <- "/voip/modified.jitter.traffic.rate.database/"
+  F <-  rhbiglm.stream.hdfs(pp,type='map',modifier=modifier,batch=150,quiet=TRUE)
+  ## modifier is called for every list of 'batch' key,value pairs
+  ## the parameter df is a data frame (do.call("rbind",values))
+  ## reset is FALSE when bigglm calls for more data
+  ## and is TRUE when it requests the reader to go to the beginning of the stream
+  b<-bigglm(jitter~traffic.rate+rm.site,data=F,maxit=3)
+
 
 MapReduce Administration
 ========================

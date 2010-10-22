@@ -85,6 +85,7 @@ function is present to do this.
 .. index:: rhlapply
 
 ::
+
 	rhlapply(ll, F, ofolder,setup=NULL,readIn = TRUE, N, aggr=NULL,...)
 
 This applies ``F`` to the elements of ``ll``. If provided a value, it will save

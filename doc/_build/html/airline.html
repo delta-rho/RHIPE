@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Airline Dataset &mdash; RHIPE v0.61 documentation</title>
+    <title>Airline Dataset &mdash; RHIPE v0.64 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.61',
+        VERSION:     '0.64',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="RHIPE v0.61 documentation" href="index.html" />
+    <link rel="top" title="RHIPE v0.64 documentation" href="index.html" />
     <link rel="next" title="Transforming Text Data" href="texttransfirm.html" />
     <link rel="prev" title="Introduction" href="introduction.html" /> 
   </head>
@@ -39,7 +39,7 @@
         <li class="right" >
           <a href="introduction.html" title="Introduction"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">RHIPE v0.61 documentation</a> &raquo;</li> 
+        <li><a href="index.html">RHIPE v0.64 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -48,7 +48,10 @@
   <ul>
 <li><a class="reference internal" href="#">Airline Dataset</a><ul>
 <li><a class="reference internal" href="#copying-the-data-to-the-hdfs-or-a-distributed-downloader">Copying the Data to the HDFS (or a <em>Distributed Downloader</em>!)</a></li>
-<li><a class="reference internal" href="#converting-to-r-objects">Converting to R Objects</a></li>
+<li><a class="reference internal" href="#converting-to-r-objects">Converting to R Objects</a><ul>
+<li><a class="reference internal" href="#sorted-keys">Sorted keys</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#demonstration-of-using-hadoop-as-a-queryable-database">Demonstration of using Hadoop as a Queryable Database</a></li>
 <li><a class="reference internal" href="#analyses">Analyses</a><ul>
 <li><a class="reference internal" href="#top-20-cities-by-total-volume-of-flights">Top 20 cities by total volume of flights.</a></li>
@@ -59,6 +62,7 @@
 <li><a class="reference internal" href="#busy-routes">Busy Routes</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#out-of-core-regression-using-biglm">Out of Core Regression using <tt class="docutils literal"><span class="pre">biglm</span></tt></a></li>
 <li><a class="reference internal" href="#streaming-data">Streaming Data?</a><ul>
 <li><a class="reference internal" href="#concrete-but-artifical-example">Concrete (but artifical) Example</a></li>
 </ul>
@@ -502,7 +506,9 @@ data frame of 5000 rows and 8 columns fits very well into 256MB. This is passed
 to Hadoop in line 37.</p>
 <p>Running R across massive data can be illuminating. Without the calls to
 <tt class="docutils literal"><span class="pre">ISOdatetime</span></tt>, it is <strong>much</strong> faster to complete.</p>
-<span class="target" id="index-6"></span><p id="index-7"><strong>Sorted keys</strong> A reduce is not needed in this example. The text data is blocked
+<span class="target" id="index-6"></span><div class="section" id="sorted-keys">
+<span id="index-7"></span><h3>Sorted keys<a class="headerlink" href="#sorted-keys" title="Permalink to this headline">¶</a></h3>
+<p>A reduce is not needed in this example. The text data is blocked
 into data frames and written to disk. With 128MB block sizes and each block a
 split, each split being mapped by one R session, there 96 files each
 containing several data frames.  The reduce expression writes each incoming
@@ -559,6 +565,7 @@ same reducer). For an example see <a class="reference internal" href="#streaming
 <span class="m">3770</span> <span class="m">1988</span><span class="o">-</span><span class="m">05</span><span class="o">-</span><span class="m">01</span> <span class="m">01</span>:<span class="m">10</span>:<span class="m">01</span> <span class="m">...</span> <span class="m">1988</span><span class="o">-</span><span class="m">05</span><span class="o">-</span><span class="m">01</span> <span class="m">02</span>:<span class="m">13</span>:<span class="m">01</span>      DL    JAX  FLL  <span class="m">318</span>         <span class="m">0</span>
 <span class="m">2137</span> <span class="m">1988</span><span class="o">-</span><span class="m">05</span><span class="o">-</span><span class="m">01</span> <span class="m">01</span>:<span class="m">10</span>:<span class="m">01</span> <span class="m">...</span> <span class="m">1988</span><span class="o">-</span><span class="m">05</span><span class="o">-</span><span class="m">01</span> <span class="m">01</span>:<span class="m">59</span>:<span class="m">01</span>      DL    TPA  PBI  <span class="m">174</span>         <span class="m">0</span>
 </pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="demonstration-of-using-hadoop-as-a-queryable-database">
@@ -1501,9 +1508,22 @@ implies those routes carry the top 25% of traffic in/out of ORD.</p>
 </div>
 </div>
 </div>
+<div class="section" id="out-of-core-regression-using-biglm">
+<span id="out-of-core-regression"></span><span id="index-12"></span><h2>Out of Core Regression using <tt class="docutils literal"><span class="pre">biglm</span></tt><a class="headerlink" href="#out-of-core-regression-using-biglm" title="Permalink to this headline">¶</a></h2>
+<p>RHIPE can be used as a means to transfer massive data sets sitting on the HDFS to the package <a class="reference internal" href="#biglm">[biglm]</a>
+<tt class="docutils literal"><span class="pre">biglm</span></tt> takes a function that returns chunks of data frames. We can easily use this to compute the results of a linear
+regression on the airline data set. These functions work assuming the values are chunked data frames
+as the airline data set is stored (see above).</p>
+<table class="docutils citation" frame="void" id="biglm" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[biglm]</a></td><td>biglm: bounded memory linear and generalized linear models <a class="reference external" href="http://cran.r-project.org/web/packages/biglm/index.html">http://cran.r-project.org/web/packages/biglm/index.html</a></td></tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="streaming-data">
-<span id="id6"></span><h2>Streaming Data?<a class="headerlink" href="#streaming-data" title="Permalink to this headline">¶</a></h2>
-<p id="index-12">Some algorithms are left associative in their operands
+<span id="id7"></span><h2>Streaming Data?<a class="headerlink" href="#streaming-data" title="Permalink to this headline">¶</a></h2>
+<p id="index-13">Some algorithms are left associative in their operands
 <img class="math" src="_images/math/a2baafd5b1e0d0bf06be1664d5e368887ea65223.png" alt="t_1,t_2,\ldots,t_n"/> but not commutative. For example a streaming update
 algorithm that computes the inter-arrival times of time series data for
 different levels of a categorical variable. That is, the triangular series
@@ -1566,90 +1586,92 @@ by the reducer and R is about to quit.</p>
 37
 38
 39</pre></div></td><td class="code"><div class="highlight"><pre>map <span class="o">&lt;-</span> expression<span class="p">({</span>
-  lapply<span class="p">(</span>seq_along<span class="p">(</span>map.values<span class="p">),</span><span class="kr">function</span><span class="p">(</span>r<span class="p">){</span>
-    catlevel <span class="o">&lt;-</span> map.keys<span class="p">[[</span>r<span class="p">]]</span> <span class="c1">#numeric</span>
-    timepoint <span class="o">&lt;-</span> map.values<span class="p">[[</span>r<span class="p">]]$</span>timepoint <span class="c1">#numeric</span>
-    datastructure <span class="o">&lt;-</span> map.values<span class="p">[[</span>r<span class="p">]]$</span>data
-    key <span class="o">&lt;-</span> c<span class="p">(</span>catlevel<span class="p">,</span>timepoint<span class="p">)</span>
-    rhcollect<span class="p">(</span>key<span class="p">,</span>datastructure<span class="p">)</span>
-  <span class="p">})</span>
-<span class="p">})</span>
-redsetup <span class="o">&lt;-</span> expression<span class="p">({</span>
-  currentkey <span class="o">&lt;-</span> <span class="kc">NULL</span>
-<span class="p">})</span>
-reduce <span class="o">&lt;-</span> expression<span class="p">(</span>
-    pre<span class="o">=</span><span class="p">{</span>
-      catlevel <span class="o">&lt;-</span> reduce.key<span class="p">[</span><span class="m">1</span><span class="p">]</span>
-      time <span class="o">&lt;-</span> reduce.key<span class="p">[</span><span class="m">2</span><span class="p">]</span>
-      <span class="kr">if</span><span class="p">(</span>!identical<span class="p">(</span>catlevel<span class="p">,</span>currentkey<span class="p">)){</span>
-        <span class="c1">## new categorical level</span>
-        <span class="c1">## so finalize the computation for</span>
-        <span class="c1">## the previous level e.g. use rhcollect</span>
-        <span class="kr">if</span><span class="p">(</span>!identical<span class="p">(</span>currentkey<span class="p">,</span><span class="kc">NULL</span><span class="p">))</span>
-          FINALIZE<span class="p">(</span><span class="k-Variable">F</span><span class="p">)</span>
-        <span class="c1">## store current categorical level</span>
-        currentkey <span class="o">&lt;-</span> catlevel
-        <span class="c1">## initialize computation for new level</span>
-        INITIALIZE<span class="p">(</span><span class="k-Variable">F</span><span class="p">)</span>
-      <span class="p">}</span>
-    <span class="p">},</span>
-    reduce<span class="o">=</span><span class="p">{</span>
-      <span class="k-Variable">F</span> <span class="o">&lt;-</span> UPDATE<span class="p">(</span><span class="k-Variable">F</span><span class="p">,</span> reduce.values<span class="p">[[</span><span class="m">1</span><span class="p">]])</span>
-    <span class="p">})</span>
-redclose <span class="o">&lt;-</span> expression<span class="p">({</span>
-  <span class="c1">## need to run this, otherwise the last catlevel</span>
-  <span class="c1">## will not get finalized</span>
- FINALIZE<span class="p">(</span><span class="k-Variable">F</span><span class="p">)</span>
-<span class="p">})</span>
-rhmr<span class="p">(</span><span class="m">...</span><span class="p">,</span> combiner<span class="o">=</span><span class="kc">FALSE</span><span class="p">,</span>setup<span class="o">=</span>list<span class="p">(</span>reduce<span class="o">=</span>redsetup<span class="p">),</span>cleanup<span class="o">=</span>list<span class="p">(</span>reduce<span class="o">=</span>redclose<span class="p">),</span>
-     orderby<span class="o">=</span><span class="s">&quot;numeric&quot;</span><span class="p">,</span>
-     part<span class="o">=</span>list<span class="p">(</span>lims<span class="o">=</span><span class="m">1</span><span class="p">,</span>type<span class="o">=</span><span class="s">&#39;numeric&#39;</span><span class="p">))</span>
+   lapply<span class="p">(</span>seq_along<span class="p">(</span>map.values<span class="p">),</span><span class="kr">function</span><span class="p">(</span>r<span class="p">){</span>
+     catlevel <span class="o">&lt;-</span> map.keys<span class="p">[[</span>r<span class="p">]]</span> <span class="c1">#numeric</span>
+     timepoint <span class="o">&lt;-</span> map.values<span class="p">[[</span>r<span class="p">]]$</span>timepoint <span class="c1">#numeric</span>
+     datastructure <span class="o">&lt;-</span> map.values<span class="p">[[</span>r<span class="p">]]$</span>data
+     key <span class="o">&lt;-</span> c<span class="p">(</span>catlevel<span class="p">,</span>timepoint<span class="p">)</span>
+     rhcollect<span class="p">(</span>key<span class="p">,</span>datastructure<span class="p">)</span>
+   <span class="p">})</span>
+ <span class="p">})</span>
+ redsetup <span class="o">&lt;-</span> expression<span class="p">({</span>
+   currentkey <span class="o">&lt;-</span> <span class="kc">NULL</span>
+ <span class="p">})</span>
+ reduce <span class="o">&lt;-</span> expression<span class="p">(</span>
+     pre<span class="o">=</span><span class="p">{</span>
+       catlevel <span class="o">&lt;-</span> reduce.key<span class="p">[</span><span class="m">1</span><span class="p">]</span>
+       time <span class="o">&lt;-</span> reduce.key<span class="p">[</span><span class="m">2</span><span class="p">]</span>
+       <span class="kr">if</span><span class="p">(</span>!identical<span class="p">(</span>catlevel<span class="p">,</span>currentkey<span class="p">)){</span>
+         <span class="c1">## new categorical level</span>
+         <span class="c1">## so finalize the computation for</span>
+         <span class="c1">## the previous level e.g. use rhcollect</span>
+         <span class="kr">if</span><span class="p">(</span>!identical<span class="p">(</span>currentkey<span class="p">,</span><span class="kc">NULL</span><span class="p">))</span>
+           FINALIZE<span class="p">(</span><span class="k-Variable">F</span><span class="p">)</span>
+         <span class="c1">## store current categorical level</span>
+         currentkey <span class="o">&lt;-</span> catlevel
+         <span class="c1">## initialize computation for new level</span>
+         INITIALIZE<span class="p">(</span><span class="k-Variable">F</span><span class="p">)</span>
+       <span class="p">}</span>
+     <span class="p">},</span>
+     reduce<span class="o">=</span><span class="p">{</span>
+       <span class="k-Variable">F</span> <span class="o">&lt;-</span> UPDATE<span class="p">(</span><span class="k-Variable">F</span><span class="p">,</span> reduce.values<span class="p">[[</span><span class="m">1</span><span class="p">]])</span>
+     <span class="p">})</span>
+ redclose <span class="o">&lt;-</span> expression<span class="p">({</span>
+   <span class="c1">## need to run this, otherwise the last catlevel</span>
+   <span class="c1">## will not get finalized</span>
+  FINALIZE<span class="p">(</span><span class="k-Variable">F</span><span class="p">)</span>
+ <span class="p">})</span>
+ rhmr<span class="p">(</span><span class="m">...</span><span class="p">,</span> combiner<span class="o">=</span><span class="kc">FALSE</span><span class="p">,</span>setup<span class="o">=</span>list<span class="p">(</span>reduce<span class="o">=</span>redsetup<span class="p">),</span>cleanup<span class="o">=</span>list<span class="p">(</span>reduce<span class="o">=</span>redclose<span class="p">),</span>
+      orderby<span class="o">=</span><span class="s">&quot;numeric&quot;</span><span class="p">,</span>
+      part<span class="o">=</span>list<span class="p">(</span>lims<span class="o">=</span><span class="m">1</span><span class="p">,</span>type<span class="o">=</span><span class="s">&#39;numeric&#39;</span><span class="p">))</span>
 </pre></div>
 </td></tr></table></div>
 <div class="section" id="concrete-but-artifical-example">
 <h3>Concrete (but artifical) Example<a class="headerlink" href="#concrete-but-artifical-example" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-We will create a data set with three columns: the level of a categorical variable <em>A</em>, a time variable <em>B</em> and a value <em>C</em>. For each level of <em>A</em>, we want the sum of differences of <em>C</em> ordered by <em>B</em> within <em>A</em>.</blockquote>
+<p>We will create a data set with three columns: the level of a categorical
+variable <em>A</em>, a time variable <em>B</em> and a value <em>C</em>. For each level of <em>A</em>, we
+want the sum of differences of <em>C</em> ordered by <em>B</em> within <em>A</em>.</p>
 <p><strong>Creating the Data set</strong> The column <em>A</em> is the key, but this is not important. There are 5000 levels of <em>A</em>, each level has 10,000 observations. By design the values of <em>B</em> are randomly written (<tt class="docutils literal"><span class="pre">sample</span></tt>), also for simplicity <em>C</em> is equal to <em>B</em>, though this need not be.</p>
-<dl class="docutils">
-<dt>::</dt>
-<dd><p class="first">library(Rhipe)
-map &lt;- expression({</p>
-<blockquote>
-<p>N &lt;- 10000
-for( first.col in map.values ){</p>
-<blockquote>
-<p>w &lt;- sample(N,N,replace=FALSE)
-for( i in w){</p>
-<blockquote>
-rhcollect(first.col,c(i,i))</blockquote>
-<p>}</p>
-</blockquote>
-<p>}})</p>
-</blockquote>
-<p>mapred &lt;- list(mapred.reduce.tasks=0)
-z=rhmr(map=map, N=5000, inout=c(&#8220;lapply&#8221;,&#8221;sequence&#8221;),ofolder=&#8221;/tmp/sort&#8221;,</p>
-<blockquote>
-mapred=mapred)</blockquote>
-<p class="last">rhex(z)</p>
-</dd>
-</dl>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13</pre></div></td><td class="code"><div class="highlight"><pre>library<span class="p">(</span>Rhipe<span class="p">)</span>
+map <span class="o">&lt;-</span> expression<span class="p">({</span>
+  N <span class="o">&lt;-</span> <span class="m">10000</span>
+  <span class="kr">for</span><span class="p">(</span> first.col in map.values <span class="p">){</span>
+    w <span class="o">&lt;-</span> sample<span class="p">(</span>N<span class="p">,</span>N<span class="p">,</span>replace<span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span>
+    <span class="kr">for</span><span class="p">(</span> i in w<span class="p">){</span>
+      rhcollect<span class="p">(</span>first.col<span class="p">,</span>c<span class="p">(</span>i<span class="p">,</span>i<span class="p">))</span>
+    <span class="p">}</span>
+  <span class="p">}})</span>
+mapred <span class="o">&lt;-</span> list<span class="p">(</span>mapred.reduce.tasks<span class="o">=</span><span class="m">0</span><span class="p">)</span>
+z<span class="o">=</span>rhmr<span class="p">(</span>map<span class="o">=</span>map<span class="p">,</span> N<span class="o">=</span><span class="m">5000</span><span class="p">,</span> inout<span class="o">=</span>c<span class="p">(</span><span class="s">&quot;lapply&quot;</span><span class="p">,</span><span class="s">&quot;sequence&quot;</span><span class="p">),</span>ofolder<span class="o">=</span><span class="s">&quot;/tmp/sort&quot;</span><span class="p">,</span>
+     mapred<span class="o">=</span>mapred<span class="p">)</span>
+rhex<span class="p">(</span>z<span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
 <p><strong>Sum of Differences</strong>
 The key is the value of <em>A</em> and <em>B</em>, the value is <em>C</em>.</p>
-<dl class="docutils">
-<dt>::</dt>
-<dd><dl class="first docutils">
-<dt>map &lt;- expression({</dt>
-<dd><dl class="first last docutils">
-<dt>lapply(seq_along(map.values),function(r){</dt>
-<dd>f &lt;- map.values[[r]]
-rhcollect(as.integer(c(map.keys[[r]],f[1])),f[2])</dd>
-</dl>
-</dd>
-</dl>
-<p class="last">})})</p>
-</dd>
-</dl>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5</pre></div></td><td class="code"><div class="highlight"><pre>map <span class="o">&lt;-</span> expression<span class="p">({</span>
+  lapply<span class="p">(</span>seq_along<span class="p">(</span>map.values<span class="p">),</span><span class="kr">function</span><span class="p">(</span>r<span class="p">){</span>
+    f <span class="o">&lt;-</span> map.values<span class="p">[[</span>r<span class="p">]]</span>
+    rhcollect<span class="p">(</span>as.integer<span class="p">(</span>c<span class="p">(</span>map.keys<span class="p">[[</span>r<span class="p">]],</span>f<span class="p">[</span><span class="m">1</span><span class="p">])),</span>f<span class="p">[</span><span class="m">2</span><span class="p">])</span>
+<span class="p">})})</span>
+</pre></div>
+</td></tr></table></div>
 <p>Thus each output from a map is a key (assuming there are not any duplicates for <em>B</em> for a given level of <em>A</em>), thus <em>reduce.values</em> has only one observation. All keys sharing the same level of <em>A</em> will be sent to one R process and the tuples <em>as.integer(c(map.keys[[r]],f[1]))</em> will be sorted. <em>reduce.setup</em> is called once when the R process starts processing its assigned partition of keys and <em>reduce.post</em> is called at the end (when all keys have been processed)</p>
 <div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
@@ -1699,22 +1721,22 @@ reduce.post <span class="o">&lt;-</span> expression<span class="p">({</span>
 </pre></div>
 </td></tr></table></div>
 <p>To turn on the partitioning and ordering of keys,</p>
-<dl class="docutils">
-<dt>::</dt>
-<dd><dl class="first docutils">
-<dt>z &lt;- rhmr(map=map,reduce=reduce, inout=c(&#8220;sequence&#8221;,&#8221;sequence&#8221;),ifolder=&#8221;/tmp/sort&#8221;,</dt>
-<dd>ofolder=&#8221;/tmp/sort2&#8221;, part=list(lims=1,type=&#8217;integer&#8217;),
-orderby=&#8221;integer&#8221;,cleanup=list(reduce=reduce.post),
-setup=list(reduce=reduce.setup))</dd>
-</dl>
-<p class="last">rhex(z)</p>
-</dd>
-</dl>
+<div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5</pre></div></td><td class="code"><div class="highlight"><pre>z <span class="o">&lt;-</span> rhmr<span class="p">(</span>map<span class="o">=</span>map<span class="p">,</span>reduce<span class="o">=</span>reduce<span class="p">,</span> inout<span class="o">=</span>c<span class="p">(</span><span class="s">&quot;sequence&quot;</span><span class="p">,</span><span class="s">&quot;sequence&quot;</span><span class="p">),</span>ifolder<span class="o">=</span><span class="s">&quot;/tmp/sort&quot;</span><span class="p">,</span>
+  ofolder<span class="o">=</span><span class="s">&quot;/tmp/sort2&quot;</span><span class="p">,</span> part<span class="o">=</span>list<span class="p">(</span>lims<span class="o">=</span><span class="m">1</span><span class="p">,</span>type<span class="o">=</span><span class="s">&#39;integer&#39;</span><span class="p">),</span>
+  orderby<span class="o">=</span><span class="s">&quot;integer&quot;</span><span class="p">,</span>cleanup<span class="o">=</span>list<span class="p">(</span>reduce<span class="o">=</span>reduce.post<span class="p">),</span>
+  setup<span class="o">=</span>list<span class="p">(</span>reduce<span class="o">=</span>reduce.setup<span class="p">))</span>
+rhex<span class="p">(</span>z<span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
 </div>
 </div>
 <div class="section" id="simple-debugging">
 <h2>Simple Debugging<a class="headerlink" href="#simple-debugging" title="Permalink to this headline">¶</a></h2>
-<p id="index-13">Consider the example code used to compute the delay quantiles by month (see
+<p id="index-14">Consider the example code used to compute the delay quantiles by month (see
 <a class="reference internal" href="#delay-quantiles-by-month"><em>Delay Quantiles By Month</em></a> ). We can use <tt class="docutils literal"><span class="pre">tryCatch</span></tt> for some simple
 debugging. See the error in line 7, there is no such variable <tt class="docutils literal"><span class="pre">isdelayed</span></tt></p>
 <div class="highlight-r"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
@@ -1774,14 +1796,16 @@ z <span class="o">&lt;-</span> rhmr<span class="p">(</span>map<span class="o">=<
 z<span class="o">=</span>rhex<span class="p">(</span>z<span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
-<p>Produces a slew of errors like</p>
-<div class="highlight-r" id="index-14"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+<p>Produces a slew of errors like (output slightly modified to fit page)</p>
+<div class="highlight-r" id="index-15"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
 4
 5
 6
-7</pre></div></td><td class="code"><div class="highlight"><pre><span class="m">10</span><span class="o">/</span><span class="m">08</span><span class="o">/</span><span class="m">04</span> <span class="m">00</span>:<span class="m">41</span>:<span class="m">20</span> INFO mapred.JobClient: Task Id : attempt_201007281701_0273_m_000023_0<span class="p">,</span> Status : FAILED
+7
+8</pre></div></td><td class="code"><div class="highlight"><pre><span class="m">10</span><span class="o">/</span><span class="m">08</span><span class="o">/</span><span class="m">04</span> <span class="m">00</span>:<span class="m">41</span>:<span class="m">20</span> INFO mapred.JobClient: Task Id :
+  attempt_201007281701_0273_m_000023_0<span class="p">,</span> Status : FAILED
 java.io.IOException: MROutput<span class="o">/</span>MRErrThread failed:java.lang.RuntimeException:
 R ERROR
 <span class="o">=======</span>
@@ -1837,7 +1861,7 @@ this case, <tt class="docutils literal"><span class="pre">shared.files</span></t
         <li class="right" >
           <a href="introduction.html" title="Introduction"
              >previous</a> |</li>
-        <li><a href="index.html">RHIPE v0.61 documentation</a> &raquo;</li> 
+        <li><a href="index.html">RHIPE v0.64 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
