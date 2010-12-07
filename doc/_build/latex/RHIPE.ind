@@ -85,9 +85,9 @@
   \item reduce.values, \hyperpage{17}
   \item rhcollect, \hyperpage{60}
   \item rhcounter, \hyperpage{13}, \hyperpage{54}, \hyperpage{60}
-  \item rhcp, \hyperpage{51}
+  \item rhcp, \hyperpage{52}
   \item rhdel, \hyperpage{51}
-  \item rhex, \hyperpage{13}, \hyperpage{20}, \hyperpage{54}
+  \item rhex, \hyperpage{13}, \hyperpage{20}, \hyperpage{54, 55}
   \item rhget, \hyperpage{51}
   \item rhgetkey, \hyperpage{19}, \hyperpage{52}
   \item rhipe\_map\_buff\_size, \hyperpage{19}
@@ -96,7 +96,7 @@
   \item rhipe\_stream\_buffer, \hyperpage{65}
   \item rhipe\_string\_quote, \hyperpage{44}
   \item rhipeopts, \hyperpage{1}
-  \item rhjoin, \hyperpage{54}
+  \item rhjoin, \hyperpage{54, 55}
   \item rhkill, \hyperpage{54, 55}
   \item rhlapply, \hyperpage{47}, \hyperpage{50}
   \item rhls, \hyperpage{51}

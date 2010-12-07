@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Airline Dataset &mdash; RHIPE v0.64 documentation</title>
+    <title>Airline Dataset &mdash; RHIPE v0.65.1 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.64',
+        VERSION:     '0.65.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="RHIPE v0.64 documentation" href="index.html" />
+    <link rel="top" title="RHIPE v0.65.1 documentation" href="index.html" />
     <link rel="next" title="Transforming Text Data" href="texttransfirm.html" />
     <link rel="prev" title="Introduction" href="introduction.html" /> 
   </head>
@@ -39,7 +39,7 @@
         <li class="right" >
           <a href="introduction.html" title="Introduction"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">RHIPE v0.64 documentation</a> &raquo;</li> 
+        <li><a href="index.html">RHIPE v0.65.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -167,7 +167,9 @@ them on the HDFS with the following code (with limited error checks)</p>
 21
 22
 23
-24</pre></div></td><td class="code"><div class="highlight"><pre>library<span class="p">(</span>Rhipe<span class="p">)</span>
+24
+25</pre></div></td><td class="code"><div class="highlight"><pre>library<span class="p">(</span>Rhipe<span class="p">)</span>
+rhinit<span class="p">(</span><span class="kc">TRUE</span><span class="p">,</span><span class="kc">TRUE</span><span class="p">)</span>
 map <span class="o">&lt;-</span> expression<span class="p">({</span>
   msys <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>on<span class="p">){</span>
     system<span class="p">(</span>sprintf<span class="p">(</span><span class="s">&quot;wget  %s --directory-prefix ./tmp 2&gt; ./errors&quot;</span><span class="p">,</span>on<span class="p">))</span>
@@ -1861,7 +1863,7 @@ this case, <tt class="docutils literal"><span class="pre">shared.files</span></t
         <li class="right" >
           <a href="introduction.html" title="Introduction"
              >previous</a> |</li>
-        <li><a href="index.html">RHIPE v0.64 documentation</a> &raquo;</li> 
+        <li><a href="index.html">RHIPE v0.65.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

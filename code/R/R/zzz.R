@@ -1,11 +1,10 @@
 .rhipeEnv <- new.env()
-vvvv <- "0.64"
-attr(vvvv,"minor") <- '4'
-attr(vvvv,"date") <- 'Wed Oct 20 22:29:31 PDT 2010'
-attr(vvvv,'fortune') <- "Eloquence is logic on fire."
+vvvv <- "0.65.1"
+attr(vvvv,"minor") <- '1'
+attr(vvvv,"date") <- 'Sat Nov 20 14:47:54 PST 2010'
+attr(vvvv,'fortune') <- "A little experience often upsets a lot of theory."
 
-attr(vvvv,'notes') <- c("Stream from sequence files",
-                        "Experimental server implementation instead of running java for every command")
+attr(vvvv,'notes') <- c("Major change: call Rhipe:::first.run() before starting")
 class(vvvv) <- "rhversion"
 
 assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )
@@ -39,7 +38,13 @@ onload.2 <- function(libname, pkgname){
   opts <- get("rhipeOptions",envir=.rhipeEnv)
   opts$jarloc <- list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
  
-  if(Sys.getenv("HADOOP")=="") stop("Rhipe requires the HADOOP environment variable to be present")
+  if(Sys.getenv("HADOOP")=="" && Sys.getenv("HADOOP_BIN")=="")
+  warning("Rhipe requires the HADOOP or HADOOP_BIN environment variable to be present\n $HADOOP/bin/hadoop or $HADOOP_BIN/hadoop should exists")
+  
+  if(Sys.getenv("HADOOP_BIN")==""){
+    warning("HADOOP_BIN is missing, using $HADOOP/bin")
+    Sys.setenv(HADOOP_BIN=sprintf("%s/bin",Sys.getenv("HADOOP")))
+  }
   if(.Platform$r_arch!="")
     opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",.Platform$r_arch,
                                     sep=.Platform$file.sep),pattern="imperious.so",full=T)
@@ -50,15 +55,24 @@ onload.2 <- function(libname, pkgname){
                    "--max-nsize=1G")
   opts$runner <-opts$runner[-c(1,2)]
   assign("rhipeOptions",opts,envir=.rhipeEnv)
-  rhinit(errors=FALSE,info=FALSE)
-  opts$mode <- Mode # "experimental"
-  opts$mropts <- rhmropts.1()
-  opts$quiet=FALSE
-  assign("rhipeOptions",opts,envir=.rhipeEnv)
-  rhinit(errors=TRUE,info=TRUE)
-
+  ## Rhipe:::.rh.first.run()
+  message("--------------------------------------------------------
+| IMPORTANT: Before using Rhipe call rhinit() |
+| Rhipe will not work or most probably crash            |
+--------------------------------------------------------")
 }
 
+first.run <- function(buglevel=0){
+  ## if(buglevel>0) message("Initial call to personal server")
+  ## Rhipe::rhinit(errors=TRUE,info=if(buglevel) TRUE else FALSE,buglevel=buglevel)
+  ## rhoptions(mode = Rhipe:::Mode,mropts=rhmropts.1(),quiet=FALSE) # "experimental"
+  ## if(buglevel>0) message("Secondary call to personal server")
+  ## Rhipe::rhinit(errors=TRUE,info=if(buglevel) TRUE else FALSE,buglevel=buglevel)
+  ## Sys.sleep(2)
+  ## message("Rhipe first run complete")
+  ## return(TRUE)
+  stop("Function has been deprecated, call rhinit(first=TRUE)")
+}
 
 
 

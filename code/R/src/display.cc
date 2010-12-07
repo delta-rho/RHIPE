@@ -12,7 +12,6 @@ static uint8_t PRINT_MSG = 0x01;
 static uint8_t SET_STATUS = 0x02;
 static uint8_t SET_COUNTER = 0x03;
 uint32_t total_count;
-
 using namespace std;
 void sendToHadoop(SEXP);
 uint32_t BSIZE= 32768;
@@ -47,13 +46,26 @@ void Re_WriteConsoleEx(const char *buf1, int len, int oType){
 #ifndef FILEREADER
 	switch(oType){
 	case 0:
+	  {
 		fwrite(&PRINT_MSG,sizeof(uint8_t),1,CMMNC->BSTDERR);
-		break;
+		int len_rev =  reverseUInt(len);
+		fwrite(&len_rev,sizeof(uint32_t),1,CMMNC->BSTDERR);
+		fwrite(buf1,len,1,CMMNC->BSTDERR);
+		return;
+	  }
 	case 1:
-		fwrite(&ERROR_MSG,sizeof(uint8_t),1,CMMNC->BSTDERR);
+	  {
+	    const char* state =CHAR(STRING_ELT( Rf_findVar(Rf_install(".rhipe.current.state"), R_GlobalEnv),0));
+	    char buffme[4096];
+	    snprintf(buffme,4096,"\nR ERROR BEGIN (%s):\n=============\n\n%s\nR ERROR END\n===========\n",state,buf1);
+	    int k = strlen(buffme);
+	    fwrite(&ERROR_MSG,sizeof(uint8_t),1,CMMNC->BSTDERR);
+	    int len_rev =  reverseUInt(k);
+	    fwrite(&len_rev,sizeof(uint32_t),1,CMMNC->BSTDERR);
+	    fwrite(buffme,k,1,CMMNC->BSTDERR);
+	    return;
+	  }
 	}
-	int len_rev =  reverseUInt(len);
-	fwrite(&len_rev,sizeof(uint32_t),1,CMMNC->BSTDERR);
 #endif
 	fwrite(buf1,len,1,CMMNC->BSTDERR);
 }
@@ -157,11 +169,25 @@ SEXP status(SEXP mess){
 
 SEXP collect(SEXP k,SEXP v){
 	// So not thread safe
-#ifndef FILEREADER
-	sendToHadoop(k);
-	sendToHadoop(v);
+#ifdef USETIMER
+  struct timeval tms;
+  long int bstart, bend;
+  gettimeofday(&tms,NULL);
+  bstart = tms.tv_sec*1000000 + tms.tv_usec;
 #endif
-	return(R_NilValue);
+
+#ifndef FILEREADER
+  sendToHadoop(k);
+  sendToHadoop(v);
+#endif
+
+#ifdef USETIMER
+  gettimeofday(&tms,NULL);
+  bend = tms.tv_sec*1000000 + tms.tv_usec;
+  collect_total += (bend - bstart);
+#endif
+
+  return(R_NilValue);
 }
 
 static inline uint32_t tobytes(SEXP x,std::string* result){
@@ -173,10 +199,19 @@ static inline uint32_t tobytes(SEXP x,std::string* result){
 }
 
 void spill_to_reducer(void){
+#ifdef USETIMER
+  struct timeval tms;
+  long int bstart, bend;
+  gettimeofday(&tms,NULL);
+  bstart = tms.tv_sec*1000000 + tms.tv_usec;
+  // char x[512];
+  // sprintf(x,"Timers-%s-%d",getenv("mapred.task.id"),getpid());
+  // mcount(x,"Num Spills to Reducer",1);
+#endif
   // rexpress("rhcounter('combiner','spill_to_reducer',1)");
   // uint32_t bytes_received = 0;  
 	SEXP comb_pre_red,comb_do_red,comb_post_red;
-	rexpress("rhcollect<-function(key,value) .Call('rh_collect',key,value)");
+	rexpress(".rhipe.current.state<-'map.combine';rhcollect<-function(key,value) .Call('rh_collect',key,value)");
 	SEXP dummy1,dummy2,dummy3;
 	PROTECT(dummy1=rexpress(REDUCEPREKEY));
 	PROTECT(comb_pre_red=Rf_lang2(Rf_install("eval"),dummy1));
@@ -199,7 +234,7 @@ void spill_to_reducer(void){
 		// bytes_received+=key.length();
 		PROTECT(rkey = message2rexp(r));
 		Rf_defineVar(Rf_install("reduce.key"),rkey,R_GlobalEnv);
-		R_tryEval(comb_pre_red,NULL,&Rerr);
+		WRAP_R_EVAL_FOR_REDUCE(comb_pre_red,NULL,&Rerr);
 		fflush(NULL);
       		int i;
 		vector<string> values = (*it).second;
@@ -215,23 +250,36 @@ void spill_to_reducer(void){
 			SET_VECTOR_ELT(rvalues, i, message2rexp(v));
 		}
 		Rf_defineVar(Rf_install("reduce.values"),rvalues,R_GlobalEnv);
-		R_tryEval(comb_do_red,NULL, &Rerr);
-		R_tryEval(comb_post_red ,NULL, &Rerr);
+		WRAP_R_EVAL_FOR_REDUCE(comb_do_red,NULL, &Rerr);
+		WRAP_R_EVAL_FOR_REDUCE(comb_post_red ,NULL, &Rerr);
 		fflush(NULL);
       		UNPROTECT(2);
 		fflush(NULL);
 	}
 	UNPROTECT(6);
 	rexpress("rhcollect<-function(key,value) .Call('rh_collect_buffer',key,value)");
+#ifdef USETIMER
+  gettimeofday(&tms,NULL);
+  bend = tms.tv_sec*1000000 + tms.tv_usec;
+  collect_spill_total += (bend - bstart);
+#endif
+
 }
 
 SEXP collect_buffer(SEXP k,SEXP v){
+
+#ifdef USETIMER
+  struct timeval tms;
+  long int bstart, bend;
+  gettimeofday(&tms,NULL);
+  bstart = tms.tv_sec*1000000 + tms.tv_usec;
+#endif
+
   static bool once = false;
   static std::string *ks;
   static std::string *vs;
   static uint32_t combiner_count;
   uint32_t ksize=0,vsize=0;
-
   if(!once){
     ks = new std::string();
     vs = new std::string();
@@ -252,6 +300,12 @@ SEXP collect_buffer(SEXP k,SEXP v){
   //   map_output_buffer[*ks].push_back(*vs);
   // }
   // delete(ks);delete(vs);
+#ifdef USETIMER
+  gettimeofday(&tms,NULL);
+  bend = tms.tv_sec*1000000 + tms.tv_usec;
+  collect_buffer_total += (bend - bstart);
+#endif
+
   return(R_NilValue);
 }
 

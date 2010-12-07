@@ -47,6 +47,7 @@ them on the HDFS with the following code (with limited error checks)
 ::
 
   library(Rhipe)
+  rhinit(TRUE,TRUE)
   map <- expression({
     msys <- function(on){
       system(sprintf("wget  %s --directory-prefix ./tmp 2> ./errors",on))

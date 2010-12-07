@@ -15,13 +15,17 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class PersonalServer {
+    protected static final Log LOG = LogFactory.getLog(PersonalServer.class.getName());
     byte[] bbuf;
     DataOutputStream _err,_toR;
     DataInputStream _fromR;
     REXP yesalive;
     FileUtils fu;
+    int buglevel;
     Hashtable<String, SequenceFile.Reader> seqhash;
     public static String getPID() throws IOException,InterruptedException {
 	//Taken from http://www.coderanch.com/t/109334/Linux-UNIX/UNIX-process-ID-java-program
@@ -46,32 +50,48 @@ public class PersonalServer {
 	outFile.flush();outFile.close();
     }
 	
-    public PersonalServer(String ipaddress,String tempfile,String tempfile2) throws InterruptedException,
+    public PersonalServer(String ipaddress,String tempfile,String tempfile2,int bugl) throws InterruptedException,
 								   FileNotFoundException,UnknownHostException, SecurityException,IOException{
 	bbuf = new byte[100];
+	this.buglevel = bugl;
 	seqhash = new Hashtable<String, SequenceFile.Reader>();
 	REXP.Builder thevals   = REXP.newBuilder();
 	thevals.setRclass(REXP.RClass.LOGICAL);
 	thevals.addBooleanValue( REXP.RBOOLEAN.T);
 	yesalive = thevals.build();
+	if(buglevel > 10)
+	    LOG.info("Calling FileUtils");
 	fu = new FileUtils(new Configuration());
+	if(buglevel > 10)
+	    LOG.info("Got FileUtils object:"+fu);
+
 	ServerSocket fromRsock,errsock,toRsock;
+	if(buglevel > 10)
+	    LOG.info("Creating listening and writing sockets");
 	fromRsock = new ServerSocket(0,0,InetAddress.getByName(ipaddress));
 	toRsock  = new ServerSocket(0);
 	errsock = new ServerSocket(0);
+	if(buglevel > 10)
+	    LOG.info("Got fromRsock="+fromRsock+" toRsock="+toRsock+" errsock="+errsock);
 	FileWriter outFile = new FileWriter(tempfile);
+	if(buglevel > 10)
+	    LOG.info("Writing information to file:"+outFile);
 	String x = "fromR toR err PID\n";
 	outFile.write(x,0,x.length());
 	x = fromRsock.getLocalPort()+" "+toRsock.getLocalPort()+" "+errsock.getLocalPort()+" "+ getPID()+"\n";
 	outFile.write(x,0,x.length());
 	outFile.flush();outFile.close();
 	docrudehack(tempfile2);
+	if(buglevel > 10)
+	    LOG.info("Finished with crudehack by creating a file called "+tempfile2);
 	Socket a = fromRsock.accept();
 	_fromR = new DataInputStream(new BufferedInputStream(a.getInputStream(),1024));
 	 a = toRsock.accept();
 	_toR = new DataOutputStream(new BufferedOutputStream(a.getOutputStream(),1024));
 	 a = errsock.accept();
 	 _err = new DataOutputStream(new BufferedOutputStream(a.getOutputStream(),1024));
+	if(buglevel > 10)
+	    LOG.info("Now waiting on all sockets");
     }
     public void rhmropts(REXP r) throws Exception{
 	REXP b = fu.mapredopts();
@@ -559,9 +579,11 @@ public class PersonalServer {
 
 
     public static void main(String[] args) throws Exception{
-	PersonalServer r = new PersonalServer(args[0],args[1],args[2]);
+	int buglevel = Integer.parseInt(args[3]);
+	PersonalServer r = new PersonalServer(args[0],args[1],args[2],buglevel);
 	while(true){
 	    try{
+		// LOG.info("Starting personalserver");
 		r.startme();
 
 	    }catch(Exception e){

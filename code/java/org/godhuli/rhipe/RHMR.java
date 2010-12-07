@@ -181,7 +181,9 @@ public class RHMR  implements Tool {
 	    
 	if(rhoptions_.get("rhipe.use.hadoop.combiner").equals("TRUE"))
 	    uscomb = true;
-	String output_folder = rhoptions_.get("rhipe_output_folder");
+	String[]  output_folder = rhoptions_.get("rhipe_output_folder").split(",");
+	for(int i=0; i<output_folder.length;i++) System.out.println(output_folder[i]);
+	// System.exit(0);
 	if(!rhoptions_.get("rhipe_partitioner_class").equals("none")){
 	    RHMRHelper.PARTITION_START = Integer.parseInt(rhoptions_.get("rhipe_partitioner_start"))-1;
 	    RHMRHelper.PARTITION_END = Integer.parseInt(rhoptions_.get("rhipe_partitioner_end"))-1;
@@ -199,8 +201,9 @@ public class RHMR  implements Tool {
 	    // 	RHMRHelper.PARTITION_TYPE = REXP.RClass.INTEGER;
 	    // }else throw new IOException("Invalid class for the partitioner, must be one  of numeric, string, integer");
 	}
-	if(! output_folder.equals("")){
-		Path ofp = new Path(output_folder);
+	
+	if(! output_folder[0].equals("")){
+		Path ofp = new Path(output_folder[0]);
 		FileSystem srcFs = FileSystem.get(job_.getConfiguration());
 		srcFs.delete(ofp, true);
 		if( rhoptions_.get("rhipe_outputformat_class").equals("org.apache.hadoop.mapreduce.lib.output.NullOutputFormat")){

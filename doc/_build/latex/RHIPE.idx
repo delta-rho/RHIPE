@@ -65,7 +65,7 @@
 \indexentry{rhls|hyperpage}{51}
 \indexentry{rhget|hyperpage}{51}
 \indexentry{rhput|hyperpage}{51}
-\indexentry{rhcp|hyperpage}{51}
+\indexentry{rhcp|hyperpage}{52}
 \indexentry{rhwrite|hyperpage}{52}
 \indexentry{rhread|hyperpage}{52}
 \indexentry{sequencefile|hyperpage}{52}
@@ -82,8 +82,8 @@
 \indexentry{rhkill|hyperpage}{54}
 \indexentry{rhstatus|hyperpage}{54}
 \indexentry{rhcounter|hyperpage}{54}
-\indexentry{rhjoin|hyperpage}{54}
-\indexentry{rhex|hyperpage}{54}
+\indexentry{rhjoin|hyperpage}{55}
+\indexentry{rhex|hyperpage}{55}
 \indexentry{rhkill|hyperpage}{55}
 \indexentry{rhmr|hyperpage}{57}
 \indexentry{combiner|hyperpage}{57}

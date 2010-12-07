@@ -39,6 +39,9 @@ import org.godhuli.rhipe.REXPProtos.REXP.RClass;
 
 public class RHMRHelper {
     private  static int BUFFER_SIZE = 10*1024;
+    private  static final String R_MAP_ERROR = "R MAP ERROR";
+    private  static final String R_REDUCE_ERROR = "R REDUCE ERROR";
+
     protected static final Log LOG = LogFactory.getLog(RHMRHelper.class.getName());
     public boolean copyFile;
     static private Environment env_;
@@ -139,6 +142,7 @@ public class RHMRHelper {
 	    String[] argvSplit = argv.split(" ");
 	    String prog = argvSplit[0];
 	    Environment childEnv = (Environment) env().clone();
+	    cfg.set("io_sort_mb",cfg.get("io.sort.mb"));
 	    addJobConfToEnvironment(cfg, childEnv);
 	    childEnv.put( "TMPDIR", 
 			  System.getProperty("java.io.tmpdir"));
@@ -376,7 +380,8 @@ public class RHMRHelper {
 			    String errmsg = new String(k);
 			     // mapper.setreadcomplete(true);
 			    ctx.getCounter("R_ERRORS",errmsg).increment(1);
-			    throw new RuntimeException("\nR ERROR\n=======\n"+errmsg);
+			    int y = errmsg.length();
+			    throw new RuntimeException(errmsg);
 			case RHTypes.PRINT_MSG:
 			    ln = clientErr_.readInt();
 			    k = new byte[ln]; 

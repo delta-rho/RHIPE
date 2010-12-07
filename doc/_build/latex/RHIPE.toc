@@ -37,16 +37,16 @@
 \contentsline {subsection}{\numberline {6.1.1}rhdel - File Deletion}{51}{subsection.6.1.1}
 \contentsline {subsection}{\numberline {6.1.2}rhls - Listing Files}{51}{subsection.6.1.2}
 \contentsline {subsection}{\numberline {6.1.3}rhget - Copying from the HDFS}{51}{subsection.6.1.3}
-\contentsline {subsection}{\numberline {6.1.4}rhput - Copying to the HDF}{51}{subsection.6.1.4}
+\contentsline {subsection}{\numberline {6.1.4}rhput - Copying to the HDF}{52}{subsection.6.1.4}
 \contentsline {subsection}{\numberline {6.1.5}rhcp - Copying on the HDFS}{52}{subsection.6.1.5}
 \contentsline {subsection}{\numberline {6.1.6}rhwrite - Writing R data to the HDFS}{52}{subsection.6.1.6}
 \contentsline {subsection}{\numberline {6.1.7}rhread - Reading data from HDFS into R}{52}{subsection.6.1.7}
-\contentsline {subsection}{\numberline {6.1.8}rhgetkeys - Reading Values from Map Files}{52}{subsection.6.1.8}
+\contentsline {subsection}{\numberline {6.1.8}rhgetkeys - Reading Values from Map Files}{53}{subsection.6.1.8}
 \contentsline {subsection}{\numberline {6.1.9}rhstreamsequence - Reading from a sequence file in a streaming fashion}{53}{subsection.6.1.9}
 \contentsline {section}{\numberline {6.2}MapReduce Administration}{54}{section.6.2}
 \contentsline {subsection}{\numberline {6.2.1}rhex - Submitting a MapReduce R Object to Hadoop}{54}{subsection.6.2.1}
 \contentsline {subsection}{\numberline {6.2.2}rhstatus - Monitoring a MapReduce Job}{54}{subsection.6.2.2}
-\contentsline {subsection}{\numberline {6.2.3}rhjoin - Waiting on Completion of a MapReduce Job}{54}{subsection.6.2.3}
+\contentsline {subsection}{\numberline {6.2.3}rhjoin - Waiting on Completion of a MapReduce Job}{55}{subsection.6.2.3}
 \contentsline {subsection}{\numberline {6.2.4}rhkill - Stopping a MapReduce Job}{55}{subsection.6.2.4}
 \contentsline {chapter}{\numberline {7}Packaging a Job for MapReduce}{57}{chapter.7}
 \contentsline {section}{\numberline {7.1}Creating a MapReduce Object}{57}{section.7.1}

@@ -34,7 +34,6 @@ using namespace std;
 #include <R_ext/Boolean.h>
 #include <R_ext/Parse.h>
 #include <R_ext/Rdynload.h>
-
 extern map<string, vector<string> > map_output_buffer;
 extern uint32_t spill_size;
 extern uint32_t total_count;
@@ -45,6 +44,7 @@ extern  char* REDUCE;
 extern  char* REDUCEPOSTKEY ;
 extern  char* REDUCECLEANUP;
 extern bool combiner_inplace;
+
 #define DLEVEL -9
 
 #ifdef FILEREADER
@@ -55,6 +55,24 @@ extern FILE *FILEIN;
 #define LOGG(...) logg(__VA_ARGS__)
 #else
 #define LOGG(...)
+#endif
+
+#ifdef USETIMER
+#include "time.h"
+#include <sys/time.h>
+extern long int collect_total;
+extern long int collect_buffer_total;
+extern long int time_in_reval;
+extern long int collect_spill_total;
+extern long int time_in_reduce_reval;
+SEXP TIMER_REDUCE_R_tryEval(SEXP, SEXP, int *);
+SEXP TIMER_R_tryEval(SEXP, SEXP, int *);
+
+#define WRAP_R_EVAL TIMER_R_tryEval
+#define WRAP_R_EVAL_FOR_REDUCE TIMER_REDUCE_R_tryEval
+#else
+#define WRAP_R_EVAL R_tryEval
+#define WRAP_R_EVAL_FOR_REDUCE R_tryEval
 #endif
 
 /* extern void (*ptr_R_ShowMessage)(const char *); */
@@ -69,6 +87,7 @@ SEXP rexpress(const char*);
 void rexp2message(REXP *, const SEXP);
 void fill_rexp(REXP *, const SEXP );
 SEXP message2rexp(const REXP&);
+
 
 
 

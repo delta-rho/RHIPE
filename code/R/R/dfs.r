@@ -159,7 +159,7 @@ rhwrite <- function(lo,f,N=NULL,ignore.stderr=T,verbose=F){
 
 
 rhmerge <- function(inr,ou){
-  system(paste(paste(Sys.getenv("HADOOP"),"bin","hadoop",sep=.Platform$file.sep,collapse=""),"dfs","-cat",inr,">", ou,collapse=" "))
+  system(paste(paste(Sys.getenv("HADOOP_BIN"),"hadoop",sep=.Platform$file.sep,collapse=""),"dfs","-cat",inr,">", ou,collapse=" "))
 }
 
 
@@ -169,7 +169,7 @@ rhkill <- function(w,...){
     w= w[[1]][['job.id']] else {
       if(length(grep("^job_",w))==0) w=paste("job_",w,sep="",collapse="")
     }
-  system(command=paste(paste(Sys.getenv("HADOOP"),"bin","hadoop",sep=.Platform$file.sep,collapse=""),"job","-kill",w,collapse=" "),...)
+  system(command=paste(paste(Sys.getenv("HADOOP_BIN"),"hadoop",sep=.Platform$file.sep,collapse=""),"job","-kill",w,collapse=" "),...)
 }
 
 
@@ -227,14 +227,14 @@ print.rhversion <- function(x,...){
 }
 
 rhcp <- function(ifile, ofile) {
-  system(command=paste(paste(Sys.getenv("HADOOP"), "bin", "hadoop",
+  system(command=paste(paste(Sys.getenv("HADOOP_BIN"),  "hadoop",
            sep=.Platform$file.sep), "fs", "-cp", ifile, ofile, sep=" "))
 
 }
 
 
 rhmv <- function(ifile, ofile) {
-  system(command=paste(paste(Sys.getenv("HADOOP"), "bin", "hadoop",
+  system(command=paste(paste(Sys.getenv("HADOOP_BIN"),  "hadoop",
 sep=.Platform$file.sep), "fs", "-mv", ifile, ofile, sep=" "))
 
 }

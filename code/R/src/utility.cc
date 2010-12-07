@@ -40,9 +40,31 @@ int setup_stream(Streams *s){
   s->NBSTDERR = fileno(s->BSTDERR);
   return(0);
 }
+#ifdef USETIMER
+SEXP TIMER_R_tryEval(SEXP ex, SEXP en, int *err){
+  struct timeval tms;
+  long int bstart, bend;
+  gettimeofday(&tms,NULL);
+  bstart = tms.tv_sec*1000000 + tms.tv_usec;
+  SEXP f = R_tryEval(ex,en,err);
+  gettimeofday(&tms,NULL);
+  bend = tms.tv_sec*1000000 + tms.tv_usec;
+  time_in_reval += (bend - bstart);
+  return(f);
+}
 
-
-
+SEXP TIMER_REDUCE_R_tryEval(SEXP ex, SEXP en, int *err){
+  struct timeval tms;
+  long int bstart, bend;
+  gettimeofday(&tms,NULL);
+  bstart = tms.tv_sec*1000000 + tms.tv_usec;
+  SEXP f = R_tryEval(ex,en,err);
+  gettimeofday(&tms,NULL);
+  bend = tms.tv_sec*1000000 + tms.tv_usec;
+  time_in_reduce_reval += (bend - bstart);
+  return(f);
+}
+#endif
 /*************************************
  ** Variable Length Encoding
  ************************************/

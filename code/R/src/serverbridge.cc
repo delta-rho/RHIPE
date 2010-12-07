@@ -21,8 +21,8 @@ using namespace google::protobuf::io;
 extern "C" {
 
 
-  SEXP createProcess(SEXP program,SEXP whatclose,SEXP bufsz){
-    
+  SEXP createProcess(SEXP program,SEXP whatclose, SEXP bufsz,SEXP bugbug){
+    int buglevel = INTEGER(bugbug)[0];
     // int errorpipe, fromJ, toJ;
     int pid = fork();
     if(pid == 0){ // child
@@ -36,9 +36,9 @@ extern "C" {
 	dup2(nullend,1);
       }
 
-#if BUGBUG
-      Rprintf("Running %s\n",(const char*)CHAR( STRING_ELT(program,0)));
-#endif
+      if(buglevel > 1000)
+	Rprintf("C call to execl with args %s\n",(const char*)CHAR( STRING_ELT(program,0)));
+      
       execl("/bin/sh","sh","-c", (const char*)CHAR( STRING_ELT(program,0)),(char*)NULL);
       fprintf(stderr, "Program faild to run, errno=%d errstr=%s\n",errno,strerror(errno));
       _exit(255);

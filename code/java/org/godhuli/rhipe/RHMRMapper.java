@@ -29,6 +29,7 @@ import org.apache.hadoop.io.WritableComparable;
 public class RHMRMapper extends Mapper<WritableComparable,
 				RHBytesWritable,WritableComparable,RHBytesWritable>{
     protected static final Log LOG = LogFactory.getLog(RHMRMapper.class.getName());
+    int whichMapper = 1; // 1 is usekeys and values, 0 is just values
     boolean copyFile=false;
     String getPipeCommand(Configuration cfg) {
 	String str = System.getenv("RHIPECOMMAND");
@@ -48,10 +49,18 @@ public class RHMRMapper extends Mapper<WritableComparable,
 	helper = new RHMRHelper("Mapper");
 	setup(context);
 	helper.startOutputThreads(context);
-	while (context.nextKeyValue()) {
-	    // System.err.println(context.getCurrentKey());
-	    // System.err.println(context.getCurrentValue());
-	    map(context.getCurrentKey(), context.getCurrentValue(), context);
+	if(whichMapper==1){
+	    while (context.nextKeyValue()) {
+		// System.err.println(context.getCurrentKey());
+		// System.err.println(context.getCurrentValue());
+		map(context.getCurrentKey(), context.getCurrentValue(), context);
+	    }
+	}else if(whichMapper==0){
+	    while (context.nextKeyValue()) {
+		// System.err.println(context.getCurrentKey());
+		// System.err.println(context.getCurrentValue());
+		map_no_keys(context.getCurrentValue(), context);
+	    }
 	}
 	cleanup(context);
     }								  
@@ -68,6 +77,7 @@ public class RHMRMapper extends Mapper<WritableComparable,
 	System.out.println("mapred.input.file == "+ cfg.get("mapred.input.file"));
 	helper.setup(cfg, getPipeCommand(cfg), getDoPipe());
 	copyFile=cfg.get("rhipe_copy_file").equals("TRUE")? true: false;
+	whichMapper = cfg.getInt("rhipe_send_keys_to_map",1);
 	try{
 	    helper.writeCMD(RHTypes. EVAL_SETUP_MAP);
 	    helper.checkOuterrThreadsThrowable();
@@ -84,6 +94,19 @@ public class RHMRMapper extends Mapper<WritableComparable,
 	helper.checkOuterrThreadsThrowable();
 	try {
 	    helper.write(key);
+	    helper.write(value);
+	} catch (IOException io) {
+	    LOG.info("QUIIIITING:"+helper.exitval());
+	    io.printStackTrace();
+	    helper.mapRedFinished(ctx);
+	    throw new IOException(io);
+	}
+    }
+
+    public void map_no_keys(RHBytesWritable value, Context ctx) 
+	throws IOException,InterruptedException {
+	helper.checkOuterrThreadsThrowable();
+	try {
 	    helper.write(value);
 	} catch (IOException io) {
 	    LOG.info("QUIIIITING:"+helper.exitval());

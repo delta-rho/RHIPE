@@ -1,8 +1,8 @@
-VER=0.64
+VER=0.65.1
 #
 .PHONY : doc code  sync
 
-all: code doc ec2 index
+all: code doc index
 
 sync: 
 	cp a.css website/
@@ -17,8 +17,8 @@ ec2:
 	rsync -av code/hadoop-ec2-init-remote.sh website/dn/
 
 code:
-	sed  -i ""  "s/Version: [0-9]*\.*[0-9]*/Version: ${VER}/" code/R/DESCRIPTION 
-	sed  -i ""  "s/vvvv <- \"[0-9]*\.*[0-9]*\"/vvvv <- \"${VER}\"/" code/R/R/zzz.R
+	# sed  -i ""  "s/Version: [0-9]*\.*[0-9]*/Version: ${VER}/" code/R/DESCRIPTION 
+	# sed  -i ""  "s/vvvv <- \"[0-9]*\.*[0-9]*\"/vvvv <- \"${VER}\"/" code/R/R/zzz.R
 
 	if test -d build;then rm -rf build;else	mkdir build; fi
 	rsync -a code/ build/

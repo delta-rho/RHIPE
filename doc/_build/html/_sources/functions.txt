@@ -8,6 +8,10 @@
 RHIPE has functions that access the HDFS from R, that are used inside MapReduce
 jobs and functions for managing MapReduce jobs.
 
+Before calling any of the functions described below, call ``rhinit``. If you call `rhinit(TRUE,TRUE,buglevel=2000)`` a slew
+of messages are displayed  - useful if Rhipe does not load.
+
+
 HDFS Related
 ============
 .. index:: rhdel
@@ -254,7 +258,7 @@ rhstatus - Monitoring a MapReduce Job
 -------------------------------------
 ::
 
-	rhstatus(jobid)
+	rhstatus(jobid,mon.sec=0, autokill=TRUE,showErrors=TRUE,verbose=FALSE)
 
 This returns the status of an running MapReduce job. The parameter ``jobid`` can
 either be a string with the format *job_datetime_id*
@@ -270,6 +274,10 @@ A list of 4 elements:
 - a data frame with columns for the Map and Reduce phase. This data frame summarizes the number of tasks, the percent complete, and the number of tasks that are pending, running, complete or have failed.
 
 - In addition the list has an element that consists of both user defined and Hadoop MapReduce built in counters (counters can be user defined with a call to ``rhcounter``).
+
+If ``mon.sec`` is greater than 0, a small data frame indicating the progress will be returned every ``mon.sec`` seconds. 
+If ``autokill`` is TRUE, then any R errors caused by the map/reduce code will cause the job to be killed. If ``verbose`` is TRUE, the above list
+will be displayed too.
 
 .. index:: rhjoin, rhex
 

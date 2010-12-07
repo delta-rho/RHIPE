@@ -503,11 +503,11 @@ s,@build_alias@,|#_!!_#|,g
 s,@host_alias@,|#_!!_#|,g
 s,@target_alias@,|#_!!_#|,g
 s,@R_HOME@,|#_!!_#|/Library/Frameworks/R.framework/Resources,g
-s,@CC@,|#_!!_#|gcc -arch i386 -std=gnu99,g
+s,@CC@,|#_!!_#|gcc -arch x86_64 -std=gnu99,g
 s,@CFLAGS@,|#_!!_#|-g -O2,g
 s,@LDFLAGS@,|#_!!_#|,g
 s,@CPPFLAGS@,|#_!!_#|,g
-s,@ac_ct_CC@,|#_!!_#|gcc -arch i386 -std=gnu99,g
+s,@ac_ct_CC@,|#_!!_#|gcc -arch x86_64 -std=gnu99,g
 s,@EXEEXT@,|#_!!_#|,g
 s,@OBJEXT@,|#_!!_#|o,g
 s,@LIBOBJS@,|#_!!_#|,g

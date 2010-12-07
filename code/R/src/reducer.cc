@@ -56,17 +56,20 @@ const int reducer_run(void){
       {
 	SEXP reducesetup;
 	LOGG(9,"Got reduce setup\n");
+	Rf_defineVar(Rf_install(".rhipe.current.state"),Rf_ScalarString(Rf_mkChar("reduce.setup")),R_GlobalEnv);
+
 	PROTECT(reducesetup=rexpress(REDUCESETUP));
 	// Rf_eval(Rf_lang2(Rf_install("eval"),reducesetup),R_GlobalEnv);
-	R_tryEval(Rf_lang2(Rf_install("eval"),reducesetup),NULL,&Rerr);
+	WRAP_R_EVAL(Rf_lang2(Rf_install("eval"),reducesetup),NULL,&Rerr);
 	UNPROTECT(1);
       }
       break;
     case EVAL_CLEANUP_REDUCE:
       {
 	SEXP reduceclean;
+	Rf_defineVar(Rf_install(".rhipe.current.state"),Rf_ScalarString(Rf_mkChar("reduce.cleanup")),R_GlobalEnv);
 	PROTECT(reduceclean=rexpress(REDUCECLEANUP));
-	R_tryEval(Rf_lang2(Rf_install("eval"),reduceclean),NULL, &Rerr);
+	WRAP_R_EVAL(Rf_lang2(Rf_install("eval"),reduceclean),NULL, &Rerr);
 	UNPROTECT(1);
       }
       break;
@@ -74,11 +77,12 @@ const int reducer_run(void){
       type = readVInt64FromFileDescriptor(CMMNC->BSTDIN); //read in size of key
       PROTECT(key = readFromHadoop(type,&err));
       Rf_defineVar(Rf_install("reduce.key"),key,R_GlobalEnv);
+      Rf_defineVar(Rf_install(".rhipe.current.state"),Rf_ScalarString(Rf_mkChar("reduce")),R_GlobalEnv);
       UNPROTECT(1);
       redbuf_cnt=0;
       break;
     case EVAL_REDUCE_PREKEY:
-      R_tryEval(prekey,NULL,&Rerr);
+      WRAP_R_EVAL(prekey,NULL,&Rerr);
       fflush(NULL);
       break;
     case EVAL_REDUCE_POSTKEY:
@@ -92,20 +96,20 @@ const int reducer_run(void){
 	  }
 	  Rf_setVar(Rf_install("reduce.values"),t1,R_GlobalEnv);
 
-	  R_tryEval(reduce,NULL, &Rerr);
+	  WRAP_R_EVAL(reduce,NULL, &Rerr);
 	  UNPROTECT(1);
 	}else{
 	  Rf_setVar(Rf_install("reduce.values"),vvector,R_GlobalEnv);
-	  R_tryEval(reduce,NULL, &Rerr);
+	  WRAP_R_EVAL(reduce,NULL, &Rerr);
 	}
       }
-      R_tryEval(postkey ,NULL, &Rerr);
+      WRAP_R_EVAL(postkey ,NULL, &Rerr);
       fflush(NULL);
       break;
     default:
       if(redbuf_cnt == REDBUFFER){
 	Rf_setVar(Rf_install("reduce.values"),vvector,R_GlobalEnv);
-	R_tryEval(reduce,NULL, &Rerr);
+	WRAP_R_EVAL(reduce,NULL, &Rerr);
 	redbuf_cnt=0;
       }
       SEXP v;

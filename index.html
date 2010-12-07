@@ -7,7 +7,7 @@ lang="en" xml:lang="en">
 <title>RHIPE - R and Hadoop Integrated Processing Environment </title>
 <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2010-10-21 22:27:08 PDT"/>
+<meta name="generated" content="2010-12-07 14:49:30 PST"/>
 <meta name="author" content="Saptarshi Guha"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -21,6 +21,9 @@ lang="en" xml:lang="en">
   .target { }
   .timestamp { color: #bebebe; }
   .timestamp-kwd { color: #5f9ea0; }
+  .right  {margin-left:auto; margin-right:0px;  text-align:right;}
+  .left   {margin-left:0px;  margin-right:auto; text-align:left;}
+  .center {margin-left:auto; margin-right:auto; text-align:center;}
   p.verse { margin-left: 3% }
   pre {
 	border: 1pt solid #AEBDCC;
@@ -31,10 +34,17 @@ lang="en" xml:lang="en">
         overflow:auto;
   }
   table { border-collapse: collapse; }
-  td, th { vertical-align: top; }
+  td, th { vertical-align: top;  }
+  th.right  { text-align:center;  }
+  th.left   { text-align:center;   }
+  th.center { text-align:center; }
+  td.right  { text-align:right;  }
+  td.left   { text-align:left;   }
+  td.center { text-align:center; }
   dt { font-weight: bold; }
   div.figure { padding: 0.5em; }
   div.figure p { text-align: center; }
+  textarea { overflow-x: auto; }
   .linenr { font-size:smaller }
   .code-highlighted {background-color:#ffff00;}
   .org-info-js_info-navigation { border-style:none; }
@@ -67,6 +77,7 @@ lang="en" xml:lang="en">
  }
 /*]]>*///-->
 </script>
+
 </head>
 <body>
 <div id="content">
@@ -78,7 +89,9 @@ of Google's mapreduce.  Using RHIPE it is possible to code map-reduce algorithms
 </p>
 
 
-<pre class="src src-R-example">m &lt;- expression({
+<pre class="src src-R-example">library(Rhipe)
+rhinit()
+m &lt;- expression({
   y &lt;- strsplit(unlist(map.values),<span style="color: #8b2252;">" "</span>)
   lapply(y,function(r) rhcollect(r,T))
 })
@@ -97,7 +110,6 @@ rhex(z)
 
 
 
-
 <p>
 Or just, load Rhipe and type 
 </p>
@@ -105,7 +117,6 @@ Or just, load Rhipe and type
 
 <pre class="src src-R-example">rhwordcount(infolder,outfolder)
 </pre>
-
 
 
 <p>
@@ -120,10 +131,9 @@ the destination directory.
 <li><a href="#sec-2">2 Data types supported </a></li>
 <li><a href="#sec-3">3 More Information </a></li>
 <li><a href="#sec-4">4 Download </a></li>
-<li><a href="#sec-5">5 EC2 </a></li>
-<li><a href="#sec-6">6 Documentation </a></li>
-<li><a href="#sec-7">7 Contact </a></li>
-<li><a href="#sec-8">8 News </a></li>
+<li><a href="#sec-5">5 Documentation </a></li>
+<li><a href="#sec-6">6 Contact </a></li>
+<li><a href="#sec-7">7 News </a></li>
 </ul>
 </div>
 </div>
@@ -185,7 +195,6 @@ To check out the current version, install <code>git</code>
 
 
 
-
 <p>
 <b>Versions</b>
 </p>
@@ -195,29 +204,31 @@ Read the documentation for installation. Current is the latest version.
 </p>
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 <caption></caption>
-<colgroup><col align="right" /><col align="left" /><col align="left" />
+<colgroup><col class="right" /><col class="left" /><col class="left" />
 </colgroup>
 <thead>
-<tr><th scope="col">Version</th><th scope="col">Download</th><th scope="col"></th></tr>
+<tr><th scope="col" class="right">Version</th><th scope="col" class="left">Download</th><th scope="col" class="left"></th></tr>
 </thead>
 <tbody>
-<tr><td>0.63</td><td><a href="./dn/Rhipe_0.64.tar.gz">Rhipe_0.64.tar.gz</a></td><td>Thu Oct 21 22:26:20 PDT 2010</td></tr>
-<tr><td>0.63</td><td><a href="./dn/Rhipe_0.63.tar.gz">Rhipe_0.63.tar.gz</a></td><td>Wed Sep 16 03:12:20 EDT 2010</td></tr>
-<tr><td>0.61</td><td><a href="./dn/Rhipe_0.61.tar.gz">Rhipe_0.61.tar.gz</a></td><td>Wed Sep 08 03:12:20 EDT 2010</td></tr>
-<tr><td>0.60</td><td><a href="./dn/Rhipe_0.60.tar.gz">Rhipe_0.60.tar.gz</a></td><td>Fri May 28 17:13:16 EDT 2010</td></tr>
-<tr><td>0.59</td><td><a href="./dn/Rhipe_0.59.tar.gz">Rhipe_0.59.tar.gz</a></td><td>Tue May 04 18:15:26 EDT 2010</td></tr>
-<tr><td>0.58</td><td><a href="./dn/Rhipe_0.58.tar.gz">Rhipe_0.58.tar.gz</a></td><td>Fri Apr 09 01:41:48 EDT 2010</td></tr>
-<tr><td>0.57</td><td><a href="./dn/Rhipe_0.57.tar.gz">Rhipe_0.57.tar.gz</a></td><td>Sat Mar 20 11:20:21 EDT 2010</td></tr>
-<tr><td>0.56</td><td><a href="./dn/Rhipe_0.56.tar.gz">Rhipe_0.56.tar.gz</a></td><td>Sat Feb 27 17:04:44 EST 2010</td></tr>
-<tr><td>0.55</td><td><a href="./dn/Rhipe_0.55.tar.gz">Rhipe_0.55.tar.gz</a></td><td>Sun Feb 21 00:49:04 EST 2010</td></tr>
-<tr><td>0.54</td><td><a href="./dn/Rhipe_0.54.tar.gz">Rhipe_0.54.tar.gz</a></td><td></td></tr>
-<tr><td>0.53</td><td><a href="./dn/Rhipe_0.53.tar.gz">Rhipe_0.53.tar.gz</a></td><td></td></tr>
-<tr><td>0.52</td><td><a href="./dn/Rhipe_0.52.tar.gz">Rhipe_0.52.tar.gz</a></td><td></td></tr>
-<tr><td>0.51</td><td><a href="./dn/Rhipe_0.51.tar.gz">Rhipe_0.51.tar.gz</a></td><td></td></tr>
-<tr><td>0.5</td><td><a href="./dn/Rhipe_0.5.tar.gz">Rhipe_0.5.tar.gz</a></td><td></td></tr>
-<tr><td>0.44</td><td><a href="./dn/rhipe.0.44.tgz">rhipe.0.44.tgz</a></td><td></td></tr>
+<tr><td class="right">0.65.1</td><td class="left"><a href="./dn/Rhipe_0.65.1.tar.gz">Rhipe<sub>0</sub>.65.1.tar.gz</a></td><td class="left">Tue Dec 07 14:40:25 PST 2010</td></tr>
+<tr><td class="right">0.64</td><td class="left"><a href="./dn/Rhipe_0.64.tar.gz">Rhipe_0.64.tar.gz</a></td><td class="left">Thu Oct 21 22:26:20 PDT 2010</td></tr>
+<tr><td class="right">0.63</td><td class="left"><a href="./dn/Rhipe_0.63.tar.gz">Rhipe_0.63.tar.gz</a></td><td class="left">Wed Sep 16 03:12:20 EDT 2010</td></tr>
+<tr><td class="right">0.61</td><td class="left"><a href="./dn/Rhipe_0.61.tar.gz">Rhipe_0.61.tar.gz</a></td><td class="left">Wed Sep 08 03:12:20 EDT 2010</td></tr>
+<tr><td class="right">0.60</td><td class="left"><a href="./dn/Rhipe_0.60.tar.gz">Rhipe_0.60.tar.gz</a></td><td class="left">Fri May 28 17:13:16 EDT 2010</td></tr>
+<tr><td class="right">0.59</td><td class="left"><a href="./dn/Rhipe_0.59.tar.gz">Rhipe_0.59.tar.gz</a></td><td class="left">Tue May 04 18:15:26 EDT 2010</td></tr>
+<tr><td class="right">0.58</td><td class="left"><a href="./dn/Rhipe_0.58.tar.gz">Rhipe_0.58.tar.gz</a></td><td class="left">Fri Apr 09 01:41:48 EDT 2010</td></tr>
+<tr><td class="right">0.57</td><td class="left"><a href="./dn/Rhipe_0.57.tar.gz">Rhipe_0.57.tar.gz</a></td><td class="left">Sat Mar 20 11:20:21 EDT 2010</td></tr>
+<tr><td class="right">0.56</td><td class="left"><a href="./dn/Rhipe_0.56.tar.gz">Rhipe_0.56.tar.gz</a></td><td class="left">Sat Feb 27 17:04:44 EST 2010</td></tr>
+<tr><td class="right">0.55</td><td class="left"><a href="./dn/Rhipe_0.55.tar.gz">Rhipe_0.55.tar.gz</a></td><td class="left">Sun Feb 21 00:49:04 EST 2010</td></tr>
+<tr><td class="right">0.54</td><td class="left"><a href="./dn/Rhipe_0.54.tar.gz">Rhipe_0.54.tar.gz</a></td><td class="left"></td></tr>
+<tr><td class="right">0.53</td><td class="left"><a href="./dn/Rhipe_0.53.tar.gz">Rhipe_0.53.tar.gz</a></td><td class="left"></td></tr>
+<tr><td class="right">0.52</td><td class="left"><a href="./dn/Rhipe_0.52.tar.gz">Rhipe_0.52.tar.gz</a></td><td class="left"></td></tr>
+<tr><td class="right">0.51</td><td class="left"><a href="./dn/Rhipe_0.51.tar.gz">Rhipe_0.51.tar.gz</a></td><td class="left"></td></tr>
+<tr><td class="right">0.5</td><td class="left"><a href="./dn/Rhipe_0.5.tar.gz">Rhipe_0.5.tar.gz</a></td><td class="left"></td></tr>
+<tr><td class="right">0.44</td><td class="left"><a href="./dn/rhipe.0.44.tgz">rhipe.0.44.tgz</a></td><td class="left"></td></tr>
 </tbody>
 </table>
+
 
 
 
@@ -227,27 +238,17 @@ Read the documentation for installation. Current is the latest version.
 </div>
 
 <div id="outline-container-5" class="outline-2">
-<h2 id="sec-5"><span class="section-number-2">5</span> EC2 </h2>
+<h2 id="sec-5"><span class="section-number-2">5</span> Documentation </h2>
 <div class="outline-text-2" id="text-5">
-
-<p>See the documentation.
-</p>
-</div>
-
-</div>
-
-<div id="outline-container-6" class="outline-2">
-<h2 id="sec-6"><span class="section-number-2">6</span> Documentation </h2>
-<div class="outline-text-2" id="text-6">
 
 <p>The documentation can be found <a href="./doc/html/index.html">here</a>. PDF version can be found <a href="./doc/rhipe.pdf">here</a>
 </p></div>
 
 </div>
 
-<div id="outline-container-7" class="outline-2">
-<h2 id="sec-7"><span class="section-number-2">7</span> Contact </h2>
-<div class="outline-text-2" id="text-7">
+<div id="outline-container-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Contact </h2>
+<div class="outline-text-2" id="text-6">
 
 <p>sguha -AT- purdue -DOT- edu
 </p>
@@ -257,12 +258,28 @@ Read the documentation for installation. Current is the latest version.
 
 </div>
 
-<div id="outline-container-8" class="outline-2">
-<h2 id="sec-8"><span class="section-number-2">8</span> News </h2>
-<div class="outline-text-2" id="text-8">
+<div id="outline-container-7" class="outline-2">
+<h2 id="sec-7"><span class="section-number-2">7</span> News </h2>
+<div class="outline-text-2" id="text-7">
 
 <ul>
-<li id="sec-8.1">Thu Oct 21 22:24:18 PDT 2010 <br/>
+<li id="sec-7_1">Tue Dec 07 14:39:13 PST 2010 <br/>
+<ul>
+<li>
+Version 0.65.1
+</li>
+<li>
+Added an interactive monitoring feature via <code>rhstatus</code>.
+</li>
+<li>
+Must call <code>rhinit</code> before doing anything.
+</li>
+</ul>
+
+</li>
+</ul>
+<ul>
+<li id="sec-7_2">Thu Oct 21 22:24:18 PDT 2010 <br/>
 <ul>
 <li>
 Version 0.64, minor is 4.
@@ -276,11 +293,14 @@ Documentation updated, however example on using <code>biglm</code> is incomplete
 </li>
 <li>
 The java server is now default.
+</li>
+</ul>
+
 
 </li>
 </ul>
-</li>
-<li id="sec-8.2">Wed Sep 08 03:06:34 EDT 2010 <br/>
+<ul>
+<li id="sec-7_3">Wed Sep 08 03:06:34 EDT 2010 <br/>
 <ul>
 <li>
 Version 0.61, minor=3
@@ -293,11 +313,14 @@ Manual completely re-written
 </li>
 <li>
 The experimental java as a server episode has been re-written.
+</li>
+</ul>
+
 
 </li>
 </ul>
-</li>
-<li id="sec-8.3">Wed Aug 04 13:19:09 EDT 2010 <br/>
+<ul>
+<li id="sec-7_4">Wed Aug 04 13:19:09 EDT 2010 <br/>
 <ul>
 <li>
 Version 0.61, minor=2
@@ -306,8 +329,11 @@ Version 0.61, minor=2
 Ordering of numeric and alphabetical keys (not default)
 </li>
 </ul>
+
 </li>
-<li id="sec-8.4">Wed Jun 30 13:28:21 EDT 2010 <br/>
+</ul>
+<ul>
+<li id="sec-7_5">Wed Jun 30 13:28:21 EDT 2010 <br/>
 <ul>
 <li>
 Version 0.61
@@ -317,8 +343,11 @@ Added a partitioner that partitions on the i'th element of a scalar vector
 (strings, numerics and integers)
 </li>
 </ul>
+
 </li>
-<li id="sec-8.5">Fri May 28 17:11:16 EDT 2010 <br/>
+</ul>
+<ul>
+<li id="sec-7_6">Fri May 28 17:11:16 EDT 2010 <br/>
 <ul>
 <li>
 Now version 0.60       
@@ -327,32 +356,44 @@ Now version 0.60
 Added asynch options to <code>rhex</code>, so jobs can run in the background freeing the
 R console. The return value can be used to monitor job progress. See
 <a href="http://www.stat.purdue.edu/~sguha/rhipe/doc/html/rhmisc.html">Miscellaneous Commands</a> for more information.
+</li>
+</ul>
+
 
 </li>
 </ul>
-</li>
-<li id="sec-8.6">Thu May 06 21:29:36 EDT 2010 <br/>
+<ul>
+<li id="sec-7_7">Thu May 06 21:29:36 EDT 2010 <br/>
 <ul>
 <li>
 Added <code>rhcp</code> and <code>rhmv</code> to copy and moves files when both source and destination are on the HDFS (thanks to Jeff Li)
 </li>
 </ul>
+
 </li>
-<li id="sec-8.7">Tue May 04 18:15:35 EDT 2010 <br/>
+</ul>
+<ul>
+<li id="sec-7_8">Tue May 04 18:15:35 EDT 2010 <br/>
 <ul>
 <li>
 Some bugs in the comparator - fixed.
 </li>
 </ul>
+
 </li>
-<li id="sec-8.8">Thu Apr 23 12:48:45 EDT 2010 - <br/>
+</ul>
+<ul>
+<li id="sec-7_9">Thu Apr 23 12:48:45 EDT 2010 - <br/>
 <ul>
 <li>
 fixed comparators, <code>rhgetkey</code> working again. (0.59-2)
 </li>
 </ul>
+
 </li>
-<li id="sec-8.9">Thu Apr 22 12:23:37 EDT 2010 <br/>
+</ul>
+<ul>
+<li id="sec-7_10">Thu Apr 22 12:23:37 EDT 2010 <br/>
 <ul>
 <li>
 Fixed a bug in <code>rhlapply</code>, would not read in data. Thanks to <i>eddyu</i>
@@ -362,8 +403,11 @@ Fixed a bug in <code>rhlapply</code>, would not read in data. Thanks to <i>eddyu
 this since i make changes to RHIPE but keep the version the same.
 </li>
 </ul>
+
 </li>
-<li id="sec-8.10">Mon Apr 19 02:00:22 EDT 2010 <br/>
+</ul>
+<ul>
+<li id="sec-7_11">Mon Apr 19 02:00:22 EDT 2010 <br/>
 <ul>
 <li>
 Less memory allocation in the key/value(s).
@@ -381,19 +425,23 @@ if multicore is installed, then running rhread(..,mc=TRUE) will deserialize in p
 </li>
 <li>
 <code>rhgetkey</code> takes a parameter <code>skip</code> to read in large databases, also no need for trailing "*".
+</li>
+</ul>
+
+</li>
+</ul>
 <ul>
-</ul>
-</li>
-</ul>
-</li>
-<li id="sec-8.11">Thur Apr 15 <br/>
+<li id="sec-7_12">Thur Apr 15 <br/>
 <ul>
 <li>
 moved to protobuf-2.3
 </li>
 </ul>
+
 </li>
-<li id="sec-8.12">Fri Apr 09 01:42:05 EDT 2010 <br/>
+</ul>
+<ul>
+<li id="sec-7_13">Fri Apr 09 01:42:05 EDT 2010 <br/>
 <ul>
 <li>
 <code>rhls</code> can now recurse
@@ -406,8 +454,11 @@ Use the <code>type</code> argument to specify sequence(or text) files or map fil
 Similarly <code>rhmr</code> does not need <code>rhmap.sqs</code>
 </li>
 </ul>
+
 </li>
-<li id="sec-8.13">Wed Apr 07 16:56:07 EDT 2010 <br/>
+</ul>
+<ul>
+<li id="sec-7_14">Wed Apr 07 16:56:07 EDT 2010 <br/>
 <ul>
 <li>
 <code>rhread</code> takes a <code>max</code> argument that reads in only max number of key-value pairs
@@ -416,15 +467,21 @@ Similarly <code>rhmr</code> does not need <code>rhmap.sqs</code>
 <code>rhex</code> passes all extra arguments to the system command.
 </li>
 </ul>
+
 </li>
-<li id="sec-8.14">Sat Mar 20 20:51:58 EDT 2010 <br/>
+</ul>
+<ul>
+<li id="sec-7_15">Sat Mar 20 20:51:58 EDT 2010 <br/>
 <ul>
 <li>
 Combiner bug fixed, it's still needs to be tested. Mail if numbers do not match.
 </li>
 </ul>
+
 </li>
-<li id="sec-8.15">Sat Mar 20 11:20:44 EDT 2010 <br/>
+</ul>
+<ul>
+<li id="sec-7_16">Sat Mar 20 11:20:44 EDT 2010 <br/>
 <ul>
 <li>
 Fixed combiner, still alpha, but it halves the wordcount speed. The combiner
@@ -438,15 +495,21 @@ Also fixed a buffer overflow in <code>main.c</code>. Thanks to Will Nolan.
 Values and Keys can be now be upto 256MB.
 </li>
 </ul>
+
 </li>
-<li id="sec-8.16">Fri Feb 19 20:43:25 EST 2010 <br/>
+</ul>
+<ul>
+<li id="sec-7_17">Fri Feb 19 20:43:25 EST 2010 <br/>
 <ul>
 <li>
 EC2 now works!
 </li>
 </ul>
+
 </li>
-<li id="sec-8.17">Thu Jan 14 20:19:24 EST 2010 <br/>
+</ul>
+<ul>
+<li id="sec-7_18">Thu Jan 14 20:19:24 EST 2010 <br/>
 <ul>
 <li>
 Counters are returned to the R session (for <code>rhmr</code> only). That is the return
@@ -454,16 +517,22 @@ value of <code>rhmr</code> is a list, the first element indicates success/failur
 second are all the counters visible in the job UI.
 </li>
 </ul>
+
 </li>
-<li id="sec-8.18">Wed Jan 13 02:52:27 EST 2010 <br/>
+</ul>
+<ul>
+<li id="sec-7_19">Wed Jan 13 02:52:27 EST 2010 <br/>
 <ul>
 <li>
 Fixed a bug where errors in R code were not appearing. Somewhat fixed. Version
 stays the same.
 </li>
 </ul>
+
 </li>
-<li id="sec-8.19">Thu Dec 24 11:58:04 EST 2009 <br/>
+</ul>
+<ul>
+<li id="sec-7_20">Thu Dec 24 11:58:04 EST 2009 <br/>
 Released version 0.54
 <ul>
 <li>
@@ -475,8 +544,11 @@ Fixed a bug for the case when no reducer is specified but RHIPE java code
 threw an exception.
 </li>
 </ul>
+
 </li>
-<li id="sec-8.20">Sun Dec 13 22:11:53 EST 2009 <br/>
+</ul>
+<ul>
+<li id="sec-7_21">Sun Dec 13 22:11:53 EST 2009 <br/>
 <ul>
 <li>
 Release **Version 0.53**
@@ -503,27 +575,36 @@ A result of which can now write data.frames and read them back in.
 Impose 64MB key,value serialization limit(workaround to come in
 future). Objects bigger than this will be written successfully,but will fail
 to read and will cause the job to fail.
+</li>
+</ul>
+
 
 </li>
 </ul>
-</li>
-<li id="sec-8.21">Thu Dec 10 13:28:19 EST 2009 <br/>
+<ul>
+<li id="sec-7_22">Thu Dec 10 13:28:19 EST 2009 <br/>
 <ul>
 <li>
 <code>rhcounter</code> ,available in mapreduce code, is more versatile. Previously, ','
 in the counter names would upset Hadoop. Not anymore, see documentation for <code>rhmr</code>
 </li>
 </ul>
+
 </li>
-<li id="sec-8.22">Wed Dec  2 12:44:23 EST 2009 <br/>
+</ul>
+<ul>
+<li id="sec-7_23">Wed Dec  2 12:44:23 EST 2009 <br/>
 <ul>
 <li>
 Failed when running RHIPE from different UID's. Now writes to
 <code>/tmp/logger-UID</code>. Version number is still the same
 </li>
 </ul>
+
 </li>
-<li id="sec-8.23">Mon Oct 12 11:18:31 EDT 2009 <br/>
+</ul>
+<ul>
+<li id="sec-7_24">Mon Oct 12 11:18:31 EDT 2009 <br/>
 <ul>
 <li>
 Removed the dependency on rJava. Getting it to work with Hadoop classpaths
@@ -531,16 +612,22 @@ caused to much grief. The actualy RHIPE program remains unchanged but the
 client handler (R package) is a bit slower(?)
 </li>
 </ul>
-</li>
-<li id="sec-8.24">Sun Sep 27 22:01:33 EDT 2009 <br/>
-<ul>
-<li>
-Names are <b>only</b> read for VECSXP (list objects), because of a strange bug.
 
 </li>
 </ul>
+<ul>
+<li id="sec-7_25">Sun Sep 27 22:01:33 EDT 2009 <br/>
+<ul>
+<li>
+Names are <b>only</b> read for VECSXP (list objects), because of a strange bug.
 </li>
-<li id="sec-8.25">Tue Sep  8 15:35:24 EDT 2009 <br/>
+</ul>
+
+
+</li>
+</ul>
+<ul>
+<li id="sec-7_26">Tue Sep  8 15:35:24 EDT 2009 <br/>
 <ul>
 <li>
 Moved to Hadoop 0.20
@@ -550,11 +637,14 @@ Uses protobuf for serialization, fewer R types allowed
 </li>
 <li>
 Does not depend on Rserve, single R package to install
+</li>
+</ul>
+
 
 </li>
 </ul>
-</li>
-<li id="sec-8.26">Fri Aug  7 2009, Version 0.45 <br/>
+<ul>
+<li id="sec-7_27">Fri Aug  7 2009, Version 0.45 <br/>
 <ul>
 <li>
 Web site revamped. Beginning with the current version, the entire
@@ -567,10 +657,10 @@ Source code is available on Git, go to the download page for instructions.
 Stopped seeding via secure random generator, so the user will have
 to seed it to avoid correlated streams. On RHEL linux
 when running <code>rhlapply</code> on 145K+ tasks,  <code>/dev/random</code> would block.
-
-
 </li>
 </ul>
+
+
 
 
 </li>
@@ -587,10 +677,9 @@ when running <code>rhlapply</code> on 145K+ tasks,  <code>/dev/random</code> wou
 </div>
 <div id="postamble">
 <p class="author"> Author: Saptarshi Guha
-<a href="mailto:sguha@purdue.edu">&lt;sguha@purdue.edu&gt;</a>
 </p>
-<p class="date"> Date: 2010-10-21 22:27:08 PDT</p>
-<p class="creator">HTML generated by org-mode 6.33x in emacs 23</p>
+<p class="date"> Date: 2010-12-07 14:49:30 PST</p>
+<p class="creator">HTML generated by org-mode 7.3 in emacs 23</p>
 </div>
 </div>
 </body>

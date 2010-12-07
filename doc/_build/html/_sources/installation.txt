@@ -29,6 +29,7 @@ In R
 ::
 
 	library(Rhipe)
+	rhinit(TRUE, TRUE) ## the TRUEs are optional, use them for debugging
 	
 should work successfully.
 

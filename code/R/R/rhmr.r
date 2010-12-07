@@ -117,11 +117,13 @@ rhmr <- function(map,reduce=NULL,
   cleanup.m <- serialize(cleanup$map,NULL,ascii=T)
   cleanup.r <- serialize(cleanup$reduce,NULL,ascii=T)
 
-  if(ofolder!=''){
-    ofolder <- ofolder[1]
-    if(substr(ofolder,nchar(ofolder),nchar(ofolder))!="/")
-      ofolder <- paste(ofolder,"/",sep="")
-  }
+  ofolder <- sapply(ofolder,function(r) {
+    x <- if(substr(r,nchar(r),nchar(r))!="/" && r!=""){
+     paste(r,"/",sep="")
+   } else r
+  })
+  names(ofolder) <- NULL
+  
   flagclz <- NULL
   if(length(inout)==1) inout=c(inout,"null") 
 
@@ -160,7 +162,7 @@ rhmr <- function(map,reduce=NULL,
                      ,rhipe_command=paste(opts$runner,collapse=" ")
                      ,rhipe_input_folder=paste(ifolder,collapse=",")
                            
-                     ,rhipe_output_folder=paste(ofolder)))
+                     ,rhipe_output_folder=paste(ofolder,collapse=",")))
 
   shared.files <- unlist(as.character(shared))
   if(! all(sapply(shared.files,is.character)))
@@ -244,6 +246,7 @@ rhmr <- function(map,reduce=NULL,
   lines$rhipe_map_output_keyclass <- orderp
   
   lines$rhipe_string_quote <- ''
+  lines$rhipe_send_keys_to_map <- 1L
   lines$rhipe_map_output_valueclass <- "org.godhuli.rhipe.RHBytesWritable"
   lines$rhipe_partitioner_class <- "none"
   if(!is.null(partitioner) && is.list(partitioner)){
@@ -288,6 +291,8 @@ rhmr <- function(map,reduce=NULL,
     if(!is.null(lines$mapred.reduce.tasks))
       lines$mapred.reduce.tasks <- 0
   }
+  lines$RHIPE_DEBUG <- 0
+  lines$rhipe_map_input_type <- "default"
   lines$mapred.job.reuse.jvm.num.tasks <- -1
   for(n in names(mapred)) lines[[n]] <- mapred[[n]]
   
@@ -297,7 +302,7 @@ rhmr <- function(map,reduce=NULL,
 
   if(lines$rhipe_map_output_keyclass != c("org.godhuli.rhipe.RHBytesWritable")
      && is.null(reduce)){
-    stop("If using ordered keys, provide a reduce e.g.
+    stop("If using ordered keys, provide a reduce even a dummy reduce e.g.
 
 reduce = expression(
   reduce={ lapply(reduce.values,function(r) rhcollect(reduce.key,r)) }
@@ -318,7 +323,7 @@ reduce = expression(
 }
 
 
-rhlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
+rlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
                     inout=c("lapply","sequence"),readIn=T,mapred=list(),jobname="rhlapply",
                      doLocal=F,N,aggr=NULL,...){
   del.o.file <- F
@@ -471,7 +476,7 @@ rhex <- function (conf,async=FALSE,mapred,...)
   }
   close(conffile)
   
-  cmd <- paste("$HADOOP/bin/hadoop jar ", rhoptions()$jarloc, 
+  cmd <- paste(sprintf("%s/hadoop jar ",Sys.getenv("HADOOP_BIN")), rhoptions()$jarloc, 
                " org.godhuli.rhipe.RHMR ", zonf, sep = "")
   x. <- paste("Running: ", cmd)
   y. <- paste(rep("-",min(nchar(x.),40)))

@@ -68,12 +68,16 @@ import org.apache.hadoop.mapred.JobStatus;
 public class FileUtils {
     private FsShell fsshell;
     private Configuration cfg;
+    private org.apache.hadoop.mapred.JobConf jobconf;
     private static final SimpleDateFormat formatter = 
 	new SimpleDateFormat("yyyy-MM-dd HH:mm");
     private static final String fsep="\t";
-    public FileUtils(Configuration cfg){
+    private org.apache.hadoop.mapred.JobClient jclient;
+    public FileUtils(Configuration cfg) throws IOException{
 	this.cfg = cfg;
 	fsshell = new FsShell(cfg);
+    	jobconf = new org.apache.hadoop.mapred.JobConf(cfg);
+	jclient = new org.apache.hadoop.mapred.JobClient(jobconf);
     }
 
     public Configuration getConf(){
@@ -441,78 +445,125 @@ public class FileUtils {
 	}
 
     }
+
+    
     public REXP getstatus(REXP r) throws Exception{
-	String  jd = r.getRexpValue(0).getStringValue(0).getStrval();
-	org.apache.hadoop.mapreduce.JobID jid = org.apache.hadoop.mapreduce.JobID.forName(jd);
-	org.apache.hadoop.mapred.JobClient jclient = new org.apache.hadoop.mapred.JobClient(
-		  org.apache.hadoop.mapred.JobTracker.getAddress(new Configuration()),new Configuration());
-	org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.downgrade(jid);
-	org.apache.hadoop.mapred.RunningJob rj = jclient.getJob(jj);
-	String jobfile = rj.getJobFile();
-	Configuration c = new Configuration();
-	c.addResource(new Path(jobfile));
-	org.apache.hadoop.mapred.JobConf j = new org.apache.hadoop.mapred.JobConf(c);
-	org.apache.hadoop.mapred.Counters cc = rj.getCounters();
-	long startsec = getStart(jclient,jj);
-	double dura = ((double)System.currentTimeMillis()-startsec) /1000;
-	REXP ro = FileUtils.buildlistFromOldCounter(cc, dura );
-	int jobs = rj.getJobState();
-	String jobss = null;
-	if(jobs == JobStatus.FAILED) jobss = "FAILED";
-	else if(jobs == JobStatus.FAILED) jobss="KILLED";
-	else if(jobs == JobStatus.PREP) jobss="PREP";
-	else if(jobs == JobStatus.RUNNING) jobss="RUNNING";
-	else if(jobs == JobStatus.SUCCEEDED) jobss="SUCCEEDED";
-	float mapprog = rj.mapProgress(), reduprog = rj.reduceProgress();
+    	String  jd = r.getRexpValue(0).getStringValue(0).getStrval();
+ 	boolean  geterrors = r.getRexpValue(1).getIntValue(0)==1? true :false;
+    	// org.apache.hadoop.mapreduce.JobID jid = org.apache.hadoop.mapreduce.JobID.forName(jd);
+    	org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.forName(jd);
+    	if(jj==null) 
+    	    throw new IOException("Jobtracker could not find jobID: "+jd);
+    	// org.apache.hadoop.mapred.JobClient jclient = new org.apache.hadoop.mapred.JobClient(
+    	// 	  org.apache.hadoop.mapred.JobTracker.getAddress(c),c);
+    	// org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.downgrade(jid);
+    	org.apache.hadoop.mapred.RunningJob rj = jclient.getJob(jj);
+	if(rj==null)
+	    throw new IOException("No such job: "+jd+" available, wrong job? or try the History Viewer (see the Web UI) ");
+    	String jobfile = rj.getJobFile();
+    	// cfg.addResource(new Path(jobfile));
+    	org.apache.hadoop.mapred.Counters cc = rj.getCounters();
+    	long startsec = getStart(jclient,jj);
+    	double dura = ((double)System.currentTimeMillis()-startsec) /1000;
+    	REXP ro = FileUtils.buildlistFromOldCounter(cc, dura );
+    	int jobs = rj.getJobState();
+    	String jobss = null;
+    	if(jobs == JobStatus.FAILED) jobss = "FAILED";
+    	else if(jobs == JobStatus.KILLED) jobss="KILLED";
+    	else if(jobs == JobStatus.PREP) jobss="PREP";
+    	else if(jobs == JobStatus.RUNNING) jobss="RUNNING";
+    	else if(jobs == JobStatus.SUCCEEDED) jobss="SUCCEEDED";
+    	float mapprog = rj.mapProgress(), reduprog = rj.reduceProgress();
 	
-	org.apache.hadoop.mapred.TaskReport[] maptr = jclient.getMapTaskReports( jj);
-	org.apache.hadoop.mapred.TaskReport[] redtr = jclient.getReduceTaskReports( jj);
+    	org.apache.hadoop.mapred.TaskReport[] maptr = jclient.getMapTaskReports( jj);
+    	org.apache.hadoop.mapred.TaskReport[] redtr = jclient.getReduceTaskReports( jj);
 	
-	int totalmaps = maptr.length, totalreds = redtr.length;
-	int mappending =0,redpending=0, maprunning=0, redrunning=0, redfailed=0, mapfailed=0,mapcomp=0,redcomp=0;
-	for(int i =0;i < maptr.length;i++){
-	    TIPStatus t = maptr[i].getCurrentStatus();
-	    switch(t){
-	    case COMPLETE:
-		mapcomp++;
-		break;
-	    case FAILED:
-		mapfailed++;
-		break;
-	    case PENDING:
-		mappending++;
-		break;
-	    case RUNNING:
-		maprunning++;
-		break;
+    	int totalmaps = maptr.length, totalreds = redtr.length;
+    	int mappending =0,redpending=0, maprunning=0, redrunning=0, redfailed=0,redkilled=0,mapkilled=0, mapfailed=0,mapcomp=0,redcomp=0;
+    	for(int i =0;i < maptr.length;i++){
+    	    TIPStatus t = maptr[i].getCurrentStatus();
+    	    switch(t){
+    	    case COMPLETE:
+    		mapcomp++;
+    		break;
+    	    case FAILED:
+    		mapfailed++;
+    		break;
+    	    case PENDING:
+    		mappending++;
+    		break;
+    	    case RUNNING:
+    		maprunning++;
+    		break;
+	    case KILLED:
+    		mapkilled++;
+    		break;
+    	    }
+    	}
+    	for(int i =0;i < redtr.length;i++){
+    	    TIPStatus t = redtr[i].getCurrentStatus();
+    	    switch(t){
+    	    case COMPLETE:
+    		redcomp++;
+    		break;
+    	    case FAILED:
+    		redfailed++;
+    		break;
+    	    case PENDING:
+    		redpending++;
+    		break;
+    	    case RUNNING:
+    		redrunning++;
+    		break;
+	    case KILLED:
+    		redkilled++;
+    		break;
+    	    }
+    	}
+	int reduceafails=0,reduceakilled=0,mapafails=0,mapakilled=0;
+	int startfrom = 0;
+	
+	REXP.Builder errcontainer = REXP.newBuilder();
+	errcontainer.setRclass(REXP.RClass.STRING);
+	while(true){
+	    org.apache.hadoop.mapred.TaskCompletionEvent[] events = 
+		rj.getTaskCompletionEvents(startfrom); 
+	    for(int i=0;i< events.length;i++){
+		org.apache.hadoop.mapred.TaskCompletionEvent e =events[i];
+		int f=0,k=0;
+		switch(e.getTaskStatus()){
+		case KILLED:
+		    if(e.isMapTask()){mapakilled++;} else { reduceakilled++;} 
+		    break;
+		case TIPFAILED:
+		case FAILED:
+		    if(e.isMapTask()){mapafails++;} else { reduceafails++;} 
+		    if(geterrors){
+			REXPProtos.STRING.Builder content=REXPProtos.STRING.newBuilder();
+			String[] s = rj.getTaskDiagnostics(e.getTaskAttemptId());
+			if(s!=null && s.length>0){
+			    content.setStrval(s[0]);
+			    errcontainer.addStringValue(content.build());
+			}
+		    }
+		    break;
+		}
 	    }
+	    startfrom+=events.length;
+	    if(events.length==0) break;
 	}
-	for(int i =0;i < redtr.length;i++){
-	    TIPStatus t = redtr[i].getCurrentStatus();
-	    switch(t){
-	    case COMPLETE:
-		redcomp++;
-		break;
-	    case FAILED:
-		redfailed++;
-		break;
-	    case PENDING:
-		redpending++;
-		break;
-	    case RUNNING:
-		redrunning++;
-		break;
-	    }
-	}
-	REXP.Builder thevals   = REXP.newBuilder();
-	thevals.setRclass(REXP.RClass.LIST);
-	thevals.addRexpValue( RObjects.makeStringVector( new String[]{ jobss}));
-	thevals.addRexpValue( RObjects.buildDoubleVector( new double[]{ dura }));
-	thevals.addRexpValue( RObjects.buildDoubleVector( new double[]{ (double)mapprog, (double)reduprog}));
-	thevals.addRexpValue( RObjects.buildIntVector( new int[]{ totalmaps, mappending, maprunning, mapcomp,mapfailed}));
-	thevals.addRexpValue( RObjects.buildIntVector( new int[]{ totalreds, redpending, redrunning, redcomp,redfailed}));
-	thevals.addRexpValue(ro);
-	return(thevals.build());
+
+    	REXP.Builder thevals   = REXP.newBuilder();
+    	thevals.setRclass(REXP.RClass.LIST);
+    	thevals.addRexpValue( RObjects.makeStringVector( new String[]{ jobss}));
+    	thevals.addRexpValue( RObjects.buildDoubleVector( new double[]{ dura }));
+    	thevals.addRexpValue( RObjects.buildDoubleVector( new double[]{ (double)mapprog, (double)reduprog}));
+    	thevals.addRexpValue( RObjects.buildIntVector( new int[]{ totalmaps, mappending, maprunning, mapcomp,mapkilled,mapafails,mapakilled}));
+    	thevals.addRexpValue( RObjects.buildIntVector( new int[]{ totalreds, redpending, redrunning, redcomp,redkilled,reduceafails,reduceakilled}));
+    	thevals.addRexpValue(ro);
+    	thevals.addRexpValue( errcontainer);
+	thevals.addRexpValue( RObjects.makeStringVector(rj.getTrackingURL()));
+    	return(thevals.build());
     }
 	
 	// System.out.println(rj.getJobName());
@@ -528,10 +579,9 @@ public class FileUtils {
     }
     public void killjob(REXP r) throws Exception{
 	String  jd = r.getRexpValue(0).getStringValue(0).getStrval();
-	org.apache.hadoop.mapreduce.JobID jid = org.apache.hadoop.mapreduce.JobID.forName(jd);
-	org.apache.hadoop.mapred.JobClient jclient = new org.apache.hadoop.mapred.JobClient(
-		  org.apache.hadoop.mapred.JobTracker.getAddress(new Configuration()),new Configuration());
-	org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.downgrade(jid);
+	// org.apache.hadoop.mapreduce.JobID jid = org.apache.hadoop.mapreduce.JobID.forName(jd);
+	// org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.downgrade(jid);
+    	org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.forName(jd);
 	org.apache.hadoop.mapred.RunningJob rj = jclient.getJob(jj);
 	rj.killJob();
     }
@@ -539,16 +589,11 @@ public class FileUtils {
     public REXP joinjob(REXP r) throws Exception{
 	String  jd = r.getRexpValue(0).getStringValue(0).getStrval();
 	boolean verbose = r.getRexpValue(1).getStringValue(0).getStrval().equals("TRUE")? true:false;
-	org.apache.hadoop.mapreduce.JobID jid = org.apache.hadoop.mapreduce.JobID.forName(jd);
-	org.apache.hadoop.mapred.JobClient jclient = new org.apache.hadoop.mapred.JobClient(
-		  org.apache.hadoop.mapred.JobTracker.getAddress(new Configuration()),new Configuration());
-	org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.downgrade(jid);
+    	org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.forName(jd);
 	org.apache.hadoop.mapred.RunningJob rj = jclient.getJob(jj);
 	String jobfile = rj.getJobFile();
-	Configuration c = new Configuration();
-	c.addResource(new Path(jobfile));
-	org.apache.hadoop.mapred.JobConf j = new org.apache.hadoop.mapred.JobConf(c);
-	boolean issuc  = jclient.monitorAndPrintJob(j,rj);
+	// cfg.addResource(new Path(jobfile));
+	boolean issuc  = jclient.monitorAndPrintJob(jobconf,rj);
 	org.apache.hadoop.mapred.Counters cc = rj.getCounters();
 	long startsec = getStart(jclient,jj);
 	REXP ro = FileUtils.buildlistFromOldCounter(cc,((double)System.currentTimeMillis()-startsec) /1000);

@@ -1,4 +1,19 @@
-rhinit <- function(errors=FALSE, info=FALSE,path=NULL,cleanup=TRUE,bufsize=as.integer(3*1024*1024)){
+rhinit <-function(errors=TRUE, info=FALSE,path=NULL,cleanup=FALSE,bufsize=as.integer(3*1024*1024),buglevel=0,first=TRUE){
+  ## for debug: rhinit(errors=TRUE,info
+  Rhipe:::.rhinit(errors,info,path,cleanup,bufsize,buglevel)
+  if(first){
+    ## if(buglevel>0) message("Initial call to personal server")
+    ## Rhipe:::.rhinit(errors=TRUE,info=if(buglevel) TRUE else FALSE,path,cleanup,bufsize,buglevel=buglevel)
+    rhoptions(mode = Rhipe:::Mode,mropts=rhmropts.1(),quiet=FALSE) # "experimental"
+    ## if(buglevel>0) message("Secondary call to personal server")
+    ## Rhipe:::.rhinit(errors=TRUE,info=if(buglevel) TRUE else FALSE,path,cleanup,bufsize,buglevel=buglevel)
+    Sys.sleep(2)
+    message("Rhipe first run complete")
+    return(TRUE)
+  }
+}
+
+.rhinit <- function(errors=FALSE, info=FALSE,path=NULL,cleanup=FALSE,bufsize=as.integer(3*1024*1024),buglevel=0){
   rhoptions(.code.in=sample(1e6,1))
   ntimeout <- options("timeout")[[1]]
   options(timeout = if(!is.null(rhoptions()$timeout)) as.integer(rhoptions()$timeout) else 15552000L)
@@ -8,19 +23,24 @@ rhinit <- function(errors=FALSE, info=FALSE,path=NULL,cleanup=TRUE,bufsize=as.in
     unlink(r2)
   })
   f1 <- "localhost"
-  r <- tempfile();r2 <- tempfile()
+  r <- tempfile(pattern="sockets");r2 <- tempfile(pattern="signal")
   if(is.null(path))
-    cmda <- paste(c("$HADOOP/bin/hadoop jar ",rhoptions()$jarloc,"org.godhuli.rhipe.PersonalServer",f1,r,r2),collapse=" ")
+    cmda <- paste( c(sprintf("%s/hadoop jar",Sys.getenv("HADOOP_BIN")),rhoptions()$jarloc,"org.godhuli.rhipe.PersonalServer",f1,r,r2,as.integer(buglevel)),collapse=" ")
   else cmda <- path
-  j <- .Call("createProcess", cmda, c(as.integer(errors),as.integer(info)),as.integer(bufsize))
+  if(info){
+    message(cmda)
+  }
+  j <- .Call("createProcess", cmda, c(as.integer(errors),as.integer(info)),as.integer(bufsize),as.integer(buglevel))
   ## This is a potential race here, the child starts the Java server
   ## but before it even starts we arrive here ...
   ## so we busy wait
   ## to fix this I simply need to read from the Java standard output.
   ## will implement one day
   while(TRUE){
-    if(!is.na(file.info(r2)[1,]$size))
+    if(!is.na(file.info(r2)[1,]$size)){
+      if(buglevel>1000) message(sprintf("Found signal file (created by personalserver): %s",r2))
       break
+    }
   }
   x <- read.table(r,head=TRUE)
   y <- new.env()
@@ -33,13 +53,14 @@ rhinit <- function(errors=FALSE, info=FALSE,path=NULL,cleanup=TRUE,bufsize=as.in
     if(cleanup) {
       if(!is.null(rhoptions()$quiet) && !rhoptions()$quiet)
          cat(sprintf("RHIPE: Cleaning up  associated server (PID=%s)\n",r$ports['PID']));
-      tryCatch({writeBin(as.integer(-1),con=r$tojava,endian="big")},error=function(e) {},warning=function(e){})
+      ## tryCatch({writeBin(as.integer(-1),con=r$tojava,endian="big")},error=function(e) {},warning=function(e){})
       for(x in list(r$tojava, r$fromjava,r$err)) tryCatch(close(x),error=function(e){})
       system(sprintf("kill -9 %s", r$ports['PID']))
     }
   },onexit=TRUE)
   if(is.null(errors)) errors <- FALSE
   if(is.null(info)) info <- FALSE
+  message("Rhipe initialization complete")
   rhoptions(child=list(errors=errors,info=info,handle=y,bufsize=bufsize))
 }
  
@@ -59,7 +80,7 @@ restartR <- function(){
     rm(z);gc()
     if(!is.null(rhoptions()$quiet) && !rhoptions()$quiet)
       warning("RHIPE: restarting server")
-    rhinit(errors = rhoptions()$child$errors,info=rhoptions()$child$info)
+    rhinit(errors = rhoptions()$child$errors,info=rhoptions()$child$info,cleanup=TRUE,first=FALSE)
     z <- rhoptions()$child$hdl
 }
 
@@ -69,7 +90,7 @@ send.cmd <- function(z,command, getresponse=TRUE,continuation=NULL...){
     rm(z);gc()
     if(!is.null(rhoptions()$quiet) && !rhoptions()$quiet)
       warning("RHIPE: Creating a new RHIPE connection object, previous one died!")
-    rhinit(errors = rhoptions()$child$errors,info=rhoptions()$child$info)
+    rhinit(errors = rhoptions()$child$errors,info=rhoptions()$child$info,first=FALSE)
     z <- rhoptions()$child$handle
   }
   ## browser()
@@ -102,13 +123,13 @@ rhsz.1 <- function(r) .Call("serializeUsingPB",r)
 rhuz.1 <- function(r) .Call("unserializeUsingPB",r)
 
 rhcp.1 <- function(ifile, ofile) {
-  system(command=paste(paste(Sys.getenv("HADOOP"), "bin", "hadoop",
+  system(command=paste(paste(Sys.getenv("HADOOP_BIN"), "hadoop",
            sep=.Platform$file.sep), "fs", "-cp", ifile, ofile, sep=" "))
   ## v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhcp",ifile, ofile))
 }
 
 rhmv.1 <- function(ifile, ofile) {
-  system(command=paste(paste(Sys.getenv("HADOOP"), "bin", "hadoop",
+  system(command=paste(paste(Sys.getenv("HADOOP_BIN"),  "hadoop",
            sep=.Platform$file.sep), "fs", "-mv", ifile, ofile, sep=" "))
   ## v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhmv",ifile, ofile))
 }
@@ -195,6 +216,8 @@ rhwrite.1 <- function(lo,dest,N=NULL){
     x1 <- rhoptions()$mropts[[1]]$mapred.map.tasks
     x2 <- rhoptions()$mropts[[1]]$mapred.tasktracker.map.tasks.maximum
     N <- as.numeric(x1)*as.numeric(x2) #number of files to write to
+    if(is.null(N)) warning("Cannot infer N (because at least one of mapred.map.tasks and mapred.trasktracker.map.tasks.maximum is missing), defaulting to 1")
+    N <- 1
   }
   if(is.null(N) || N==0 || N>length(lo))
     N<- length(lo) ##why should it be zero????
@@ -258,23 +281,94 @@ rhkill.1 <- function(x){
 ##   }
 ## }
 
-rhstatus.1 <- function(x){
+rhstatus.1 <- function(x,mon.sec=0,autokill=TRUE, showErrors=TRUE,verbose=FALSE){
   if(class(x)!="jobtoken" && class(x)!="character" ) stop("Must give a jobtoken object(as obtained from rhex)")
   if(class(x)=="character") id <- x else {
     x <- x[[1]]
     id <- x[['job.id']]
   }
-  result <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhstatus", list(id)))[[1]]
+  if(mon.sec<=0) {
+    return(Rhipe:::.rhstatus.1(id,autokill,showErrors))
+  }else{
+    while(TRUE){
+      y <- .rhstatus.1(id,autokill=TRUE,showErrors)
+      cat(sprintf("\n[%s] Job: %s, State: %s, Duration: %s\nURL:%s\n",date(),id,y$state,y$duration,y$tracking))
+      print(y$progress)
+      if(verbose){
+        print(y$counters)
+      }
+      if(!(y$state %in% c("PREP","RUNNING"))) break;
+      cat(sprintf("Waiting %s seconds\n", mon.sec))
+      Sys.sleep(max(1,as.integer(mon.sec)))
+    }
+    return(y)
+  }
+}
+
+.rhstatus.1 <- function(id,autokill=FALSE,showErrors=FALSE){
+  result <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhstatus", list(id, as.integer(showErrors))))[[1]]
   d <- data.frame("pct"=result[[3]],"numtasks"=c(result[[4]][1],result[[5]][[1]]),
                   "pending"=c(result[[4]][2],result[[5]][[2]]),
                   "running" = c(result[[4]][3],result[[5]][[3]]),
-                  "complete" = c(result[[4]][4],result[[5]][[4]])
-                  ,"failed" = c(result[[4]][5],result[[5]][[5]]))
+                  "complete" = c(result[[4]][4],result[[5]][[4]]),
+                  "killed" = c(result[[4]][5],result[[5]][[5]]),
+                  "failed_attempts" = c(result[[4]][6],result[[5]][[6]]),
+                  "killed_attempts" = c(result[[4]][7],result[[5]][[7]])
+                  )
 
   rownames(d) <- c("map","reduce")
   duration = result[[2]]
   state = result[[1]]
-  return(list(state=state,duration=duration,progress=d, counters=result[[6]]));
+  errs=unique(result[[7]])
+  haveRError <- FALSE
+
+  if(!is.null(result[[6]]$R_ERRORS)) {
+    ## I treat these errors differently from other types
+    ## not sure if thats need, if not, this code can be eliminated
+    ## and errs can be extended by R_ERRORS
+    haveRError <- TRUE
+    message(sprintf("There were R errors, showing 30:"))
+    v <- unique(names(sort(result[[6]]$R_ERRORS)))
+    newr <- t(sapply(v,function(x){
+        y <- strsplit(x,"\n")[[1]]
+        f <- which(sapply(y,function(r) grep("(R ERROR)",r),USE.NAMES=FALSE)>=1)
+        if(length(f)>0) c("R",paste(y[(f[1]+3):(f[2]-1)],collapse="\n")) else c("NR",x)
+      },USE.NAMES=FALSE))
+    rerr <- head(newr[newr[,1]=="R",2],30)
+    sapply(rerr,cat)
+    if(autokill) {
+      message(sprintf("Autokill is true and terminating %s", id))
+      rhkill(id)
+    }
+  }
+  if(length(errs)>0){
+    if(showErrors){
+      newr <- t(sapply(errs,function(x){
+        y <- strsplit(x,"\n")[[1]]
+        f <- which(sapply(y,function(r) grep("(R ERROR)",r),USE.NAMES=FALSE)>=1)
+        if(length(f)>0) c("R",paste(y[(f[1]+3):(f[2]-1)],collapse="\n")) else c("NR",x)
+      },USE.NAMES=FALSE))
+      if(any(newr[,1]=="R")) {
+        haveRError <- TRUE
+        message(sprintf("There were R errors, showing at most 30:"))
+        rerr <- head(newr[newr[,1]=="R",2],30)
+        sapply(rerr,cat)
+      }
+      if(any(newr[,1]=="NR")) {
+        message(sprintf("There were Hadoop specific errors (autokill will not kill job), showing at most 30:"))
+        rerr <- head(newr[newr[,1]=="NR",2],30)
+        sapply(rerr,cat)
+      }
+    }
+    if(autokill && haveRError) {
+      message(sprintf("Autokill is true and terminating %s", id))
+      rhkill(id)
+    }
+  }
+  if(any(d[,"failed_attempts"]>0) && !showErrors)
+        warning("There are failed attempts, call rhstatus with  showErrors=TRUE. Note, some are fatal (e.g R errors) and some are not (e.g node failure)")
+  if(haveRError) state <- "FAILED"
+  return(list(state=state,duration=duration,progress=d, counters=result[[6]],rerrors=haveRError,errors=errs,tracking=result[[8]]));
 }
 
 
@@ -334,7 +428,7 @@ rbstream <- function(z,size=3000,mc,asraw=FALSE,quiet=FALSE){
 }
 
 rhmerge.1 <- function(inr,ou){
-  system(paste(paste(Sys.getenv("HADOOP"),"bin","hadoop",
+  system(paste(paste(Sys.getenv("HADOOP_BIN"),"hadoop",
                      sep=.Platform$file.sep,collapse=""),"dfs","-cat",inr,">", ou,collapse=" "))
 }
 
