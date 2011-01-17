@@ -1,4 +1,4 @@
-VER=0.65.1
+VER=0.65.2
 #
 .PHONY : doc code  sync
 
@@ -9,8 +9,8 @@ sync:
 	rsync -av website/ sguha@odds.stat.purdue.edu:~/.www/rhipe/
 	ssh sguha@odds.stat.purdue.edu 'fixwww'
 index: doc
-	/Applications/Aquamacs.app/Contents/MacOS/Aquamacs  -l index2html.el
-	# mv index.html website/#
+	/Applications/Aquamacs.app/Contents/MacOS/Aquamacs  -nw -l index2html.el
+	cp  index.html website/
 
 
 ec2:

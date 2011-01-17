@@ -121,13 +121,13 @@ int main(int argc,char **argv){
   }
 #endif
   int uid = geteuid();
+#ifdef RHIPEDEBUG
   char fn[1024];
   char *logfile=NULL;
   if( (logfile=getenv("RHIPELOGFILE")) )
     snprintf(fn,1023,"%s.euid-%d.pid-%d.log",logfile,uid,getpid());
   else
-    snprintf(fn,10234,"/tmp/rhipe.euid-%d.pid-%d.log",uid,getpid());
-#ifdef RHIPEDEBUG
+    snprintf(fn,1023,"/tmp/rhipe.euid-%d.pid-%d.log",uid,getpid());
   LOG=fopen(fn,"w");
   LOGG(10,"\n.....................\n");
   LOGG(10,"Starting Up\n");

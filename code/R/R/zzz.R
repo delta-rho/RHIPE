@@ -1,10 +1,10 @@
 .rhipeEnv <- new.env()
-vvvv <- "0.65.1"
+vvvv <- "0.65.2"
 attr(vvvv,"minor") <- '1'
-attr(vvvv,"date") <- 'Sat Nov 20 14:47:54 PST 2010'
+attr(vvvv,"date") <- 'Thu Dec 09 11:25:02 PST 2010'
 attr(vvvv,'fortune') <- "A little experience often upsets a lot of theory."
 
-attr(vvvv,'notes') <- c("Major change: call Rhipe:::first.run() before starting")
+attr(vvvv,'notes') <- c("Removed some sprintf lines which were causing bugs")
 class(vvvv) <- "rhversion"
 
 assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )

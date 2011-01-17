@@ -7,7 +7,7 @@ lang="en" xml:lang="en">
 <title>RHIPE - R and Hadoop Integrated Processing Environment </title>
 <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2010-12-07 14:49:30 PST"/>
+<meta name="generated" content="2010-12-09 11:29:34 PST"/>
 <meta name="author" content="Saptarshi Guha"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -210,6 +210,7 @@ Read the documentation for installation. Current is the latest version.
 <tr><th scope="col" class="right">Version</th><th scope="col" class="left">Download</th><th scope="col" class="left"></th></tr>
 </thead>
 <tbody>
+<tr><td class="right">0.65.2</td><td class="left"><a href="./dn/Rhipe_0.65.2.tar.gz">Rhipe_0.65.2.tar.gz</a></td><td class="left">Thu Dec 09 11:29:06 PST 2010</td></tr>
 <tr><td class="right">0.65.1</td><td class="left"><a href="./dn/Rhipe_0.65.1.tar.gz">Rhipe<sub>0</sub>.65.1.tar.gz</a></td><td class="left">Tue Dec 07 14:40:25 PST 2010</td></tr>
 <tr><td class="right">0.64</td><td class="left"><a href="./dn/Rhipe_0.64.tar.gz">Rhipe_0.64.tar.gz</a></td><td class="left">Thu Oct 21 22:26:20 PDT 2010</td></tr>
 <tr><td class="right">0.63</td><td class="left"><a href="./dn/Rhipe_0.63.tar.gz">Rhipe_0.63.tar.gz</a></td><td class="left">Wed Sep 16 03:12:20 EDT 2010</td></tr>
@@ -241,7 +242,7 @@ Read the documentation for installation. Current is the latest version.
 <h2 id="sec-5"><span class="section-number-2">5</span> Documentation </h2>
 <div class="outline-text-2" id="text-5">
 
-<p>The documentation can be found <a href="./doc/html/index.html">here</a>. PDF version can be found <a href="./doc/rhipe.pdf">here</a>
+<p>The documentation can be found <a href="./doc/html/index.html">here</a>. PDF version can be found <a href="./doc/RHIPE.pdf">here</a>
 </p></div>
 
 </div>
@@ -263,7 +264,21 @@ Read the documentation for installation. Current is the latest version.
 <div class="outline-text-2" id="text-7">
 
 <ul>
-<li id="sec-7_1">Tue Dec 07 14:39:13 PST 2010 <br/>
+<li id="sec-7_1">Thu Dec 09 11:26:18 PST 2010 <br/>
+<ul>
+<li>
+v 0.65.2
+</li>
+<li>
+Fixed a snprintf bug which caused buffer over runs.
+</li>
+</ul>
+
+
+</li>
+</ul>
+<ul>
+<li id="sec-7_2">Tue Dec 07 14:39:13 PST 2010 <br/>
 <ul>
 <li>
 Version 0.65.1
@@ -279,7 +294,7 @@ Must call <code>rhinit</code> before doing anything.
 </li>
 </ul>
 <ul>
-<li id="sec-7_2">Thu Oct 21 22:24:18 PDT 2010 <br/>
+<li id="sec-7_3">Thu Oct 21 22:24:18 PDT 2010 <br/>
 <ul>
 <li>
 Version 0.64, minor is 4.
@@ -300,7 +315,7 @@ The java server is now default.
 </li>
 </ul>
 <ul>
-<li id="sec-7_3">Wed Sep 08 03:06:34 EDT 2010 <br/>
+<li id="sec-7_4">Wed Sep 08 03:06:34 EDT 2010 <br/>
 <ul>
 <li>
 Version 0.61, minor=3
@@ -320,7 +335,7 @@ The experimental java as a server episode has been re-written.
 </li>
 </ul>
 <ul>
-<li id="sec-7_4">Wed Aug 04 13:19:09 EDT 2010 <br/>
+<li id="sec-7_5">Wed Aug 04 13:19:09 EDT 2010 <br/>
 <ul>
 <li>
 Version 0.61, minor=2
@@ -333,7 +348,7 @@ Ordering of numeric and alphabetical keys (not default)
 </li>
 </ul>
 <ul>
-<li id="sec-7_5">Wed Jun 30 13:28:21 EDT 2010 <br/>
+<li id="sec-7_6">Wed Jun 30 13:28:21 EDT 2010 <br/>
 <ul>
 <li>
 Version 0.61
@@ -347,7 +362,7 @@ Added a partitioner that partitions on the i'th element of a scalar vector
 </li>
 </ul>
 <ul>
-<li id="sec-7_6">Fri May 28 17:11:16 EDT 2010 <br/>
+<li id="sec-7_7">Fri May 28 17:11:16 EDT 2010 <br/>
 <ul>
 <li>
 Now version 0.60       
@@ -363,7 +378,7 @@ R console. The return value can be used to monitor job progress. See
 </li>
 </ul>
 <ul>
-<li id="sec-7_7">Thu May 06 21:29:36 EDT 2010 <br/>
+<li id="sec-7_8">Thu May 06 21:29:36 EDT 2010 <br/>
 <ul>
 <li>
 Added <code>rhcp</code> and <code>rhmv</code> to copy and moves files when both source and destination are on the HDFS (thanks to Jeff Li)
@@ -373,7 +388,7 @@ Added <code>rhcp</code> and <code>rhmv</code> to copy and moves files when both 
 </li>
 </ul>
 <ul>
-<li id="sec-7_8">Tue May 04 18:15:35 EDT 2010 <br/>
+<li id="sec-7_9">Tue May 04 18:15:35 EDT 2010 <br/>
 <ul>
 <li>
 Some bugs in the comparator - fixed.
@@ -383,7 +398,7 @@ Some bugs in the comparator - fixed.
 </li>
 </ul>
 <ul>
-<li id="sec-7_9">Thu Apr 23 12:48:45 EDT 2010 - <br/>
+<li id="sec-7_10">Thu Apr 23 12:48:45 EDT 2010 - <br/>
 <ul>
 <li>
 fixed comparators, <code>rhgetkey</code> working again. (0.59-2)
@@ -393,7 +408,7 @@ fixed comparators, <code>rhgetkey</code> working again. (0.59-2)
 </li>
 </ul>
 <ul>
-<li id="sec-7_10">Thu Apr 22 12:23:37 EDT 2010 <br/>
+<li id="sec-7_11">Thu Apr 22 12:23:37 EDT 2010 <br/>
 <ul>
 <li>
 Fixed a bug in <code>rhlapply</code>, would not read in data. Thanks to <i>eddyu</i>
@@ -407,7 +422,7 @@ this since i make changes to RHIPE but keep the version the same.
 </li>
 </ul>
 <ul>
-<li id="sec-7_11">Mon Apr 19 02:00:22 EDT 2010 <br/>
+<li id="sec-7_12">Mon Apr 19 02:00:22 EDT 2010 <br/>
 <ul>
 <li>
 Less memory allocation in the key/value(s).
@@ -431,7 +446,7 @@ if multicore is installed, then running rhread(..,mc=TRUE) will deserialize in p
 </li>
 </ul>
 <ul>
-<li id="sec-7_12">Thur Apr 15 <br/>
+<li id="sec-7_13">Thur Apr 15 <br/>
 <ul>
 <li>
 moved to protobuf-2.3
@@ -441,7 +456,7 @@ moved to protobuf-2.3
 </li>
 </ul>
 <ul>
-<li id="sec-7_13">Fri Apr 09 01:42:05 EDT 2010 <br/>
+<li id="sec-7_14">Fri Apr 09 01:42:05 EDT 2010 <br/>
 <ul>
 <li>
 <code>rhls</code> can now recurse
@@ -458,7 +473,7 @@ Similarly <code>rhmr</code> does not need <code>rhmap.sqs</code>
 </li>
 </ul>
 <ul>
-<li id="sec-7_14">Wed Apr 07 16:56:07 EDT 2010 <br/>
+<li id="sec-7_15">Wed Apr 07 16:56:07 EDT 2010 <br/>
 <ul>
 <li>
 <code>rhread</code> takes a <code>max</code> argument that reads in only max number of key-value pairs
@@ -471,7 +486,7 @@ Similarly <code>rhmr</code> does not need <code>rhmap.sqs</code>
 </li>
 </ul>
 <ul>
-<li id="sec-7_15">Sat Mar 20 20:51:58 EDT 2010 <br/>
+<li id="sec-7_16">Sat Mar 20 20:51:58 EDT 2010 <br/>
 <ul>
 <li>
 Combiner bug fixed, it's still needs to be tested. Mail if numbers do not match.
@@ -481,7 +496,7 @@ Combiner bug fixed, it's still needs to be tested. Mail if numbers do not match.
 </li>
 </ul>
 <ul>
-<li id="sec-7_16">Sat Mar 20 11:20:44 EDT 2010 <br/>
+<li id="sec-7_17">Sat Mar 20 11:20:44 EDT 2010 <br/>
 <ul>
 <li>
 Fixed combiner, still alpha, but it halves the wordcount speed. The combiner
@@ -499,7 +514,7 @@ Values and Keys can be now be upto 256MB.
 </li>
 </ul>
 <ul>
-<li id="sec-7_17">Fri Feb 19 20:43:25 EST 2010 <br/>
+<li id="sec-7_18">Fri Feb 19 20:43:25 EST 2010 <br/>
 <ul>
 <li>
 EC2 now works!
@@ -509,7 +524,7 @@ EC2 now works!
 </li>
 </ul>
 <ul>
-<li id="sec-7_18">Thu Jan 14 20:19:24 EST 2010 <br/>
+<li id="sec-7_19">Thu Jan 14 20:19:24 EST 2010 <br/>
 <ul>
 <li>
 Counters are returned to the R session (for <code>rhmr</code> only). That is the return
@@ -521,7 +536,7 @@ second are all the counters visible in the job UI.
 </li>
 </ul>
 <ul>
-<li id="sec-7_19">Wed Jan 13 02:52:27 EST 2010 <br/>
+<li id="sec-7_20">Wed Jan 13 02:52:27 EST 2010 <br/>
 <ul>
 <li>
 Fixed a bug where errors in R code were not appearing. Somewhat fixed. Version
@@ -532,7 +547,7 @@ stays the same.
 </li>
 </ul>
 <ul>
-<li id="sec-7_20">Thu Dec 24 11:58:04 EST 2009 <br/>
+<li id="sec-7_21">Thu Dec 24 11:58:04 EST 2009 <br/>
 Released version 0.54
 <ul>
 <li>
@@ -548,7 +563,7 @@ threw an exception.
 </li>
 </ul>
 <ul>
-<li id="sec-7_21">Sun Dec 13 22:11:53 EST 2009 <br/>
+<li id="sec-7_22">Sun Dec 13 22:11:53 EST 2009 <br/>
 <ul>
 <li>
 Release **Version 0.53**
@@ -582,7 +597,7 @@ to read and will cause the job to fail.
 </li>
 </ul>
 <ul>
-<li id="sec-7_22">Thu Dec 10 13:28:19 EST 2009 <br/>
+<li id="sec-7_23">Thu Dec 10 13:28:19 EST 2009 <br/>
 <ul>
 <li>
 <code>rhcounter</code> ,available in mapreduce code, is more versatile. Previously, ','
@@ -593,7 +608,7 @@ in the counter names would upset Hadoop. Not anymore, see documentation for <cod
 </li>
 </ul>
 <ul>
-<li id="sec-7_23">Wed Dec  2 12:44:23 EST 2009 <br/>
+<li id="sec-7_24">Wed Dec  2 12:44:23 EST 2009 <br/>
 <ul>
 <li>
 Failed when running RHIPE from different UID's. Now writes to
@@ -604,7 +619,7 @@ Failed when running RHIPE from different UID's. Now writes to
 </li>
 </ul>
 <ul>
-<li id="sec-7_24">Mon Oct 12 11:18:31 EDT 2009 <br/>
+<li id="sec-7_25">Mon Oct 12 11:18:31 EDT 2009 <br/>
 <ul>
 <li>
 Removed the dependency on rJava. Getting it to work with Hadoop classpaths
@@ -616,7 +631,7 @@ client handler (R package) is a bit slower(?)
 </li>
 </ul>
 <ul>
-<li id="sec-7_25">Sun Sep 27 22:01:33 EDT 2009 <br/>
+<li id="sec-7_26">Sun Sep 27 22:01:33 EDT 2009 <br/>
 <ul>
 <li>
 Names are <b>only</b> read for VECSXP (list objects), because of a strange bug.
@@ -627,7 +642,7 @@ Names are <b>only</b> read for VECSXP (list objects), because of a strange bug.
 </li>
 </ul>
 <ul>
-<li id="sec-7_26">Tue Sep  8 15:35:24 EDT 2009 <br/>
+<li id="sec-7_27">Tue Sep  8 15:35:24 EDT 2009 <br/>
 <ul>
 <li>
 Moved to Hadoop 0.20
@@ -644,7 +659,7 @@ Does not depend on Rserve, single R package to install
 </li>
 </ul>
 <ul>
-<li id="sec-7_27">Fri Aug  7 2009, Version 0.45 <br/>
+<li id="sec-7_28">Fri Aug  7 2009, Version 0.45 <br/>
 <ul>
 <li>
 Web site revamped. Beginning with the current version, the entire
@@ -678,7 +693,7 @@ when running <code>rhlapply</code> on 145K+ tasks,  <code>/dev/random</code> wou
 <div id="postamble">
 <p class="author"> Author: Saptarshi Guha
 </p>
-<p class="date"> Date: 2010-12-07 14:49:30 PST</p>
+<p class="date"> Date: 2010-12-09 11:29:34 PST</p>
 <p class="creator">HTML generated by org-mode 7.3 in emacs 23</p>
 </div>
 </div>
