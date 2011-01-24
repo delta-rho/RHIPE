@@ -203,7 +203,6 @@ extern "C" {
   (JNIEnv *env, jobject obj, jint totalsize,jint absolutemax)
   {
     // totalsize will be less (could be equal) to the into C buffer size
-    // fprintf(stderr, "VREATINGE NEW\n");
     stored_jv_messages->z_kv_stage_buffer_out = 
       new ArrayOutputStream(stored_jv_messages->staging_backingstore,
   			    absolutemax);
@@ -212,7 +211,6 @@ extern "C" {
     stored_jv_messages->size_kv_stage_buffer_out = (uint32_t) totalsize;
     stored_jv_messages->count_kv_stage_buffer_out = 0;
     // don't forget to free these !!!
-    // fprintf(stderr, "VREATINGE NEW %p\n",stored_jv_messages->cdo_kv_stage_buffer_out );
 
   }
   JNIEXPORT void JNICALL Java_org_godhuli_rhipe_RHMRHelper_deserialize_1v
@@ -303,7 +301,13 @@ extern "C" {
     if(! env->ExceptionCheck()) //already an exception
       JNU_throw_R_exception(err);
   }
- 
+  JNIEXPORT jint JNICALL Java_org_godhuli_rhipe_RHMRHelper_map_1buffer_1flush_1if_1nonempty
+  (JNIEnv *, jobject){
+    if( !stored_jv_messages->map_output_buffer.empty()){
+      spill_to_reducer();
+    }
+  }
+  
   JNIEXPORT void JNICALL Java_org_godhuli_rhipe_RHMRHelper_assign_1reduce_1key
   (JNIEnv *env, jobject obj, jstring name, jint bytes)  {
     CodedInputStream cds((uint8_t*)stored_jv_messages->reduce_key_backingstore,bytes);

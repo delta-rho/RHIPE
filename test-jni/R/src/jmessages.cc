@@ -12,6 +12,9 @@ JMessages::JMessages(jobject ob){
   JNU_system_print("[JMESSAGES] New JMessage\n",0);
   z_kv_stage_buffer_out = NULL;
   cdo_kv_stage_buffer_out = NULL;
+   size_kv_stage_buffer_out=0;
+  count_kv_stage_buffer_out=0;
+  combiner_spill_size=0;
 }
 JMessages::~JMessages(){
   JNU_system_print("[JMESSAGES] Deleting JMessage\n",0);

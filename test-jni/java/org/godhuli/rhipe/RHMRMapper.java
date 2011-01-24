@@ -40,7 +40,7 @@ public class RHMRMapper extends Mapper<WritableComparable,
 	re.setJobState("MAP",cfg);
 	re.setContext(context);
 	try{
-	    re.initialize_java_to_R_buffer(Integer.parseInt(context.getConfiguration()
+	    re.initialize_java_to_R_buffer("Mapper",Integer.parseInt(context.getConfiguration()
 							    .get("rhipe_buffer_bytes")), // Java to R
 					   Integer.parseInt(context.getConfiguration()   // R to Java
 							    .get("rhipe_r2j_buffer_bytes")),
@@ -81,7 +81,13 @@ public class RHMRMapper extends Mapper<WritableComparable,
 	    re.eval("eval(mapred.opts$map.setup)");
 
 	    if(using_combiner){
-		re.eval("rhcollect <- function(k,v,buffer=TRUE) .Call('rh_combine_kv',k,v,buffer)");
+		LOG.info("Using a combiner");
+		re.eval("mapred.opts$reduce.setup	<- unserialize(charToRaw(mapred.opts$rhipe_setup_reduce));"
+		    +"mapred.opts$reduce.pre		<- unserialize(charToRaw(mapred.opts$rhipe_reduce_prekey));"
+		    +"mapred.opts$reduce.reduce		<- unserialize(charToRaw(mapred.opts$rhipe_reduce));"
+		    +"mapred.opts$reduce.post		<- unserialize(charToRaw(mapred.opts$rhipe_reduce_postkey));"
+		    +"mapred.opts$reduce.cleanup	<- unserialize(charToRaw(mapred.opts$rhipe_cleanup_reduce));");
+		re.eval("rhcollect			<- function(k,v,buffer=TRUE) .Call('rh_combine_kv',k,v,buffer)");
 	    }
 	    else {
 		re.eval("rhcollect <- function(k,v,buffer=TRUE) .Call('rh_spool_kv',k,v,buffer)");
@@ -108,9 +114,12 @@ public class RHMRMapper extends Mapper<WritableComparable,
 	    if(re.get_written()>0){
 		LOG.info("Flushing left over"); 
 		re.map_spill("eval(mapred.opts$map.map)");
+		if(using_combiner) re.map_buffer_flush_if_nonempty();
+		re.send_kv();
 	    }else
 		{
-		    re.send_kv();
+		    if(using_combiner) re.map_buffer_flush_if_nonempty();
+		    re.send_kv(); //retrieves from R		if(using_combiner){
 		}
 	}
 	catch(RHIPEException e){

@@ -114,11 +114,11 @@ public class RHMRHelper {
 	REXP r = RObjects.makeList(keys,value);
 	createOpts(r.toByteArray(),RObjects.makeStringVector(robjectname).toByteArray());
     }
-    public void initialize_java_to_R_buffer(int buffbytes,int reversebytes,int pad)
+    public void initialize_java_to_R_buffer(String s,int buffbytes,int reversebytes,int pad)
     throws RHIPEException
     {
 	if(keyvalue_stage == null){
-	    LOG.info("Creating DirectBuffer for map bytes of size "+pad+ " bytes " + buffbytes+" max bytes");
+	    LOG.info("Creating DirectBuffer for "+s+" bytes of size "+pad+ " bytes " + buffbytes+" max bytes");
 	    keyvalue_stage = create_backing_store(buffbytes+pad);
 	}
 	keyvalue_stage_stream_max = buffbytes;
@@ -126,10 +126,10 @@ public class RHMRHelper {
 	keyvalue_stage_stream_pad = pad;
 	initialize_map_storage();
     }
-    public void initialize_java_to_R_buffer(int keystorage,int buffbytes,int reversebytes,int pad)
+    public void initialize_java_to_R_buffer(String s,int keystorage,int buffbytes,int reversebytes,int pad)
 	throws RHIPEException
     {
-	initialize_java_to_R_buffer(buffbytes,reversebytes,pad);
+	initialize_java_to_R_buffer(s,buffbytes,reversebytes,pad);
 	if(reduce_key_stage == null){
 	    LOG.info("Creating DirectBuffer for reduce key of size "+keystorage + " bytes");
 	    reduce_key_stage = create_reduce_key_store(keystorage);
@@ -305,6 +305,7 @@ public class RHMRHelper {
     native void assign_reduce_key(String s,int l);
     native void rewind_kv_stage(int n,int b) throws RHIPEException;
     native int get_num_to_flush_from_c();
+    native int map_buffer_flush_if_nonempty();
     
     
     // utility functions

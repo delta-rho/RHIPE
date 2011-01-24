@@ -73,6 +73,7 @@ SEXP rh_spool_kv(SEXP,SEXP,SEXP);
 SEXP rh_combine_kv(SEXP,SEXP,SEXP);
 SEXP rh_status(SEXP);
 SEXP rh_counter(SEXP,SEXP);
+void spill_to_reducer(void);
 
 /*********************************
  * Defined in display.cc

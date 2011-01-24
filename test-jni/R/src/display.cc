@@ -63,6 +63,11 @@ SEXP rh_spool_kv(SEXP k,SEXP v,SEXP fast){
 }
 
 SEXP rh_combine_kv(SEXP k,SEXP v,SEXP buffer){
+  /***************************************************************************
+   * In local run, this native library is loaded once and never loaded again,
+   * unless the server is restarted
+   **************************************************************************/
+
   static bool _once = false;
   static std::string *_ks;
   static std::string *_vs;

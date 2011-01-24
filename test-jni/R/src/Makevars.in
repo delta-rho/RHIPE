@@ -1,6 +1,8 @@
-MYCXXFLAGS+= -I. -g  -DHAVE_UINTPTR_T   `pkg-config --cflags protobuf` -Wall
+MYCXXFLAGS+= -I. -g  -DHAVE_UINTPTR_T   `pkg-config --cflags protobuf` -Wall @JAVA_CPPFLAGS@
 PKG_LIBS+= `pkg-config --libs protobuf` 
-PKG_LIBS+= -L/ln/meraki/custom/jdk1.6.0_11/jre/lib/amd64/server -L/ln/meraki/custom/jdk1.6.0_11/jre/lib/amd64 -L/ln/meraki/custom/jdk1.6.0_11/jre/../lib/amd64 -L/ln/meraki/custom/lib -L/ln/meraki/custom/lib64/R/lib/ -L/ln/meraki/custom/hadoop/lib/native/Linux-amd64-64/ -L/ln/meraki/custom/hadoop/lib/native/ -L/ln/meraki/custom/lib/ -L/usr/java/packages/lib/amd64 -ljvm         
+PKG_LIBS+=  @JAVA_LIBS@
+
+# -L/ln/meraki/custom/jdk1.6.0_11/jre/lib/amd64/server -L/ln/meraki/custom/jdk1.6.0_11/jre/lib/amd64 -L/ln/meraki/custom/jdk1.6.0_11/jre/../lib/amd64 -L/ln/meraki/custom/lib -L/ln/meraki/custom/lib64/R/lib/ -L/ln/meraki/custom/hadoop/lib/native/Linux-amd64-64/ -L/ln/meraki/custom/hadoop/lib/native/ -L/ln/meraki/custom/lib/ -L/usr/java/packages/lib/amd64 -ljvm         
 #@JAVA_LIBS@
 JAVA_HOME=@JAVA_HOME@
 

@@ -68,7 +68,7 @@ public class RHMRReducer extends Reducer<WritableComparable,
     public void custom_reducer(Context context)
 	throws IOException, InterruptedException{
 	try{
-	    re.initialize_java_to_R_buffer(
+	    re.initialize_java_to_R_buffer("Reducer",
 					   RHMRHelper.REXP_MAX_SIZE,
 					   Integer.parseInt(context.getConfiguration()
 							    .get("rhipe_reduce_buffer_bytes")),
