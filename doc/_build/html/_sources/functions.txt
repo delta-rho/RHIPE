@@ -247,9 +247,10 @@ from ``rhmr``.  The function returns when the job ends (success/failure or
 because the user terminated (see ``rhkill``)). When ``async`` is TRUE, the
 function returns immediately, leaving the job running in the background on Hadoop. 
 
-The function returns an object of class *jobtoken*. The generic function
+When ``async=TRUE``, function returns an object of class *jobtoken*. The generic function
 ``print.jobtoken``, displays the start time, duration (in seconds) and percent
 progress. This object can be used in calls to ``rhstatus``,``rhjoin`` and ``rhkill``.
+Otherwise is returns a list of counters and the job state.
 
 
 .. index:: rhstatus, rhcounter

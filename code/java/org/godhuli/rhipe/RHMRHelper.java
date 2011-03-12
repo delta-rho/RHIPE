@@ -85,6 +85,10 @@ public class RHMRHelper {
 	while (it.hasNext()) {
 	    Map.Entry en = (Map.Entry) it.next();
 	    String name = (String) en.getKey();
+	    if(name.equals("mapred.input.dir") 
+	       || name.equals("rhipe_input_folder")) 
+		continue;
+
 	    String value = conf.get(name); // does variable expansion 
 	    env.put(name, value);
 	}
