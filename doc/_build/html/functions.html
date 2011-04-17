@@ -138,7 +138,8 @@ wildcard and will match any character(s).</p>
 </div>
 <p>Copies the files (or folder) at <tt class="docutils literal"><span class="pre">src</span></tt>, located on the HDFS to the
 destination <tt class="docutils literal"><span class="pre">dest</span></tt> located on the local filesystem. If a file or folder of
-the same name as <tt class="docutils literal"><span class="pre">dest</span></tt> exists on the local filesystem, it will be deleted.</p>
+the same name as <tt class="docutils literal"><span class="pre">dest</span></tt> exists on the local filesystem, it will be
+deleted. The <tt class="docutils literal"><span class="pre">dest</span></tt> can contain &#8220;~&#8221; which will be expanded.</p>
 </div>
 <div class="section" id="rhput-copying-to-the-hdf">
 <span id="index-3"></span><h3>rhput - Copying to the HDF<a class="headerlink" href="#rhput-copying-to-the-hdf" title="Permalink to this headline">¶</a></h3>
@@ -146,7 +147,7 @@ the same name as <tt class="docutils literal"><span class="pre">dest</span></tt>
 </pre></div>
 </div>
 <p>Copies the local file called <tt class="docutils literal"><span class="pre">src</span></tt> (not a folder) to the destination <tt class="docutils literal"><span class="pre">dest</span></tt>
-on the HDFS.</p>
+on the HDFS. Uses <tt class="docutils literal"><span class="pre">path.expand</span></tt> to expand the <tt class="docutils literal"><span class="pre">src</span></tt> parameter.</p>
 </div>
 <div class="section" id="rhcp-copying-on-the-hdfs">
 <span id="index-4"></span><h3>rhcp - Copying on the HDFS<a class="headerlink" href="#rhcp-copying-on-the-hdfs" title="Permalink to this headline">¶</a></h3>

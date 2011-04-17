@@ -52,7 +52,8 @@ rhget - Copying from the HDFS
 
 Copies the files (or folder) at ``src``, located on the HDFS to the
 destination ``dest`` located on the local filesystem. If a file or folder of
-the same name as ``dest`` exists on the local filesystem, it will be deleted.
+the same name as ``dest`` exists on the local filesystem, it will be
+deleted. The ``dest`` can contain "~" which will be expanded.
 
 .. index:: rhput
 
@@ -63,7 +64,7 @@ rhput - Copying to the HDF
 	rhput(src,dest)
 
 Copies the local file called ``src`` (not a folder) to the destination ``dest``
-on the HDFS.
+on the HDFS. Uses ``path.expand`` to expand the ``src`` parameter.
 
 .. index:: rhcp
 

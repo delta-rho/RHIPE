@@ -30,12 +30,7 @@ z=rhmr(map=m,reduce=r,comb=T,inout=c("text","sequence"),ifolder="/tmp/50mil",ofo
 rhex(z)
 #+END_SRC
 
-Or just, load Rhipe and type 
-#+BEGIN_SRC R-example
-rhwordcount(infolder,outfolder)
-#+END_SRC
-where =infolder= is the input file(or folder of files) of words(text file) and =outfolder= is
-the destination directory.
+
 * Mailing List
 Mailing list is hosted on Google Groups. The url is
 [[http://groups.google.com/group/rhipe]] . Your first post will be moderated.
@@ -76,6 +71,7 @@ Read the documentation for installation. Current is the latest version.
 
 | Version | Download             |                              |
 |---------+----------------------+------------------------------|
+|  0.65.4 | [[file:./dn/Rhipe_0.65.4.tar.gz][Rhipe\_0.65.4.tar.gz]] | Sat Apr 16 18:39:20 PDT 2011 |
 |  0.65.3 | [[file:./dn/Rhipe_0.65.3.tar.gz][Rhipe\_0.65.3.tar.gz]] | Sat Mar 12 15:13:51 PST 2011 |
 |  0.65.2 | [[file:./dn/Rhipe_0.65.2.tar.gz][Rhipe\_0.65.2.tar.gz]] | Thu Dec 09 11:29:06 PST 2010 |
 |  0.65.1 | [[file:./dn/Rhipe_0.65.1.tar.gz][Rhipe_0.65.1.tar.gz]]  | Tue Dec 07 14:40:25 PST 2010 |
@@ -108,7 +104,12 @@ sguha -AT- purdue -DOT- edu
 
 
 * News
-
+****** Sat Apr 16 18:39:39 PDT 2011
+- Quick fix before next major version
+- Added some code so that the user can provide additional JAR files
+- Still Hadoop 0.20 compatible, not yet ready for Hadoop 0.21 (will
+  work but lots of deprecations)
+- =rhput= and =rhget= expand the paths in the source and destination respectively
 ****** Sat Mar 12 15:15:14 PST 2011
 - =mapred.input.dir= is not passed onto the R code since it be huge.
 - Next version will be Hadoop 0.21 compatible and *Hadoop 0.20 incompatible*
