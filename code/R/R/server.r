@@ -153,11 +153,11 @@ rhdel.1 <- function(folder){
 }
 
 rhget.1 <- function(src, dest){
-  x <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhget",src,dest))
+  x <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhget",src,path.expand(dest)))
 }
 
 rhput.1 <- function(src, dest,deletedest=TRUE){
-  x <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhput",src,dest,as.logical(deletedest)))
+  x <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhput",path.expand(src),dest,as.logical(deletedest)))
 }
 
 getypes <- function(files,type){

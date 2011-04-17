@@ -148,6 +148,13 @@ public class RHMR  implements Tool {
 	    for(String p : shared)
 		if(p.length()>1) DistributedCache.addCacheFile(new URI(p),config_);
 	}
+	String[] jarfiles = config_.get("rhipe_jarfiles").split(",");
+	if(jarfiles!=null){
+	    for(String p : jarfiles){
+		// System.err.println("Adding "+ p +" to classpath");
+		if(p.length()>1) DistributedCache.addArchiveToClassPath(new Path(p),config_);
+	    }
+	}
 	DistributedCache.createSymlink(config_);
 
     }

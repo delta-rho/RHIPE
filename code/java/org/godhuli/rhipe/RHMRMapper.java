@@ -64,10 +64,14 @@ public class RHMRMapper extends Mapper<WritableComparable,
 	}
 	cleanup(context);
     }								  
-								  
+	
+		  
 								  
     public void setup(Context context) {
 	Configuration cfg = context.getConfiguration();
+
+	// Test External Jar File is Present!
+	// RHMRMapper.invoke("org.godhuli.rhipe.HBase.TestCase","showMessage",new Class[]{String.class}, new Object[]{new String("Foo")});
 	try{
 	    String mif = ((FileSplit) context.getInputSplit()).getPath().toString();
 	    cfg.set("mapred.input.file",mif);

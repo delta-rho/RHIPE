@@ -84,7 +84,7 @@ rhdel <- function(fold,ignore.stderr=T,verbose=F){
 
 
 rhput <- function(src,dest,deleteDest=TRUE,ignore.stderr=T,verbose=F){
-  doCMD(rhoptions()$cmd['put'],locals=src,dest=dest,overwrite=deleteDest,needoutput=F
+  doCMD(rhoptions()$cmd['put'],locals=path.expand(src),dest=dest,overwrite=deleteDest,needoutput=F
         ,ignore.stderr=ignore.stderr,verbose=verbose)
 ##   doCMD(src,dest,deleteDest,if(is.null(socket)) rhoptions()$socket else socket)
 }

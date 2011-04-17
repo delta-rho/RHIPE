@@ -37,6 +37,8 @@ import org.apache.commons.logging.LogFactory;
 import org.godhuli.rhipe.REXPProtos.REXP;
 import org.godhuli.rhipe.REXPProtos.REXP.RClass;
 
+import java.lang.reflect.*;
+
 public class RHMRHelper {
     private  static int BUFFER_SIZE = 10*1024;
     private  static final String R_MAP_ERROR = "R MAP ERROR";
@@ -487,6 +489,18 @@ public class RHMRHelper {
 	}
     }
 
+    public static void invoke
+	(String aClass, String aMethod, Class[] params, Object[] args)
+    {
+	try{
+	    Class c = Class.forName(aClass);
+	    Method m = c.getDeclaredMethod(aMethod, params);
+	    Object i = c.newInstance();
+	    Object r = m.invoke(i, args);
+	}catch(Exception e){
+	    throw new RuntimeException(e);
+	}					
+    }
 
     
     long startTime_;

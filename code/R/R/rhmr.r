@@ -299,7 +299,7 @@ rhmr <- function(map,reduce=NULL,
   lines$rhipe_combiner <- paste(as.integer(combiner))
   if(lines$rhipe_combiner=="1")
     lines$rhipe_reduce_justcollect <- "FALSE"
-
+  if(length(jarfiles)>0) lines$rhipe_jarfiles <- paste(path.expand(jarfiles),collapse=",")
   if(lines$rhipe_map_output_keyclass != c("org.godhuli.rhipe.RHBytesWritable")
      && is.null(reduce)){
     stop("If using ordered keys, provide a reduce even a dummy reduce e.g.
@@ -475,9 +475,7 @@ rhex <- function (conf,async=FALSE,mapred,...)
     writeBin(charToRaw(as.character(lines[[x]])),conffile,endian='big')
   }
   close(conffile)
-  
-  cmd <- paste(sprintf("%s/hadoop jar ",Sys.getenv("HADOOP_BIN")), rhoptions()$jarloc, 
-               " org.godhuli.rhipe.RHMR ", zonf, sep = "")
+  cmd <- sprintf("%s/hadoop jar %s  org.godhuli.rhipe.RHMR %s  ",Sys.getenv("HADOOP_BIN"),rhoptions()$jarloc,zonf)
   x. <- paste("Running: ", cmd)
   y. <- paste(rep("-",min(nchar(x.),40)))
   message(y.);message(x.);message(y.)

@@ -1,11 +1,10 @@
 .rhipeEnv <- new.env()
-vvvv <- "0.65.3"
+vvvv <- "0.65.4"
 attr(vvvv,"minor") <- '1'
-attr(vvvv,"date") <- 'Sat Mar 12 15:11:31 PST 2011'
-attr(vvvv,'fortune') <- "Please remain calm, it's no use both of us being hysterical at the same time."
+attr(vvvv,"date") <- 'Sat Apr 16'
+attr(vvvv,'fortune') <- "A good supervisor can step on your toes without messing up your shine."
 
-
-attr(vvvv,'notes') <- c("mapred.input.dir is not passed onto the client since it might be too large")
+attr(vvvv,'notes') <- c("Some modifications so that RHIPE can be use user-supplied JAR files","rhget (for the dest) and rhput (for the src) expand ~")
 class(vvvv) <- "rhversion"
 
 assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )

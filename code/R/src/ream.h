@@ -19,6 +19,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <stdarg.h>
+
 using namespace std;
 
 #define R_NO_REMAP
