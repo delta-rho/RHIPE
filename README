@@ -1,11 +1,3 @@
-This is the integration of Hadoop and R to provide a seamless
-mapreduce environment.
-
-See http://www.stat.purdue.edu/~sguha/rhipe for details
-
-About This Version
--------------------
-Uses Hadoop 0.20
-
-.
-
+THIS IS MOVED TO code.google.com/p/rhipe 
+All development, bugs, issues etc can be found there.
+This repo will be deleted in a weeks time.
