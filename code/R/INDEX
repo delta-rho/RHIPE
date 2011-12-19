@@ -1,0 +1,23 @@
+rhcollect               Send Key,Value Pair To The Hadoop System.
+rhcounter               Update Status Counters During a MapReduce Job
+rhcp                    Copy files (or folders) on the HDFS
+rhdel                   HDFS File Deletion
+rhex                    Execute a MapReduce Job On Hadoop
+rhget                   Copying from the HDFS
+rhgetkey                Get Value Associated With a Key In A Map File
+rhinit                  Initialize Rhipe
+Rhipe-package           RHIPE: R and Hadoop Integrated Processing
+                        Environment
+rhjoin                  Wait For A MapReduce Job
+rhkill                  Kill A MapReduce Job
+rhload                  Load an RData from the HDFS.
+rhls                    List Files On HDFS
+rhmr                    Prepares a MapReduce Job For Execution
+rhoptions               Get or Set Rhipe Options
+rhput                   Put a file unto the HDFS
+rhread                  Read Key/Value Pairs From The HDFS
+rhsave                  Save .RData to HDFS
+rhsave.image            save.image to HDFS
+rhstatus                Report Status Of A MapReduce Job
+rhsz                    Serialize and Unserialize
+rhwrite                 Write R data to the HDFS

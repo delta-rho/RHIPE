@@ -100,7 +100,7 @@ public class PersonalServer {
     public void rhcat(REXP r) throws Exception {
 	final int buff = r.getRexpValue(2).getIntValue(0);
 	final int mx = r.getRexpValue(3).getIntValue(0);
-
+	final int whattype = r.getRexpValue(4).getIntValue(0);
 	    for(int i=0; i<r.getRexpValue(1).getStringValueCount();i++){
 		Path srcPattern = new Path(r.getRexpValue(1).getStringValue(i).getStrval());
 		new DelayedExceptionThrowing() {
@@ -109,7 +109,11 @@ public class PersonalServer {
 			    throw new IOException("Source must be a file.");
 			}
 			// System.err.println("INPUT="+p);
-			printToStdout(srcFs.open(p),buff,mx);
+			InputStream ins = srcFs.open(p);
+			if(whattype==1){
+			    ins = new java.util.zip.GZIPInputStream(ins);
+			}
+			printToStdout(ins,buff,mx);
 		    }
 		}.globAndProcess(srcPattern, srcPattern.getFileSystem(fu.getConf()));
 	    }
@@ -120,13 +124,15 @@ public class PersonalServer {
 	try {
 	    byte buf[] = new byte[buffsize];
 	    int bytesRead = in.read(buf);
+	    int totalread = bytesRead;
 	    while (bytesRead >= 0) {
 		// System.err.println("Wrote "+bytesRead);
 		_toR.writeInt(bytesRead);
 		_toR.write(buf, 0, bytesRead);
 		_toR.flush();
-		if(mx > -1 && bytesRead >=mx) break;
+		if(mx > -1 && totalread >=mx) break;
 		bytesRead = in.read(buf);
+		totalread+=bytesRead;
 	    }
 	} finally {
 	    in.close();

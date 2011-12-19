@@ -26,7 +26,7 @@ optmerge <- function(la,lb){
   x
 }
        
-rhmr <- function(map,reduce=NULL,
+rhmr <- function(map=NULL,reduce=NULL,rcode=NULL,
                  combiner=F,
                  setup=NULL,
                  cleanup=NULL,
@@ -37,13 +37,37 @@ rhmr <- function(map,reduce=NULL,
                  mapred=NULL,
                  shared=c(),
                  jarfiles=c(),
+                 zips=c(),
                  partitioner=NULL,
                  copyFiles=F,
                  N=NA,
                  opts=rhoptions(),
                  jobname=""){
   lines <- list();
-  if(!is.expression(map))
+  is.Expression <- function(r) is.expression(r) || class(r)=="{"
+  if(!is.null(rcode) && is.expression(rcode)){
+    #populate map, reduce, setup and cleanup
+    map <- as.expression(rcode$map)
+    reduce <- expression()
+    reduce$pre <- rcode$pre
+    reduce$reduce <- rcode$reduce
+    reduce$post <- rcode$post
+    setup <- list()
+    if(!is.null(rcode$setup)){
+      setup <- list(map=rcode$setup,reduce= rcode$setup)
+    }
+    if(!is.null(rcode$map.setup)) setup$map <-rcode$map.setup
+    if(!is.null(rcode$reduce.setup)) setup$reduce <-rcode$reduce.setup
+    cleanup <- list()
+    if(!is.null(rcode$cleanup)){
+      cleanup$map <- rcode$cleanup
+      cleanup$reduce <- rcode$cleanup
+    }
+    if(!is.null(rcode$map.cleanup)) cleanup$map=rcode$map.cleanup
+    if(!is.null(rcode$reduce.cleanup)) cleanup$reduce <- rcode$reduce.cleanup
+  }
+  
+  if(!is.Expression(map))
     stop("'map' must be an expression")
   reduces <- T
   lines$rhipe_reduce_justcollect <- "FALSE"
@@ -52,10 +76,6 @@ rhmr <- function(map,reduce=NULL,
     reduces <- FALSE
   }
   
-  ## rr <- eval(reduce$reduce); rpre <- eval(reduce$pre) ; rpos <- eval(reduce$post)
-  ## lines$rhipe_reduce <- rawToChar(serialize( eval(substitute(rr)) ,NULL,ascii=T))
-  ## lines$rhipe_reduce_prekey <- rawToChar(serialize( eval(substitute(rpre)) ,NULL,ascii=T))
-  ## lines$rhipe_reduce_postkey <- rawToChar(serialize( eval(substitute(rpos)) ,NULL,ascii=T))
   lines$rhipe_reduce <- rawToChar(serialize(reduce$reduce,NULL,ascii=T))
   lines$rhipe_reduce_prekey <- rawToChar(serialize(reduce$pre ,NULL,ascii=T))
   lines$rhipe_reduce_postkey <- rawToChar(serialize(reduce$post,NULL,ascii=T))
@@ -68,18 +88,18 @@ rhmr <- function(map,reduce=NULL,
     setup$reduce <- expression()
   }
 
-  if(!is.expression(setup) && !is.list(setup))
-    stop("'setup' is either a list of expressions (map=,redce=) or expression")
+  if(!is.Expression(setup) && !is.list(setup))
+    stop("'setup' is either a list of expressions (map=,reduce=) or expression")
 
   if(is.list(setup)){
-    if(! all(unlist(lapply(setup,is.expression))))
+    if(! all(unlist(lapply(setup,is.Expression))))
       stop("elements of 'setup' must be expressions")
     if(is.null(setup$reduce)) setup$reduce <- expression()
     if(is.null(setup$map)) setup$map <- expression()
   }
   if(is.null(setup))
     setup <- expression()
-  if(is.expression(setup)){
+  if(is.Expression(setup)){
     setup <- list(map=setup,reduce=setup)
   }
   
@@ -88,34 +108,27 @@ rhmr <- function(map,reduce=NULL,
     cleanup$reduce <- expression()
   }
 
-  if(!is.expression(cleanup) && !is.list(cleanup))
+  if(!is.Expression(cleanup) && !is.list(cleanup))
     stop("'cleanup' is either a list of expressions (map=,redce=) or expression")
 
   if(is.list(cleanup)){
-    if(! all(unlist(lapply(cleanup,is.expression))))
+    if(! all(unlist(lapply(cleanup,is.Expression))))
       stop("elements of 'cleanup' must be expressions")
     if(is.null(cleanup$reduce)) cleanup$reduce <- expression()
     if(is.null(cleanup$map)) cleanup$map <- expression()
   }
   if(is.null(cleanup))
     cleanup <- expression()
-  if(is.expression(cleanup)){
+  if(is.Expression(cleanup)){
     cleanup <- list(map=cleanup,reduce=cleanup)
   }
-
-
-  ## map=eval(map);map <- eval(substitute(map))
-  ## setup.m=eval(setup.m);setup.m <- eval(substitute(setup.m))
-  ## setup.r=eval(setup.r);setup.r <- eval(substitute(setup.r))
-  ## cleanup.m=eval(cleanup.m);cleanup.m <- eval(substitute(cleanup.m))
-  ## cleanup.r=eval(cleanu.r);cleanup.r <- eval(substitute(cleanup.r))
   
-  map.s <- serialize(map,NULL,ascii=T)
+  map.s <- rawToChar(serialize(map,NULL,ascii=T))
   
-  setup.m <- serialize(setup$map,NULL,ascii=T)
-  setup.r <- serialize(setup$reduce,NULL,ascii=T)
-  cleanup.m <- serialize(cleanup$map,NULL,ascii=T)
-  cleanup.r <- serialize(cleanup$reduce,NULL,ascii=T)
+  setup.m <- rawToChar(serialize(setup$map,NULL,ascii=T))
+  setup.r <- rawToChar(serialize(setup$reduce,NULL,ascii=T))
+  cleanup.m <- rawToChar(serialize(cleanup$map,NULL,ascii=T))
+  cleanup.r <- rawToChar(serialize(cleanup$reduce,NULL,ascii=T))
 
   ofolder <- sapply(ofolder,function(r) {
     x <- if(substr(r,nchar(r),nchar(r))!="/" && r!=""){
@@ -154,11 +167,11 @@ rhmr <- function(map,reduce=NULL,
   ## stop("woo")
   lines<- append(lines,list(
                      R_HOME=R.home()
-                     ,rhipe_map=rawToChar(map.s)
-                     ,rhipe_setup_map=rawToChar(setup.m)
-                     ,rhipe_cleanup_map= rawToChar(cleanup.m)
-                     ,rhipe_cleanup_reduce= rawToChar(cleanup.r)
-                     ,rhipe_setup_reduce= rawToChar(setup.r)
+                     ,rhipe_map=(map.s)
+                     ,rhipe_setup_map=(setup.m)
+                     ,rhipe_cleanup_map= (cleanup.m)
+                     ,rhipe_cleanup_reduce= (cleanup.r)
+                     ,rhipe_setup_reduce= (setup.r)
                      ,rhipe_command=paste(opts$runner,collapse=" ")
                      ,rhipe_input_folder=paste(ifolder,collapse=",")
                            
@@ -299,7 +312,29 @@ rhmr <- function(map,reduce=NULL,
   lines$rhipe_combiner <- paste(as.integer(combiner))
   if(lines$rhipe_combiner=="1")
     lines$rhipe_reduce_justcollect <- "FALSE"
-  if(length(jarfiles)>0) lines$rhipe_jarfiles <- paste(path.expand(jarfiles),collapse=",")
+  if(length(jarfiles)>0) {
+    lines$rhipe_jarfiles <- paste(path.expand(jarfiles),collapse=",")
+    ## make a temp folder containing jar files
+    p <- tempdir()
+    invisible(sapply(jarfiles, function(r) rhget(r, p)))
+    lines$rhipe_cp_tempdir <- p
+    lines$rhipe_classpaths <- paste(list.files(p,full.names=TRUE),collapse=",")
+  }else {
+    lines$rhipe_jarfiles=""
+    lines$rhipe_classpaths <- ""
+  }
+
+  if(length(zips)>0) lines$rhipe_zips <- paste(unlist(local({
+    zips <- path.expand(zips)
+    sapply(zips,function(r) {
+      rsyml <- tail(strsplit(r,"/")[[1]],1)
+      p <- grep("((\\.tar\\.gz)|(\\.tgz)|(\\.zip))$",rsyml)
+      if(length(p)>0){
+        paste(r,sub("\\.((tar\\.gz)|(tgz)|(zip))$","",rsyml),sep="#")
+      }else NULL
+    })})),collapse=",")
+  else  lines$rhipe_zips=""
+
   if(lines$rhipe_map_output_keyclass != c("org.godhuli.rhipe.RHBytesWritable")
      && is.null(reduce)){
     stop("If using ordered keys, provide a reduce even a dummy reduce e.g.
@@ -323,127 +358,6 @@ reduce = expression(
 }
 
 
-rlapply <- function(ll=NULL,fun,ifolder="",ofolder="",setup=NULL,
-                    inout=c("lapply","sequence"),readIn=T,mapred=list(),jobname="rhlapply",
-                     doLocal=F,N,aggr=NULL,...){
-  del.o.file <- F
-  del.i.file <- F
-  
-  ok <- F
-  if(is.list(ll)) ok <- T
-  if(is.numeric(ll) && length(ll)==1) ok <- T
-  if(is.null(ll) && ifolder!="") ok <- T
-  if(!is.null(ll) && ifolder!="")
-    stop("cannot provide ll and ifolder at the same time, either or")
-  
-  if(!ok) stop("Must provide either number of iterations OR a list OR an input folder")
-  if(is.numeric(ll) && ll<=0)
-    stop("if ll is numeric, must be >0")
-
-  ##We create an expression that unserializes
-  ##the user fun and installs it under the name userFUN...
-  ##the map expression is
-  ##      ...r... <- userFUN...(map.value)
-  ##      rhcollect(map.key,...result...)
-  ##If the user provides a setup
-  ##Insert the deserialization as the first instruction
-  ## usercode <- rawToChar(serialize(fun,NULL,ascii=TRUE))
-  usecodeText <-
-    parse(text=paste("userFUN...=",paste(deparse(fun),collapse="\n")))
-  aggrText <-
-    parse(text=paste("aggr...=",paste(deparse(aggr),collapse="\n")))
-
-  userFUN... <- fun
-  if(!is.null(setup))
-    setup <- append(usecodeText,setup)
-  else
-    setup <- usecodeText
-
-  setup <- append(aggrText,setup)
-
-  map.exp <- expression({
-    w <- lapply(seq_along(map.values),function(.id.){
-      r <- userFUN...(map.values[[.id.]])
-      if(is.null(aggr...))
-        rhcollect(map.keys[[.id.]],r)
-      else
-        r
-    })
-    if(!is.null(aggr...)){
-      rhcollect(1,aggr...(w))
-    }
-  })
-
-  if(ofolder==""){
-    ##One hopes this is unique
-    tempo.file <- paste("/tmp/",tail(strsplit(tempfile(patter=paste("rhipelapply.output.",
-                                                         paste(sample(letters,4),sep="",collapse=""),sep="",collapse="")),
-                                              "/+")[[1]],1),"/",sep="")
-##     .jcheck();.jcall(rhoptions()$fsshell,"V","makeFolderToDelete",tempo.file,check=T);
-##     doDeletableFile(tempo.file,rhoptions()$socket)
-    del.o.file <- T}
-  else{
-    tempo.file <- ofolder
-  }
-  ## sok <-  socketConnection('127.0.0.1',rhoptions()$port,open='wb',blocking=T)
-  
-  if(is.list(ll)){
-    tempi.file <-  paste("/tmp/",tail(strsplit(paste(tempfile(patter="rhipelapply.input."),
-                                                     paste(sample(letters,4),sep="",collapse=""),
-                                                     sep="",collapse="")
-                                               ,"/+")[[1]],1),"/",sep="")
-##1
-    message("Creating temporary input folder for list")
-    if(missing(N)){
-      aa <- Rhipe:::optmerge( rhoptions()$mropts,mapred)
-      if(!is.null(aa$mapred.map.tasks) ){
-        a <- as.numeric(aa$mapred.map.tasks)
-        rhwrite(ll,f=tempi.file,N)
-      }else rhwrite(ll,f=tempi.file)#
-    }
-    else
-      rhwrite(ll,f=tempi.file,N=N)#
-
-    ifolder=tempi.file
-    del.i.file <- T
-  }
-  if(is.numeric(ll)){
-      mapred$rhipe_lapply_lengthofinput <- as.integer(ll)
-    }
-  mapred$rhipe_reduce_justcollect <- "TRUE"
-    
-  if(ifolder!="") inout[1] <- "sequence"
-  if(inout[2]=='lapply')
-    stop('inout[2] cannot be lapply')
-
-  if(is.null(mapred$mapred.reduce.tasks))
-    mapred$mapred.reduce.tasks <- 0
-  mapred$class="rhlapply"
-  
-  z <- rhmr(map=map.exp,reduce=NULL,ifolder=ifolder,combiner=F,
-            setup=list(map=setup,reduce=expression()),ofolder=tempo.file,copyFiles=T,inout=inout,mapred=mapred,...)
-
-  h=list(z,function(){
-    retdata <- NULL
-      on.exit({
-        #2
-            if(del.o.file) rhdel(tempo.file)
-            if(del.i.file) rhdel(tempi.file)
-            return(retdata)
-          })
-      if(readIn){
-        message("---------------")
-        message("Reading in Data")
-        message("---------------")
-        #3
-        retdata <- rhread(paste(tempo.file,"/p*",sep=""),type='sequence')
-        if(!is.null(aggr)) retdata <- aggr(lapply(retdata,"[[",2))
-      }
-    })
-  class(h)="rhlapply"
-  h
-}
-
 
 rhex <- function (conf,async=FALSE,mapred,...) 
 {
@@ -458,7 +372,11 @@ rhex <- function (conf,async=FALSE,mapred,...)
     lines <- conf[[1]]
   }else
   stop("Wrong class of list given")
-
+  on.exit({
+    if(!is.null(lines$rhipe_cp_tempdir)){
+      unlink(lines$rhipe_cp_tempdir,recursive=TRUE)
+    }
+  },add=TRUE)
   if(!missing(mapred)){
     for(i in names(mapred)){
       lines[[i]] <- mapred[[i]]

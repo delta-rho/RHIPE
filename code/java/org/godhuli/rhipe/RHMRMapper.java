@@ -25,6 +25,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.filecache.DistributedCache;
+import org.apache.hadoop.fs.Path;
 
 public class RHMRMapper extends Mapper<WritableComparable,
 				RHBytesWritable,WritableComparable,RHBytesWritable>{
@@ -48,7 +50,6 @@ public class RHMRMapper extends Mapper<WritableComparable,
 	InterruptedException {
 	helper = new RHMRHelper("Mapper");
 	setup(context);
-	helper.startOutputThreads(context);
 	if(whichMapper==1){
 	    while (context.nextKeyValue()) {
 		// System.err.println(context.getCurrentKey());
@@ -63,6 +64,7 @@ public class RHMRMapper extends Mapper<WritableComparable,
 	    }
 	}
 	cleanup(context);
+	helper.checkOuterrThreadsThrowable();
     }								  
 	
 		  
@@ -71,7 +73,7 @@ public class RHMRMapper extends Mapper<WritableComparable,
 	Configuration cfg = context.getConfiguration();
 
 	// Test External Jar File is Present!
-	// RHMRMapper.invoke("org.godhuli.rhipe.HBase.TestCase","showMessage",new Class[]{String.class}, new Object[]{new String("Foo")});
+	// RHMRHelper.invoke("org.godhuli.rhipe.HBase.TestCase","showMessage",new Class[]{String.class}, new Object[]{new String("Foo")});
 	try{
 	    String mif = ((FileSplit) context.getInputSplit()).getPath().toString();
 	    cfg.set("mapred.input.file",mif);
@@ -82,6 +84,8 @@ public class RHMRMapper extends Mapper<WritableComparable,
 	helper.setup(cfg, getPipeCommand(cfg), getDoPipe());
 	copyFile=cfg.get("rhipe_copy_file").equals("TRUE")? true: false;
 	whichMapper = cfg.getInt("rhipe_send_keys_to_map",1);
+	helper.startOutputThreads(context);
+
 	try{
 	    helper.writeCMD(RHTypes. EVAL_SETUP_MAP);
 	    helper.checkOuterrThreadsThrowable();

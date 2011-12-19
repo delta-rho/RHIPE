@@ -355,8 +355,9 @@ public class RHMRHelper {
 			clientIn_ = null;
 		    }
 		} catch (IOException io) {
-		LOG.info(StringUtils.stringifyException(io));
+		    LOG.info(StringUtils.stringifyException(io));
 		}
+		// throw new IOException(th);
 	    }
 	}
     }

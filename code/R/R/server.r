@@ -160,11 +160,15 @@ rhput.1 <- function(src, dest,deletedest=TRUE){
   x <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhput",path.expand(src),dest,as.logical(deletedest)))
 }
 
-getypes <- function(files,type){
-  type = match.arg(type,c("sequence","map","text"))
+getypes <- function(files,type,skip){
+  type = match.arg(type,c("sequence","map","text","gzip"))
   files <- switch(type,
                   "text"={
                     unclass(rhls.1(files)['file'])$file
+                  },
+                  "gzip"={
+                    uu=unclass(rhls.1(files)['file'])$file
+                    uu[grep("gz$",uu)]
                   },
                   "sequence"={
                     unclass(rhls.1(files)['file'])$file
@@ -173,16 +177,16 @@ getypes <- function(files,type){
                     uu=unclass(rhls.1(files,rec=TRUE)['file'])$file
                     uu[grep("data$",uu)]
                   })
-  remr <- c(grep("/_logs",files))
+  remr <- c(grep(skip,files))
   if(length(remr)>0)
     files <- files[-remr]
   return(files)
 }
-rhread.1 <- function(files,type=c("sequence"),max=-1L,mc=FALSE,asraw=FALSE,size=3000,buffsize=1024*1024,quiet=FALSE,...){
-  files <- getypes(files,type)
+rhread.1 <- function(files,type=c("sequence"),max=-1L,skip=c("/_logs"),mc=FALSE,asraw=FALSE,size=3000,buffsize=1024*1024,quiet=FALSE,...){
+  files <- getypes(files,type,skip)
   max <- as.integer(max)
-  p <- if(type=="text"){
-    Rhipe:::hmerge(files, buffsize=as.integer(buffsize),max=max,...)
+  p <- if(type %in% c("text","gzip") ){
+    Rhipe:::hmerge(files, buffsize=as.integer(buffsize),max=max,type=type,...)
   }else{
     Rhipe:::send.cmd(rhoptions()$child$handle, list("sequenceAsBinary", files,max,as.integer(rhoptions()$child$bufsize)),
                           getresponse=0L,
@@ -432,9 +436,11 @@ rhmerge.1 <- function(inr,ou){
                      sep=.Platform$file.sep,collapse=""),"dfs","-cat",inr,">", ou,collapse=" "))
 }
 
-hmerge <- function(inputfiles,buffsize=2*1024*1024,max=-1L,verb=FALSE){
-  
-  x <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhcat",inputfiles,as.integer(buffsize),as.integer(max)),
+hmerge <- function(inputfiles,buffsize=2*1024*1024,max=-1L,type,verb=FALSE){
+
+  type=switch(type, "text"=0L, "gzip"=1L,-1L)
+  if(type<0) stop(sprintf("In reading a file, wrong value of type"))
+  x <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhcat",inputfiles,as.integer(buffsize),as.integer(max),as.integer(type)),
                         getresponse=0L,conti=function(){
                      k <- length(inputfiles)
                      z <- rhoptions()$child$handle
@@ -524,3 +530,9 @@ rhbiglm.stream.hdfs.1 <- function(filename,type='sequence',modifier=NULL,batch=1
       return(p)
     }})}
 
+
+scalarSummer <- expression(
+    pre={ total=0 },
+    reduce = { total <- total+sum(unlist(reduce.values)) },
+    post = { rhcollect(reduce.key, total)}
+    )

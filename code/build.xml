@@ -4,7 +4,7 @@
   <property name="build.dir"   value="build"/>
   <property name="classes.dir" value="${build.dir}/classes"/>
   <property name="jar.dir"     value="${build.dir}/jar"/>
-  <property name="R.dir"     value="../R"/>
+  <property name="R.dir"     value="${src.dir}/R"/>
   <property name="javac.debug" value="on"/>
   <property name="javac.optimize" value="on"/>
   <property name="javac.deprecation" value="on"/>
@@ -27,7 +27,7 @@
      <exec executable="protoc">
      <arg value="--proto_path=${R.dir}/src/"/>
      <arg value="--java_out=." />
-     <arg value="${R.dir}/src/rexp.proto"/>
+     <arg value="${src.dir}/rexp.proto"/>
   </exec>
   </target>
 

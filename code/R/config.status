@@ -331,7 +331,7 @@ Copyright (C) 2006 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/Users/yanger/mystuff/research/largedata/RHIPE/code/R'
+ac_pwd='/Users/sguha/tmp/rhipe/code/R'
 srcdir='.'
 # If no file are specified by the user, then we need to provide default
 # value.  By we need to know if files were specified by the user.
@@ -503,11 +503,11 @@ s,@build_alias@,|#_!!_#|,g
 s,@host_alias@,|#_!!_#|,g
 s,@target_alias@,|#_!!_#|,g
 s,@R_HOME@,|#_!!_#|/Library/Frameworks/R.framework/Resources,g
-s,@CC@,|#_!!_#|gcc -arch x86_64 -std=gnu99,g
+s,@CC@,|#_!!_#|gcc-4.2 -arch x86_64 -std=gnu99,g
 s,@CFLAGS@,|#_!!_#|-g -O2,g
 s,@LDFLAGS@,|#_!!_#|,g
 s,@CPPFLAGS@,|#_!!_#|,g
-s,@ac_ct_CC@,|#_!!_#|gcc -arch x86_64 -std=gnu99,g
+s,@ac_ct_CC@,|#_!!_#|gcc-4.2 -arch x86_64 -std=gnu99,g
 s,@EXEEXT@,|#_!!_#|,g
 s,@OBJEXT@,|#_!!_#|o,g
 s,@LIBOBJS@,|#_!!_#|,g

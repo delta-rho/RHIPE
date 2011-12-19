@@ -57,13 +57,16 @@ public class RHMRReducer extends Reducer<WritableComparable,
     public void run(Context context) throws IOException, InterruptedException {
 	helper = new RHMRHelper("Reduce");
 	justCollect = context.getConfiguration().get("rhipe_reduce_justcollect").equals("TRUE")?true:false;
+
 	if(!justCollect){
 	    setup(context);
-	    helper.startOutputThreads(context);
 	    while (context.nextKey()) {
 		pipereduce(context.getCurrentKey(), context.getValues(), context);
 	    }
+	    LOG.info("CHECKING OUTER_THREADS NOW!");
 	    cleanup(context);
+	    helper.checkOuterrThreadsThrowable();
+
 	}else{
 	  
 	    try{
@@ -78,8 +81,6 @@ public class RHMRReducer extends Reducer<WritableComparable,
 		throw new RuntimeException(e);
 	    }
 
-
-
 	    while (context.nextKey()) {
 		simplereduce(context.getCurrentKey(), context.getValues(), context);
 	    }
@@ -91,6 +92,7 @@ public class RHMRReducer extends Reducer<WritableComparable,
       cfg.set("RHIPEWHAT","1");
       helper.setup(cfg,getPipeCommand(cfg),getDoPipe(cfg));
       isAMap = cfg.getBoolean("mapred.task.is.map",true);
+      helper.startOutputThreads(ctx);
       try{
 	  if(!justCollect) helper.writeCMD(RHTypes.EVAL_SETUP_REDUCE);
       }catch(IOException e){

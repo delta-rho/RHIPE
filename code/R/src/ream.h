@@ -7,6 +7,7 @@
 
 #include <google/protobuf/stubs/common.h>
 #include <rexp.pb.h>
+
 #include <stdint.h>
 #include <sys/types.h>	
 #include <sys/time.h>	
@@ -20,7 +21,6 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <stdarg.h>
-
 using namespace std;
 
 #define R_NO_REMAP

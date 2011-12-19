@@ -50,13 +50,16 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.mapreduce.Job;
-
+import java.net.URLClassLoader;
+import java.net.URL;
+import java.io.File;
 
 import org.godhuli.rhipe.REXPProtos.REXP;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 
 public class RHMR  implements Tool {
+    protected URLClassLoader urlloader;
     protected Environment env_;
     protected String[] argv_;
     protected Configuration config_;
@@ -111,6 +114,7 @@ public class RHMR  implements Tool {
 	    env_ = new Environment();
 	    // config_ = new Configuration();
 	    setConf();
+
 	    job_ = new Job(config_);
 	    setJob();
 
@@ -155,7 +159,31 @@ public class RHMR  implements Tool {
 		if(p.length()>1) DistributedCache.addArchiveToClassPath(new Path(p),config_);
 	    }
 	}
+	String[] zips = config_.get("rhipe_zips").split(",");
+	if(zips!=null){
+	    for(String p : zips){
+		// System.err.println("Adding zip "+ p +" to cache");
+		if(p.length()>1) DistributedCache.addCacheArchive(new URI(p),config_);
+	    }
+	}
+
 	DistributedCache.createSymlink(config_);
+	if(!rhoptions_.get("rhipe_classpaths").equals("")){
+	    String[] cps = rhoptions_.get("rhipe_classpaths").split(",");
+	    URL[] us = new URL[cps.length];
+	    for(int i=0;i<cps.length;i++){
+		try{
+		    us[i] = (new File(cps[i])).toURI().toURL();
+		}catch(java.net.MalformedURLException e){
+		    throw new IOException(e);
+		}
+	    }
+	    config_.setClassLoader(new URLClassLoader(us, config_.getClassLoader()));
+	    Thread.currentThread().setContextClassLoader(
+							 new URLClassLoader(us, 
+									    Thread.currentThread().getContextClassLoader()));
+        }
+	
 
     }
 
@@ -165,6 +193,8 @@ public class RHMR  implements Tool {
 	SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
 	String jname = rhoptions_.get("rhipe_jobname");
 	boolean uscomb = false;
+    
+
 
 	if(jname.equals(""))
 	    job_.setJobName(sdf.format(cal.getTime()));

@@ -2,6 +2,9 @@
 
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
 #include "rexp.pb.h"
+
+#include <algorithm>
+
 #include <google/protobuf/stubs/once.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/wire_format_lite_inl.h>
@@ -220,7 +223,6 @@ const REXP_RBOOLEAN REXP::RBOOLEAN_MIN;
 const REXP_RBOOLEAN REXP::RBOOLEAN_MAX;
 const int REXP::RBOOLEAN_ARRAYSIZE;
 #endif  // _MSC_VER
-const ::std::string REXP::_default_rawvalue_;
 #ifndef _MSC_VER
 const int REXP::kRclassFieldNumber;
 const int REXP::kRealValueFieldNumber;
@@ -251,7 +253,7 @@ REXP::REXP(const REXP& from)
 void REXP::SharedCtor() {
   _cached_size_ = 0;
   rclass_ = 0;
-  rawvalue_ = const_cast< ::std::string*>(&_default_rawvalue_);
+  rawvalue_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -260,7 +262,7 @@ REXP::~REXP() {
 }
 
 void REXP::SharedDtor() {
-  if (rawvalue_ != &_default_rawvalue_) {
+  if (rawvalue_ != &::google::protobuf::internal::kEmptyString) {
     delete rawvalue_;
   }
   if (this != default_instance_) {
@@ -290,8 +292,8 @@ REXP* REXP::New() const {
 void REXP::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     rclass_ = 0;
-    if (_has_bit(5)) {
-      if (rawvalue_ != &_default_rawvalue_) {
+    if (has_rawvalue()) {
+      if (rawvalue_ != &::google::protobuf::internal::kEmptyString) {
         rawvalue_->clear();
       }
     }
@@ -516,7 +518,7 @@ bool REXP::MergePartialFromCodedStream(
 void REXP::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // required .REXP.RClass rclass = 1;
-  if (_has_bit(0)) {
+  if (has_rclass()) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
       1, this->rclass(), output);
   }
@@ -554,7 +556,7 @@ void REXP::SerializeWithCachedSizes(
   }
   
   // optional bytes rawValue = 6;
-  if (_has_bit(5)) {
+  if (has_rawvalue()) {
     ::google::protobuf::internal::WireFormatLite::WriteBytes(
       6, this->rawvalue(), output);
   }
@@ -595,7 +597,7 @@ void REXP::SerializeWithCachedSizes(
 ::google::protobuf::uint8* REXP::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // required .REXP.RClass rclass = 1;
-  if (_has_bit(0)) {
+  if (has_rclass()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
       1, this->rclass(), target);
   }
@@ -642,7 +644,7 @@ void REXP::SerializeWithCachedSizes(
   }
   
   // optional bytes rawValue = 6;
-  if (_has_bit(5)) {
+  if (has_rawvalue()) {
     target =
       ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
         6, this->rawvalue(), target);
@@ -813,10 +815,10 @@ void REXP::MergeFrom(const REXP& from) {
   attrname_.MergeFrom(from.attrname_);
   attrvalue_.MergeFrom(from.attrvalue_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from._has_bit(0)) {
+    if (from.has_rclass()) {
       set_rclass(from.rclass());
     }
-    if (from._has_bit(5)) {
+    if (from.has_rawvalue()) {
       set_rawvalue(from.rawvalue());
     }
   }
@@ -879,7 +881,6 @@ void REXP::Swap(REXP* other) {
 
 // ===================================================================
 
-const ::std::string STRING::_default_strval_;
 #ifndef _MSC_VER
 const int STRING::kStrvalFieldNumber;
 const int STRING::kIsNAFieldNumber;
@@ -901,7 +902,7 @@ STRING::STRING(const STRING& from)
 
 void STRING::SharedCtor() {
   _cached_size_ = 0;
-  strval_ = const_cast< ::std::string*>(&_default_strval_);
+  strval_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   isna_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -911,7 +912,7 @@ STRING::~STRING() {
 }
 
 void STRING::SharedDtor() {
-  if (strval_ != &_default_strval_) {
+  if (strval_ != &::google::protobuf::internal::kEmptyString) {
     delete strval_;
   }
   if (this != default_instance_) {
@@ -940,8 +941,8 @@ STRING* STRING::New() const {
 
 void STRING::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (_has_bit(0)) {
-      if (strval_ != &_default_strval_) {
+    if (has_strval()) {
+      if (strval_ != &::google::protobuf::internal::kEmptyString) {
         strval_->clear();
       }
     }
@@ -981,7 +982,7 @@ bool STRING::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
                  input, &isna_)));
-          _set_bit(1);
+          set_has_isna();
         } else {
           goto handle_uninterpreted;
         }
@@ -1008,7 +1009,7 @@ bool STRING::MergePartialFromCodedStream(
 void STRING::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // optional string strval = 1;
-  if (_has_bit(0)) {
+  if (has_strval()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->strval().data(), this->strval().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -1017,7 +1018,7 @@ void STRING::SerializeWithCachedSizes(
   }
   
   // optional bool isNA = 2 [default = false];
-  if (_has_bit(1)) {
+  if (has_isna()) {
     ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->isna(), output);
   }
   
@@ -1030,7 +1031,7 @@ void STRING::SerializeWithCachedSizes(
 ::google::protobuf::uint8* STRING::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // optional string strval = 1;
-  if (_has_bit(0)) {
+  if (has_strval()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->strval().data(), this->strval().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
@@ -1040,7 +1041,7 @@ void STRING::SerializeWithCachedSizes(
   }
   
   // optional bool isNA = 2 [default = false];
-  if (_has_bit(1)) {
+  if (has_isna()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->isna(), target);
   }
   
@@ -1094,10 +1095,10 @@ void STRING::MergeFrom(const ::google::protobuf::Message& from) {
 void STRING::MergeFrom(const STRING& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from._has_bit(0)) {
+    if (from.has_strval()) {
       set_strval(from.strval());
     }
-    if (from._has_bit(1)) {
+    if (from.has_isna()) {
       set_isna(from.isna());
     }
   }
@@ -1219,7 +1220,7 @@ bool CMPLX::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &real_)));
-          _set_bit(0);
+          set_has_real();
         } else {
           goto handle_uninterpreted;
         }
@@ -1235,7 +1236,7 @@ bool CMPLX::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &imag_)));
-          _set_bit(1);
+          set_has_imag();
         } else {
           goto handle_uninterpreted;
         }
@@ -1262,12 +1263,12 @@ bool CMPLX::MergePartialFromCodedStream(
 void CMPLX::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // optional double real = 1 [default = 0];
-  if (_has_bit(0)) {
+  if (has_real()) {
     ::google::protobuf::internal::WireFormatLite::WriteDouble(1, this->real(), output);
   }
   
   // required double imag = 2;
-  if (_has_bit(1)) {
+  if (has_imag()) {
     ::google::protobuf::internal::WireFormatLite::WriteDouble(2, this->imag(), output);
   }
   
@@ -1280,12 +1281,12 @@ void CMPLX::SerializeWithCachedSizes(
 ::google::protobuf::uint8* CMPLX::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // optional double real = 1 [default = 0];
-  if (_has_bit(0)) {
+  if (has_real()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(1, this->real(), target);
   }
   
   // required double imag = 2;
-  if (_has_bit(1)) {
+  if (has_imag()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(2, this->imag(), target);
   }
   
@@ -1337,10 +1338,10 @@ void CMPLX::MergeFrom(const ::google::protobuf::Message& from) {
 void CMPLX::MergeFrom(const CMPLX& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from._has_bit(0)) {
+    if (from.has_real()) {
       set_real(from.real());
     }
-    if (from._has_bit(1)) {
+    if (from.has_imag()) {
       set_imag(from.imag());
     }
   }

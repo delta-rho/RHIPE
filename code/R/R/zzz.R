@@ -1,10 +1,8 @@
 .rhipeEnv <- new.env()
-vvvv <- "0.65.4"
+vvvv <- "0.66"
 attr(vvvv,"minor") <- '1'
-attr(vvvv,"date") <- 'Sat Apr 16'
-attr(vvvv,'fortune') <- "A good supervisor can step on your toes without messing up your shine."
+attr(vvvv,"date") <- 'Thu Jun 16'
 
-attr(vvvv,'notes') <- c("Some modifications so that RHIPE can be use user-supplied JAR files","rhget (for the dest) and rhput (for the src) expand ~")
 class(vvvv) <- "rhversion"
 
 assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )
