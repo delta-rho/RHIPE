@@ -3,13 +3,17 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Airline Dataset &mdash; RHIPE v0.65.3 documentation</title>
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <title>Airline Dataset &mdash; RHIPE 0.65.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
@@ -22,88 +26,30 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="RHIPE v0.65.3 documentation" href="index.html" />
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="RHIPE 0.65.3 documentation" href="index.html" />
     <link rel="next" title="Transforming Text Data" href="texttransfirm.html" />
     <link rel="prev" title="Introduction" href="introduction.html" /> 
   </head>
   <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="texttransfirm.html" title="Transforming Text Data"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="introduction.html" title="Introduction"
-             accesskey="P">previous</a> |</li>
-        <li><a href="index.html">RHIPE v0.65.3 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Airline Dataset</a><ul>
-<li><a class="reference internal" href="#copying-the-data-to-the-hdfs-or-a-distributed-downloader">Copying the Data to the HDFS (or a <em>Distributed Downloader</em>!)</a></li>
-<li><a class="reference internal" href="#converting-to-r-objects">Converting to R Objects</a><ul>
-<li><a class="reference internal" href="#sorted-keys">Sorted keys</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#demonstration-of-using-hadoop-as-a-queryable-database">Demonstration of using Hadoop as a Queryable Database</a></li>
-<li><a class="reference internal" href="#analyses">Analyses</a><ul>
-<li><a class="reference internal" href="#top-20-cities-by-total-volume-of-flights">Top 20 cities by total volume of flights.</a></li>
-<li><a class="reference internal" href="#carrier-popularity">Carrier Popularity</a></li>
-<li><a class="reference internal" href="#proportion-of-flights-delayed">Proportion of Flights Delayed</a></li>
-<li><a class="reference internal" href="#distribution-of-delays">Distribution of Delays</a></li>
-<li><a class="reference internal" href="#carrier-delays">Carrier Delays</a></li>
-<li><a class="reference internal" href="#busy-routes">Busy Routes</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#out-of-core-regression-using-biglm">Out of Core Regression using <tt class="docutils literal"><span class="pre">biglm</span></tt></a></li>
-<li><a class="reference internal" href="#streaming-data">Streaming Data?</a><ul>
-<li><a class="reference internal" href="#concrete-but-artifical-example">Concrete (but artifical) Example</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#simple-debugging">Simple Debugging</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="introduction.html"
-                        title="previous chapter">Introduction</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="texttransfirm.html"
-                        title="next chapter">Transforming Text Data</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/airline.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" size="18" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
+      <div class="header"><h1 class="heading"><a href="index.html">
+          <span>RHIPE 0.65.3 documentation</span></a></h1>
+        <h2 class="heading"><span>Airline Dataset</span></h2>
       </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="introduction.html">Introduction</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="texttransfirm.html">Transforming Text Data</a>&#160;&#160;»
+        </p>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
-            
+      </div>
+      <div class="content">
+        
+        
   <div class="section" id="airline-dataset">
 <h1>Airline Dataset<a class="headerlink" href="#airline-dataset" title="Permalink to this headline">¶</a></h1>
 <p id="index-0">The Airline data set consists of flight arrival and departure details for all
@@ -1846,29 +1792,22 @@ this case, <tt class="docutils literal"><span class="pre">shared.files</span></t
 </div>
 
 
-          </div>
-        </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="texttransfirm.html" title="Transforming Text Data"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="introduction.html" title="Introduction"
-             >previous</a> |</li>
-        <li><a href="index.html">RHIPE v0.65.3 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="introduction.html">Introduction</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="texttransfirm.html">Transforming Text Data</a>&#160;&#160;»
+        </p>
+
+      </div>
+
     <div class="footer">
         &copy; Copyright 2010, Saptarshi Guha.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

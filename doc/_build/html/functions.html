@@ -3,13 +3,17 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>RHIPE Functions &mdash; RHIPE v0.65.3 documentation</title>
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <title>RHIPE Functions &mdash; RHIPE 0.65.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
@@ -22,86 +26,30 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="RHIPE v0.65.3 documentation" href="index.html" />
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="RHIPE 0.65.3 documentation" href="index.html" />
     <link rel="next" title="Packaging a Job for MapReduce" href="mr.html" />
     <link rel="prev" title="Simulations" href="simulate.html" /> 
   </head>
   <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="mr.html" title="Packaging a Job for MapReduce"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="simulate.html" title="Simulations"
-             accesskey="P">previous</a> |</li>
-        <li><a href="index.html">RHIPE v0.65.3 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">RHIPE Functions</a><ul>
-<li><a class="reference internal" href="#hdfs-related">HDFS Related</a><ul>
-<li><a class="reference internal" href="#rhdel-file-deletion">rhdel - File Deletion</a></li>
-<li><a class="reference internal" href="#rhls-listing-files">rhls - Listing Files</a></li>
-<li><a class="reference internal" href="#rhget-copying-from-the-hdfs">rhget - Copying from the HDFS</a></li>
-<li><a class="reference internal" href="#rhput-copying-to-the-hdf">rhput - Copying to the HDF</a></li>
-<li><a class="reference internal" href="#rhcp-copying-on-the-hdfs">rhcp - Copying on the HDFS</a></li>
-<li><a class="reference internal" href="#rhwrite-writing-r-data-to-the-hdfs">rhwrite - Writing R data to the HDFS</a></li>
-<li><a class="reference internal" href="#rhread-reading-data-from-hdfs-into-r">rhread - Reading data from HDFS into R</a></li>
-<li><a class="reference internal" href="#rhgetkeys-reading-values-from-map-files">rhgetkeys - Reading Values from Map Files</a></li>
-<li><a class="reference internal" href="#rhstreamsequence-reading-from-a-sequence-file-in-a-streaming-fashion">rhstreamsequence - Reading from a sequence file in a streaming fashion</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#mapreduce-administration">MapReduce Administration</a><ul>
-<li><a class="reference internal" href="#rhex-submitting-a-mapreduce-r-object-to-hadoop">rhex - Submitting a MapReduce R Object to Hadoop</a></li>
-<li><a class="reference internal" href="#rhstatus-monitoring-a-mapreduce-job">rhstatus - Monitoring a MapReduce Job</a></li>
-<li><a class="reference internal" href="#rhjoin-waiting-on-completion-of-a-mapreduce-job">rhjoin - Waiting on Completion of a MapReduce Job</a></li>
-<li><a class="reference internal" href="#rhkill-stopping-a-mapreduce-job">rhkill - Stopping a MapReduce Job</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="simulate.html"
-                        title="previous chapter">Simulations</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="mr.html"
-                        title="next chapter">Packaging a Job for MapReduce</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/functions.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" size="18" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
+      <div class="header"><h1 class="heading"><a href="index.html">
+          <span>RHIPE 0.65.3 documentation</span></a></h1>
+        <h2 class="heading"><span>RHIPE Functions</span></h2>
       </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="simulate.html">Simulations</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="mr.html">Packaging a Job for MapReduce</a>&#160;&#160;»
+        </p>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
-            
+      </div>
+      <div class="content">
+        
+        
   <div class="section" id="rhipe-functions">
 <h1>RHIPE Functions<a class="headerlink" href="#rhipe-functions" title="Permalink to this headline">¶</a></h1>
 <p>RHIPE has functions that access the HDFS from R, that are used inside MapReduce
@@ -377,29 +325,22 @@ TRUE.</p>
 </div>
 
 
-          </div>
-        </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="mr.html" title="Packaging a Job for MapReduce"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="simulate.html" title="Simulations"
-             >previous</a> |</li>
-        <li><a href="index.html">RHIPE v0.65.3 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="simulate.html">Simulations</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="mr.html">Packaging a Job for MapReduce</a>&#160;&#160;»
+        </p>
+
+      </div>
+
     <div class="footer">
         &copy; Copyright 2010, Saptarshi Guha.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>
