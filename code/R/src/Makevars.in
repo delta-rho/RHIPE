@@ -1,4 +1,4 @@
-
+OBJECTS=rexp.pb.o message.o serverbridge.o utility.o rhooks.o 
 # R_HOME=`echo "cat(Sys.getenv('R_HOME'))" | R --slave `
 ##R)HOME is only set when this run from R
 ##otherwise I have to set it
@@ -15,7 +15,7 @@ USERDIR = ../inst/lib
 
 
 
-all: $(SHLIB) app
+all: app rhipe #$(SHLIB) 
 
 rexp.pb.cc: rexp.proto
 	protoc rexp.proto --cpp_out=.
@@ -43,6 +43,8 @@ serverbridge.o: serverbridge.cc
 	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
 app:  rexp.pb.o  message.o utility.o display.o reducer.o mapper.o mapreduce.o main.o rhooks.o serverbridge.o
 	$(CXX) ${MYCXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB} $^ -o RhipeMapReduce
+rhipe: $(OBECTS)
+	$(CXX) -shared ${MYCXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB} $^ -o Rhipe.so
 
 
 
