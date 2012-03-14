@@ -8,28 +8,9 @@ class(vvvv) <- "rhversion"
 assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )
 Mode <-  "experimental"
 
-if(TRUE){
-  rhls <- rhls.1
-  rhcp <- rhcp.1
-  rhmv <- rhmv.1
-  rhput <- rhput.1
-  rhget <- rhget.1
-  rhread <- rhread.1
-  rhwrite <- rhwrite.1
-  rhgetkey <- rhgetkey.1
-  rhsz <- rhsz.1
-  rhuz <- rhuz.1
-  rhdel <- rhdel.1
-  rhstatus <- rhstatus.1
-  rhjoin <- rhjoin.1
-  rhmerge <- rhmerge.1
-  rhkill <- rhkill.1
-  rhstreamsequence <- rhstreamsequence.1
-  rhbiglm.stream.hdfs<- rhbiglm.stream.hdfs.1
-}
-
 .onLoad <- function(libname,pkgname){
-  require(methods)
+  library.dynam("Rhipe", pkgname, libname)
+  #require(methods)
   onload.2(libname,pkgname)
 }
 onload.2 <- function(libname, pkgname){
@@ -52,8 +33,22 @@ onload.2 <- function(libname, pkgname){
   opts$runner <- c("R","CMD", opts$runner,"--slave","--silent","--vanilla","--max-ppsize=100000",
                    "--max-nsize=1G")
   opts$runner <-opts$runner[-c(1,2)]
+  opts$templates <- list()
+  opts$templates$scalarsummer <-  expression(
+      pre={.sum <- 0},
+      reduce={.sum <- .sum+ sum(unlist(reduce.values),na.rm=TRUE)},
+      post = { {rhcollect(reduce.key,.sum)}} )
+  opts$templates$colsummer <-  expression(
+      pre={.sum <- 0},
+      reduce={.sum <- .sum + apply(do.call('rbind', reduce.values),1,sum)},
+      post = { {rhcollect(reduce.key,.sum)}} )
+  opts$templates$rbinder <-  expression(
+      pre    = { data <- list()},
+      reduce = { data[[length(data) + 1 ]] <- reduce.values },
+      post   = { {data <- do.call("rbind", unlist(data,recursive=FALSE));}; {rhcollect(reduce.key, data)}}
+      )
+  
   assign("rhipeOptions",opts,envir=.rhipeEnv)
-  ## Rhipe:::.rh.first.run()
   message("--------------------------------------------------------
 | IMPORTANT: Before using Rhipe call rhinit() |
 | Rhipe will not work or most probably crash            |
@@ -63,12 +58,13 @@ onload.2 <- function(libname, pkgname){
 first.run <- function(buglevel=0){
   ## if(buglevel>0) message("Initial call to personal server")
   ## Rhipe::rhinit(errors=TRUE,info=if(buglevel) TRUE else FALSE,buglevel=buglevel)
-  ## rhoptions(mode = Rhipe:::Mode,mropts=rhmropts.1(),quiet=FALSE) # "experimental"
+  ## rhoptions(mode = Rhipe:::Mode,mropts=rhmropts(),quiet=FALSE) # "experimental"
   ## if(buglevel>0) message("Secondary call to personal server")
   ## Rhipe::rhinit(errors=TRUE,info=if(buglevel) TRUE else FALSE,buglevel=buglevel)
   ## Sys.sleep(2)
   ## message("Rhipe first run complete")
   ## return(TRUE)
+
   stop("Function has been deprecated, call rhinit(first=TRUE)")
 }
 
@@ -80,7 +76,8 @@ first.run <- function(buglevel=0){
 
 
 
-onload.1 <- function(libname, pkgname){
+
+onload <- function(libname, pkgname){
   opts <- get("rhipeOptions",envir=.rhipeEnv)
   
   ## start server
@@ -120,5 +117,6 @@ onload.1 <- function(libname, pkgname){
 }
 
 ##  c(paste(R.home(component='bin'),"/R",sep=""), rhoptions()$runner[3],"--slave","--silent","--vanilla")
+
 
 

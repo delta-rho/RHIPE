@@ -1,37 +1,28 @@
 \name{rhsave}
 \alias{rhsave}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{
- 	Save .RData to HDFS
+\title{Save .RData to HDFS}
+\usage{
+  rhsave(..., file)
+}
+\arguments{
+  \item{\ldots}{additional parameters for \code{rhsave}}
+
+  \item{file}{Absolute path to file on HDFS.  Creates the
+  file or overwrites it.}
+}
+\value{
+  NULL
 }
 \description{
-	Puts the result of a \code{save} call unto the HDFS.  Useful if you have variables in the current environment you want to work with in a MapReduce as a shared object.
-}
-\usage{
-rhsave(..., file)
-}
-%- maybe also 'usage' for other objects documented here.
-\arguments{
-  \item{\dots}{
-	
-}
-  \item{file}{
-	Absolute path to file on HDFS.  Creates the file or overwrites it.
-}
-}
-
-\author{
-	Saptarshi Guha
-}
-
-\seealso{
-	\code{\link{rhsave.image}}, \code{\link{rhload}}
+  Puts the result of a \code{save} call unto the HDFS.
+  Useful if you have variables in the current environment
+  you want to work with in a MapReduce as a shared object.
 }
 \examples{
 \dontrun{
 
 ## The function is currently defined as
-function (..., file) 
+function (..., file)
 {
     on.exit({
         unlink(x)
@@ -41,5 +32,11 @@ function (..., file)
     rhput(src = x, dest = file)
   }
 }
+}
+\author{
+  Saptarshi Guha
+}
+\seealso{
+  \code{rhsave.image}, \code{\link{rhload}}
 }
 

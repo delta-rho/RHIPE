@@ -23,6 +23,7 @@ fi
 
 
 
+
 # Checks for programs.
 AC_PROG_CC
 

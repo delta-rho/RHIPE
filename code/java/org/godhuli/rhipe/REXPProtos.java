@@ -8,83 +8,11 @@ public final class REXPProtos {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface REXPOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
-    
-    // required .REXP.RClass rclass = 1;
-    boolean hasRclass();
-    org.godhuli.rhipe.REXPProtos.REXP.RClass getRclass();
-    
-    // repeated double realValue = 2 [packed = true];
-    java.util.List<java.lang.Double> getRealValueList();
-    int getRealValueCount();
-    double getRealValue(int index);
-    
-    // repeated sint32 intValue = 3 [packed = true];
-    java.util.List<java.lang.Integer> getIntValueList();
-    int getIntValueCount();
-    int getIntValue(int index);
-    
-    // repeated .REXP.RBOOLEAN booleanValue = 4;
-    java.util.List<org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN> getBooleanValueList();
-    int getBooleanValueCount();
-    org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN getBooleanValue(int index);
-    
-    // repeated .STRING stringValue = 5;
-    java.util.List<org.godhuli.rhipe.REXPProtos.STRING> 
-        getStringValueList();
-    org.godhuli.rhipe.REXPProtos.STRING getStringValue(int index);
-    int getStringValueCount();
-    java.util.List<? extends org.godhuli.rhipe.REXPProtos.STRINGOrBuilder> 
-        getStringValueOrBuilderList();
-    org.godhuli.rhipe.REXPProtos.STRINGOrBuilder getStringValueOrBuilder(
-        int index);
-    
-    // optional bytes rawValue = 6;
-    boolean hasRawValue();
-    com.google.protobuf.ByteString getRawValue();
-    
-    // repeated .CMPLX complexValue = 7;
-    java.util.List<org.godhuli.rhipe.REXPProtos.CMPLX> 
-        getComplexValueList();
-    org.godhuli.rhipe.REXPProtos.CMPLX getComplexValue(int index);
-    int getComplexValueCount();
-    java.util.List<? extends org.godhuli.rhipe.REXPProtos.CMPLXOrBuilder> 
-        getComplexValueOrBuilderList();
-    org.godhuli.rhipe.REXPProtos.CMPLXOrBuilder getComplexValueOrBuilder(
-        int index);
-    
-    // repeated .REXP rexpValue = 8;
-    java.util.List<org.godhuli.rhipe.REXPProtos.REXP> 
-        getRexpValueList();
-    org.godhuli.rhipe.REXPProtos.REXP getRexpValue(int index);
-    int getRexpValueCount();
-    java.util.List<? extends org.godhuli.rhipe.REXPProtos.REXPOrBuilder> 
-        getRexpValueOrBuilderList();
-    org.godhuli.rhipe.REXPProtos.REXPOrBuilder getRexpValueOrBuilder(
-        int index);
-    
-    // repeated string attrName = 11;
-    java.util.List<String> getAttrNameList();
-    int getAttrNameCount();
-    String getAttrName(int index);
-    
-    // repeated .REXP attrValue = 12;
-    java.util.List<org.godhuli.rhipe.REXPProtos.REXP> 
-        getAttrValueList();
-    org.godhuli.rhipe.REXPProtos.REXP getAttrValue(int index);
-    int getAttrValueCount();
-    java.util.List<? extends org.godhuli.rhipe.REXPProtos.REXPOrBuilder> 
-        getAttrValueOrBuilderList();
-    org.godhuli.rhipe.REXPProtos.REXPOrBuilder getAttrValueOrBuilder(
-        int index);
-  }
   public static final class REXP extends
-      com.google.protobuf.GeneratedMessage
-      implements REXPOrBuilder {
+      com.google.protobuf.GeneratedMessage {
     // Use REXP.newBuilder() to construct.
-    private REXP(Builder builder) {
-      super(builder);
+    private REXP() {
+      initFields();
     }
     private REXP(boolean noInit) {}
     
@@ -119,15 +47,6 @@ public final class REXPProtos {
       NULLTYPE(7, 7),
       ;
       
-      public static final int STRING_VALUE = 0;
-      public static final int RAW_VALUE = 1;
-      public static final int REAL_VALUE = 2;
-      public static final int COMPLEX_VALUE = 3;
-      public static final int INTEGER_VALUE = 4;
-      public static final int LIST_VALUE = 5;
-      public static final int LOGICAL_VALUE = 6;
-      public static final int NULLTYPE_VALUE = 7;
-      
       
       public final int getNumber() { return value; }
       
@@ -153,8 +72,8 @@ public final class REXPProtos {
           internalValueMap =
             new com.google.protobuf.Internal.EnumLiteMap<RClass>() {
               public RClass findValueByNumber(int number) {
-                return RClass.valueOf(number);
-              }
+                return RClass.valueOf(number)
+      ;        }
             };
       
       public final com.google.protobuf.Descriptors.EnumValueDescriptor
@@ -173,7 +92,6 @@ public final class REXPProtos {
       private static final RClass[] VALUES = {
         STRING, RAW, REAL, COMPLEX, INTEGER, LIST, LOGICAL, NULLTYPE, 
       };
-      
       public static RClass valueOf(
           com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
         if (desc.getType() != getDescriptor()) {
@@ -182,13 +100,15 @@ public final class REXPProtos {
         }
         return VALUES[desc.getIndex()];
       }
-      
       private final int index;
       private final int value;
-      
       private RClass(int index, int value) {
         this.index = index;
         this.value = value;
+      }
+      
+      static {
+        org.godhuli.rhipe.REXPProtos.getDescriptor();
       }
       
       // @@protoc_insertion_point(enum_scope:REXP.RClass)
@@ -200,10 +120,6 @@ public final class REXPProtos {
       T(1, 1),
       NA(2, 2),
       ;
-      
-      public static final int F_VALUE = 0;
-      public static final int T_VALUE = 1;
-      public static final int NA_VALUE = 2;
       
       
       public final int getNumber() { return value; }
@@ -225,8 +141,8 @@ public final class REXPProtos {
           internalValueMap =
             new com.google.protobuf.Internal.EnumLiteMap<RBOOLEAN>() {
               public RBOOLEAN findValueByNumber(int number) {
-                return RBOOLEAN.valueOf(number);
-              }
+                return RBOOLEAN.valueOf(number)
+      ;        }
             };
       
       public final com.google.protobuf.Descriptors.EnumValueDescriptor
@@ -245,7 +161,6 @@ public final class REXPProtos {
       private static final RBOOLEAN[] VALUES = {
         F, T, NA, 
       };
-      
       public static RBOOLEAN valueOf(
           com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
         if (desc.getType() != getDescriptor()) {
@@ -254,39 +169,35 @@ public final class REXPProtos {
         }
         return VALUES[desc.getIndex()];
       }
-      
       private final int index;
       private final int value;
-      
       private RBOOLEAN(int index, int value) {
         this.index = index;
         this.value = value;
       }
       
+      static {
+        org.godhuli.rhipe.REXPProtos.getDescriptor();
+      }
+      
       // @@protoc_insertion_point(enum_scope:REXP.RBOOLEAN)
     }
     
-    private int bitField0_;
     // required .REXP.RClass rclass = 1;
     public static final int RCLASS_FIELD_NUMBER = 1;
+    private boolean hasRclass;
     private org.godhuli.rhipe.REXPProtos.REXP.RClass rclass_;
-    public boolean hasRclass() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    public org.godhuli.rhipe.REXPProtos.REXP.RClass getRclass() {
-      return rclass_;
-    }
+    public boolean hasRclass() { return hasRclass; }
+    public org.godhuli.rhipe.REXPProtos.REXP.RClass getRclass() { return rclass_; }
     
     // repeated double realValue = 2 [packed = true];
     public static final int REALVALUE_FIELD_NUMBER = 2;
-    private java.util.List<java.lang.Double> realValue_;
-    public java.util.List<java.lang.Double>
-        getRealValueList() {
+    private java.util.List<java.lang.Double> realValue_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.Double> getRealValueList() {
       return realValue_;
     }
-    public int getRealValueCount() {
-      return realValue_.size();
-    }
+    public int getRealValueCount() { return realValue_.size(); }
     public double getRealValue(int index) {
       return realValue_.get(index);
     }
@@ -294,14 +205,12 @@ public final class REXPProtos {
     
     // repeated sint32 intValue = 3 [packed = true];
     public static final int INTVALUE_FIELD_NUMBER = 3;
-    private java.util.List<java.lang.Integer> intValue_;
-    public java.util.List<java.lang.Integer>
-        getIntValueList() {
+    private java.util.List<java.lang.Integer> intValue_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.Integer> getIntValueList() {
       return intValue_;
     }
-    public int getIntValueCount() {
-      return intValue_.size();
-    }
+    public int getIntValueCount() { return intValue_.size(); }
     public int getIntValue(int index) {
       return intValue_.get(index);
     }
@@ -309,208 +218,140 @@ public final class REXPProtos {
     
     // repeated .REXP.RBOOLEAN booleanValue = 4;
     public static final int BOOLEANVALUE_FIELD_NUMBER = 4;
-    private java.util.List<org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN> booleanValue_;
+    private java.util.List<org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN> booleanValue_ =
+      java.util.Collections.emptyList();
     public java.util.List<org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN> getBooleanValueList() {
       return booleanValue_;
     }
-    public int getBooleanValueCount() {
-      return booleanValue_.size();
-    }
+    public int getBooleanValueCount() { return booleanValue_.size(); }
     public org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN getBooleanValue(int index) {
       return booleanValue_.get(index);
     }
     
     // repeated .STRING stringValue = 5;
     public static final int STRINGVALUE_FIELD_NUMBER = 5;
-    private java.util.List<org.godhuli.rhipe.REXPProtos.STRING> stringValue_;
+    private java.util.List<org.godhuli.rhipe.REXPProtos.STRING> stringValue_ =
+      java.util.Collections.emptyList();
     public java.util.List<org.godhuli.rhipe.REXPProtos.STRING> getStringValueList() {
       return stringValue_;
     }
-    public java.util.List<? extends org.godhuli.rhipe.REXPProtos.STRINGOrBuilder> 
-        getStringValueOrBuilderList() {
-      return stringValue_;
-    }
-    public int getStringValueCount() {
-      return stringValue_.size();
-    }
+    public int getStringValueCount() { return stringValue_.size(); }
     public org.godhuli.rhipe.REXPProtos.STRING getStringValue(int index) {
-      return stringValue_.get(index);
-    }
-    public org.godhuli.rhipe.REXPProtos.STRINGOrBuilder getStringValueOrBuilder(
-        int index) {
       return stringValue_.get(index);
     }
     
     // optional bytes rawValue = 6;
     public static final int RAWVALUE_FIELD_NUMBER = 6;
-    private com.google.protobuf.ByteString rawValue_;
-    public boolean hasRawValue() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    public com.google.protobuf.ByteString getRawValue() {
-      return rawValue_;
-    }
+    private boolean hasRawValue;
+    private com.google.protobuf.ByteString rawValue_ = com.google.protobuf.ByteString.EMPTY;
+    public boolean hasRawValue() { return hasRawValue; }
+    public com.google.protobuf.ByteString getRawValue() { return rawValue_; }
     
     // repeated .CMPLX complexValue = 7;
     public static final int COMPLEXVALUE_FIELD_NUMBER = 7;
-    private java.util.List<org.godhuli.rhipe.REXPProtos.CMPLX> complexValue_;
+    private java.util.List<org.godhuli.rhipe.REXPProtos.CMPLX> complexValue_ =
+      java.util.Collections.emptyList();
     public java.util.List<org.godhuli.rhipe.REXPProtos.CMPLX> getComplexValueList() {
       return complexValue_;
     }
-    public java.util.List<? extends org.godhuli.rhipe.REXPProtos.CMPLXOrBuilder> 
-        getComplexValueOrBuilderList() {
-      return complexValue_;
-    }
-    public int getComplexValueCount() {
-      return complexValue_.size();
-    }
+    public int getComplexValueCount() { return complexValue_.size(); }
     public org.godhuli.rhipe.REXPProtos.CMPLX getComplexValue(int index) {
-      return complexValue_.get(index);
-    }
-    public org.godhuli.rhipe.REXPProtos.CMPLXOrBuilder getComplexValueOrBuilder(
-        int index) {
       return complexValue_.get(index);
     }
     
     // repeated .REXP rexpValue = 8;
     public static final int REXPVALUE_FIELD_NUMBER = 8;
-    private java.util.List<org.godhuli.rhipe.REXPProtos.REXP> rexpValue_;
+    private java.util.List<org.godhuli.rhipe.REXPProtos.REXP> rexpValue_ =
+      java.util.Collections.emptyList();
     public java.util.List<org.godhuli.rhipe.REXPProtos.REXP> getRexpValueList() {
       return rexpValue_;
     }
-    public java.util.List<? extends org.godhuli.rhipe.REXPProtos.REXPOrBuilder> 
-        getRexpValueOrBuilderList() {
-      return rexpValue_;
-    }
-    public int getRexpValueCount() {
-      return rexpValue_.size();
-    }
+    public int getRexpValueCount() { return rexpValue_.size(); }
     public org.godhuli.rhipe.REXPProtos.REXP getRexpValue(int index) {
-      return rexpValue_.get(index);
-    }
-    public org.godhuli.rhipe.REXPProtos.REXPOrBuilder getRexpValueOrBuilder(
-        int index) {
       return rexpValue_.get(index);
     }
     
     // repeated string attrName = 11;
     public static final int ATTRNAME_FIELD_NUMBER = 11;
-    private com.google.protobuf.LazyStringList attrName_;
-    public java.util.List<String>
-        getAttrNameList() {
+    private java.util.List<java.lang.String> attrName_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.String> getAttrNameList() {
       return attrName_;
     }
-    public int getAttrNameCount() {
-      return attrName_.size();
-    }
-    public String getAttrName(int index) {
+    public int getAttrNameCount() { return attrName_.size(); }
+    public java.lang.String getAttrName(int index) {
       return attrName_.get(index);
     }
     
     // repeated .REXP attrValue = 12;
     public static final int ATTRVALUE_FIELD_NUMBER = 12;
-    private java.util.List<org.godhuli.rhipe.REXPProtos.REXP> attrValue_;
+    private java.util.List<org.godhuli.rhipe.REXPProtos.REXP> attrValue_ =
+      java.util.Collections.emptyList();
     public java.util.List<org.godhuli.rhipe.REXPProtos.REXP> getAttrValueList() {
       return attrValue_;
     }
-    public java.util.List<? extends org.godhuli.rhipe.REXPProtos.REXPOrBuilder> 
-        getAttrValueOrBuilderList() {
-      return attrValue_;
-    }
-    public int getAttrValueCount() {
-      return attrValue_.size();
-    }
+    public int getAttrValueCount() { return attrValue_.size(); }
     public org.godhuli.rhipe.REXPProtos.REXP getAttrValue(int index) {
-      return attrValue_.get(index);
-    }
-    public org.godhuli.rhipe.REXPProtos.REXPOrBuilder getAttrValueOrBuilder(
-        int index) {
       return attrValue_.get(index);
     }
     
     private void initFields() {
       rclass_ = org.godhuli.rhipe.REXPProtos.REXP.RClass.STRING;
-      realValue_ = java.util.Collections.emptyList();;
-      intValue_ = java.util.Collections.emptyList();;
-      booleanValue_ = java.util.Collections.emptyList();
-      stringValue_ = java.util.Collections.emptyList();
-      rawValue_ = com.google.protobuf.ByteString.EMPTY;
-      complexValue_ = java.util.Collections.emptyList();
-      rexpValue_ = java.util.Collections.emptyList();
-      attrName_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      attrValue_ = java.util.Collections.emptyList();
     }
-    private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
-      
-      if (!hasRclass()) {
-        memoizedIsInitialized = 0;
-        return false;
+      if (!hasRclass) return false;
+      for (org.godhuli.rhipe.REXPProtos.CMPLX element : getComplexValueList()) {
+        if (!element.isInitialized()) return false;
       }
-      for (int i = 0; i < getComplexValueCount(); i++) {
-        if (!getComplexValue(i).isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
+      for (org.godhuli.rhipe.REXPProtos.REXP element : getRexpValueList()) {
+        if (!element.isInitialized()) return false;
       }
-      for (int i = 0; i < getRexpValueCount(); i++) {
-        if (!getRexpValue(i).isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
+      for (org.godhuli.rhipe.REXPProtos.REXP element : getAttrValueList()) {
+        if (!element.isInitialized()) return false;
       }
-      for (int i = 0; i < getAttrValueCount(); i++) {
-        if (!getAttrValue(i).isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      memoizedIsInitialized = 1;
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeEnum(1, rclass_.getNumber());
+      if (hasRclass()) {
+        output.writeEnum(1, getRclass().getNumber());
       }
       if (getRealValueList().size() > 0) {
         output.writeRawVarint32(18);
         output.writeRawVarint32(realValueMemoizedSerializedSize);
       }
-      for (int i = 0; i < realValue_.size(); i++) {
-        output.writeDoubleNoTag(realValue_.get(i));
+      for (double element : getRealValueList()) {
+        output.writeDoubleNoTag(element);
       }
       if (getIntValueList().size() > 0) {
         output.writeRawVarint32(26);
         output.writeRawVarint32(intValueMemoizedSerializedSize);
       }
-      for (int i = 0; i < intValue_.size(); i++) {
-        output.writeSInt32NoTag(intValue_.get(i));
+      for (int element : getIntValueList()) {
+        output.writeSInt32NoTag(element);
       }
-      for (int i = 0; i < booleanValue_.size(); i++) {
-        output.writeEnum(4, booleanValue_.get(i).getNumber());
+      for (org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN element : getBooleanValueList()) {
+        output.writeEnum(4, element.getNumber());
       }
-      for (int i = 0; i < stringValue_.size(); i++) {
-        output.writeMessage(5, stringValue_.get(i));
+      for (org.godhuli.rhipe.REXPProtos.STRING element : getStringValueList()) {
+        output.writeMessage(5, element);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(6, rawValue_);
+      if (hasRawValue()) {
+        output.writeBytes(6, getRawValue());
       }
-      for (int i = 0; i < complexValue_.size(); i++) {
-        output.writeMessage(7, complexValue_.get(i));
+      for (org.godhuli.rhipe.REXPProtos.CMPLX element : getComplexValueList()) {
+        output.writeMessage(7, element);
       }
-      for (int i = 0; i < rexpValue_.size(); i++) {
-        output.writeMessage(8, rexpValue_.get(i));
+      for (org.godhuli.rhipe.REXPProtos.REXP element : getRexpValueList()) {
+        output.writeMessage(8, element);
       }
-      for (int i = 0; i < attrName_.size(); i++) {
-        output.writeBytes(11, attrName_.getByteString(i));
+      for (java.lang.String element : getAttrNameList()) {
+        output.writeString(11, element);
       }
-      for (int i = 0; i < attrValue_.size(); i++) {
-        output.writeMessage(12, attrValue_.get(i));
+      for (org.godhuli.rhipe.REXPProtos.REXP element : getAttrValueList()) {
+        output.writeMessage(12, element);
       }
       getUnknownFields().writeTo(output);
     }
@@ -521,9 +362,9 @@ public final class REXPProtos {
       if (size != -1) return size;
     
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (hasRclass()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, rclass_.getNumber());
+          .computeEnumSize(1, getRclass().getNumber());
       }
       {
         int dataSize = 0;
@@ -538,9 +379,9 @@ public final class REXPProtos {
       }
       {
         int dataSize = 0;
-        for (int i = 0; i < intValue_.size(); i++) {
+        for (int element : getIntValueList()) {
           dataSize += com.google.protobuf.CodedOutputStream
-            .computeSInt32SizeNoTag(intValue_.get(i));
+            .computeSInt32SizeNoTag(element);
         }
         size += dataSize;
         if (!getIntValueList().isEmpty()) {
@@ -552,52 +393,45 @@ public final class REXPProtos {
       }
       {
         int dataSize = 0;
-        for (int i = 0; i < booleanValue_.size(); i++) {
+        for (org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN element : getBooleanValueList()) {
           dataSize += com.google.protobuf.CodedOutputStream
-            .computeEnumSizeNoTag(booleanValue_.get(i).getNumber());
+            .computeEnumSizeNoTag(element.getNumber());
         }
         size += dataSize;
-        size += 1 * booleanValue_.size();
+        size += 1 * getBooleanValueList().size();
       }
-      for (int i = 0; i < stringValue_.size(); i++) {
+      for (org.godhuli.rhipe.REXPProtos.STRING element : getStringValueList()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(5, stringValue_.get(i));
+          .computeMessageSize(5, element);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (hasRawValue()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(6, rawValue_);
+          .computeBytesSize(6, getRawValue());
       }
-      for (int i = 0; i < complexValue_.size(); i++) {
+      for (org.godhuli.rhipe.REXPProtos.CMPLX element : getComplexValueList()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(7, complexValue_.get(i));
+          .computeMessageSize(7, element);
       }
-      for (int i = 0; i < rexpValue_.size(); i++) {
+      for (org.godhuli.rhipe.REXPProtos.REXP element : getRexpValueList()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(8, rexpValue_.get(i));
+          .computeMessageSize(8, element);
       }
       {
         int dataSize = 0;
-        for (int i = 0; i < attrName_.size(); i++) {
+        for (java.lang.String element : getAttrNameList()) {
           dataSize += com.google.protobuf.CodedOutputStream
-            .computeBytesSizeNoTag(attrName_.getByteString(i));
+            .computeStringSizeNoTag(element);
         }
         size += dataSize;
         size += 1 * getAttrNameList().size();
       }
-      for (int i = 0; i < attrValue_.size(); i++) {
+      for (org.godhuli.rhipe.REXPProtos.REXP element : getAttrValueList()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(12, attrValue_.get(i));
+          .computeMessageSize(12, element);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
       return size;
-    }
-    
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
     }
     
     public static org.godhuli.rhipe.REXPProtos.REXP parseFrom(
@@ -674,89 +508,34 @@ public final class REXPProtos {
     }
     public Builder toBuilder() { return newBuilder(this); }
     
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.godhuli.rhipe.REXPProtos.REXPOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return org.godhuli.rhipe.REXPProtos.internal_static_REXP_descriptor;
-      }
-      
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return org.godhuli.rhipe.REXPProtos.internal_static_REXP_fieldAccessorTable;
-      }
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private org.godhuli.rhipe.REXPProtos.REXP result;
       
       // Construct using org.godhuli.rhipe.REXPProtos.REXP.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new org.godhuli.rhipe.REXPProtos.REXP();
+        return builder;
       }
       
-      private Builder(BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          getStringValueFieldBuilder();
-          getComplexValueFieldBuilder();
-          getRexpValueFieldBuilder();
-          getAttrValueFieldBuilder();
-        }
-      }
-      private static Builder create() {
-        return new Builder();
+      protected org.godhuli.rhipe.REXPProtos.REXP internalGetResult() {
+        return result;
       }
       
       public Builder clear() {
-        super.clear();
-        rclass_ = org.godhuli.rhipe.REXPProtos.REXP.RClass.STRING;
-        bitField0_ = (bitField0_ & ~0x00000001);
-        realValue_ = java.util.Collections.emptyList();;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        intValue_ = java.util.Collections.emptyList();;
-        bitField0_ = (bitField0_ & ~0x00000004);
-        booleanValue_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000008);
-        if (stringValueBuilder_ == null) {
-          stringValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000010);
-        } else {
-          stringValueBuilder_.clear();
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
         }
-        rawValue_ = com.google.protobuf.ByteString.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000020);
-        if (complexValueBuilder_ == null) {
-          complexValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000040);
-        } else {
-          complexValueBuilder_.clear();
-        }
-        if (rexpValueBuilder_ == null) {
-          rexpValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000080);
-        } else {
-          rexpValueBuilder_.clear();
-        }
-        attrName_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000100);
-        if (attrValueBuilder_ == null) {
-          attrValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000200);
-        } else {
-          attrValueBuilder_.clear();
-        }
+        result = new org.godhuli.rhipe.REXPProtos.REXP();
         return this;
       }
       
       public Builder clone() {
-        return create().mergeFrom(buildPartial());
+        return create().mergeFrom(result);
       }
       
       public com.google.protobuf.Descriptors.Descriptor
@@ -768,96 +547,65 @@ public final class REXPProtos {
         return org.godhuli.rhipe.REXPProtos.REXP.getDefaultInstance();
       }
       
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
       public org.godhuli.rhipe.REXPProtos.REXP build() {
-        org.godhuli.rhipe.REXPProtos.REXP result = buildPartial();
-        if (!result.isInitialized()) {
+        if (result != null && !isInitialized()) {
           throw newUninitializedMessageException(result);
         }
-        return result;
+        return buildPartial();
       }
       
       private org.godhuli.rhipe.REXPProtos.REXP buildParsed()
           throws com.google.protobuf.InvalidProtocolBufferException {
-        org.godhuli.rhipe.REXPProtos.REXP result = buildPartial();
-        if (!result.isInitialized()) {
+        if (!isInitialized()) {
           throw newUninitializedMessageException(
             result).asInvalidProtocolBufferException();
         }
-        return result;
+        return buildPartial();
       }
       
       public org.godhuli.rhipe.REXPProtos.REXP buildPartial() {
-        org.godhuli.rhipe.REXPProtos.REXP result = new org.godhuli.rhipe.REXPProtos.REXP(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
         }
-        result.rclass_ = rclass_;
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          realValue_ = java.util.Collections.unmodifiableList(realValue_);
-          bitField0_ = (bitField0_ & ~0x00000002);
+        if (result.realValue_ != java.util.Collections.EMPTY_LIST) {
+          result.realValue_ =
+            java.util.Collections.unmodifiableList(result.realValue_);
         }
-        result.realValue_ = realValue_;
-        if (((bitField0_ & 0x00000004) == 0x00000004)) {
-          intValue_ = java.util.Collections.unmodifiableList(intValue_);
-          bitField0_ = (bitField0_ & ~0x00000004);
+        if (result.intValue_ != java.util.Collections.EMPTY_LIST) {
+          result.intValue_ =
+            java.util.Collections.unmodifiableList(result.intValue_);
         }
-        result.intValue_ = intValue_;
-        if (((bitField0_ & 0x00000008) == 0x00000008)) {
-          booleanValue_ = java.util.Collections.unmodifiableList(booleanValue_);
-          bitField0_ = (bitField0_ & ~0x00000008);
+        if (result.booleanValue_ != java.util.Collections.EMPTY_LIST) {
+          result.booleanValue_ =
+            java.util.Collections.unmodifiableList(result.booleanValue_);
         }
-        result.booleanValue_ = booleanValue_;
-        if (stringValueBuilder_ == null) {
-          if (((bitField0_ & 0x00000010) == 0x00000010)) {
-            stringValue_ = java.util.Collections.unmodifiableList(stringValue_);
-            bitField0_ = (bitField0_ & ~0x00000010);
-          }
-          result.stringValue_ = stringValue_;
-        } else {
-          result.stringValue_ = stringValueBuilder_.build();
+        if (result.stringValue_ != java.util.Collections.EMPTY_LIST) {
+          result.stringValue_ =
+            java.util.Collections.unmodifiableList(result.stringValue_);
         }
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-          to_bitField0_ |= 0x00000002;
+        if (result.complexValue_ != java.util.Collections.EMPTY_LIST) {
+          result.complexValue_ =
+            java.util.Collections.unmodifiableList(result.complexValue_);
         }
-        result.rawValue_ = rawValue_;
-        if (complexValueBuilder_ == null) {
-          if (((bitField0_ & 0x00000040) == 0x00000040)) {
-            complexValue_ = java.util.Collections.unmodifiableList(complexValue_);
-            bitField0_ = (bitField0_ & ~0x00000040);
-          }
-          result.complexValue_ = complexValue_;
-        } else {
-          result.complexValue_ = complexValueBuilder_.build();
+        if (result.rexpValue_ != java.util.Collections.EMPTY_LIST) {
+          result.rexpValue_ =
+            java.util.Collections.unmodifiableList(result.rexpValue_);
         }
-        if (rexpValueBuilder_ == null) {
-          if (((bitField0_ & 0x00000080) == 0x00000080)) {
-            rexpValue_ = java.util.Collections.unmodifiableList(rexpValue_);
-            bitField0_ = (bitField0_ & ~0x00000080);
-          }
-          result.rexpValue_ = rexpValue_;
-        } else {
-          result.rexpValue_ = rexpValueBuilder_.build();
+        if (result.attrName_ != java.util.Collections.EMPTY_LIST) {
+          result.attrName_ =
+            java.util.Collections.unmodifiableList(result.attrName_);
         }
-        if (((bitField0_ & 0x00000100) == 0x00000100)) {
-          attrName_ = new com.google.protobuf.UnmodifiableLazyStringList(
-              attrName_);
-          bitField0_ = (bitField0_ & ~0x00000100);
+        if (result.attrValue_ != java.util.Collections.EMPTY_LIST) {
+          result.attrValue_ =
+            java.util.Collections.unmodifiableList(result.attrValue_);
         }
-        result.attrName_ = attrName_;
-        if (attrValueBuilder_ == null) {
-          if (((bitField0_ & 0x00000200) == 0x00000200)) {
-            attrValue_ = java.util.Collections.unmodifiableList(attrValue_);
-            bitField0_ = (bitField0_ & ~0x00000200);
-          }
-          result.attrValue_ = attrValue_;
-        } else {
-          result.attrValue_ = attrValueBuilder_.build();
-        }
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
+        org.godhuli.rhipe.REXPProtos.REXP returnMe = result;
+        result = null;
+        return returnMe;
       }
       
       public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -875,180 +623,58 @@ public final class REXPProtos {
           setRclass(other.getRclass());
         }
         if (!other.realValue_.isEmpty()) {
-          if (realValue_.isEmpty()) {
-            realValue_ = other.realValue_;
-            bitField0_ = (bitField0_ & ~0x00000002);
-          } else {
-            ensureRealValueIsMutable();
-            realValue_.addAll(other.realValue_);
+          if (result.realValue_.isEmpty()) {
+            result.realValue_ = new java.util.ArrayList<java.lang.Double>();
           }
-          onChanged();
+          result.realValue_.addAll(other.realValue_);
         }
         if (!other.intValue_.isEmpty()) {
-          if (intValue_.isEmpty()) {
-            intValue_ = other.intValue_;
-            bitField0_ = (bitField0_ & ~0x00000004);
-          } else {
-            ensureIntValueIsMutable();
-            intValue_.addAll(other.intValue_);
+          if (result.intValue_.isEmpty()) {
+            result.intValue_ = new java.util.ArrayList<java.lang.Integer>();
           }
-          onChanged();
+          result.intValue_.addAll(other.intValue_);
         }
         if (!other.booleanValue_.isEmpty()) {
-          if (booleanValue_.isEmpty()) {
-            booleanValue_ = other.booleanValue_;
-            bitField0_ = (bitField0_ & ~0x00000008);
-          } else {
-            ensureBooleanValueIsMutable();
-            booleanValue_.addAll(other.booleanValue_);
+          if (result.booleanValue_.isEmpty()) {
+            result.booleanValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN>();
           }
-          onChanged();
+          result.booleanValue_.addAll(other.booleanValue_);
         }
-        if (stringValueBuilder_ == null) {
-          if (!other.stringValue_.isEmpty()) {
-            if (stringValue_.isEmpty()) {
-              stringValue_ = other.stringValue_;
-              bitField0_ = (bitField0_ & ~0x00000010);
-            } else {
-              ensureStringValueIsMutable();
-              stringValue_.addAll(other.stringValue_);
-            }
-            onChanged();
+        if (!other.stringValue_.isEmpty()) {
+          if (result.stringValue_.isEmpty()) {
+            result.stringValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.STRING>();
           }
-        } else {
-          if (!other.stringValue_.isEmpty()) {
-            if (stringValueBuilder_.isEmpty()) {
-              stringValueBuilder_.dispose();
-              stringValueBuilder_ = null;
-              stringValue_ = other.stringValue_;
-              bitField0_ = (bitField0_ & ~0x00000010);
-              stringValueBuilder_ = 
-                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getStringValueFieldBuilder() : null;
-            } else {
-              stringValueBuilder_.addAllMessages(other.stringValue_);
-            }
-          }
+          result.stringValue_.addAll(other.stringValue_);
         }
         if (other.hasRawValue()) {
           setRawValue(other.getRawValue());
         }
-        if (complexValueBuilder_ == null) {
-          if (!other.complexValue_.isEmpty()) {
-            if (complexValue_.isEmpty()) {
-              complexValue_ = other.complexValue_;
-              bitField0_ = (bitField0_ & ~0x00000040);
-            } else {
-              ensureComplexValueIsMutable();
-              complexValue_.addAll(other.complexValue_);
-            }
-            onChanged();
+        if (!other.complexValue_.isEmpty()) {
+          if (result.complexValue_.isEmpty()) {
+            result.complexValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.CMPLX>();
           }
-        } else {
-          if (!other.complexValue_.isEmpty()) {
-            if (complexValueBuilder_.isEmpty()) {
-              complexValueBuilder_.dispose();
-              complexValueBuilder_ = null;
-              complexValue_ = other.complexValue_;
-              bitField0_ = (bitField0_ & ~0x00000040);
-              complexValueBuilder_ = 
-                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getComplexValueFieldBuilder() : null;
-            } else {
-              complexValueBuilder_.addAllMessages(other.complexValue_);
-            }
-          }
+          result.complexValue_.addAll(other.complexValue_);
         }
-        if (rexpValueBuilder_ == null) {
-          if (!other.rexpValue_.isEmpty()) {
-            if (rexpValue_.isEmpty()) {
-              rexpValue_ = other.rexpValue_;
-              bitField0_ = (bitField0_ & ~0x00000080);
-            } else {
-              ensureRexpValueIsMutable();
-              rexpValue_.addAll(other.rexpValue_);
-            }
-            onChanged();
+        if (!other.rexpValue_.isEmpty()) {
+          if (result.rexpValue_.isEmpty()) {
+            result.rexpValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.REXP>();
           }
-        } else {
-          if (!other.rexpValue_.isEmpty()) {
-            if (rexpValueBuilder_.isEmpty()) {
-              rexpValueBuilder_.dispose();
-              rexpValueBuilder_ = null;
-              rexpValue_ = other.rexpValue_;
-              bitField0_ = (bitField0_ & ~0x00000080);
-              rexpValueBuilder_ = 
-                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getRexpValueFieldBuilder() : null;
-            } else {
-              rexpValueBuilder_.addAllMessages(other.rexpValue_);
-            }
-          }
+          result.rexpValue_.addAll(other.rexpValue_);
         }
         if (!other.attrName_.isEmpty()) {
-          if (attrName_.isEmpty()) {
-            attrName_ = other.attrName_;
-            bitField0_ = (bitField0_ & ~0x00000100);
-          } else {
-            ensureAttrNameIsMutable();
-            attrName_.addAll(other.attrName_);
+          if (result.attrName_.isEmpty()) {
+            result.attrName_ = new java.util.ArrayList<java.lang.String>();
           }
-          onChanged();
+          result.attrName_.addAll(other.attrName_);
         }
-        if (attrValueBuilder_ == null) {
-          if (!other.attrValue_.isEmpty()) {
-            if (attrValue_.isEmpty()) {
-              attrValue_ = other.attrValue_;
-              bitField0_ = (bitField0_ & ~0x00000200);
-            } else {
-              ensureAttrValueIsMutable();
-              attrValue_.addAll(other.attrValue_);
-            }
-            onChanged();
+        if (!other.attrValue_.isEmpty()) {
+          if (result.attrValue_.isEmpty()) {
+            result.attrValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.REXP>();
           }
-        } else {
-          if (!other.attrValue_.isEmpty()) {
-            if (attrValueBuilder_.isEmpty()) {
-              attrValueBuilder_.dispose();
-              attrValueBuilder_ = null;
-              attrValue_ = other.attrValue_;
-              bitField0_ = (bitField0_ & ~0x00000200);
-              attrValueBuilder_ = 
-                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getAttrValueFieldBuilder() : null;
-            } else {
-              attrValueBuilder_.addAllMessages(other.attrValue_);
-            }
-          }
+          result.attrValue_.addAll(other.attrValue_);
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
-      }
-      
-      public final boolean isInitialized() {
-        if (!hasRclass()) {
-          
-          return false;
-        }
-        for (int i = 0; i < getComplexValueCount(); i++) {
-          if (!getComplexValue(i).isInitialized()) {
-            
-            return false;
-          }
-        }
-        for (int i = 0; i < getRexpValueCount(); i++) {
-          if (!getRexpValue(i).isInitialized()) {
-            
-            return false;
-          }
-        }
-        for (int i = 0; i < getAttrValueCount(); i++) {
-          if (!getAttrValue(i).isInitialized()) {
-            
-            return false;
-          }
-        }
-        return true;
       }
       
       public Builder mergeFrom(
@@ -1063,13 +689,11 @@ public final class REXPProtos {
           switch (tag) {
             case 0:
               this.setUnknownFields(unknownFields.build());
-              onChanged();
               return this;
             default: {
               if (!parseUnknownField(input, unknownFields,
                                      extensionRegistry, tag)) {
                 this.setUnknownFields(unknownFields.build());
-                onChanged();
                 return this;
               }
               break;
@@ -1080,14 +704,12 @@ public final class REXPProtos {
               if (value == null) {
                 unknownFields.mergeVarintField(1, rawValue);
               } else {
-                bitField0_ |= 0x00000001;
-                rclass_ = value;
+                setRclass(value);
               }
               break;
             }
             case 17: {
-              ensureRealValueIsMutable();
-              realValue_.add(input.readDouble());
+              addRealValue(input.readDouble());
               break;
             }
             case 18: {
@@ -1100,8 +722,7 @@ public final class REXPProtos {
               break;
             }
             case 24: {
-              ensureIntValueIsMutable();
-              intValue_.add(input.readSInt32());
+              addIntValue(input.readSInt32());
               break;
             }
             case 26: {
@@ -1145,8 +766,7 @@ public final class REXPProtos {
               break;
             }
             case 50: {
-              bitField0_ |= 0x00000020;
-              rawValue_ = input.readBytes();
+              setRawValue(input.readBytes());
               break;
             }
             case 58: {
@@ -1162,8 +782,7 @@ public final class REXPProtos {
               break;
             }
             case 90: {
-              ensureAttrNameIsMutable();
-              attrName_.add(input.readBytes());
+              addAttrName(input.readString());
               break;
             }
             case 98: {
@@ -1176,995 +795,399 @@ public final class REXPProtos {
         }
       }
       
-      private int bitField0_;
       
       // required .REXP.RClass rclass = 1;
-      private org.godhuli.rhipe.REXPProtos.REXP.RClass rclass_ = org.godhuli.rhipe.REXPProtos.REXP.RClass.STRING;
       public boolean hasRclass() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return result.hasRclass();
       }
       public org.godhuli.rhipe.REXPProtos.REXP.RClass getRclass() {
-        return rclass_;
+        return result.getRclass();
       }
       public Builder setRclass(org.godhuli.rhipe.REXPProtos.REXP.RClass value) {
         if (value == null) {
           throw new NullPointerException();
         }
-        bitField0_ |= 0x00000001;
-        rclass_ = value;
-        onChanged();
+        result.hasRclass = true;
+        result.rclass_ = value;
         return this;
       }
       public Builder clearRclass() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        rclass_ = org.godhuli.rhipe.REXPProtos.REXP.RClass.STRING;
-        onChanged();
+        result.hasRclass = false;
+        result.rclass_ = org.godhuli.rhipe.REXPProtos.REXP.RClass.STRING;
         return this;
       }
       
       // repeated double realValue = 2 [packed = true];
-      private java.util.List<java.lang.Double> realValue_ = java.util.Collections.emptyList();;
-      private void ensureRealValueIsMutable() {
-        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          realValue_ = new java.util.ArrayList<java.lang.Double>(realValue_);
-          bitField0_ |= 0x00000002;
-         }
-      }
-      public java.util.List<java.lang.Double>
-          getRealValueList() {
-        return java.util.Collections.unmodifiableList(realValue_);
+      public java.util.List<java.lang.Double> getRealValueList() {
+        return java.util.Collections.unmodifiableList(result.realValue_);
       }
       public int getRealValueCount() {
-        return realValue_.size();
+        return result.getRealValueCount();
       }
       public double getRealValue(int index) {
-        return realValue_.get(index);
+        return result.getRealValue(index);
       }
-      public Builder setRealValue(
-          int index, double value) {
-        ensureRealValueIsMutable();
-        realValue_.set(index, value);
-        onChanged();
+      public Builder setRealValue(int index, double value) {
+        result.realValue_.set(index, value);
         return this;
       }
       public Builder addRealValue(double value) {
-        ensureRealValueIsMutable();
-        realValue_.add(value);
-        onChanged();
+        if (result.realValue_.isEmpty()) {
+          result.realValue_ = new java.util.ArrayList<java.lang.Double>();
+        }
+        result.realValue_.add(value);
         return this;
       }
       public Builder addAllRealValue(
           java.lang.Iterable<? extends java.lang.Double> values) {
-        ensureRealValueIsMutable();
-        super.addAll(values, realValue_);
-        onChanged();
+        if (result.realValue_.isEmpty()) {
+          result.realValue_ = new java.util.ArrayList<java.lang.Double>();
+        }
+        super.addAll(values, result.realValue_);
         return this;
       }
       public Builder clearRealValue() {
-        realValue_ = java.util.Collections.emptyList();;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        onChanged();
+        result.realValue_ = java.util.Collections.emptyList();
         return this;
       }
       
       // repeated sint32 intValue = 3 [packed = true];
-      private java.util.List<java.lang.Integer> intValue_ = java.util.Collections.emptyList();;
-      private void ensureIntValueIsMutable() {
-        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
-          intValue_ = new java.util.ArrayList<java.lang.Integer>(intValue_);
-          bitField0_ |= 0x00000004;
-         }
-      }
-      public java.util.List<java.lang.Integer>
-          getIntValueList() {
-        return java.util.Collections.unmodifiableList(intValue_);
+      public java.util.List<java.lang.Integer> getIntValueList() {
+        return java.util.Collections.unmodifiableList(result.intValue_);
       }
       public int getIntValueCount() {
-        return intValue_.size();
+        return result.getIntValueCount();
       }
       public int getIntValue(int index) {
-        return intValue_.get(index);
+        return result.getIntValue(index);
       }
-      public Builder setIntValue(
-          int index, int value) {
-        ensureIntValueIsMutable();
-        intValue_.set(index, value);
-        onChanged();
+      public Builder setIntValue(int index, int value) {
+        result.intValue_.set(index, value);
         return this;
       }
       public Builder addIntValue(int value) {
-        ensureIntValueIsMutable();
-        intValue_.add(value);
-        onChanged();
+        if (result.intValue_.isEmpty()) {
+          result.intValue_ = new java.util.ArrayList<java.lang.Integer>();
+        }
+        result.intValue_.add(value);
         return this;
       }
       public Builder addAllIntValue(
           java.lang.Iterable<? extends java.lang.Integer> values) {
-        ensureIntValueIsMutable();
-        super.addAll(values, intValue_);
-        onChanged();
+        if (result.intValue_.isEmpty()) {
+          result.intValue_ = new java.util.ArrayList<java.lang.Integer>();
+        }
+        super.addAll(values, result.intValue_);
         return this;
       }
       public Builder clearIntValue() {
-        intValue_ = java.util.Collections.emptyList();;
-        bitField0_ = (bitField0_ & ~0x00000004);
-        onChanged();
+        result.intValue_ = java.util.Collections.emptyList();
         return this;
       }
       
       // repeated .REXP.RBOOLEAN booleanValue = 4;
-      private java.util.List<org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN> booleanValue_ =
-        java.util.Collections.emptyList();
-      private void ensureBooleanValueIsMutable() {
-        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
-          booleanValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN>(booleanValue_);
-          bitField0_ |= 0x00000008;
-        }
-      }
       public java.util.List<org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN> getBooleanValueList() {
-        return java.util.Collections.unmodifiableList(booleanValue_);
+        return java.util.Collections.unmodifiableList(result.booleanValue_);
       }
       public int getBooleanValueCount() {
-        return booleanValue_.size();
+        return result.getBooleanValueCount();
       }
       public org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN getBooleanValue(int index) {
-        return booleanValue_.get(index);
+        return result.getBooleanValue(index);
       }
-      public Builder setBooleanValue(
-          int index, org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN value) {
+      public Builder setBooleanValue(int index, org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN value) {
         if (value == null) {
           throw new NullPointerException();
         }
-        ensureBooleanValueIsMutable();
-        booleanValue_.set(index, value);
-        onChanged();
+        result.booleanValue_.set(index, value);
         return this;
       }
       public Builder addBooleanValue(org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN value) {
         if (value == null) {
           throw new NullPointerException();
         }
-        ensureBooleanValueIsMutable();
-        booleanValue_.add(value);
-        onChanged();
+        if (result.booleanValue_.isEmpty()) {
+          result.booleanValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN>();
+        }
+        result.booleanValue_.add(value);
         return this;
       }
       public Builder addAllBooleanValue(
           java.lang.Iterable<? extends org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN> values) {
-        ensureBooleanValueIsMutable();
-        super.addAll(values, booleanValue_);
-        onChanged();
+        if (result.booleanValue_.isEmpty()) {
+          result.booleanValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.REXP.RBOOLEAN>();
+        }
+        super.addAll(values, result.booleanValue_);
         return this;
       }
       public Builder clearBooleanValue() {
-        booleanValue_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000008);
-        onChanged();
+        result.booleanValue_ = java.util.Collections.emptyList();
         return this;
       }
       
       // repeated .STRING stringValue = 5;
-      private java.util.List<org.godhuli.rhipe.REXPProtos.STRING> stringValue_ =
-        java.util.Collections.emptyList();
-      private void ensureStringValueIsMutable() {
-        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
-          stringValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.STRING>(stringValue_);
-          bitField0_ |= 0x00000010;
-         }
-      }
-      
-      private com.google.protobuf.RepeatedFieldBuilder<
-          org.godhuli.rhipe.REXPProtos.STRING, org.godhuli.rhipe.REXPProtos.STRING.Builder, org.godhuli.rhipe.REXPProtos.STRINGOrBuilder> stringValueBuilder_;
-      
       public java.util.List<org.godhuli.rhipe.REXPProtos.STRING> getStringValueList() {
-        if (stringValueBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(stringValue_);
-        } else {
-          return stringValueBuilder_.getMessageList();
-        }
+        return java.util.Collections.unmodifiableList(result.stringValue_);
       }
       public int getStringValueCount() {
-        if (stringValueBuilder_ == null) {
-          return stringValue_.size();
-        } else {
-          return stringValueBuilder_.getCount();
-        }
+        return result.getStringValueCount();
       }
       public org.godhuli.rhipe.REXPProtos.STRING getStringValue(int index) {
-        if (stringValueBuilder_ == null) {
-          return stringValue_.get(index);
-        } else {
-          return stringValueBuilder_.getMessage(index);
-        }
+        return result.getStringValue(index);
       }
-      public Builder setStringValue(
-          int index, org.godhuli.rhipe.REXPProtos.STRING value) {
-        if (stringValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureStringValueIsMutable();
-          stringValue_.set(index, value);
-          onChanged();
-        } else {
-          stringValueBuilder_.setMessage(index, value);
+      public Builder setStringValue(int index, org.godhuli.rhipe.REXPProtos.STRING value) {
+        if (value == null) {
+          throw new NullPointerException();
         }
+        result.stringValue_.set(index, value);
         return this;
       }
-      public Builder setStringValue(
-          int index, org.godhuli.rhipe.REXPProtos.STRING.Builder builderForValue) {
-        if (stringValueBuilder_ == null) {
-          ensureStringValueIsMutable();
-          stringValue_.set(index, builderForValue.build());
-          onChanged();
-        } else {
-          stringValueBuilder_.setMessage(index, builderForValue.build());
-        }
+      public Builder setStringValue(int index, org.godhuli.rhipe.REXPProtos.STRING.Builder builderForValue) {
+        result.stringValue_.set(index, builderForValue.build());
         return this;
       }
       public Builder addStringValue(org.godhuli.rhipe.REXPProtos.STRING value) {
-        if (stringValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureStringValueIsMutable();
-          stringValue_.add(value);
-          onChanged();
-        } else {
-          stringValueBuilder_.addMessage(value);
+        if (value == null) {
+          throw new NullPointerException();
         }
+        if (result.stringValue_.isEmpty()) {
+          result.stringValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.STRING>();
+        }
+        result.stringValue_.add(value);
         return this;
       }
-      public Builder addStringValue(
-          int index, org.godhuli.rhipe.REXPProtos.STRING value) {
-        if (stringValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureStringValueIsMutable();
-          stringValue_.add(index, value);
-          onChanged();
-        } else {
-          stringValueBuilder_.addMessage(index, value);
+      public Builder addStringValue(org.godhuli.rhipe.REXPProtos.STRING.Builder builderForValue) {
+        if (result.stringValue_.isEmpty()) {
+          result.stringValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.STRING>();
         }
-        return this;
-      }
-      public Builder addStringValue(
-          org.godhuli.rhipe.REXPProtos.STRING.Builder builderForValue) {
-        if (stringValueBuilder_ == null) {
-          ensureStringValueIsMutable();
-          stringValue_.add(builderForValue.build());
-          onChanged();
-        } else {
-          stringValueBuilder_.addMessage(builderForValue.build());
-        }
-        return this;
-      }
-      public Builder addStringValue(
-          int index, org.godhuli.rhipe.REXPProtos.STRING.Builder builderForValue) {
-        if (stringValueBuilder_ == null) {
-          ensureStringValueIsMutable();
-          stringValue_.add(index, builderForValue.build());
-          onChanged();
-        } else {
-          stringValueBuilder_.addMessage(index, builderForValue.build());
-        }
+        result.stringValue_.add(builderForValue.build());
         return this;
       }
       public Builder addAllStringValue(
           java.lang.Iterable<? extends org.godhuli.rhipe.REXPProtos.STRING> values) {
-        if (stringValueBuilder_ == null) {
-          ensureStringValueIsMutable();
-          super.addAll(values, stringValue_);
-          onChanged();
-        } else {
-          stringValueBuilder_.addAllMessages(values);
+        if (result.stringValue_.isEmpty()) {
+          result.stringValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.STRING>();
         }
+        super.addAll(values, result.stringValue_);
         return this;
       }
       public Builder clearStringValue() {
-        if (stringValueBuilder_ == null) {
-          stringValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000010);
-          onChanged();
-        } else {
-          stringValueBuilder_.clear();
-        }
+        result.stringValue_ = java.util.Collections.emptyList();
         return this;
-      }
-      public Builder removeStringValue(int index) {
-        if (stringValueBuilder_ == null) {
-          ensureStringValueIsMutable();
-          stringValue_.remove(index);
-          onChanged();
-        } else {
-          stringValueBuilder_.remove(index);
-        }
-        return this;
-      }
-      public org.godhuli.rhipe.REXPProtos.STRING.Builder getStringValueBuilder(
-          int index) {
-        return getStringValueFieldBuilder().getBuilder(index);
-      }
-      public org.godhuli.rhipe.REXPProtos.STRINGOrBuilder getStringValueOrBuilder(
-          int index) {
-        if (stringValueBuilder_ == null) {
-          return stringValue_.get(index);  } else {
-          return stringValueBuilder_.getMessageOrBuilder(index);
-        }
-      }
-      public java.util.List<? extends org.godhuli.rhipe.REXPProtos.STRINGOrBuilder> 
-           getStringValueOrBuilderList() {
-        if (stringValueBuilder_ != null) {
-          return stringValueBuilder_.getMessageOrBuilderList();
-        } else {
-          return java.util.Collections.unmodifiableList(stringValue_);
-        }
-      }
-      public org.godhuli.rhipe.REXPProtos.STRING.Builder addStringValueBuilder() {
-        return getStringValueFieldBuilder().addBuilder(
-            org.godhuli.rhipe.REXPProtos.STRING.getDefaultInstance());
-      }
-      public org.godhuli.rhipe.REXPProtos.STRING.Builder addStringValueBuilder(
-          int index) {
-        return getStringValueFieldBuilder().addBuilder(
-            index, org.godhuli.rhipe.REXPProtos.STRING.getDefaultInstance());
-      }
-      public java.util.List<org.godhuli.rhipe.REXPProtos.STRING.Builder> 
-           getStringValueBuilderList() {
-        return getStringValueFieldBuilder().getBuilderList();
-      }
-      private com.google.protobuf.RepeatedFieldBuilder<
-          org.godhuli.rhipe.REXPProtos.STRING, org.godhuli.rhipe.REXPProtos.STRING.Builder, org.godhuli.rhipe.REXPProtos.STRINGOrBuilder> 
-          getStringValueFieldBuilder() {
-        if (stringValueBuilder_ == null) {
-          stringValueBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.godhuli.rhipe.REXPProtos.STRING, org.godhuli.rhipe.REXPProtos.STRING.Builder, org.godhuli.rhipe.REXPProtos.STRINGOrBuilder>(
-                  stringValue_,
-                  ((bitField0_ & 0x00000010) == 0x00000010),
-                  getParentForChildren(),
-                  isClean());
-          stringValue_ = null;
-        }
-        return stringValueBuilder_;
       }
       
       // optional bytes rawValue = 6;
-      private com.google.protobuf.ByteString rawValue_ = com.google.protobuf.ByteString.EMPTY;
       public boolean hasRawValue() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return result.hasRawValue();
       }
       public com.google.protobuf.ByteString getRawValue() {
-        return rawValue_;
+        return result.getRawValue();
       }
       public Builder setRawValue(com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000020;
-        rawValue_ = value;
-        onChanged();
+  result.hasRawValue = true;
+        result.rawValue_ = value;
         return this;
       }
       public Builder clearRawValue() {
-        bitField0_ = (bitField0_ & ~0x00000020);
-        rawValue_ = getDefaultInstance().getRawValue();
-        onChanged();
+        result.hasRawValue = false;
+        result.rawValue_ = getDefaultInstance().getRawValue();
         return this;
       }
       
       // repeated .CMPLX complexValue = 7;
-      private java.util.List<org.godhuli.rhipe.REXPProtos.CMPLX> complexValue_ =
-        java.util.Collections.emptyList();
-      private void ensureComplexValueIsMutable() {
-        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
-          complexValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.CMPLX>(complexValue_);
-          bitField0_ |= 0x00000040;
-         }
-      }
-      
-      private com.google.protobuf.RepeatedFieldBuilder<
-          org.godhuli.rhipe.REXPProtos.CMPLX, org.godhuli.rhipe.REXPProtos.CMPLX.Builder, org.godhuli.rhipe.REXPProtos.CMPLXOrBuilder> complexValueBuilder_;
-      
       public java.util.List<org.godhuli.rhipe.REXPProtos.CMPLX> getComplexValueList() {
-        if (complexValueBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(complexValue_);
-        } else {
-          return complexValueBuilder_.getMessageList();
-        }
+        return java.util.Collections.unmodifiableList(result.complexValue_);
       }
       public int getComplexValueCount() {
-        if (complexValueBuilder_ == null) {
-          return complexValue_.size();
-        } else {
-          return complexValueBuilder_.getCount();
-        }
+        return result.getComplexValueCount();
       }
       public org.godhuli.rhipe.REXPProtos.CMPLX getComplexValue(int index) {
-        if (complexValueBuilder_ == null) {
-          return complexValue_.get(index);
-        } else {
-          return complexValueBuilder_.getMessage(index);
-        }
+        return result.getComplexValue(index);
       }
-      public Builder setComplexValue(
-          int index, org.godhuli.rhipe.REXPProtos.CMPLX value) {
-        if (complexValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureComplexValueIsMutable();
-          complexValue_.set(index, value);
-          onChanged();
-        } else {
-          complexValueBuilder_.setMessage(index, value);
+      public Builder setComplexValue(int index, org.godhuli.rhipe.REXPProtos.CMPLX value) {
+        if (value == null) {
+          throw new NullPointerException();
         }
+        result.complexValue_.set(index, value);
         return this;
       }
-      public Builder setComplexValue(
-          int index, org.godhuli.rhipe.REXPProtos.CMPLX.Builder builderForValue) {
-        if (complexValueBuilder_ == null) {
-          ensureComplexValueIsMutable();
-          complexValue_.set(index, builderForValue.build());
-          onChanged();
-        } else {
-          complexValueBuilder_.setMessage(index, builderForValue.build());
-        }
+      public Builder setComplexValue(int index, org.godhuli.rhipe.REXPProtos.CMPLX.Builder builderForValue) {
+        result.complexValue_.set(index, builderForValue.build());
         return this;
       }
       public Builder addComplexValue(org.godhuli.rhipe.REXPProtos.CMPLX value) {
-        if (complexValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureComplexValueIsMutable();
-          complexValue_.add(value);
-          onChanged();
-        } else {
-          complexValueBuilder_.addMessage(value);
+        if (value == null) {
+          throw new NullPointerException();
         }
+        if (result.complexValue_.isEmpty()) {
+          result.complexValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.CMPLX>();
+        }
+        result.complexValue_.add(value);
         return this;
       }
-      public Builder addComplexValue(
-          int index, org.godhuli.rhipe.REXPProtos.CMPLX value) {
-        if (complexValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureComplexValueIsMutable();
-          complexValue_.add(index, value);
-          onChanged();
-        } else {
-          complexValueBuilder_.addMessage(index, value);
+      public Builder addComplexValue(org.godhuli.rhipe.REXPProtos.CMPLX.Builder builderForValue) {
+        if (result.complexValue_.isEmpty()) {
+          result.complexValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.CMPLX>();
         }
-        return this;
-      }
-      public Builder addComplexValue(
-          org.godhuli.rhipe.REXPProtos.CMPLX.Builder builderForValue) {
-        if (complexValueBuilder_ == null) {
-          ensureComplexValueIsMutable();
-          complexValue_.add(builderForValue.build());
-          onChanged();
-        } else {
-          complexValueBuilder_.addMessage(builderForValue.build());
-        }
-        return this;
-      }
-      public Builder addComplexValue(
-          int index, org.godhuli.rhipe.REXPProtos.CMPLX.Builder builderForValue) {
-        if (complexValueBuilder_ == null) {
-          ensureComplexValueIsMutable();
-          complexValue_.add(index, builderForValue.build());
-          onChanged();
-        } else {
-          complexValueBuilder_.addMessage(index, builderForValue.build());
-        }
+        result.complexValue_.add(builderForValue.build());
         return this;
       }
       public Builder addAllComplexValue(
           java.lang.Iterable<? extends org.godhuli.rhipe.REXPProtos.CMPLX> values) {
-        if (complexValueBuilder_ == null) {
-          ensureComplexValueIsMutable();
-          super.addAll(values, complexValue_);
-          onChanged();
-        } else {
-          complexValueBuilder_.addAllMessages(values);
+        if (result.complexValue_.isEmpty()) {
+          result.complexValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.CMPLX>();
         }
+        super.addAll(values, result.complexValue_);
         return this;
       }
       public Builder clearComplexValue() {
-        if (complexValueBuilder_ == null) {
-          complexValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000040);
-          onChanged();
-        } else {
-          complexValueBuilder_.clear();
-        }
+        result.complexValue_ = java.util.Collections.emptyList();
         return this;
-      }
-      public Builder removeComplexValue(int index) {
-        if (complexValueBuilder_ == null) {
-          ensureComplexValueIsMutable();
-          complexValue_.remove(index);
-          onChanged();
-        } else {
-          complexValueBuilder_.remove(index);
-        }
-        return this;
-      }
-      public org.godhuli.rhipe.REXPProtos.CMPLX.Builder getComplexValueBuilder(
-          int index) {
-        return getComplexValueFieldBuilder().getBuilder(index);
-      }
-      public org.godhuli.rhipe.REXPProtos.CMPLXOrBuilder getComplexValueOrBuilder(
-          int index) {
-        if (complexValueBuilder_ == null) {
-          return complexValue_.get(index);  } else {
-          return complexValueBuilder_.getMessageOrBuilder(index);
-        }
-      }
-      public java.util.List<? extends org.godhuli.rhipe.REXPProtos.CMPLXOrBuilder> 
-           getComplexValueOrBuilderList() {
-        if (complexValueBuilder_ != null) {
-          return complexValueBuilder_.getMessageOrBuilderList();
-        } else {
-          return java.util.Collections.unmodifiableList(complexValue_);
-        }
-      }
-      public org.godhuli.rhipe.REXPProtos.CMPLX.Builder addComplexValueBuilder() {
-        return getComplexValueFieldBuilder().addBuilder(
-            org.godhuli.rhipe.REXPProtos.CMPLX.getDefaultInstance());
-      }
-      public org.godhuli.rhipe.REXPProtos.CMPLX.Builder addComplexValueBuilder(
-          int index) {
-        return getComplexValueFieldBuilder().addBuilder(
-            index, org.godhuli.rhipe.REXPProtos.CMPLX.getDefaultInstance());
-      }
-      public java.util.List<org.godhuli.rhipe.REXPProtos.CMPLX.Builder> 
-           getComplexValueBuilderList() {
-        return getComplexValueFieldBuilder().getBuilderList();
-      }
-      private com.google.protobuf.RepeatedFieldBuilder<
-          org.godhuli.rhipe.REXPProtos.CMPLX, org.godhuli.rhipe.REXPProtos.CMPLX.Builder, org.godhuli.rhipe.REXPProtos.CMPLXOrBuilder> 
-          getComplexValueFieldBuilder() {
-        if (complexValueBuilder_ == null) {
-          complexValueBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.godhuli.rhipe.REXPProtos.CMPLX, org.godhuli.rhipe.REXPProtos.CMPLX.Builder, org.godhuli.rhipe.REXPProtos.CMPLXOrBuilder>(
-                  complexValue_,
-                  ((bitField0_ & 0x00000040) == 0x00000040),
-                  getParentForChildren(),
-                  isClean());
-          complexValue_ = null;
-        }
-        return complexValueBuilder_;
       }
       
       // repeated .REXP rexpValue = 8;
-      private java.util.List<org.godhuli.rhipe.REXPProtos.REXP> rexpValue_ =
-        java.util.Collections.emptyList();
-      private void ensureRexpValueIsMutable() {
-        if (!((bitField0_ & 0x00000080) == 0x00000080)) {
-          rexpValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.REXP>(rexpValue_);
-          bitField0_ |= 0x00000080;
-         }
-      }
-      
-      private com.google.protobuf.RepeatedFieldBuilder<
-          org.godhuli.rhipe.REXPProtos.REXP, org.godhuli.rhipe.REXPProtos.REXP.Builder, org.godhuli.rhipe.REXPProtos.REXPOrBuilder> rexpValueBuilder_;
-      
       public java.util.List<org.godhuli.rhipe.REXPProtos.REXP> getRexpValueList() {
-        if (rexpValueBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(rexpValue_);
-        } else {
-          return rexpValueBuilder_.getMessageList();
-        }
+        return java.util.Collections.unmodifiableList(result.rexpValue_);
       }
       public int getRexpValueCount() {
-        if (rexpValueBuilder_ == null) {
-          return rexpValue_.size();
-        } else {
-          return rexpValueBuilder_.getCount();
-        }
+        return result.getRexpValueCount();
       }
       public org.godhuli.rhipe.REXPProtos.REXP getRexpValue(int index) {
-        if (rexpValueBuilder_ == null) {
-          return rexpValue_.get(index);
-        } else {
-          return rexpValueBuilder_.getMessage(index);
-        }
+        return result.getRexpValue(index);
       }
-      public Builder setRexpValue(
-          int index, org.godhuli.rhipe.REXPProtos.REXP value) {
-        if (rexpValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureRexpValueIsMutable();
-          rexpValue_.set(index, value);
-          onChanged();
-        } else {
-          rexpValueBuilder_.setMessage(index, value);
+      public Builder setRexpValue(int index, org.godhuli.rhipe.REXPProtos.REXP value) {
+        if (value == null) {
+          throw new NullPointerException();
         }
+        result.rexpValue_.set(index, value);
         return this;
       }
-      public Builder setRexpValue(
-          int index, org.godhuli.rhipe.REXPProtos.REXP.Builder builderForValue) {
-        if (rexpValueBuilder_ == null) {
-          ensureRexpValueIsMutable();
-          rexpValue_.set(index, builderForValue.build());
-          onChanged();
-        } else {
-          rexpValueBuilder_.setMessage(index, builderForValue.build());
-        }
+      public Builder setRexpValue(int index, org.godhuli.rhipe.REXPProtos.REXP.Builder builderForValue) {
+        result.rexpValue_.set(index, builderForValue.build());
         return this;
       }
       public Builder addRexpValue(org.godhuli.rhipe.REXPProtos.REXP value) {
-        if (rexpValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureRexpValueIsMutable();
-          rexpValue_.add(value);
-          onChanged();
-        } else {
-          rexpValueBuilder_.addMessage(value);
+        if (value == null) {
+          throw new NullPointerException();
         }
+        if (result.rexpValue_.isEmpty()) {
+          result.rexpValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.REXP>();
+        }
+        result.rexpValue_.add(value);
         return this;
       }
-      public Builder addRexpValue(
-          int index, org.godhuli.rhipe.REXPProtos.REXP value) {
-        if (rexpValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureRexpValueIsMutable();
-          rexpValue_.add(index, value);
-          onChanged();
-        } else {
-          rexpValueBuilder_.addMessage(index, value);
+      public Builder addRexpValue(org.godhuli.rhipe.REXPProtos.REXP.Builder builderForValue) {
+        if (result.rexpValue_.isEmpty()) {
+          result.rexpValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.REXP>();
         }
-        return this;
-      }
-      public Builder addRexpValue(
-          org.godhuli.rhipe.REXPProtos.REXP.Builder builderForValue) {
-        if (rexpValueBuilder_ == null) {
-          ensureRexpValueIsMutable();
-          rexpValue_.add(builderForValue.build());
-          onChanged();
-        } else {
-          rexpValueBuilder_.addMessage(builderForValue.build());
-        }
-        return this;
-      }
-      public Builder addRexpValue(
-          int index, org.godhuli.rhipe.REXPProtos.REXP.Builder builderForValue) {
-        if (rexpValueBuilder_ == null) {
-          ensureRexpValueIsMutable();
-          rexpValue_.add(index, builderForValue.build());
-          onChanged();
-        } else {
-          rexpValueBuilder_.addMessage(index, builderForValue.build());
-        }
+        result.rexpValue_.add(builderForValue.build());
         return this;
       }
       public Builder addAllRexpValue(
           java.lang.Iterable<? extends org.godhuli.rhipe.REXPProtos.REXP> values) {
-        if (rexpValueBuilder_ == null) {
-          ensureRexpValueIsMutable();
-          super.addAll(values, rexpValue_);
-          onChanged();
-        } else {
-          rexpValueBuilder_.addAllMessages(values);
+        if (result.rexpValue_.isEmpty()) {
+          result.rexpValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.REXP>();
         }
+        super.addAll(values, result.rexpValue_);
         return this;
       }
       public Builder clearRexpValue() {
-        if (rexpValueBuilder_ == null) {
-          rexpValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000080);
-          onChanged();
-        } else {
-          rexpValueBuilder_.clear();
-        }
+        result.rexpValue_ = java.util.Collections.emptyList();
         return this;
-      }
-      public Builder removeRexpValue(int index) {
-        if (rexpValueBuilder_ == null) {
-          ensureRexpValueIsMutable();
-          rexpValue_.remove(index);
-          onChanged();
-        } else {
-          rexpValueBuilder_.remove(index);
-        }
-        return this;
-      }
-      public org.godhuli.rhipe.REXPProtos.REXP.Builder getRexpValueBuilder(
-          int index) {
-        return getRexpValueFieldBuilder().getBuilder(index);
-      }
-      public org.godhuli.rhipe.REXPProtos.REXPOrBuilder getRexpValueOrBuilder(
-          int index) {
-        if (rexpValueBuilder_ == null) {
-          return rexpValue_.get(index);  } else {
-          return rexpValueBuilder_.getMessageOrBuilder(index);
-        }
-      }
-      public java.util.List<? extends org.godhuli.rhipe.REXPProtos.REXPOrBuilder> 
-           getRexpValueOrBuilderList() {
-        if (rexpValueBuilder_ != null) {
-          return rexpValueBuilder_.getMessageOrBuilderList();
-        } else {
-          return java.util.Collections.unmodifiableList(rexpValue_);
-        }
-      }
-      public org.godhuli.rhipe.REXPProtos.REXP.Builder addRexpValueBuilder() {
-        return getRexpValueFieldBuilder().addBuilder(
-            org.godhuli.rhipe.REXPProtos.REXP.getDefaultInstance());
-      }
-      public org.godhuli.rhipe.REXPProtos.REXP.Builder addRexpValueBuilder(
-          int index) {
-        return getRexpValueFieldBuilder().addBuilder(
-            index, org.godhuli.rhipe.REXPProtos.REXP.getDefaultInstance());
-      }
-      public java.util.List<org.godhuli.rhipe.REXPProtos.REXP.Builder> 
-           getRexpValueBuilderList() {
-        return getRexpValueFieldBuilder().getBuilderList();
-      }
-      private com.google.protobuf.RepeatedFieldBuilder<
-          org.godhuli.rhipe.REXPProtos.REXP, org.godhuli.rhipe.REXPProtos.REXP.Builder, org.godhuli.rhipe.REXPProtos.REXPOrBuilder> 
-          getRexpValueFieldBuilder() {
-        if (rexpValueBuilder_ == null) {
-          rexpValueBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.godhuli.rhipe.REXPProtos.REXP, org.godhuli.rhipe.REXPProtos.REXP.Builder, org.godhuli.rhipe.REXPProtos.REXPOrBuilder>(
-                  rexpValue_,
-                  ((bitField0_ & 0x00000080) == 0x00000080),
-                  getParentForChildren(),
-                  isClean());
-          rexpValue_ = null;
-        }
-        return rexpValueBuilder_;
       }
       
       // repeated string attrName = 11;
-      private com.google.protobuf.LazyStringList attrName_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureAttrNameIsMutable() {
-        if (!((bitField0_ & 0x00000100) == 0x00000100)) {
-          attrName_ = new com.google.protobuf.LazyStringArrayList(attrName_);
-          bitField0_ |= 0x00000100;
-         }
-      }
-      public java.util.List<String>
-          getAttrNameList() {
-        return java.util.Collections.unmodifiableList(attrName_);
+      public java.util.List<java.lang.String> getAttrNameList() {
+        return java.util.Collections.unmodifiableList(result.attrName_);
       }
       public int getAttrNameCount() {
-        return attrName_.size();
+        return result.getAttrNameCount();
       }
-      public String getAttrName(int index) {
-        return attrName_.get(index);
+      public java.lang.String getAttrName(int index) {
+        return result.getAttrName(index);
       }
-      public Builder setAttrName(
-          int index, String value) {
+      public Builder setAttrName(int index, java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureAttrNameIsMutable();
-        attrName_.set(index, value);
-        onChanged();
+  result.attrName_.set(index, value);
         return this;
       }
-      public Builder addAttrName(String value) {
+      public Builder addAttrName(java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureAttrNameIsMutable();
-        attrName_.add(value);
-        onChanged();
+  if (result.attrName_.isEmpty()) {
+          result.attrName_ = new java.util.ArrayList<java.lang.String>();
+        }
+        result.attrName_.add(value);
         return this;
       }
       public Builder addAllAttrName(
-          java.lang.Iterable<String> values) {
-        ensureAttrNameIsMutable();
-        super.addAll(values, attrName_);
-        onChanged();
+          java.lang.Iterable<? extends java.lang.String> values) {
+        if (result.attrName_.isEmpty()) {
+          result.attrName_ = new java.util.ArrayList<java.lang.String>();
+        }
+        super.addAll(values, result.attrName_);
         return this;
       }
       public Builder clearAttrName() {
-        attrName_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000100);
-        onChanged();
+        result.attrName_ = java.util.Collections.emptyList();
         return this;
-      }
-      void addAttrName(com.google.protobuf.ByteString value) {
-        ensureAttrNameIsMutable();
-        attrName_.add(value);
-        onChanged();
       }
       
       // repeated .REXP attrValue = 12;
-      private java.util.List<org.godhuli.rhipe.REXPProtos.REXP> attrValue_ =
-        java.util.Collections.emptyList();
-      private void ensureAttrValueIsMutable() {
-        if (!((bitField0_ & 0x00000200) == 0x00000200)) {
-          attrValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.REXP>(attrValue_);
-          bitField0_ |= 0x00000200;
-         }
-      }
-      
-      private com.google.protobuf.RepeatedFieldBuilder<
-          org.godhuli.rhipe.REXPProtos.REXP, org.godhuli.rhipe.REXPProtos.REXP.Builder, org.godhuli.rhipe.REXPProtos.REXPOrBuilder> attrValueBuilder_;
-      
       public java.util.List<org.godhuli.rhipe.REXPProtos.REXP> getAttrValueList() {
-        if (attrValueBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(attrValue_);
-        } else {
-          return attrValueBuilder_.getMessageList();
-        }
+        return java.util.Collections.unmodifiableList(result.attrValue_);
       }
       public int getAttrValueCount() {
-        if (attrValueBuilder_ == null) {
-          return attrValue_.size();
-        } else {
-          return attrValueBuilder_.getCount();
-        }
+        return result.getAttrValueCount();
       }
       public org.godhuli.rhipe.REXPProtos.REXP getAttrValue(int index) {
-        if (attrValueBuilder_ == null) {
-          return attrValue_.get(index);
-        } else {
-          return attrValueBuilder_.getMessage(index);
-        }
+        return result.getAttrValue(index);
       }
-      public Builder setAttrValue(
-          int index, org.godhuli.rhipe.REXPProtos.REXP value) {
-        if (attrValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureAttrValueIsMutable();
-          attrValue_.set(index, value);
-          onChanged();
-        } else {
-          attrValueBuilder_.setMessage(index, value);
+      public Builder setAttrValue(int index, org.godhuli.rhipe.REXPProtos.REXP value) {
+        if (value == null) {
+          throw new NullPointerException();
         }
+        result.attrValue_.set(index, value);
         return this;
       }
-      public Builder setAttrValue(
-          int index, org.godhuli.rhipe.REXPProtos.REXP.Builder builderForValue) {
-        if (attrValueBuilder_ == null) {
-          ensureAttrValueIsMutable();
-          attrValue_.set(index, builderForValue.build());
-          onChanged();
-        } else {
-          attrValueBuilder_.setMessage(index, builderForValue.build());
-        }
+      public Builder setAttrValue(int index, org.godhuli.rhipe.REXPProtos.REXP.Builder builderForValue) {
+        result.attrValue_.set(index, builderForValue.build());
         return this;
       }
       public Builder addAttrValue(org.godhuli.rhipe.REXPProtos.REXP value) {
-        if (attrValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureAttrValueIsMutable();
-          attrValue_.add(value);
-          onChanged();
-        } else {
-          attrValueBuilder_.addMessage(value);
+        if (value == null) {
+          throw new NullPointerException();
         }
+        if (result.attrValue_.isEmpty()) {
+          result.attrValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.REXP>();
+        }
+        result.attrValue_.add(value);
         return this;
       }
-      public Builder addAttrValue(
-          int index, org.godhuli.rhipe.REXPProtos.REXP value) {
-        if (attrValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureAttrValueIsMutable();
-          attrValue_.add(index, value);
-          onChanged();
-        } else {
-          attrValueBuilder_.addMessage(index, value);
+      public Builder addAttrValue(org.godhuli.rhipe.REXPProtos.REXP.Builder builderForValue) {
+        if (result.attrValue_.isEmpty()) {
+          result.attrValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.REXP>();
         }
-        return this;
-      }
-      public Builder addAttrValue(
-          org.godhuli.rhipe.REXPProtos.REXP.Builder builderForValue) {
-        if (attrValueBuilder_ == null) {
-          ensureAttrValueIsMutable();
-          attrValue_.add(builderForValue.build());
-          onChanged();
-        } else {
-          attrValueBuilder_.addMessage(builderForValue.build());
-        }
-        return this;
-      }
-      public Builder addAttrValue(
-          int index, org.godhuli.rhipe.REXPProtos.REXP.Builder builderForValue) {
-        if (attrValueBuilder_ == null) {
-          ensureAttrValueIsMutable();
-          attrValue_.add(index, builderForValue.build());
-          onChanged();
-        } else {
-          attrValueBuilder_.addMessage(index, builderForValue.build());
-        }
+        result.attrValue_.add(builderForValue.build());
         return this;
       }
       public Builder addAllAttrValue(
           java.lang.Iterable<? extends org.godhuli.rhipe.REXPProtos.REXP> values) {
-        if (attrValueBuilder_ == null) {
-          ensureAttrValueIsMutable();
-          super.addAll(values, attrValue_);
-          onChanged();
-        } else {
-          attrValueBuilder_.addAllMessages(values);
+        if (result.attrValue_.isEmpty()) {
+          result.attrValue_ = new java.util.ArrayList<org.godhuli.rhipe.REXPProtos.REXP>();
         }
+        super.addAll(values, result.attrValue_);
         return this;
       }
       public Builder clearAttrValue() {
-        if (attrValueBuilder_ == null) {
-          attrValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000200);
-          onChanged();
-        } else {
-          attrValueBuilder_.clear();
-        }
+        result.attrValue_ = java.util.Collections.emptyList();
         return this;
-      }
-      public Builder removeAttrValue(int index) {
-        if (attrValueBuilder_ == null) {
-          ensureAttrValueIsMutable();
-          attrValue_.remove(index);
-          onChanged();
-        } else {
-          attrValueBuilder_.remove(index);
-        }
-        return this;
-      }
-      public org.godhuli.rhipe.REXPProtos.REXP.Builder getAttrValueBuilder(
-          int index) {
-        return getAttrValueFieldBuilder().getBuilder(index);
-      }
-      public org.godhuli.rhipe.REXPProtos.REXPOrBuilder getAttrValueOrBuilder(
-          int index) {
-        if (attrValueBuilder_ == null) {
-          return attrValue_.get(index);  } else {
-          return attrValueBuilder_.getMessageOrBuilder(index);
-        }
-      }
-      public java.util.List<? extends org.godhuli.rhipe.REXPProtos.REXPOrBuilder> 
-           getAttrValueOrBuilderList() {
-        if (attrValueBuilder_ != null) {
-          return attrValueBuilder_.getMessageOrBuilderList();
-        } else {
-          return java.util.Collections.unmodifiableList(attrValue_);
-        }
-      }
-      public org.godhuli.rhipe.REXPProtos.REXP.Builder addAttrValueBuilder() {
-        return getAttrValueFieldBuilder().addBuilder(
-            org.godhuli.rhipe.REXPProtos.REXP.getDefaultInstance());
-      }
-      public org.godhuli.rhipe.REXPProtos.REXP.Builder addAttrValueBuilder(
-          int index) {
-        return getAttrValueFieldBuilder().addBuilder(
-            index, org.godhuli.rhipe.REXPProtos.REXP.getDefaultInstance());
-      }
-      public java.util.List<org.godhuli.rhipe.REXPProtos.REXP.Builder> 
-           getAttrValueBuilderList() {
-        return getAttrValueFieldBuilder().getBuilderList();
-      }
-      private com.google.protobuf.RepeatedFieldBuilder<
-          org.godhuli.rhipe.REXPProtos.REXP, org.godhuli.rhipe.REXPProtos.REXP.Builder, org.godhuli.rhipe.REXPProtos.REXPOrBuilder> 
-          getAttrValueFieldBuilder() {
-        if (attrValueBuilder_ == null) {
-          attrValueBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.godhuli.rhipe.REXPProtos.REXP, org.godhuli.rhipe.REXPProtos.REXP.Builder, org.godhuli.rhipe.REXPProtos.REXPOrBuilder>(
-                  attrValue_,
-                  ((bitField0_ & 0x00000200) == 0x00000200),
-                  getParentForChildren(),
-                  isClean());
-          attrValue_ = null;
-        }
-        return attrValueBuilder_;
       }
       
       // @@protoc_insertion_point(builder_scope:REXP)
@@ -2172,29 +1195,18 @@ public final class REXPProtos {
     
     static {
       defaultInstance = new REXP(true);
+      org.godhuli.rhipe.REXPProtos.internalForceInit();
       defaultInstance.initFields();
     }
     
     // @@protoc_insertion_point(class_scope:REXP)
   }
   
-  public interface STRINGOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
-    
-    // optional string strval = 1;
-    boolean hasStrval();
-    String getStrval();
-    
-    // optional bool isNA = 2 [default = false];
-    boolean hasIsNA();
-    boolean getIsNA();
-  }
   public static final class STRING extends
-      com.google.protobuf.GeneratedMessage
-      implements STRINGOrBuilder {
+      com.google.protobuf.GeneratedMessage {
     // Use STRING.newBuilder() to construct.
-    private STRING(Builder builder) {
-      super(builder);
+    private STRING() {
+      initFields();
     }
     private STRING(boolean noInit) {}
     
@@ -2217,70 +1229,34 @@ public final class REXPProtos {
       return org.godhuli.rhipe.REXPProtos.internal_static_STRING_fieldAccessorTable;
     }
     
-    private int bitField0_;
     // optional string strval = 1;
     public static final int STRVAL_FIELD_NUMBER = 1;
-    private java.lang.Object strval_;
-    public boolean hasStrval() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    public String getStrval() {
-      java.lang.Object ref = strval_;
-      if (ref instanceof String) {
-        return (String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        String s = bs.toStringUtf8();
-        if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-          strval_ = s;
-        }
-        return s;
-      }
-    }
-    private com.google.protobuf.ByteString getStrvalBytes() {
-      java.lang.Object ref = strval_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-        strval_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
+    private boolean hasStrval;
+    private java.lang.String strval_ = "";
+    public boolean hasStrval() { return hasStrval; }
+    public java.lang.String getStrval() { return strval_; }
     
     // optional bool isNA = 2 [default = false];
     public static final int ISNA_FIELD_NUMBER = 2;
-    private boolean isNA_;
-    public boolean hasIsNA() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    public boolean getIsNA() {
-      return isNA_;
-    }
+    private boolean hasIsNA;
+    private boolean isNA_ = false;
+    public boolean hasIsNA() { return hasIsNA; }
+    public boolean getIsNA() { return isNA_; }
     
     private void initFields() {
-      strval_ = "";
-      isNA_ = false;
     }
-    private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
-      
-      memoizedIsInitialized = 1;
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getStrvalBytes());
+      if (hasStrval()) {
+        output.writeString(1, getStrval());
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBool(2, isNA_);
+      if (hasIsNA()) {
+        output.writeBool(2, getIsNA());
       }
       getUnknownFields().writeTo(output);
     }
@@ -2291,24 +1267,17 @@ public final class REXPProtos {
       if (size != -1) return size;
     
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (hasStrval()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getStrvalBytes());
+          .computeStringSize(1, getStrval());
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (hasIsNA()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(2, isNA_);
+          .computeBoolSize(2, getIsNA());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
       return size;
-    }
-    
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
     }
     
     public static org.godhuli.rhipe.REXPProtos.STRING parseFrom(
@@ -2385,53 +1354,34 @@ public final class REXPProtos {
     }
     public Builder toBuilder() { return newBuilder(this); }
     
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.godhuli.rhipe.REXPProtos.STRINGOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return org.godhuli.rhipe.REXPProtos.internal_static_STRING_descriptor;
-      }
-      
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return org.godhuli.rhipe.REXPProtos.internal_static_STRING_fieldAccessorTable;
-      }
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private org.godhuli.rhipe.REXPProtos.STRING result;
       
       // Construct using org.godhuli.rhipe.REXPProtos.STRING.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new org.godhuli.rhipe.REXPProtos.STRING();
+        return builder;
       }
       
-      private Builder(BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-        }
-      }
-      private static Builder create() {
-        return new Builder();
+      protected org.godhuli.rhipe.REXPProtos.STRING internalGetResult() {
+        return result;
       }
       
       public Builder clear() {
-        super.clear();
-        strval_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        isNA_ = false;
-        bitField0_ = (bitField0_ & ~0x00000002);
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new org.godhuli.rhipe.REXPProtos.STRING();
         return this;
       }
       
       public Builder clone() {
-        return create().mergeFrom(buildPartial());
+        return create().mergeFrom(result);
       }
       
       public com.google.protobuf.Descriptors.Descriptor
@@ -2443,39 +1393,33 @@ public final class REXPProtos {
         return org.godhuli.rhipe.REXPProtos.STRING.getDefaultInstance();
       }
       
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
       public org.godhuli.rhipe.REXPProtos.STRING build() {
-        org.godhuli.rhipe.REXPProtos.STRING result = buildPartial();
-        if (!result.isInitialized()) {
+        if (result != null && !isInitialized()) {
           throw newUninitializedMessageException(result);
         }
-        return result;
+        return buildPartial();
       }
       
       private org.godhuli.rhipe.REXPProtos.STRING buildParsed()
           throws com.google.protobuf.InvalidProtocolBufferException {
-        org.godhuli.rhipe.REXPProtos.STRING result = buildPartial();
-        if (!result.isInitialized()) {
+        if (!isInitialized()) {
           throw newUninitializedMessageException(
             result).asInvalidProtocolBufferException();
         }
-        return result;
+        return buildPartial();
       }
       
       public org.godhuli.rhipe.REXPProtos.STRING buildPartial() {
-        org.godhuli.rhipe.REXPProtos.STRING result = new org.godhuli.rhipe.REXPProtos.STRING(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
         }
-        result.strval_ = strval_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
-        result.isNA_ = isNA_;
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
+        org.godhuli.rhipe.REXPProtos.STRING returnMe = result;
+        result = null;
+        return returnMe;
       }
       
       public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -2499,10 +1443,6 @@ public final class REXPProtos {
         return this;
       }
       
-      public final boolean isInitialized() {
-        return true;
-      }
-      
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -2515,87 +1455,64 @@ public final class REXPProtos {
           switch (tag) {
             case 0:
               this.setUnknownFields(unknownFields.build());
-              onChanged();
               return this;
             default: {
               if (!parseUnknownField(input, unknownFields,
                                      extensionRegistry, tag)) {
                 this.setUnknownFields(unknownFields.build());
-                onChanged();
                 return this;
               }
               break;
             }
             case 10: {
-              bitField0_ |= 0x00000001;
-              strval_ = input.readBytes();
+              setStrval(input.readString());
               break;
             }
             case 16: {
-              bitField0_ |= 0x00000002;
-              isNA_ = input.readBool();
+              setIsNA(input.readBool());
               break;
             }
           }
         }
       }
       
-      private int bitField0_;
       
       // optional string strval = 1;
-      private java.lang.Object strval_ = "";
       public boolean hasStrval() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return result.hasStrval();
       }
-      public String getStrval() {
-        java.lang.Object ref = strval_;
-        if (!(ref instanceof String)) {
-          String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-          strval_ = s;
-          return s;
-        } else {
-          return (String) ref;
-        }
+      public java.lang.String getStrval() {
+        return result.getStrval();
       }
-      public Builder setStrval(String value) {
+      public Builder setStrval(java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
-        strval_ = value;
-        onChanged();
+  result.hasStrval = true;
+        result.strval_ = value;
         return this;
       }
       public Builder clearStrval() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        strval_ = getDefaultInstance().getStrval();
-        onChanged();
+        result.hasStrval = false;
+        result.strval_ = getDefaultInstance().getStrval();
         return this;
-      }
-      void setStrval(com.google.protobuf.ByteString value) {
-        bitField0_ |= 0x00000001;
-        strval_ = value;
-        onChanged();
       }
       
       // optional bool isNA = 2 [default = false];
-      private boolean isNA_ ;
       public boolean hasIsNA() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return result.hasIsNA();
       }
       public boolean getIsNA() {
-        return isNA_;
+        return result.getIsNA();
       }
       public Builder setIsNA(boolean value) {
-        bitField0_ |= 0x00000002;
-        isNA_ = value;
-        onChanged();
+        result.hasIsNA = true;
+        result.isNA_ = value;
         return this;
       }
       public Builder clearIsNA() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        isNA_ = false;
-        onChanged();
+        result.hasIsNA = false;
+        result.isNA_ = false;
         return this;
       }
       
@@ -2604,29 +1521,18 @@ public final class REXPProtos {
     
     static {
       defaultInstance = new STRING(true);
+      org.godhuli.rhipe.REXPProtos.internalForceInit();
       defaultInstance.initFields();
     }
     
     // @@protoc_insertion_point(class_scope:STRING)
   }
   
-  public interface CMPLXOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
-    
-    // optional double real = 1 [default = 0];
-    boolean hasReal();
-    double getReal();
-    
-    // required double imag = 2;
-    boolean hasImag();
-    double getImag();
-  }
   public static final class CMPLX extends
-      com.google.protobuf.GeneratedMessage
-      implements CMPLXOrBuilder {
+      com.google.protobuf.GeneratedMessage {
     // Use CMPLX.newBuilder() to construct.
-    private CMPLX(Builder builder) {
-      super(builder);
+    private CMPLX() {
+      initFields();
     }
     private CMPLX(boolean noInit) {}
     
@@ -2649,52 +1555,35 @@ public final class REXPProtos {
       return org.godhuli.rhipe.REXPProtos.internal_static_CMPLX_fieldAccessorTable;
     }
     
-    private int bitField0_;
     // optional double real = 1 [default = 0];
     public static final int REAL_FIELD_NUMBER = 1;
-    private double real_;
-    public boolean hasReal() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    public double getReal() {
-      return real_;
-    }
+    private boolean hasReal;
+    private double real_ = 0D;
+    public boolean hasReal() { return hasReal; }
+    public double getReal() { return real_; }
     
     // required double imag = 2;
     public static final int IMAG_FIELD_NUMBER = 2;
-    private double imag_;
-    public boolean hasImag() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    public double getImag() {
-      return imag_;
-    }
+    private boolean hasImag;
+    private double imag_ = 0D;
+    public boolean hasImag() { return hasImag; }
+    public double getImag() { return imag_; }
     
     private void initFields() {
-      real_ = 0D;
-      imag_ = 0D;
     }
-    private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
-      
-      if (!hasImag()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      memoizedIsInitialized = 1;
+      if (!hasImag) return false;
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeDouble(1, real_);
+      if (hasReal()) {
+        output.writeDouble(1, getReal());
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeDouble(2, imag_);
+      if (hasImag()) {
+        output.writeDouble(2, getImag());
       }
       getUnknownFields().writeTo(output);
     }
@@ -2705,24 +1594,17 @@ public final class REXPProtos {
       if (size != -1) return size;
     
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (hasReal()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(1, real_);
+          .computeDoubleSize(1, getReal());
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (hasImag()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(2, imag_);
+          .computeDoubleSize(2, getImag());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
       return size;
-    }
-    
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
     }
     
     public static org.godhuli.rhipe.REXPProtos.CMPLX parseFrom(
@@ -2799,53 +1681,34 @@ public final class REXPProtos {
     }
     public Builder toBuilder() { return newBuilder(this); }
     
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.godhuli.rhipe.REXPProtos.CMPLXOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return org.godhuli.rhipe.REXPProtos.internal_static_CMPLX_descriptor;
-      }
-      
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return org.godhuli.rhipe.REXPProtos.internal_static_CMPLX_fieldAccessorTable;
-      }
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private org.godhuli.rhipe.REXPProtos.CMPLX result;
       
       // Construct using org.godhuli.rhipe.REXPProtos.CMPLX.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new org.godhuli.rhipe.REXPProtos.CMPLX();
+        return builder;
       }
       
-      private Builder(BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-        }
-      }
-      private static Builder create() {
-        return new Builder();
+      protected org.godhuli.rhipe.REXPProtos.CMPLX internalGetResult() {
+        return result;
       }
       
       public Builder clear() {
-        super.clear();
-        real_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000001);
-        imag_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000002);
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new org.godhuli.rhipe.REXPProtos.CMPLX();
         return this;
       }
       
       public Builder clone() {
-        return create().mergeFrom(buildPartial());
+        return create().mergeFrom(result);
       }
       
       public com.google.protobuf.Descriptors.Descriptor
@@ -2857,39 +1720,33 @@ public final class REXPProtos {
         return org.godhuli.rhipe.REXPProtos.CMPLX.getDefaultInstance();
       }
       
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
       public org.godhuli.rhipe.REXPProtos.CMPLX build() {
-        org.godhuli.rhipe.REXPProtos.CMPLX result = buildPartial();
-        if (!result.isInitialized()) {
+        if (result != null && !isInitialized()) {
           throw newUninitializedMessageException(result);
         }
-        return result;
+        return buildPartial();
       }
       
       private org.godhuli.rhipe.REXPProtos.CMPLX buildParsed()
           throws com.google.protobuf.InvalidProtocolBufferException {
-        org.godhuli.rhipe.REXPProtos.CMPLX result = buildPartial();
-        if (!result.isInitialized()) {
+        if (!isInitialized()) {
           throw newUninitializedMessageException(
             result).asInvalidProtocolBufferException();
         }
-        return result;
+        return buildPartial();
       }
       
       public org.godhuli.rhipe.REXPProtos.CMPLX buildPartial() {
-        org.godhuli.rhipe.REXPProtos.CMPLX result = new org.godhuli.rhipe.REXPProtos.CMPLX(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
         }
-        result.real_ = real_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
-        result.imag_ = imag_;
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
+        org.godhuli.rhipe.REXPProtos.CMPLX returnMe = result;
+        result = null;
+        return returnMe;
       }
       
       public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -2913,14 +1770,6 @@ public final class REXPProtos {
         return this;
       }
       
-      public final boolean isInitialized() {
-        if (!hasImag()) {
-          
-          return false;
-        }
-        return true;
-      }
-      
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -2933,72 +1782,61 @@ public final class REXPProtos {
           switch (tag) {
             case 0:
               this.setUnknownFields(unknownFields.build());
-              onChanged();
               return this;
             default: {
               if (!parseUnknownField(input, unknownFields,
                                      extensionRegistry, tag)) {
                 this.setUnknownFields(unknownFields.build());
-                onChanged();
                 return this;
               }
               break;
             }
             case 9: {
-              bitField0_ |= 0x00000001;
-              real_ = input.readDouble();
+              setReal(input.readDouble());
               break;
             }
             case 17: {
-              bitField0_ |= 0x00000002;
-              imag_ = input.readDouble();
+              setImag(input.readDouble());
               break;
             }
           }
         }
       }
       
-      private int bitField0_;
       
       // optional double real = 1 [default = 0];
-      private double real_ ;
       public boolean hasReal() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return result.hasReal();
       }
       public double getReal() {
-        return real_;
+        return result.getReal();
       }
       public Builder setReal(double value) {
-        bitField0_ |= 0x00000001;
-        real_ = value;
-        onChanged();
+        result.hasReal = true;
+        result.real_ = value;
         return this;
       }
       public Builder clearReal() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        real_ = 0D;
-        onChanged();
+        result.hasReal = false;
+        result.real_ = 0D;
         return this;
       }
       
       // required double imag = 2;
-      private double imag_ ;
       public boolean hasImag() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return result.hasImag();
       }
       public double getImag() {
-        return imag_;
+        return result.getImag();
       }
       public Builder setImag(double value) {
-        bitField0_ |= 0x00000002;
-        imag_ = value;
-        onChanged();
+        result.hasImag = true;
+        result.imag_ = value;
         return this;
       }
       public Builder clearImag() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        imag_ = 0D;
-        onChanged();
+        result.hasImag = false;
+        result.imag_ = 0D;
         return this;
       }
       
@@ -3007,6 +1845,7 @@ public final class REXPProtos {
     
     static {
       defaultInstance = new CMPLX(true);
+      org.godhuli.rhipe.REXPProtos.internalForceInit();
       defaultInstance.initFields();
     }
     
@@ -3089,6 +1928,8 @@ public final class REXPProtos {
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
   }
+  
+  public static void internalForceInit() {}
   
   // @@protoc_insertion_point(outer_class_scope)
 }

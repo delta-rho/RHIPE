@@ -151,6 +151,7 @@ void do_unser(void);
 /******************
  ** Map & Reduce
  *****************/
+extern "C" SEXP execMapReduce();
 const int mapper_run2(void);
 const int mapper_run(void);
 const int mapper_setup(void);

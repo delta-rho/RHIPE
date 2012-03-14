@@ -35,7 +35,7 @@ public:
 
 
 
-OutputInfo * oiinfo = new OutputInfo();
+OutputInfo oiinfo;// = new OutputInfo();
 
 
 void Re_ShowMessage(const char* mess){
@@ -257,7 +257,7 @@ void spill_to_reducer(void){
 		fflush(NULL);
 	}
 	UNPROTECT(6);
-	rexpress("rhcollect<-function(key,value) .Call('rh_collect_buffer',key,value)");
+	rexpress("rhcollect<-function(key,value) .Call('rh_collect_buffer',key,value,PACKAGE='Rhipe')");
 #ifdef USETIMER
   gettimeofday(&tms,NULL);
   bend = tms.tv_sec*1000000 + tms.tv_usec;
@@ -313,16 +313,16 @@ SEXP collect_buffer(SEXP k,SEXP v){
 void sendToHadoop(SEXP k){
 
 	int size;
-	oiinfo->rxp->Clear();
-	rexp2message(oiinfo->rxp,k);
-	size = oiinfo->rxp->ByteSize();
+	oiinfo.rxp->Clear();
+	rexp2message(oiinfo.rxp,k);
+	size = oiinfo.rxp->ByteSize();
 	writeVInt64ToFileDescriptor( size , CMMNC->BSTDOUT);
 	// if (size < PSIZE){
-	oiinfo->rxp_s->clear();
-	oiinfo->rxp->SerializeToString(oiinfo->rxp_s);
-	fwrite( oiinfo->rxp_s->data(), size,1,CMMNC->BSTDOUT);
+	oiinfo.rxp_s->clear();
+	oiinfo.rxp->SerializeToString(oiinfo.rxp_s);
+	fwrite( oiinfo.rxp_s->data(), size,1,CMMNC->BSTDOUT);
 	// }else{
-	//   oiinfo->rxp->SerializeToFileDescriptor(fileno(CMMNC->BSTDOUT));
+	//   oiinfo.rxp->SerializeToFileDescriptor(fileno(CMMNC->BSTDOUT));
 	// }
 	// fflush(CMMNC->BSTDOUT);
 }
@@ -351,26 +351,26 @@ void sendToHadoop(SEXP k){
 
 SEXP readFromHadoop(const uint32_t nbytes,int *err){
 	SEXP r = R_NilValue;
-	oiinfo->rxp->Clear();
+	oiinfo.rxp->Clear();
 	if (nbytes > BSIZE)
 	{
-		oiinfo->inputbuffer=realloc(oiinfo->inputbuffer,nbytes+1024);
-		if (!oiinfo->inputbuffer){
+		oiinfo.inputbuffer=realloc(oiinfo.inputbuffer,nbytes+1024);
+		if (!oiinfo.inputbuffer){
 			merror("Memory Exhausted, could not realloc buffer in readFromHadoop\n");
 			return(R_NilValue);
 		}
 		BSIZE=nbytes+1024;
 	}
 	*err=0;
-	if(fread(oiinfo->inputbuffer,nbytes,1,CMMNC->BSTDIN)<=0){
+	if(fread(oiinfo.inputbuffer,nbytes,1,CMMNC->BSTDIN)<=0){
 		*err=1;
 		return(R_NilValue);
 	}
-	CodedInputStream cds((uint8_t*)(oiinfo->inputbuffer),nbytes);
+	CodedInputStream cds((uint8_t*)(oiinfo.inputbuffer),nbytes);
 	cds.SetTotalBytesLimit(256*1024*1024,256*1024*1024);
-	if (oiinfo->rxp->ParseFromCodedStream(&cds)){
-		// if (oiinfo->rxp->ParseFromArray(oiinfo->inputbuffer,nbytes)){
-		PROTECT(r = message2rexp(*(oiinfo->rxp)));
+	if (oiinfo.rxp->ParseFromCodedStream(&cds)){
+		// if (oiinfo.rxp->ParseFromArray(oiinfo.inputbuffer,nbytes)){
+		PROTECT(r = message2rexp(*(oiinfo.rxp)));
 		UNPROTECT(1);
 	}
 	// a positive value in err is error
@@ -381,18 +381,18 @@ SEXP readFromHadoop(const uint32_t nbytes,int *err){
 
 SEXP readFromMem(void * array,uint32_t nbytes){
 	SEXP r = R_NilValue;
-	oiinfo->rxp->Clear();
+	oiinfo.rxp->Clear();
 	if (nbytes > BSIZE)
 	{
-		oiinfo->inputbuffer=realloc(oiinfo->inputbuffer,nbytes+1024);
-		if (!oiinfo->inputbuffer){
+		oiinfo.inputbuffer=realloc(oiinfo.inputbuffer,nbytes+1024);
+		if (!oiinfo.inputbuffer){
 			merror("Memory Exhausted, could not realloc buffer in readFromHadoop\n");
 			return(R_NilValue);
 		}
 		BSIZE=nbytes+1024;
 	}
-	if (oiinfo->rxp->ParseFromArray(array,nbytes)){
-		PROTECT(r = message2rexp(*(oiinfo->rxp)));
+	if (oiinfo.rxp->ParseFromArray(array,nbytes)){
+		PROTECT(r = message2rexp(*(oiinfo.rxp)));
 		UNPROTECT(1);
 	}
 	return(r);

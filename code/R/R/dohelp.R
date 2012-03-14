@@ -61,7 +61,7 @@ doCMD <- function(CMD=0,needoutput=F,opts=rhoptions(),verbose=T,ignore.stderr=F
     ## system(cmd,
     ##           intern=F,ignore.stderr=ignore.stderr)
     ## cmd = ofile
-    return(.Call("readSQFromPipe",cmd,as.integer(1024*1024L),rhreaddebug))
+    return(.Call("readSQFromPipe",cmd,as.integer(1024*1024L),rhreaddebug,PACKAGE="Rhipe"))
   }
   r <- system(cmd,
               intern=F,ignore.stderr=ignore.stderr)
