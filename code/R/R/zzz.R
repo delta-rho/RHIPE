@@ -26,10 +26,10 @@ onload.2 <- function(libname, pkgname){
   }
   if(.Platform$r_arch!="")
     opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",.Platform$r_arch,
-                                    sep=.Platform$file.sep),pattern="imperious.so",full=T)
+                                    sep=.Platform$file.sep),pattern="RhipeMapReduce",full=T)
   else
     opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",
-                                    sep=.Platform$file.sep),pattern="imperious.so",full=T)
+                                    sep=.Platform$file.sep),pattern="RhipeMapReduce",full=T)
   opts$runner <- c("R","CMD", opts$runner,"--slave","--silent","--vanilla","--max-ppsize=100000",
                    "--max-nsize=1G")
   opts$runner <-opts$runner[-c(1,2)]
@@ -95,10 +95,10 @@ onload <- function(libname, pkgname){
   if(Sys.getenv("HADOOP")=="") stop("Rhipe requires the HADOOP environment variable to be present")
   if(.Platform$r_arch!="")
     opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",.Platform$r_arch,
-                                    sep=.Platform$file.sep),pattern="imperious.so",full=T)
+                                    sep=.Platform$file.sep),pattern="RhipeMapReduce",full=T)
   else
     opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",
-                                    sep=.Platform$file.sep),pattern="imperious.so",full=T)
+                                    sep=.Platform$file.sep),pattern="RhipeMapReduce",full=T)
 
   
   opts$runner <- c("R","CMD", opts$runner,"--slave","--silent","--vanilla","--max-ppsize=100000",
