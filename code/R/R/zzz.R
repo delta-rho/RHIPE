@@ -50,7 +50,7 @@ onload.2 <- function(libname, pkgname){
   
   assign("rhipeOptions",opts,envir=.rhipeEnv)
   message("--------------------------------------------------------
-| IMPORTANT: Before using Rhipe call rhinit() |
+| IMPORTANT: Before using Rhipe call rhinit()           |
 | Rhipe will not work or most probably crash            |
 --------------------------------------------------------")
 }
