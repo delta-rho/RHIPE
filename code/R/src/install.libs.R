@@ -37,6 +37,8 @@ file.copy(shared.files,pkg.lib.dir, overwrite=TRUE)
 #get RhipeMapReduce
 RhipeMapReduce = list.files(path=getwd(),pattern="RhipeMapReduce",full.names=TRUE)
 file.copy(RhipeMapReduce,pkg.lib.dir, overwrite=TRUE)
+################################################################################################
+
 
 
 
@@ -50,6 +52,8 @@ cat("R_PACKAGE_DIR ", R_PACKAGE_DIR,"\n")
 cat("R_PACKAGE_SOURCE ", R_PACKAGE_SOURCE, "\n")
 cat("R_ARCH ", R_ARCH,"\n")
 cat("\n\n")
+################################################################################################
+
 
 
 #DONE!

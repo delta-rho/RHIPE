@@ -1,13 +1,27 @@
-OBJECTS=rexp.pb.o message.o serverbridge.o utility.o rhooks.o 
-# R_HOME=`echo "cat(Sys.getenv('R_HOME'))" | R --slave `
-##R)HOME is only set when this run from R
-##otherwise I have to set it
+#OBJECTS=rexp.pb.o message.o serverbridge.o utility.o rhooks.o 
+
+#R_HOME is only set when this run from R
+#R_HOME=`echo "cat(Sys.getenv('R_HOME'))" | R --slave `
+
 
 PBINC=`pkg-config --cflags protobuf`
 PBLIB=`pkg-config --libs protobuf` 
 RINC=`${R_HOME}/bin/R CMD config --cppflags`
 RLIB=`${R_HOME}/bin/R CMD config --ldflags`
-MYCXXFLAGS+= -I. -g  -DHAVE_UINTPTR_T   -Wall ${RINC} ${PBINC}
+
+
+#FOR RELEASE USE
+CXXFLAGS=`${R_HOME}/bin/R CMD config CXXFLAGS`
+#FOR DEBUG USE
+#CXXFLAGS= -WALL -g
+
+
+#LINKER FOR SHARED LIB
+SHLIB_CXXLD=`${R_HOME}/bin/R CMD config SHLIB_CXXLD`
+SHLIB_CXXLDFLAGS=`${R_HOME}/bin/R CMD config SHLIB_CXXLDFLAGS`
+
+
+MYCXXFLAGS+= -I.  ${CXXFLAGS}  -DHAVE_UINTPTR_T    ${RINC} ${PBINC}
 PKG_LIBS+=-fpic ${RLIB} ${PBLIB}
 
 USERDIR = ../inst/lib
@@ -43,8 +57,8 @@ serverbridge.o: serverbridge.cc
 	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
 app:  rexp.pb.o  message.o utility.o display.o reducer.o mapper.o mapreduce.o main.o rhooks.o serverbridge.o
 	$(CXX) ${MYCXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB} $^ -o RhipeMapReduce
-rhipe: $(OBECTS)
-	$(CXX) -shared ${MYCXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB} $^ -o Rhipe.so
+rhipe: rexp.pb.o message.o serverbridge.o utility.o rhooks.o 
+	$(SHLIB_CXXLD) ${SHLIB_CXXLDFLAGS} ${MYCXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB} $^ -o Rhipe.so
 
 
 
