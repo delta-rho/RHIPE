@@ -7,7 +7,11 @@ PBINC=`pkg-config --cflags protobuf`
 PBLIB=`pkg-config --libs protobuf` 
 RINC=`${R_HOME}/bin/R CMD config --cppflags`
 RLIB=`${R_HOME}/bin/R CMD config --ldflags`
-MYCXXFLAGS+= -I. -g  -DHAVE_UINTPTR_T   -Wall ${RINC} ${PBINC}
+#FOR RELEASE USE
+CFLAGS=`${R_HOME}/bin/R CMD config CFLAGS`
+#FOR DEBUG USE
+#CFLAGS= -WALL -g
+MYCXXFLAGS+= -I.  ${CFLAGS}  -DHAVE_UINTPTR_T    ${RINC} ${PBINC}
 PKG_LIBS+=-fpic ${RLIB} ${PBLIB}
 
 USERDIR = ../inst/lib
