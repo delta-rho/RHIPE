@@ -2,7 +2,7 @@
 \alias{rhmr}
 \title{Prepares a MapReduce Job For Execution}
 \usage{
-  rhmr(map = NULL, reduce = NULL, combiner = TRUE,
+  rhmr(map = NULL, reduce = NULL, combiner = FALSE,
     setup = NULL, cleanup = NULL, ofolder = "",
     ifolder = "", inout = c("sequence", "sequence"),
     orderby = "bytes", mapred = NULL, shared = c(),

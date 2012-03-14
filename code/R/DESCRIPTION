@@ -1,17 +1,17 @@
 Package: Rhipe
 Type: Package
-Title: Integrates R with Hadoop
+Title: R and Hadoop Integrated Programming Environment
 Version: 0.67
-Date: 2011-06-16
+Date: 2012-03-13
 Author: Saptarshi Guha
-Maintainer: Saptarshi Guha  <sguha@purdue.edu>
-Description: Run mapreduce scripts using R code
-URL: http://ml.stat.purdue.edu/rhipe
+Maintainer: Jeremiah Rounds  <jrounds@stat.purdue.edu>
+Description: Run MapReduce scripts using R code
+URL: http://www.rhipe.org
 License: Apache License (== 2.0)
 Depends:
     methods,
     multicore
-Packaged: Fri Mar  6 17:02:01 2009; sguha
+Packaged: Fri Mar  6 17:02:01 2012; jrounds
 Collate:
     'dohelp.R'
     'rhcp.R'
