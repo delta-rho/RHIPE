@@ -63,7 +63,7 @@ void shallowCopyVector(SEXP src, SEXP dest, int n) {
  * param: keys  preallocated vector of length at least nkv
  * param: values preallocates vector of length at least nkv
  * param: max_keyvalues number of key value pairs to read into buffers keys and values
- * param: actua_keyvalues number of key value pairs actually read in.
+ * param: actua_keyvalues number of key value pairs actually read in. NOTE this gets changed as a side effect.
  * return:
  *         if error RHIPE_PIPE_READ_BAD
  *         otherwise if nbytes is ever negative at the start of a read of key,value returns that negative.
@@ -146,7 +146,8 @@ void setupCombiner(){
 }
 /*
  * cleanupCombiner
- * This is both an opportunity to run reduce cleanup code since we ran reduce setup code.
+ * Runs after we are done with mapper and are shutting down.
+ * This is an opportunity to run reduce cleanup code since we ran reduce setup code.
  * We don't currently run a reduce cleanup, so I won't add it yet.
  * Mainly we make sure the spill buffer is fully worked before leaving this
  */
@@ -279,7 +280,7 @@ int mainMapperLoop(FILE* fin){
  * The WithCombiner is to remind us that we sometimes combine.
  * Most of the combining logic is actually in collect_buffer.
  * We only have setup and cleanup here.
- * input: fin what file to take Map Key,Value pairs from
+ * input: fin what file to take Map Key,Value pairs from.  Currently not used.
  */
 
 void execMapperWithCombiner(FILE* fin){
