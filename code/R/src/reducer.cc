@@ -1,10 +1,6 @@
 #include "ream.h"
 #include <iostream>
-const int32_t EVAL_SETUP_REDUCE = -1;
-const int32_t EVAL_REDUCE_PREKEY = -2;
-const int32_t EVAL_REDUCE_POSTKEY = -3;
-const int32_t EVAL_REDUCE_THEKEY = -4;
-const int32_t EVAL_CLEANUP_REDUCE = -5;
+
 char* REDUCESETUP = "unserialize(charToRaw(Sys.getenv('rhipe_setup_reduce')))";
 char* REDUCEPREKEY = "unserialize(charToRaw(Sys.getenv('rhipe_reduce_prekey')))";
 char* REDUCE = "unserialize(charToRaw(Sys.getenv('rhipe_reduce')))";

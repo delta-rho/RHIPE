@@ -36,6 +36,11 @@ using namespace std;
 #include <R_ext/Boolean.h>
 #include <R_ext/Parse.h>
 #include <R_ext/Rdynload.h>
+
+
+
+// GLOBAL VARIABLES DEFINED IN VARIOUS FILES
+
 extern map<string, vector<string> > map_output_buffer;
 extern uint32_t spill_size;
 extern uint32_t total_count;
@@ -45,7 +50,38 @@ extern  char* REDUCEPREKEY;
 extern  char* REDUCE;
 extern  char* REDUCEPOSTKEY ;
 extern  char* REDUCECLEANUP;
+extern char* MAPSETUPS;
+extern char* MAPRUNNERS;
+extern char* MAPCLEANS;
 extern bool combiner_inplace;
+
+
+
+
+//MESSAGE CODES FROM JAVA
+//REALLY SHOULD BE UNIQUE BUT THAT REQUIRES REWRITING THE JAVA CODE
+#define EVAL_SETUP_MAP  -1
+#define EVAL_CLEANUP_MAP -2
+#define EVAL_SETUP_REDUCE -1
+#define EVAL_REDUCE_PREKEY -2
+#define EVAL_REDUCE_POSTKEY -3
+#define EVAL_REDUCE_THEKEY -4
+#define EVAL_CLEANUP_REDUCE -5
+#define EVAL_FLUSH -10
+
+//ADDED BY JEREMIAH ROUNDS TO INDICATE A PROBLEM IN THE COMMUNICATION
+//SHOULD NOT BE ANY OF THE ABOVE
+#define RHIPE_PIPE_READ_ERROR -10000
+#define RHIPE_PIPE_READ_FULL 10000
+#define RHIPE_PIPE_READ_EMPTY 0
+
+//ADDED BY JEREMIAH ROUNDS
+//THESE ARE RHIPEWHAT VALUES
+#define RHIPEWHAT_MAPPER 0
+#define RHIPEWHAT_REDUCER 1
+#define RHIPEWHAT_REDUCER_PERHAPS_UNUSED 2
+
+
 
 #define DLEVEL -9
 
@@ -152,7 +188,14 @@ void do_unser(void);
  ** Map & Reduce
  *****************/
 extern "C" SEXP execMapReduce();
-const int mapper_run2(void);
+int readToKeyValueBuffers(FILE* fin, SEXP keys, SEXP values, int max_keyvalues,int* actual_keyvalues) ;
+void shallowCopyVector(SEXP,SEXP);
+void setupCombiner();
+void cleanupCombiner();
+void setupMapper();
+void cleanupMapper();
+
+const int old_mapper_run2(void);
 const int mapper_run(void);
 const int mapper_setup(void);
 const int reducer_run(void);

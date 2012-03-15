@@ -3,25 +3,24 @@
 
 #ifdef FILEREADER
 /* fixed types*/
-const char* MAPRUNNERS = 
+char* MAPRUNNERS =
   "expression({"
   "print(length(map.keys)); print(map.values);"
   "  v <- lapply(seq_along(map.keys),function(r) {"
   "      rhcollect(map.keys[[r]],map.values[[r]])"
   "})})";
-const char* MAPSETUPS = "expression()";
-const char* MAPCLEANS = "expression()";
+char* MAPSETUPS = "expression()";
+char* MAPCLEANS = "expression()";
 static int _counter_=0;
 #else
-const char* MAPSETUPS = "unserialize(charToRaw(Sys.getenv('rhipe_setup_map')))";
-const char* MAPRUNNERS = "unserialize(charToRaw(Sys.getenv('rhipe_map')))";
-const char* MAPCLEANS = "unserialize(charToRaw(Sys.getenv('rhipe_cleanup_map')))";
+char* MAPSETUPS = "unserialize(charToRaw(Sys.getenv('rhipe_setup_map')))";
+char* MAPRUNNERS = "unserialize(charToRaw(Sys.getenv('rhipe_map')))";
+char* MAPCLEANS = "unserialize(charToRaw(Sys.getenv('rhipe_cleanup_map')))";
 #endif
 
-const int32_t  EVAL_SETUP_MAP =   -1;
-const int32_t  EVAL_CLEANUP_MAP = -2;
 
-const int mapper_run2(void){
+
+const int old_mapper_run2(void){
 
   int32_t type=0;
   int32_t mapbuf_cnt=0,MAPBUFFER=0;
@@ -109,7 +108,8 @@ const int mapper_run2(void){
 #endif
 	    Rf_setVar(Rf_install("map.keys"),kvector,R_GlobalEnv);
 	    Rf_setVar(Rf_install("map.values"),vvector,R_GlobalEnv);
-	    Rf_setVar(Rf_install(".rhipe.current.state"),Rf_ScalarString(Rf_mkChar("map.setup")),R_GlobalEnv);
+	    //JEREMIAH THIS STATE LOOKS LIKE AN ERROR TO ME SO I AM COMMENTING IT OUT.
+	    //Rf_setVar(Rf_install(".rhipe.current.state"),Rf_ScalarString(Rf_mkChar("map.setup")),R_GlobalEnv);
 
 	    do_unser();
 #ifdef FILEREADER
@@ -199,8 +199,6 @@ const int mapper_run2(void){
     }
   }
 }
-
-
 
 
 
@@ -308,7 +306,6 @@ const int mapper_setup(void){
     merror("RHIPE ERROR: What command is this for setup: %d ?\n",type);
     return(8);
   }
-  Rf_defineVar(Rf_install(".rhipe.current.state"),Rf_ScalarString(Rf_mkChar("map")),R_GlobalEnv);
 
   return(0);
 }
