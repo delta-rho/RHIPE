@@ -122,9 +122,9 @@ SEXP TIMER_R_tryEval(SEXP, SEXP, int *);
 extern FILE* LOG;
 extern int _STATE_;
 SEXP rexpress(const char*);
-void rexp2message(REXP *, const SEXP);
+void sexpToRexp(REXP *, const SEXP);
 void fill_rexp(REXP *, const SEXP );
-SEXP message2rexp(const REXP&);
+SEXP rexpToSexp(const REXP&);
 
 
 

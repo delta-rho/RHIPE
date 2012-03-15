@@ -58,7 +58,7 @@ SEXP unserializeUsingPB(SEXP robj) {
 	// rexp_container->ParseFromArray(RAW(robj),LENGTH(robj));
 	cds.SetTotalBytesLimit(256 * 1024 * 1024, 256 * 1024 * 1024);
 	rexp_container->ParseFromCodedStream(&cds);
-	PROTECT(ans = message2rexp(*rexp_container));
+	PROTECT(ans = rexpToSexp(*rexp_container));
 	UNPROTECT(1);
 	delete (rexp_container);
 	return (ans);
@@ -163,7 +163,7 @@ SEXP kk_(char *d, int n) {
 
 	//     rexp_container->Clear();
 	rexp_container->ParseFromArray(d, n);
-	PROTECT(k = message2rexp(*rexp_container));
+	PROTECT(k = rexpToSexp(*rexp_container));
 	UNPROTECT(1);
 	delete (rexp_container);
 	//     Rf_PrintValue(k);

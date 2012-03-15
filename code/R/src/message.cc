@@ -28,7 +28,7 @@ SEXP rexpress(const char* cmd)
 
 
 
-SEXP message2rexp(const REXP& rexp){
+SEXP rexpToSexp(const REXP& rexp){
   SEXP s = R_NilValue;
   int length;
   static int convertLogical[3]={0,1,NA_LOGICAL};
@@ -93,7 +93,7 @@ SEXP message2rexp(const REXP& rexp){
     PROTECT(s = Rf_allocVector(VECSXP,length));
     for (int i = 0; i< length; i++){
       // SEXP ik;
-      SET_VECTOR_ELT(s, i, message2rexp(rexp.rexpvalue(i)) );
+      SET_VECTOR_ELT(s, i, rexpToSexp(rexp.rexpvalue(i)) );
     }
     break;
   }
@@ -121,7 +121,7 @@ SEXP message2rexp(const REXP& rexp){
 	  // REVERT TO PREVIOUS CODE
 	  Rf_setAttrib(s,
 	  	       Rf_install(rexp.attrname(j).c_str()), 
-	  	       message2rexp(rexp.attrvalue(j)));
+	  	       rexpToSexp(rexp.attrvalue(j)));
 
 
   	}
@@ -131,7 +131,7 @@ SEXP message2rexp(const REXP& rexp){
 }
 
 
-void rexp2message(REXP* rxp,const SEXP robj){
+void sexpToRexp(REXP* rxp,const SEXP robj){
   fill_rexp(rxp,robj);
 }
 

@@ -232,7 +232,7 @@ void spill_to_reducer(void){
 		REXP r = REXP();
 		r.ParseFromArray((void*)key.data(),key.length());
 		// bytes_received+=key.length();
-		PROTECT(rkey = message2rexp(r));
+		PROTECT(rkey = rexpToSexp(r));
 		Rf_defineVar(Rf_install("reduce.key"),rkey,R_GlobalEnv);
 		WRAP_R_EVAL_FOR_REDUCE(comb_pre_red,NULL,&Rerr);
 		fflush(NULL);
@@ -247,7 +247,7 @@ void spill_to_reducer(void){
 			v.ParseFromArray((void*)aval.data(),aval.length());
 			// bytes_received+=aval.length();
 			// mmessage("The values are for %s ==%s", r.DebugString().c_str(),v.DebugString().c_str());
-			SET_VECTOR_ELT(rvalues, i, message2rexp(v));
+			SET_VECTOR_ELT(rvalues, i, rexpToSexp(v));
 		}
 		Rf_defineVar(Rf_install("reduce.values"),rvalues,R_GlobalEnv);
 		WRAP_R_EVAL_FOR_REDUCE(comb_do_red,NULL, &Rerr);
@@ -370,7 +370,7 @@ SEXP readFromHadoop(const uint32_t nbytes,int *err){
 	cds.SetTotalBytesLimit(256*1024*1024,256*1024*1024);
 	if (oiinfo.rxp->ParseFromCodedStream(&cds)){
 		// if (oiinfo.rxp->ParseFromArray(oiinfo.inputbuffer,nbytes)){
-		PROTECT(r = message2rexp(*(oiinfo.rxp)));
+		PROTECT(r = rexpToSexp(*(oiinfo.rxp)));
 		UNPROTECT(1);
 	}
 	// a positive value in err is error
@@ -392,7 +392,7 @@ SEXP readFromMem(void * array,uint32_t nbytes){
 		BSIZE=nbytes+1024;
 	}
 	if (oiinfo.rxp->ParseFromArray(array,nbytes)){
-		PROTECT(r = message2rexp(*(oiinfo.rxp)));
+		PROTECT(r = rexpToSexp(*(oiinfo.rxp)));
 		UNPROTECT(1);
 	}
 	return(r);
@@ -413,7 +413,7 @@ SEXP persUnser(SEXP robj)
 	cds.SetTotalBytesLimit(256*1024*1024,256*1024*1024);
 	if(rexp_container->ParseFromCodedStream(&cds)){
 		// if(rexp_container->ParseFromArray(RAW(robj),LENGTH(robj))){
-		PROTECT(ans = message2rexp(*rexp_container));
+		PROTECT(ans = rexpToSexp(*rexp_container));
 		UNPROTECT(1);
 	}
 	delete(rexp_container);
