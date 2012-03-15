@@ -223,4 +223,13 @@ void fill_rexp(REXP* rexp,const SEXP robj){
  
 }
   
+
+/*
+ * writeSEXP
+ * Converts an R object (not a list or vector of objects or other container type) and writes it to stream.
+ */
+void writeSEXP(FILE* fout, SEXP obj){
+	REXP r;
+
+}
   

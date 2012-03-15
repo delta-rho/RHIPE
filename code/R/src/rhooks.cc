@@ -372,25 +372,30 @@ SEXP readBinaryFile(SEXP filename0, SEXP max0, SEXP bf, SEXP vb) {
 	return (rval);
 }
 
-SEXP writeBinaryFile(SEXP d, SEXP f, SEXP bu) {
-	char *filename = (char*) CHAR(STRING_ELT( f , 0));
+void writeSEXP()
+/*
+ * writeBinaryKeyValues32
+ * This is the original loop logic of writeBinaryFile spun out to its own function so it can be reused for another function.
+ * input: fp File to write to
+ * input: vkeyvalues data vector of key values pairs to write to file.
+ * input: buffer_size integer size of internal buffer to initially allocated.
+ * Note: 32 refers to writing out unsigned 32 bit int lengths.
+ */
+void writeKeyValues32(FILE* fout, SEXP vkeyvalues, int buffer_size){
 	REXP *rexp_container = new REXP();
-	int n = INTEGER(bu)[0], m = n;
-	uint8_t *_k = (uint8_t*) malloc(n);
-	FILE *fp = fopen(filename, "w");
-	setvbuf(fp, NULL, _IOFBF, 0);
+	uint8_t *_k = (uint8_t*) malloc(buffer_size);
 	uint32_t kvlength;
-	for (int i = 0; i < LENGTH(d); i++) {
-		SEXP a = VECTOR_ELT(d, i);
+	for (int i = 0; i < LENGTH(vkeyvalues); i++) {
+		SEXP a = VECTOR_ELT(vkeyvalues, i);
 		SEXP k = VECTOR_ELT(a, 0);
 		SEXP v = VECTOR_ELT(a, 1);
 
 		rexp_container->Clear();
 		rexp2message(rexp_container, k);
 		int bs = rexp_container->ByteSize();
-		if (bs > n) {
+		if (bs > buffer_size) {
 			_k = (uint8_t *) realloc(_k, bs + m);
-			n = bs + m;
+			buffer_size = bs + m;
 		}
 		rexp_container->SerializeWithCachedSizesToArray(_k);
 		kvlength = reverseUInt((uint32_t) bs);
@@ -400,21 +405,45 @@ SEXP writeBinaryFile(SEXP d, SEXP f, SEXP bu) {
 		rexp_container->Clear();
 		rexp2message(rexp_container, v);
 		bs = rexp_container->ByteSize();
-		if (bs > n) {
+		if (bs > buffer_size) {
 			_k = (uint8_t*) realloc(_k, bs + m);
-			n = bs + m;
+			buffer_size = bs + m;
 		}
 		rexp_container->SerializeWithCachedSizesToArray(_k);
 		kvlength = reverseUInt((uint32_t) bs);
 		fwrite(&kvlength, sizeof(uint32_t), 1, fp);
 		fwrite(_k, bs, 1, fp);
 	}
-	fclose(fp);
-	free(_k);
 	delete (rexp_container);
+	free(_k);
+}
+SEXP writeBinaryFile(SEXP vkeyvalues, SEXP sfilename, SEXP nbuffer_size) {
+	char *filename = (char*) CHAR(STRING_ELT( sfilename , 0));
+	int buffer_size = INTEGER(nbuffer_size)[0], m = buffer_size;
+	FILE *fp = fopen(filename, "w");
+	setvbuf(fp, NULL, _IOFBF, 0);
+	writeKeyValues32(fp,vkeyvalues,buffer_size);
+	fclose(fp);
+
 	return (R_NilValue);
 }
+/*
+ * writeMapUnitTestInput
+ * Based on writeBinaryFile
+ * Writes a binary file that should be a good input to a RhipeMapReduce.
+ * Appropriate environment variables must be set to get RhipeMapReduce to work.
+ * Basically the major difference is that it writes two bytes to the front and back that
+ * are byte codes for setup and cleanup
+ * author: Jeremiah Rounds
+ */
 
+SEXP writeUnitTestMapInputFile(SEXP vkeyvalues, SEXP sfilename, SEXP nbuffer_size){
+	char *filename = (char*) CHAR(STRING_ELT( sfilename , 0));
+	int buffer_size = INTEGER(nbuffer_size)[0], m = buffer_size;
+	FILE *fp = fopen(filename, "w");
+	setvbuf(fp, NULL, _IOFBF, 0);
+
+}
 SEXP readSQFromPipe(SEXP jcmd, SEXP buf, SEXP verb) {
 	FILE* pipe = popen((char*) CHAR(STRING_ELT( jcmd , 0)), "r");
 	if (!pipe) {
