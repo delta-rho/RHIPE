@@ -59,7 +59,7 @@ void shallowCopyVector(SEXP src, SEXP dest, int n) {
  * but there are issues with that point of view related to the command and control between the java classes
  * and the C code.  Basically the C code waits for an order from the Java code before it does anything.
  * That wasn't really noticable from the mapper, but in the reducer it is much more noticable.
- * param: fin file to read in from.
+ * param: fin file to read in from NOT CURRENTLY USED.
  * param: keys  preallocated vector of length at least nkv
  * param: values preallocates vector of length at least nkv
  * param: max_keyvalues number of key value pairs to read into buffers keys and values
@@ -108,8 +108,8 @@ int readToKeyValueBuffers(FILE* fin, SEXP keys, SEXP values, int max_keyvalues,
 			UNPROTECT(2);
 			return RHIPE_PIPE_READ_ERROR;
 		}
-		SET_VECTOR_ELT(keys, i, v);
-		SET_VECTOR_ELT(values, i, k);
+		SET_VECTOR_ELT(keys, i, k);
+		SET_VECTOR_ELT(values, i, v);
 		UNPROTECT(2);
 
 	}
