@@ -372,7 +372,7 @@ SEXP readBinaryFile(SEXP filename0, SEXP max0, SEXP bf, SEXP vb) {
 	return (rval);
 }
 
-void writeSEXP()
+
 /*
  * writeBinaryKeyValues32
  * This is the original loop logic of writeBinaryFile spun out to its own function so it can be reused for another function.
