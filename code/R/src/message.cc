@@ -225,11 +225,76 @@ void fill_rexp(REXP* rexp,const SEXP robj){
   
 
 /*
- * writeSEXP
+ * writeSEXP64
  * Converts an R object (not a list or vector of objects or other container type) and writes it to stream.
+ * Based on contents of sendToHadoop written by saptarshi
+ * input: fout file to output bytes
+ * input: pbyte_buffer buffer to write serialized rexp object too.
+ * input: pbuffer_size max allocated length of byte_buffer
+ * input: prexp_buffer rexp object to use for converting obj
+ * input: object to be written.
+ * Writes the serialized bytes to stream WITH a prepend of byte length.
+ * SIDE EFFECTS: WILL ATTEMPT TO REALLOCATE pbyte_buffer to be larger if needed.
+ * SIDE EFFECTS: WILL CHANGE THE VALUE OF pbuffer_length
+ * SIDE EFFECTS: Everything in prexp_buffer is lost.
+ * SIDE EFFECTS: Everything in pbyte_buffer is lost.
+ *
+ * Difference between 64 and 32 versions is the way the byte size is written to stream.
  */
-void writeSEXP(FILE* fout, SEXP obj){
-	REXP r;
+void writeSexp64(FILE* fout, REXP* prexp_buffer, SEXP obj){
+	int size;
+	string buffer; //faster to use a string buffer outside of this of fixed length?  Does it matter?
+	prexp_buffer->Clear();
+	sexpToRexp(prexp_buffer,obj);
+	size = prexp_buffer->ByteSize();
+	writeVInt64ToFileDescriptor( size , fout);
+	buffer.clear();
+	prexp_buffer->SerializeToString(&buffer);
+	fwrite(buffer.data(), size,1,fout);
+
+	/*
+	 * OLDER REWRITE THAT char BUFFERS
+	prexp_buffer->Clear();
+	sexpToRexp(prexp_buffer, obj);
+	uint32_t bs = prexp_buffer->ByteSize();
+	if (bs > *pbuffer_size) {
+		*pbyte_buffer = (uint8_t *) realloc(*pbyte_buffer, 2*bs);
+		*pbuffer_size = 2*bs;
+	}
+	prexp_buffer->SerializeWithCachedSizesToArray(*pbyte_buffer);
+	writeVInt64ToFileDescriptor(bs, fout);
+	fwrite(*pbyte_buffer, bs, 1, fout);
+	*/
 
 }
+/*
+ * writeSEXP32
+ * Converts an R object (not a list or vector of objects or other container type) and writes it to stream.
+ * input: fout file to output bytes
+ * input: pbyte_buffer buffer to write serialized rexp object too.
+ * input: pbuffer_size max allocated length of byte_buffer
+ * input: prexp_buffer rexp object to use for converting obj
+ * input: object to be written.
+ * Writes the serialized bytes to stream WITH a prepend of byte length.
+ * SIDE EFFECTS: WILL ATTEMPT TO REALLOCATE pbyte_buffer to be larger if needed.
+ * SIDE EFFECTS: WILL CHANGE THE VALUE OF pbuffer_length
+ * SIDE EFFECTS: Everything in prexp_buffer is lost.
+ * SIDE EFFECTS: Everything in pbyte_buffer is lost.
+ *
+ * Difference between 64 and 32 versions is the way the byte size is written to stream.
+ */
+void writeSexp32(FILE* fout, REXP* prexp_buffer, SEXP obj){
+	int size;
+	string buffer; //faster to use a string buffer outside of this of fixed length?  Does it matter?
+	prexp_buffer->Clear();
+	sexpToRexp(prexp_buffer, obj);
+	size = prexp_buffer->ByteSize();
+	writeUInt32( fout,size);
+	buffer.clear();
+	prexp_buffer->SerializeToString(&buffer);
+	fwrite(buffer.data(), size,1,fout);
+
+}
+
+
   

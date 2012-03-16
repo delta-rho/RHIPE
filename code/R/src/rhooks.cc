@@ -37,7 +37,7 @@ void R_init_Rhipe(DllInfo *info) {
 SEXP serializeUsingPB(SEXP robj) {
 	REXP *rexp_container = new REXP();
 	rexp_container->Clear();
-	rexp2message(rexp_container, robj);
+	sexpToRexp(rexp_container, robj);
 	int bs = rexp_container->ByteSize();
 	SEXP result = R_NilValue;
 	PROTECT(result = Rf_allocVector(RAWSXP,bs));
@@ -373,60 +373,58 @@ SEXP readBinaryFile(SEXP filename0, SEXP max0, SEXP bf, SEXP vb) {
 }
 
 
+
+
 /*
- * writeBinaryKeyValues32
- * This is the original loop logic of writeBinaryFile spun out to its own function so it can be reused for another function.
- * input: fp File to write to
- * input: vkeyvalues data vector of key values pairs to write to file.
- * input: buffer_size integer size of internal buffer to initially allocated.
- * Note: 32 refers to writing out unsigned 32 bit int lengths.
+ * writeKeyValues64
+ * This was intended to be just a reuse of writeKeyValues32.
+ * However the format that comes from Java writes out the byte lengths as signed 64 bits.
+ * Where as the writeKeyValues32 does not...
+ * Arguments otherwise the same
  */
-void writeKeyValues32(FILE* fout, SEXP vkeyvalues, int buffer_size){
+void writeKeyValues64(FILE* fout, SEXP vkeyvalues, uint32_t buffer_size){
 	REXP *rexp_container = new REXP();
-	uint8_t *_k = (uint8_t*) malloc(buffer_size);
-	uint32_t kvlength;
+	uint8_t *buffer = (uint8_t*) malloc(buffer_size);
 	for (int i = 0; i < LENGTH(vkeyvalues); i++) {
 		SEXP a = VECTOR_ELT(vkeyvalues, i);
 		SEXP k = VECTOR_ELT(a, 0);
 		SEXP v = VECTOR_ELT(a, 1);
-
-		rexp_container->Clear();
-		rexp2message(rexp_container, k);
-		int bs = rexp_container->ByteSize();
-		if (bs > buffer_size) {
-			_k = (uint8_t *) realloc(_k, bs + m);
-			buffer_size = bs + m;
-		}
-		rexp_container->SerializeWithCachedSizesToArray(_k);
-		kvlength = reverseUInt((uint32_t) bs);
-		fwrite(&kvlength, sizeof(uint32_t), 1, fp);
-		fwrite(_k, bs, 1, fp);
-
-		rexp_container->Clear();
-		rexp2message(rexp_container, v);
-		bs = rexp_container->ByteSize();
-		if (bs > buffer_size) {
-			_k = (uint8_t*) realloc(_k, bs + m);
-			buffer_size = bs + m;
-		}
-		rexp_container->SerializeWithCachedSizesToArray(_k);
-		kvlength = reverseUInt((uint32_t) bs);
-		fwrite(&kvlength, sizeof(uint32_t), 1, fp);
-		fwrite(_k, bs, 1, fp);
+		writeSexp64(fout, rexp_container, k);
+		writeSexp64(fout, rexp_container, v);
 	}
 	delete (rexp_container);
-	free(_k);
+	free(buffer);
 }
+void writeKeyValues32(FILE* fout, SEXP vkeyvalues, uint32_t buffer_size){
+	REXP *rexp_container = new REXP();
+	uint8_t *buffer = (uint8_t*) malloc(buffer_size);
+	for (int i = 0; i < LENGTH(vkeyvalues); i++) {
+		SEXP a = VECTOR_ELT(vkeyvalues, i);
+		SEXP k = VECTOR_ELT(a, 0);
+		SEXP v = VECTOR_ELT(a, 1);
+		writeSexp32(fout, rexp_container, k);
+		writeSexp32(fout, rexp_container, v);
+	}
+	delete (rexp_container);
+	free(buffer);
+}
+
+/*
+ * writeBinaryFile
+ * Saptarshi's original C code with the logic torn out to be generalized.
+ * It writes a 32 bit length before each Key,Value because that is what Saptarshi's code did.
+ */
 SEXP writeBinaryFile(SEXP vkeyvalues, SEXP sfilename, SEXP nbuffer_size) {
 	char *filename = (char*) CHAR(STRING_ELT( sfilename , 0));
-	int buffer_size = INTEGER(nbuffer_size)[0], m = buffer_size;
+	uint32_t buffer_size = INTEGER(nbuffer_size)[0], m = buffer_size;
 	FILE *fp = fopen(filename, "w");
 	setvbuf(fp, NULL, _IOFBF, 0);
 	writeKeyValues32(fp,vkeyvalues,buffer_size);
 	fclose(fp);
-
 	return (R_NilValue);
 }
+
+
 /*
  * writeMapUnitTestInput
  * Based on writeBinaryFile
@@ -439,9 +437,14 @@ SEXP writeBinaryFile(SEXP vkeyvalues, SEXP sfilename, SEXP nbuffer_size) {
 
 SEXP writeUnitTestMapInputFile(SEXP vkeyvalues, SEXP sfilename, SEXP nbuffer_size){
 	char *filename = (char*) CHAR(STRING_ELT( sfilename , 0));
-	int buffer_size = INTEGER(nbuffer_size)[0], m = buffer_size;
+	uint32_t buffer_size = INTEGER(nbuffer_size)[0], m = buffer_size;
 	FILE *fp = fopen(filename, "w");
 	setvbuf(fp, NULL, _IOFBF, 0);
+	writeVInt64ToFileDescriptor(EVAL_SETUP_MAP,fp);
+	writeKeyValues64(fp,vkeyvalues,buffer_size);
+	writeVInt64ToFileDescriptor(EVAL_CLEANUP_MAP,fp);
+	fclose(fp);
+	return (R_NilValue);
 
 }
 SEXP readSQFromPipe(SEXP jcmd, SEXP buf, SEXP verb) {

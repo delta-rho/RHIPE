@@ -138,7 +138,7 @@ SEXP counter(SEXP listmoo){
 	REXP *rxp = new REXP();
 	SEXP result;
 	rxp->Clear();
-	rexp2message(rxp,listmoo);
+	sexpToRexp(rxp,listmoo);
 	int size = rxp->ByteSize();
 	PROTECT(result = Rf_allocVector(RAWSXP,size));
 	if(result != R_NilValue){
@@ -192,7 +192,7 @@ SEXP collect(SEXP k,SEXP v){
 
 static inline uint32_t tobytes(SEXP x,std::string* result){
 	REXP r = REXP();
-	rexp2message(&r,x);
+	sexpToRexp(&r,x);
 	uint32_t size = r.ByteSize();
 	r.SerializeToString(result);
 	return(size);
@@ -314,7 +314,7 @@ void sendToHadoop(SEXP k){
 
 	int size;
 	oiinfo.rxp->Clear();
-	rexp2message(oiinfo.rxp,k);
+	sexpToRexp(oiinfo.rxp,k);
 	size = oiinfo.rxp->ByteSize();
 	writeVInt64ToFileDescriptor( size , CMMNC->BSTDOUT);
 	// if (size < PSIZE){

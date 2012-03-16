@@ -121,10 +121,16 @@ SEXP TIMER_R_tryEval(SEXP, SEXP, int *);
 /* extern FILE* R_Outputfile;  */
 extern FILE* LOG;
 extern int _STATE_;
+
+/*
+ * MESSAGES.cc
+ */
 SEXP rexpress(const char*);
 void sexpToRexp(REXP *, const SEXP);
 void fill_rexp(REXP *, const SEXP );
 SEXP rexpToSexp(const REXP&);
+void writeSexp32(FILE* fout, REXP* prexp_buffer, SEXP obj);
+void writeSexp64(FILE* fout, REXP* prexp_buffer, SEXP obj);
 
 
 
@@ -143,6 +149,7 @@ uint32_t isNegativeVInt(const int8_t);
 uint32_t decodeVIntSize(const int8_t);
 uint32_t reverseUInt (uint32_t );
 void writeVInt64ToFileDescriptor( int64_t , FILE* );
+void writeUInt32(FILE* fout, uint32_t value);
 int64_t readVInt64FromFileDescriptor(FILE* );
 int64_t readVInt64FromFD(int );
 

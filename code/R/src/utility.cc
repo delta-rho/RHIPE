@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <time.h>
 
+using namespace std;
 const int i___ = 1;
 #define is_bigendian() ( (*(char*)&i___) == 0 )
 
@@ -164,11 +165,14 @@ void writeVInt64ToFileDescriptor( int64_t  i , FILE* fd) {
   }
   
 
+
   // int32_t x = (int32_t) i, tonetwork;
   // tonetwork = reverseUInt(x);
   // fwrite(&tonetwork,sizeof(int32_t),1,fd);
   
 }
+
+
 
 int64_t readVInt64FromFD(int fd){
   uint8_t  firstByte = 0 ;
@@ -217,6 +221,14 @@ int64_t readVInt64FromFileDescriptor(FILE* fd){
   // fromnetwork = reverseUInt(r);
   // return(fromnetwork);
 }
+
+
+
+
+
+
+
+
 
 /*****************************
  *
@@ -345,7 +357,18 @@ uint32_t reverseUInt (uint32_t i) {
     }
 }
 
+// writeUInt32
+// Performs the endian change we need and writes the int 32
+void writeUInt32(FILE* fout, uint32_t value){
+	uint32_t evalue = reverseUInt((uint32_t)value);
+	fwrite(&evalue, sizeof(uint32_t), 1, fout);
+}
 
 
+// readUInt32
+uint32_t readUInt32(FILE* fin){
+
+
+}
 
 
