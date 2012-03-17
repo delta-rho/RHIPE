@@ -17,3 +17,17 @@ rhextract <-  function(alist, what="keys",unlist=FALSE,lapply=lapply,...){
   j <- if(what=="keys") lapply( f,"[[",1) else lapply(f, "[[",2)
   if(unlist) unlist(j, ...) else j
 } # lapply could be mclapply
+
+
+
+
+################################################################################################
+# writeMapTestFile
+# Rights out a file that should be a valid input to RhipeMapReduce with appropriate environment
+# environment variables set
+# @author:Jeremiah Rounds
+writeMapTestFile = function(keyvalue.pairs, filename){
+	.Call("writeUnitTestMapInputFile",keyvalue.pairs, filename)
+	return()
+}
+

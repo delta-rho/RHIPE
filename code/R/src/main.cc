@@ -24,10 +24,12 @@ int embedR(int argc, char **argv){
   
   structRstart rp;
   Rstart Rp = &rp;
+  /*
   if (!getenv("R_HOME")) {
     fprintf(stderr, "R_HOME is not set. Please set all required environment variables before running this program.\n");
     return(-1);
   }
+  */
   R_running_as_main_program = 1;
   R_DefParams(Rp);
   Rp->NoRenviron = 0;
@@ -87,7 +89,8 @@ void quitR(){
 }
 
 extern "C" int main(int argc,char **argv){
-
+	CMMNC = (Streams*) malloc(sizeof(Streams));
+	setup_stream(CMMNC);
 	if (embedR(argc,argv) != 0) exit(101);
 	execMapReduce();
 	quitR();

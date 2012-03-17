@@ -363,8 +363,7 @@ SEXP execMapReduce() {
 	LOGG(10,"Starting Up\n");
 	fflush(LOG);
 #endif
-	CMMNC = (Streams*) malloc(sizeof(Streams));
-	setup_stream(CMMNC);
+
 	LOGG(10,"R Embedded\n");
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 	LOGG(9,"Google Protobuf version verified\n");
