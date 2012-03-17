@@ -435,9 +435,9 @@ SEXP writeBinaryFile(SEXP vkeyvalues, SEXP sfilename, SEXP nbuffer_size) {
  * author: Jeremiah Rounds
  */
 
-SEXP writeUnitTestMapInputFile(SEXP vkeyvalues, SEXP sfilename, SEXP nbuffer_size){
+SEXP writeUnitTestMapInputFile(SEXP vkeyvalues, SEXP sfilename){
 	char *filename = (char*) CHAR(STRING_ELT( sfilename , 0));
-	uint32_t buffer_size = INTEGER(nbuffer_size)[0], m = buffer_size;
+	uint32_t buffer_size = 4000; //INTEGER(nbuffer_size)[0], m = buffer_size;
 	FILE *fp = fopen(filename, "w");
 	setvbuf(fp, NULL, _IOFBF, 0);
 	writeVInt64ToFileDescriptor(EVAL_SETUP_MAP,fp);
