@@ -332,12 +332,16 @@ extern "C" {
  *
  */
 SEXP execMapReduce() {
+
+
 #ifndef FILEREADER
 	char *rhipewhat;
 	if ((rhipewhat = getenv("RHIPEWHAT")) != NULL) {
 		_STATE_ = (int) strtol(rhipewhat, NULL, 10);
 	} else {
-		merror("RHIPEWHAT must be defined in the environment.");
+
+		fprintf(stderr,"Appears environment variables are not set for RhipeMapReduce (checked RHIPEWHAT).\n");
+		fprintf(stderr,"Shutting Down.\n");
 		return (R_NilValue);
 	}
 #else
@@ -410,7 +414,7 @@ SEXP execMapReduce() {
 		execReducer(CMMNC->BSTDIN);
 		break;
 	default:
-		merror("Bad value for RHIPEWHAT: %d\n", _STATE_);
+		fprintf(stderr,"Bad value for RHIPEWHAT: %d\n",_STATE_);
 		break;
 	}
 
