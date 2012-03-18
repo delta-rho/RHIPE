@@ -30,9 +30,9 @@ onload.2 <- function(libname, pkgname){
   else
     opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",
                                     sep=.Platform$file.sep),pattern="RhipeMapReduce",full=T)
-  opts$runner <- c("R","CMD", opts$runner,"--slave","--silent","--vanilla","--max-ppsize=100000",
-                   "--max-nsize=1G")
-  opts$runner <-opts$runner[-c(1,2)]
+  opts$RhipeMapReduce = options$runner
+  opts$runner <- c("R","CMD", opts$runner,"--slave","--silent","--vanilla") #,"--max-ppsize=100000","--max-nsize=1G")
+  #opts$runner <-opts$runner[-c(1,2)]
   opts$templates <- list()
   opts$templates$scalarsummer <-  expression(
       pre={.sum <- 0},
