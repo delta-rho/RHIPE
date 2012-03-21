@@ -185,6 +185,7 @@ rhstreamsequence <- function(inputfile,type='sequence',batch=1000,quiet=TRUE,...
 
 rhbiglm.stream.hdfs <- function(filename,type='sequence',modifier=NULL,batch=100,...){
   a <- NULL
+  index = 1
   return(function(reset=FALSE){
     if(reset){
       index<<-1
