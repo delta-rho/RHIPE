@@ -14,7 +14,7 @@ rhrwap <- function(code=NULL,before=NULL,trap.errors=FALSE){
 
 rhextract <-  function(alist, what="keys",unlist=FALSE,lapply=lapply,...){
   what <- what[pmatch(what,c("keys","values"))]
-  j <- if(what=="keys") lapply( f,"[[",1) else lapply(f, "[[",2)
+  j <- if(what=="keys") lapply( alist,"[[",1) else lapply(alist, "[[",2)
   if(unlist) unlist(j, ...) else j
 } # lapply could be mclapply
 
