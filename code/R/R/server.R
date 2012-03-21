@@ -18,7 +18,7 @@ restartR <- function(){
     z <- rhoptions()$child$hdl
 }
 
-send.cmd <- function(z,command, getresponse=TRUE,continuation=NULL...){
+send.cmd <- function(z,command, getresponse=TRUE,continuation=NULL,...){
 
   if(!Rhipe:::isalive(z)){
     rm(z);gc()
