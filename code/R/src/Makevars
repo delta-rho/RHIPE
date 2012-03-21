@@ -1,4 +1,5 @@
-#OBJECTS=rexp.pb.o message.o serverbridge.o utility.o rhooks.o 
+OBJECTS=
+#OBJECTS=
 
 #R_HOME is only set when this run from R
 #R_HOME=`echo "cat(Sys.getenv('R_HOME'))" | R --slave `
