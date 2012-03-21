@@ -41,7 +41,7 @@ SEXP createProcess(SEXP program, SEXP whatclose, SEXP bufsz, SEXP bugbug) {
 
 		execl("/bin/sh", "sh", "-c",
 				(const char*) CHAR( STRING_ELT(program,0)), (char*) NULL);
-		fprintf(stderr, "Program faild to run, errno=%d errstr=%s\n", errno,
+		Rprintf("Program faild to run, errno=%d errstr=%s\n", errno,
 				strerror(errno));
 		_exit(255);
 	}
