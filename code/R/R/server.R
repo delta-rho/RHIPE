@@ -166,7 +166,7 @@ rhstreamsequence <- function(inputfile,type='sequence',batch=1000,quiet=TRUE,...
         if(index> max.file) break
         if(!quiet) cat(sprintf("Moved to file %s (%s/%s)\n", files[index],index,max.file))
         x <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhopensequencefile",files[index]),getresponse=1L)
-        if(x[[1]]!="OK") error(sprintf("Problem reading next in sequence %s",files[index]))
+        if(x[[1]]!="OK") stop(sprintf("Problem reading next in sequence %s",files[index]))
         p <- append(p,Rhipe:::send.cmd(rhoptions()$child$handle, list("rhgetnextkv", files[index],as.integer(quantum))
                                ,getresponse=0L,
                                conti = function(){
@@ -179,7 +179,7 @@ rhstreamsequence <- function(inputfile,type='sequence',batch=1000,quiet=TRUE,...
          ## if (rhoptions()[[".code.in"]]!=calledcode) warning("Server has been restarted, excpect an error")
          x <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhclosesequencefile",files[index],getresponse=1L))
          }))
-  }else error(sprintf("Could not open %s for readin",inputfile))
+  }else stop(sprintf("Could not open %s for readin",inputfile))
 }
 
 
