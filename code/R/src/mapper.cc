@@ -1,6 +1,8 @@
 #include "ream.h"
 #include <iostream>
 
+
+
 #ifdef FILEREADER
 /* fixed types*/
 char* MAPRUNNERS =
@@ -19,6 +21,10 @@ char* MAPCLEANS = "unserialize(charToRaw(Sys.getenv('rhipe_cleanup_map')))";
 #endif
 
 
+/*********************************************************
+* CONTENTS OF THIS FILE ARE BASICALLY NO LONGER USED 
+* SEE mapreduce.cc
+*********************************************************/
 
 const int old_mapper_run2(void){
 

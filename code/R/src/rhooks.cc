@@ -433,7 +433,7 @@ SEXP writeBinaryFile(SEXP vkeyvalues, SEXP sfilename, SEXP nbuffer_size) {
  * Basically the major difference is that it writes two bytes to the front and back that
  * are byte codes for setup and cleanup
  * author: Jeremiah Rounds
- */
+
 
 SEXP writeUnitTestMapInputFile(SEXP vkeyvalues, SEXP sfilename){
 	char *filename = (char*) CHAR(STRING_ELT( sfilename , 0));
@@ -447,6 +447,7 @@ SEXP writeUnitTestMapInputFile(SEXP vkeyvalues, SEXP sfilename){
 	return (R_NilValue);
 
 }
+*/
 SEXP readSQFromPipe(SEXP jcmd, SEXP buf, SEXP verb) {
 	FILE* pipe = popen((char*) CHAR(STRING_ELT( jcmd , 0)), "r");
 	if (!pipe) {

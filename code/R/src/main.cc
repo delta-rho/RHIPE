@@ -9,6 +9,47 @@ extern int R_running_as_main_program;
 extern uintptr_t R_CStackLimit; 
 
 
+
+
+
+/***************************************************
+ **
+ ** Stream Setup
+ **
+ ***************************************************/
+Streams *CMMNC;
+int setup_stream(Streams *s){
+   if (!(s->BSTDOUT = freopen(NULL, "wb", stdout))){
+    fprintf(stderr,"ERROR: Could not reopen standard output in binary mode");
+    return(-1);
+  }
+  if (!(s->BSTDIN = freopen(NULL, "rb", stdin))){
+    fprintf(stderr,"ERROR: Could not reopen standard input in binary mode");
+    return(-1);
+  }
+  if (!(s->BSTDERR = freopen(NULL, "wr", stderr))){
+    fprintf(stderr,"ERROR: Could not reopen standard error in binary mode");
+    return(-1);
+  }
+  char *buffsizekb;
+  int buffs=1024*10;
+  if ((buffsizekb=getenv("rhipe_stream_buffer")))
+    buffs = (int)strtol(buffsizekb,NULL,10);
+
+#ifndef FILEREADER
+  setvbuf(s->BSTDOUT, 0, _IOFBF , buffs);
+  setvbuf(s->BSTDIN,  0, _IOFBF,  buffs);
+  setvbuf(s->BSTDERR, 0, _IONBF , 0);
+#endif
+  s->NBSTDOUT = fileno(s->BSTDOUT);
+  s->NBSTDIN =  fileno(s->BSTDIN);
+  s->NBSTDERR = fileno(s->BSTDERR);
+  return(0);
+}
+
+
+
+
 void Re_ResetConsole()
 {
 }

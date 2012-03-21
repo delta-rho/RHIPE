@@ -16,7 +16,7 @@ R_CallMethodDef callMethods [] = {
 
 
 
-Streams *CMMNC;
+
 FILE* LOG;
 #ifdef FILEREADER
 FILE* FILEIN;
