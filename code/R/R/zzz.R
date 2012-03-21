@@ -30,8 +30,9 @@ onload.2 <- function(libname, pkgname){
   else
     opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",
                                     sep=.Platform$file.sep),pattern="RhipeMapReduce",full=T)
-  opts$RhipeMapReduce = options$runner
-  opts$runner <- c("R","CMD", opts$runner,"--slave","--silent","--vanilla") #,"--max-ppsize=100000","--max-nsize=1G")
+  opts$RhipeMapReduce = opts$runner
+  #RhipeMapReduce is the executable, but the simpliest way to run it is via R CMD which sets up environment variables.
+  opts$runner <- c("R","CMD", opts$RhipeMapReduce ,"--slave","--silent","--vanilla") #,"--max-ppsize=100000","--max-nsize=1G")
   #opts$runner <-opts$runner[-c(1,2)]
   opts$templates <- list()
   opts$templates$scalarsummer <-  expression(

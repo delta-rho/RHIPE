@@ -21,13 +21,4 @@ rhextract <-  function(alist, what="keys",unlist=FALSE,lapply=lapply,...){
 
 
 
-################################################################################################
-# writeMapTestFile
-# Rights out a file that should be a valid input to RhipeMapReduce with appropriate environment
-# environment variables set
-# @author:Jeremiah Rounds
-writeMapTestFile = function(keyvalue.pairs, filename){
-	.Call("writeUnitTestMapInputFile",keyvalue.pairs, filename)
-	return()
-}
 

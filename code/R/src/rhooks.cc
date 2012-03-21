@@ -480,7 +480,7 @@ SEXP readSQFromPipe(SEXP jcmd, SEXP buf, SEXP verb) {
 		PROTECT(l = Rf_allocVector(VECSXP,2));
 		if (a) {
 			printf("\tkey: %d,", n0);
-			fflush(stdout);
+			fflush(NULL);
 		}
 		PROTECT(k = Rf_allocVector(RAWSXP,n0));
 		// cis->ReadRaw(RAW(k),n0);
@@ -494,7 +494,7 @@ SEXP readSQFromPipe(SEXP jcmd, SEXP buf, SEXP verb) {
 		PROTECT(v = Rf_allocVector(RAWSXP,n0));
 		if (a) {
 			printf("value: %d ", n0);
-			fflush(stdout);
+			fflush(NULL);
 		}
 
 		// cis->ReadRaw(RAW(v),n0);
