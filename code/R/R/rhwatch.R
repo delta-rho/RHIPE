@@ -7,16 +7,17 @@
 #'   returned from \code{rhmr}.
 #' @param mon.sec If \code{mon.sec} is greater than 0, a small data frame
 #'   indicating the progress will be returned every \code{mon.sec} seconds.
+#' @param readback if FALSE, results will not be read back and insteat results from rhstatus is returned
 #' @param ... Extra parameters passed to \code{rhstatus}.
 #' @return If the state is SUCCEEDED and total output size (in MB) is less than \code{rhoptions()$max.read.in.size} the data is read with a warning if the number of records is more than \code{rhoptions()$reduce.output.records.warn}. If \code{rhoptions()$rhmr.max.records.to.read.in} is not NA, that many records is read. This only works for Sequence output.
 #' @seealso \code{\link{rhex}}, \code{\link{rhmr}}, \code{\link{rhkill}}
 #' @keywords MapReduce job status
 #' @export
-rhwatch <- function(job,mon.sec=5,...){
+rhwatch <- function(job,mon.sec=5,readback=TRUE,...){
   if(class(job)=="rhmr"){
     results <- rhstatus(rhex(job,async=TRUE),mon.sec=mon.sec,....)
     ofolder <- job[[1]]$rhipe_output_folder
-    if(results$state == "SUCCEEDED" && sum(rhls(ofolder)$size)/(1024^2) < rhoptions()$max.read.in.size){
+    if(readback==TRUE && results$state == "SUCCEEDED" && sum(rhls(ofolder)$size)/(1024^2) < rhoptions()$max.read.in.size){
       W <- 'Reduce output records'
       if(!is.null(job[[1]]$mapred.reduce.tasks) && as.numeric(job[[1]]$mapred.reduce.tasks)==0) W <- 'Map output records'
       num.records <- results$counters$'Map-Reduce Framework'[W]

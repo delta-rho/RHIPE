@@ -2,7 +2,7 @@
 \alias{rhwatch}
 \title{Start and Monitor Status of a MapReduce Job}
 \usage{
-  rhwatch(job, mon.sec = 5, ...)
+  rhwatch(job, mon.sec = 5, readback = TRUE, ...)
 }
 \arguments{
   \item{job}{The parameter \code{job} can either be a
@@ -13,6 +13,9 @@
   \item{mon.sec}{If \code{mon.sec} is greater than 0, a
   small data frame indicating the progress will be returned
   every \code{mon.sec} seconds.}
+
+  \item{readback}{if FALSE, results will not be read back
+  and insteat results from rhstatus is returned}
 
   \item{...}{Extra parameters passed to \code{rhstatus}.}
 }
