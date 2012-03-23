@@ -14,6 +14,7 @@
 rhwatch <- function(job,mon.sec=5,...){
   if(class(job)=="rhmr"){
     results <- rhstatus(rhex(z,async=TRUE),mon.sec=mon.sec,....)
+    ofolder <- job[[1]]$rhipe_output_folder
     if(results$state == "SUCCESS" && sum(rhls(ofolder)$size)/(1024^2) < rhoptions()$max.read.in.size){
       num.records <- results$counters$'Map-Reduce Framework'$'Reduce output records'
       if (num.records > rhoptions()$reduce.output.records.warn)
@@ -23,6 +24,9 @@ rhwatch <- function(job,mon.sec=5,...){
       else
         return( rhread(ofolder) )
     }
+    if(result$state %in% c("FAILED","KILLED"))
+      rhdel(ofolder)
+    return(results)
   }
   else
     ## Ideally even with a job.id i can still get the all the job info
