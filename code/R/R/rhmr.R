@@ -386,7 +386,7 @@ rhmr <- function(map=NULL,reduce=NULL,
       fnames <- rhls(rhoptions()$HADOOP.TMP.FOLDER)$files
       library(digest)
       w. <- if(grepl("/$",rhoptions()$HADOOP.TMP.FOLDER)) "" else "/"
-      ofolder <- sprintf("rhipe-temp-%s%s%s",rhoptions()$HADOOP.TMP.FOLDER, w., digest(fnames, "md5"))
+      ofolder <- sprintf("%s%srhipe-temp-%s",rhoptions()$HADOOP.TMP.FOLDER, w., digest(fnames, "md5"))
       read.and.delete.ofolder <- TRUE
     }else{
       stop("parameter ofolder is default '' and RHIPE could not find a value for HADOOP.TMP.FOLDER in rhoptions().\n Set this: rhoptions(HADOOP.TMP.FOLDER=path)")
