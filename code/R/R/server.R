@@ -65,7 +65,7 @@ getypes <- function(files,type,skip){
 		            uu[grep("data$",uu)]
 		          })
 	for(s in skip){
-		remr <- c(grep(skip,files))
+		remr <- c(grep(s,files))
 		if(length(remr)>0)
 			files <- files[-remr]
 	}
