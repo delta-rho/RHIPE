@@ -30,7 +30,7 @@
 
   \item{skip}{Files to skip while reading the hdfs.
   Various installs of Hadoop add additional log info to
-  HDFS output form MapReduce.  Attempting to read these
+  HDFS output from MapReduce.  Attempting to read these
   files is not what we want to do in rhread.  To get around
   this we specify pieces of filenames to grep and remove
   from the read.  skip is a vector argument just to have

@@ -13,7 +13,7 @@
 #'   first loaded \code{multicore} via call to library. This often does
 #'   accelerate the process of reading data into R.
 #' @param skip Files to skip while reading the hdfs.  Various installs of Hadoop add additional log
-#'			info to HDFS output form MapReduce.  Attempting to read these files is not what we want to do 
+#'			info to HDFS output from MapReduce.  Attempting to read these files is not what we want to do 
 #'	        in rhread.  To get around this we specify pieces of filenames to grep and remove from the read.
 #'          skip is a vector argument just to have sensible defaults for a number of different systems.
 #'          You can learn which if any files need to be skipped by using rhls on target directory.
