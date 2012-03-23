@@ -10,8 +10,7 @@ URL: http://www.rhipe.org
 License: Apache License (== 2.0)
 Depends:
     methods,
-    multicore,
-    R (>= 2.13.1)
+    multicore
 Packaged: Fri Mar  6 17:02:01 2012; jrounds
 Collate:
     'dohelp.R'
