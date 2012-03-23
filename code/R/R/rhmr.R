@@ -589,7 +589,7 @@ rhmr <- function(map=NULL,reduce=NULL,
     lines$rhipe_classpaths <- ""
   }
 
-  zips <- c(zips,rhoptions()$zip.files)
+  zips <- c(zips,rhoptions()$zips)
   if(length(zips)>0) lines$rhipe_zips <- paste(unlist(local({
     zips <- path.expand(zips)
     sapply(zips,function(r) {
