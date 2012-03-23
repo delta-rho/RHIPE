@@ -48,7 +48,7 @@
 #'   \code{\link{rhdel}}, \code{\link{rhwrite}}, \code{\link{rhsave}}
 #' @keywords read HDFS file
 #' @export
-rhread <- function(files,type=c("sequence"),max=-1L,skip=c("/_SUCCESS", "/_LOG"),mc=FALSE,asraw=FALSE,size=3000,buffsize=1024*1024,quiet=FALSE,...){
+rhread <- function(files,type=c("sequence"),max=-1L,skip=c("/_SUCCESS", "/_LOG", "/_log"),mc=FALSE,asraw=FALSE,size=3000,buffsize=1024*1024,quiet=FALSE,...){
   files <- getypes(files,type,skip)
   max <- as.integer(max)
   p <- if(type %in% c("text","gzip") ){
