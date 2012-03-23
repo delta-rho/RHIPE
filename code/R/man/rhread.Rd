@@ -3,7 +3,7 @@
 \title{Read Key/Value Pairs From The HDFS}
 \usage{
   rhread(files, type = c("sequence"), max = -1L,
-    skip = c("/_", "/_logs", "/_SUCCESS"), mc = FALSE,
+    skip = c("/_SUCCESS", "/_LOG"), mc = FALSE,
     asraw = FALSE, size = 3000, buffsize = 1024 * 1024,
     quiet = FALSE, ...)
 }
