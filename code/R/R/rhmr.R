@@ -313,7 +313,7 @@ rhmr <- function(map=NULL,reduce=NULL,
     param.names <- Sys.getenv("rhipe.params.names")
     if(!is.null(param.names)){
       nam <- strsplit(param.names,";")[[1]]
-      for(x in nam) assign(x=x,value=unserialize(charToRaw(Sys.getenv(nam))),envir=.GlobalEnv)
+      for(x in nam) assign(x=x,value=unserialize(charToRaw(Sys.getenv(x))),envir=.GlobalEnv)
     }
   })
   if(!is.Expression(map))
