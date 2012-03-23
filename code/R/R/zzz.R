@@ -25,8 +25,8 @@ onload.2 <- function(libname, pkgname){
     Sys.setenv(HADOOP_BIN=sprintf("%s/bin",Sys.getenv("HADOOP")))
   }
 
-  opts$RhipeMapReduce <- list.files(paste(system.file(package="Rhipe"),"inst","bin"
-                                    sep=.Platform$file.sep),pattern="RhipeMapReduce",full=T)
+  opts$RhipeMapReduce <- list.files(paste(system.file(package="Rhipe"),"inst","bin",sep=.Platform$file.sep),
+  										pattern="RhipeMapReduce",full=T)
 
   #RhipeMapReduce is the executable, but the simpliest way to run it is via R CMD which sets up environment variables.
   opts$runner <-paste("R","CMD", opts$RhipeMapReduce ,"--slave","--silent","--vanilla") #,"--max-ppsize=100000","--max-nsize=1G")
