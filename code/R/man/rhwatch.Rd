@@ -16,6 +16,15 @@
 
   \item{...}{Extra parameters passed to \code{rhstatus}.}
 }
+\value{
+  If the state is SUCCEEDED and total output size (in MB)
+  is less than \code{rhoptions()$max.read.in.size} the data
+  is read with a warning if the number of records is more
+  than \code{rhoptions()$reduce.output.records.warn}. If
+  \code{rhoptions()$rhmr.max.records.to.read.in} is not NA,
+  that many records is read. This only works for Sequence
+  output.
+}
 \description{
   Returns the status of an running MapReduce job upon
   completion/failure
