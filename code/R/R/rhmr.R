@@ -12,7 +12,7 @@
 #'   it is a vector of expressions with names pre, reduce, and post.  For
 #'   example \code{reduce = expression(pre={...}, reduce={...}, post={...})}.
 #'   \code{reduce} is optional, and if not specified the map output keys will
-#'   be sorted and shuffled and saved to disk.
+#'   be sorted and shuffled and saved to disk. If it is not specified, then a default identity reduce is performed. Setting  it to NA is equivalent to mapred.reduce.tasks=0
 #' @param combiner
 #' 
 #' If set to TRUE, RHIPE will run the \code{reduce} expression on the output of
@@ -318,13 +318,17 @@ rhmr <- function(map=NULL,reduce=NULL,
   })
   if(!is.Expression(map))
     stop("'map' must be an expression")
-  reduces <- T
+  reduces <- TRUE
   lines$rhipe_reduce_justcollect <- "FALSE"
   
   if(is.null(reduce)){
     reduces <- FALSE
   }
-  
+  if(is.na(reduce)){
+    reduce <- NULL
+    reduces <- FALSE
+    lines$mapred.reduce.tasks <- 0
+  }
   lines$rhipe_reduce <- rawToChar(serialize(reduce$reduce,NULL,ascii=T))
   lines$rhipe_reduce_prekey <- rawToChar(serialize(reduce$pre ,NULL,ascii=T))
   lines$rhipe_reduce_postkey <- rawToChar(serialize(reduce$post,NULL,ascii=T))
@@ -423,7 +427,7 @@ rhmr <- function(map=NULL,reduce=NULL,
       rhls(ifolder)$file
     }
     )
-  remr <- c(grep("/_logs",ifolder))
+  remr <- c(grep(rhoptions()$file.types.remove.regex,ifolder))
   if(length(remr)>0)
     ifolder <- ifolder[-remr]
   if(!is.null(flagclz)) inout <- c('sequence',inout[2])

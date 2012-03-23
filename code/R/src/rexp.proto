@@ -23,7 +23,7 @@ message REXP {
   repeated RBOOLEAN booleanValue   = 4;
   repeated STRING  stringValue    = 5;
 
-  optional bytes   rawValue       = 6;
+  optional bytes   rawValue      = 6;
   repeated CMPLX   complexValue   = 7;
   repeated REXP	   rexpValue	  = 8;
 
