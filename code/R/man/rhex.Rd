@@ -2,7 +2,7 @@
 \alias{rhex}
 \title{Execute a MapReduce Job On Hadoop}
 \usage{
-  rhex(conf, async = FALSE, mapred, ...)
+  rhex(conf, async = TRUE, mapred, ...)
 }
 \arguments{
   \item{conf}{conf is a list returned from

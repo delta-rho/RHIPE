@@ -2,7 +2,7 @@
 \alias{rhstatus}
 \title{Report Status Of A MapReduce Job}
 \usage{
-  rhstatus(job, mon.sec = 0, autokill = TRUE,
+  rhstatus(job, mon.sec = 5, autokill = TRUE,
     showErrors = TRUE, verbose = FALSE)
 }
 \arguments{
