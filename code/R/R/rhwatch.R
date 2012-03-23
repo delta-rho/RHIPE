@@ -14,7 +14,7 @@
 rhwatch <- function(job,mon.sec=5,...){
   if(class(job)=="rhmr"){
     results <- rhstatus(rhex(z,async=TRUE),mon.sec=mon.sec,....)
-    if(results$state == "SUCCESS" && sum(rhls(ofolder)$size)/1024 < rhoptions()$max.read.in.size){
+    if(results$state == "SUCCESS" && sum(rhls(ofolder)$size)/(1024^2) < rhoptions()$max.read.in.size){
       num.records <- results$counters$'Map-Reduce Framework'$'Reduce output records'
       if (num.records > rhoptions()$reduce.output.records.warn)
         warning(sprintf("Number of output records is %s which is greater than rhoptions()$reduce.output.records.warn\n. Consider running a mapreduce to make this smaller, since reading so many key-value pairs is slow in R", num.records))
