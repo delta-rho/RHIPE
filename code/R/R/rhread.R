@@ -12,7 +12,11 @@
 #'   package to convert the data to R objects in parallel. The user must have
 #'   first loaded \code{multicore} via call to library. This often does
 #'   accelerate the process of reading data into R.
-#' @param skip Depreciated as user argument.  May still be used internally.
+#' @param skip Files to skip while reading the hdfs.  Various installs of Hadoop add additional log
+#'			info to HDFS output form MapReduce.  Attempting to read these files is not what we want to do 
+#'	        in rhread.  To get around this we specify pieces of filenames to grep and remove from the read.
+#'          skip is a vector argument just to have sensible defaults for a number of different systems.
+#'          You can learn which if any files need to be skipped by using rhls on target directory.
 #' @param size Increment the return list by this amount as reading in data.
 #' @param buffsize Size of byte buffer used to read in data.
 #' @param quiet If FALSE prints additional information about the read to STDOUT.
@@ -44,7 +48,7 @@
 #'   \code{\link{rhdel}}, \code{\link{rhwrite}}, \code{\link{rhsave}}
 #' @keywords read HDFS file
 #' @export
-rhread <- function(files,type=c("sequence"),max=-1L,skip=c("/_logs"),mc=FALSE,asraw=FALSE,size=3000,buffsize=1024*1024,quiet=FALSE,...){
+rhread <- function(files,type=c("sequence"),max=-1L,skip=c("/_","/_logs", "/_SUCCESS"),mc=FALSE,asraw=FALSE,size=3000,buffsize=1024*1024,quiet=FALSE,...){
   files <- getypes(files,type,skip)
   max <- as.integer(max)
   p <- if(type %in% c("text","gzip") ){
