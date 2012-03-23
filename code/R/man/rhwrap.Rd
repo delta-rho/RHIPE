@@ -24,9 +24,8 @@
   Returns an expression corresponding to given input
 }
 \seealso{
-  {\code{\link{rhmr}}
+  \code{\link{rhmr}}
 }
-\keyword{code}
 \keyword{Map}
 \keyword{MapReduce}
 

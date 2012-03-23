@@ -6,8 +6,8 @@
 #' @param before An R expression to run before the loop across map.values,map.keys and .index. If map.values is shortened, make map.keys the same length!
 #' @param after An R expression to run after the loop. The results of the loop is contained in \code{result}
 #' @param trap Any R error causes the MapReduce job to quit if set to TRUE.
-#' @seealso {\code{\link{rhmr}}
-#' @keywords MapReduce Map code
+#' @seealso \code{\link{rhmr}}
+#' @keywords MapReduce Map
 #' @export
 rhwrap <- 
 function(expr=NULL,before=NULL,after=NULL,trap=FALSE){
