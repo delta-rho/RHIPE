@@ -35,6 +35,7 @@ onload.2 <- function(libname, pkgname){
   opts$reduce.output.records.warn <- 200*1000
   opts$rhmr.max.records.to.read.in <- NA
   opts$HADOOP.TMP.FOLDER <- "/tmp"
+  opts$zip.files <- c()
   ## other defaults
   opts$templates <- list()
   opts$templates$scalarsummer <-  expression(
