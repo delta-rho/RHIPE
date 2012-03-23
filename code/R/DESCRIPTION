@@ -39,3 +39,6 @@ Collate:
     'server.R'
     'zzz.R'
     'extra.functions.R'
+    'rhwrap.R'
+    'rhwatch.R'
+
