@@ -30,6 +30,12 @@ onload.2 <- function(libname, pkgname){
 
   #RhipeMapReduce is the executable, but the simpliest way to run it is via R CMD which sets up environment variables.
   opts$runner <-paste("R","CMD", opts$RhipeMapReduce ,"--slave","--silent","--vanilla") #,"--max-ppsize=100000","--max-nsize=1G")
+  ## both defaults are arbitrary
+  opts$max.read.in.size <- 200*1024*1024 ## 100MB
+  opts$reduce.output.records.warn <- 200*1000
+  opts$rhmr.max.records.to.read.in <- NA
+  opts$HADOOP.TMP.FOLDER <- "/tmp"
+  ## other defaults
   opts$templates <- list()
   opts$templates$scalarsummer <-  expression(
       pre={.sum <- 0},
@@ -37,7 +43,7 @@ onload.2 <- function(libname, pkgname){
       post = { {rhcollect(reduce.key,.sum)}} )
   opts$templates$colsummer <-  expression(
       pre={.sum <- 0},
-      reduce={.sum <- .sum + apply(do.call('rbind', reduce.values),1,sum)},
+      reduce={.sum <- .sum + apply(do.call('rbind', reduce.values),2,sum)},
       post = { {rhcollect(reduce.key,.sum)}} )
   opts$templates$rbinder <-  expression(
       pre    = { data <- list()},

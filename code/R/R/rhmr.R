@@ -381,6 +381,19 @@ rhmr <- function(map=NULL,reduce=NULL,
   cleanup.m <- rawToChar(serialize(cleanup$map,NULL,ascii=T))
   cleanup.r <- rawToChar(serialize(cleanup$reduce,NULL,ascii=T))
 
+  if(ofolder == ""){
+    if(!is.null(rhoptions()$HADOOP.TMP.FOLDER)){
+      fnames <- rhls(rhoptions()$HADOOP.TMP.FOLDER)$files
+      library(digest)
+      ofolder <-  digest(fnames,"md5")
+      read.and.delete.ofolder <- TRUE
+    }else{
+      stop("parameter ofolder is default '' and RHIPE could not find a value for HADOOP.TMP.FOLDER in rhoptions().\n Set this: rhoptions(HADOOP.TMP.FOLDER=path)")
+    }
+  }else{
+    read.and.delete.ofolder <- FALSE
+  }
+
   ofolder <- sapply(ofolder,function(r) {
     x <- if(substr(r,nchar(r),nchar(r))!="/" && r!=""){
      paste(r,"/",sep="")
@@ -418,14 +431,15 @@ rhmr <- function(map=NULL,reduce=NULL,
   ## stop("woo")
   lines<- append(lines,list(
                      R_HOME=R.home()
-                     ,rhipe_map=(map.s)
-                     ,rhipe_setup_map=(setup.m)
-                     ,rhipe_cleanup_map= (cleanup.m)
-                     ,rhipe_cleanup_reduce= (cleanup.r)
-                     ,rhipe_setup_reduce= (setup.r)
-                     ,rhipe_command=paste(opts$runner,collapse=" ")
-                     ,rhipe_input_folder=paste(ifolder,collapse=",")
-                     ,rhipe_output_folder=paste(ofolder,collapse=",")))
+                            ,rhipe.read.and.delete.ofolder=read.and.delete.ofolder
+                            ,rhipe_map=(map.s)
+                            ,rhipe_setup_map=(setup.m)
+                            ,rhipe_cleanup_map= (cleanup.m)
+                            ,rhipe_cleanup_reduce= (cleanup.r)
+                            ,rhipe_setup_reduce= (setup.r)
+                            ,rhipe_command=paste(opts$runner,collapse=" ")
+                            ,rhipe_input_folder=paste(ifolder,collapse=",")
+                            ,rhipe_output_folder=paste(ofolder,collapse=",")))
 
   shared.files <- unlist(as.character(shared))
   if(! all(sapply(shared.files,is.character)))

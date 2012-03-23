@@ -26,7 +26,7 @@
 #' @seealso \code{\link{rhmr}}, \code{\link{rhstatus}}, \code{\link{rhkill}}
 #' @keywords MapReduce job execute
 #' @export
-rhex <- function (conf,async=FALSE,mapred,...) 
+rhex <- function (conf,async=TRUE,mapred,...) 
 {
   exitf <- NULL
   ## browser()
@@ -84,7 +84,7 @@ rhex <- function (conf,async=FALSE,mapred,...)
     return(exitf())
   }
   if(async==TRUE){
-    y <- if(!is.null(exitf)) list(f3,exitf) else list(f3)
+    y <- if(!is.null(exitf)) list(f3,lines,exitf) else list(f3,lines)
     names(y[[1]]) <- c("job.url","job.name","job.id","job.start.time")
     class(y) <- "jobtoken"
     return(y)
