@@ -34,7 +34,7 @@
 #' @seealso \code{\link{rhex}}, \code{\link{rhmr}}, \code{\link{rhkill}}
 #' @keywords MapReduce job status
 #' @export
-rhstatus <- function(job,mon.sec=0,autokill=TRUE, showErrors=TRUE,verbose=FALSE){
+rhstatus <- function(job,mon.sec=5,autokill=TRUE, showErrors=TRUE,verbose=FALSE){
   if(class(job)!="jobtoken" && class(job)!="character" ) stop("Must give a jobtoken object(as obtained from rhex)")
   if(class(job)=="character") id <- job else {
     job <- job[[1]]
