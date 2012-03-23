@@ -24,8 +24,11 @@ rhwatch <- function(job,mon.sec=5,...){
       else
         return( rhread(ofolder) )
     }
-    if(result$state %in% c("FAILED","KILLED"))
-      rhdel(ofolder)
+    if(results$state %in% c("FAILED","KILLED"))
+      {
+        message(sprintf("Job failure, deleting output: %s:", ofolder))
+        rhdel(ofolder)
+      }
     return(results)
   }
   else
