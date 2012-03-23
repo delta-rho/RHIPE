@@ -33,7 +33,7 @@ rhwatch <- function(job,mon.sec=5,readback=TRUE,...){
         warning(sprintf("Job failure, deleting output: %s:", ofolder))
         rhdel(ofolder)
       }
-    return(results)
+    return(list(results,job))
   }
   else
     ## Ideally even with a job.id i can still get the all the job info
