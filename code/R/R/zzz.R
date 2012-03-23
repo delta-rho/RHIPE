@@ -24,16 +24,12 @@ onload.2 <- function(libname, pkgname){
     warning("HADOOP_BIN is missing, using $HADOOP/bin")
     Sys.setenv(HADOOP_BIN=sprintf("%s/bin",Sys.getenv("HADOOP")))
   }
-  if(.Platform$r_arch!="")
-    opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",.Platform$r_arch,
+
+  opts$RhipeMapReduce <- list.files(paste(system.file(package="Rhipe"),"inst","bin"
                                     sep=.Platform$file.sep),pattern="RhipeMapReduce",full=T)
-  else
-    opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",
-                                    sep=.Platform$file.sep),pattern="RhipeMapReduce",full=T)
-  opts$RhipeMapReduce = opts$runner
+
   #RhipeMapReduce is the executable, but the simpliest way to run it is via R CMD which sets up environment variables.
-  opts$runner <- c("R","CMD", opts$RhipeMapReduce ,"--slave","--silent","--vanilla") #,"--max-ppsize=100000","--max-nsize=1G")
-  #opts$runner <-opts$runner[-c(1,2)]
+  opts$runner <-paste("R","CMD", opts$RhipeMapReduce ,"--slave","--silent","--vanilla") #,"--max-ppsize=100000","--max-nsize=1G")
   opts$templates <- list()
   opts$templates$scalarsummer <-  expression(
       pre={.sum <- 0},
