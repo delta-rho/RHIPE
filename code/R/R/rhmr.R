@@ -584,7 +584,7 @@ rhmr <- function(map=NULL,reduce=NULL,
   if(length(jarfiles)>0) {
     lines$rhipe_jarfiles <- paste(path.expand(jarfiles),collapse=",")
     ## make a temp folder containing jar files
-    p <- tempdir(pattern="rhipejars")
+    p <- system(sprintf("mktemp -p %s -d", tempdir()),intern=TRUE)
     invisible(sapply(jarfiles, function(r) rhget(r, p)))
     lines$rhipe_cp_tempdir <- p
     lines$rhipe_classpaths <- paste(list.files(p,full.names=TRUE),collapse=",")
