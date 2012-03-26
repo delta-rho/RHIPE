@@ -36,7 +36,7 @@ void CaptureLog(LogLevel level, const char* filename, int line,
   static const char* pb_log_level[] = {"LOGLEVEL_INFO","LOGLEVEL_WARNING",
 				"LOGLEVEL_ERROR","LOGLEVEL_FATAL",
 				"LOGLEVEL_DFATAL" };
-  merror("PB ERROR[%s](%s:%d) %s", pb_log_level[level], filename,line, message.c_str());
+  Rf_error("PB ERROR[%s](%s:%d) %s", pb_log_level[level], filename,line, message.c_str());
 }
 
 
