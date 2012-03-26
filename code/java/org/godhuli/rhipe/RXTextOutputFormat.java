@@ -47,7 +47,7 @@ import org.apache.hadoop.io.*;
 public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable,RHBytesWritable> {
 
   protected static class RXTextRecordWriter extends RecordWriter<RHBytesWritable,RHBytesWritable> {
-    private static final byte[] newLine = "\r\n".getBytes();
+    private byte[] newLine = "\r\n".getBytes();
     private static  byte[] keyvaluesep = " ".getBytes();
     private static final String utf8 = "UTF-8";
     private boolean useKey;
@@ -55,9 +55,10 @@ public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable,RHBytes
 
 
     public RXTextRecordWriter(DataOutputStream out,
-			      String keyValueSeparator,String fieldSep,String squote,boolean useKey) {
+			      String keyValueSeparator,String fieldSep,String squote,boolean useKey,String newline) {
 	this.out=out;
 	this.useKey = useKey;
+	this.newLine = newline.getBytes();
 	try{
 	    keyvaluesep =keyValueSeparator.getBytes(utf8);;
 	    REXPHelper.setFieldSep(fieldSep);
@@ -101,6 +102,7 @@ public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable,RHBytes
       String fieldSeparator= conf.get("mapred.field.separator",
 				    " ");
       boolean usekey = conf.get("mapred.textoutputformat.usekey").equals("TRUE")? true:false;
+      String newline = conf.get("rhipe.eol.sequence");
       String squote = conf.get("rhipe_string_quote");
       if(squote == null) squote="";
       CompressionCodec codec = null;
@@ -115,12 +117,12 @@ public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable,RHBytes
       FileSystem fs = file.getFileSystem(conf);
       if (!isCompressed) {
 	  FSDataOutputStream fileOut = fs.create(file, false);
-	  return new RXTextRecordWriter(fileOut, keyValueSeparator,fieldSeparator,squote,usekey);
+	  return new RXTextRecordWriter(fileOut, keyValueSeparator,fieldSeparator,squote,usekey,newline);
       } else {
 	  FSDataOutputStream fileOut = fs.create(file, false);
 	  return new RXTextRecordWriter(new DataOutputStream
 					    (codec.createOutputStream(fileOut)),
-					keyValueSeparator,fieldSeparator,squote,usekey);
+					keyValueSeparator,fieldSeparator,squote,usekey,newline);
     }
 
   }

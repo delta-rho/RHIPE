@@ -525,7 +525,7 @@ rhmr <- function(map=NULL,reduce=NULL,
                    )
   if(is.null(orderp)) stop(sprintf("Wrong ordering %s: try bytes,integer,numeric,character"))
   lines$rhipe_map_output_keyclass <- orderp
-  
+  lines$rhipe_string_quote <- "\r\n"
   lines$rhipe_string_quote <- ''
   lines$rhipe_send_keys_to_map <- 1L
   lines$rhipe_map_output_valueclass <- "org.godhuli.rhipe.RHBytesWritable"
