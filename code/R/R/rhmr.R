@@ -323,8 +323,7 @@ rhmr <- function(map=NULL,reduce=NULL,
   
   if(is.null(reduce)){
     reduces <- FALSE
-  }
-  if(!is.expression(reduce) && is.na(reduce)){
+  } else if(!is.expression(reduce) && is.na(reduce)){  #Can't check if reduce is.na unless you make sure it is not NULL
     reduce <- NULL
     reduces <- FALSE
     lines$mapred.reduce.tasks <- 0
