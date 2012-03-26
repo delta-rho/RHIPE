@@ -1,4 +1,6 @@
-This folder contains standalone examples in the form of unit_test.  
+Author: Jeremiah Rounds
+
+This folder contains standalone examples in the form of unit_test.  The unit_test don't conform to a known standard because I felt like the issue of running jobs on Hadoop would be difficult to manage.  If anyone has any suggestions besides the system I cooked up, I am all ears.
 
 
 
