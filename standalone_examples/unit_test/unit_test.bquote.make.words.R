@@ -84,8 +84,10 @@ unit_test = function(base.ofolder = getwd(), zips=NULL, mapred=list(mapred.job.t
 		# NEED TO HANDLE THE TEXT OUTPUT FORMAT
 		################################################################################################
 		param$mapred$mapred.field.separator=" "
-  		param$mapred$mapred.textoutputformat.usekey=FALSE
+  		param$mapred$mapred.textoutputformat.usekey=FALSE 
+  		param$mapred$rhipe.eol.sequence= "\n"
   		param$mapred$mapred.reduce.tasks=0
+
 
 		#do you need an archive for your runner
 		if(exists("zips"))
