@@ -74,7 +74,7 @@ unit_test = function(base.ofolder = getwd(), zips=NULL, mapred=list(mapred.job.t
 
 
 		#do you want to run local with mapred=list(mapred.job.tracker='local')?
-		if(exists("mapred")){
+		if(exists("mapred") && !is.null(mapred)){
 			param$mapred = mapred
 		}else{
 			param$mapred = list()
