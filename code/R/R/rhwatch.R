@@ -15,7 +15,7 @@
 #' @export
 rhwatch <- function(job,mon.sec=5,readback=TRUE,...){
   if(class(job)=="rhmr"){
-    results <- rhstatus(rhex(job,async=TRUE),mon.sec=mon.sec,....)
+    results <- rhstatus(rhex(job,async=TRUE),mon.sec=mon.sec,...)
     ofolder <- job[[1]]$rhipe_output_folder
     if(readback==TRUE && results$state == "SUCCEEDED" && sum(rhls(ofolder)$size)/(1024^2) < rhoptions()$max.read.in.size){
       W <- 'Reduce output records'
