@@ -36,6 +36,7 @@ onload.2 <- function(libname, pkgname){
   opts$rhmr.max.records.to.read.in <- NA
   opts$HADOOP.TMP.FOLDER <- "/tmp"
   opts$zips <- c()
+  opts$hdfs.working.dir = "/"
   opts$file.types.remove.regex <- "(/_SUCCESS|/_LOG|/_log)"
   ## other defaults
   opts$templates <- list()
