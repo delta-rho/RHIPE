@@ -7,8 +7,7 @@
 \arguments{
   \item{lo}{List of R objects to place on the HDFS.}
 
-  \item{dest}{Absolute path to destination directory on the
-  HDFS.}
+  \item{dest}{Path to destination directory on the HDFS.}
 
   \item{N}{See Details.}
 }

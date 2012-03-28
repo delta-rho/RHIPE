@@ -406,7 +406,7 @@ rhmr <- function(map=NULL,reduce=NULL,
 
 if(ofolder == ""){
 	if(!is.null(rhoptions()$HADOOP.TMP.FOLDER)){
-		htf = rhasbolute.hdfs.path(rhoptions()$HADOOP.TMP.FOLDER)
+		htf = rhabsolute.hdfs.path(rhoptions()$HADOOP.TMP.FOLDER)
 		fnames <- rhls(htf)$files
 		library(digest)
 		w. <- if(grepl("/$",htf)) "" else "/"
@@ -597,7 +597,19 @@ if(ofolder == ""){
   lines$RHIPE_DEBUG <- 0
   lines$rhipe_map_input_type <- "default"
   lines$mapred.job.reuse.jvm.num.tasks <- -1
+  
+  ################################################################################################
+  # HANDLE MAPRED EXTRA MAPREDUCE PARAMS
+  ################################################################################################
+  options.mapred = rhoptions()$mapred
+  if(!is.null(options.mapred))
+  	for(n in names(options.mapred)) lines[[n]] = options.mapred[[n]]
   for(n in names(mapred)) lines[[n]] <- mapred[[n]]
+  
+  ################################################################################################
+  # END HANDLE MAPRED EXTRA PARAMS
+  ################################################################################################
+  
   
   lines$rhipe_combiner <- paste(as.integer(combiner))
   if(lines$rhipe_combiner=="1")
@@ -613,6 +625,10 @@ if(ofolder == ""){
     lines$rhipe_jarfiles=""
     lines$rhipe_classpaths <- ""
   }
+  
+################################################################################################
+# HANDLE ZIPS
+################################################################################################
 
   zips <- c(zips,rhoptions()$zips)
   zips = rhabsolute.hdfs.path(zips)
@@ -626,6 +642,10 @@ if(ofolder == ""){
       }else NULL
     })})),collapse=",")
   else  lines$rhipe_zips=""
+
+################################################################################################
+# END HANDLE ZIPS
+################################################################################################
 
   if(lines$rhipe_map_output_keyclass != c("org.godhuli.rhipe.RHBytesWritable")
      && is.null(reduce)){

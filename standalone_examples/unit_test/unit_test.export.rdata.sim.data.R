@@ -7,15 +7,10 @@
 
 #' Matrix Simulation With Exported RDATA
 #'
-#' ASSUMES Rhipe library is loaded, rhinit has been called, and rhoptions()$runner is set.
-#' Param default values are appropriate for local Hadoop job.
-#' Otherwise change them to Hadoop appropriate values.  
-#' NOTE: the "testing" aspect of this is little more then "did it run?"
-#' @param base.ofolder Folder to place the output directory into (Not the actual ofolder).
-#' @param zips Argument to pass to rhmr so that this runs on your Hadoop.
-#' @param mapred Argument to pass to rhmr so that this runs on your Hadoop.
+#' ASSUMES Rhipe is set to run arbitrary jobs to a relative path.
+#' On a local stand alone version of Rhipe this requires hdfs.getwd() == getwd() because of rhsave.
 #' @author Jeremiah Rounds
-unit_test = function(base.ofolder = getwd(), zips=NULL, mapred=list(mapred.job.tracker='local')){
+unit_test = function(){
 	is.good = FALSE
 	try({
 		################################################################################################
@@ -28,8 +23,7 @@ unit_test = function(base.ofolder = getwd(), zips=NULL, mapred=list(mapred.job.t
 		b= b + 4*sin((1:NCOEF)/NCOEF*2*pi)   
 		NROW=100
 		#DEMO PUTTING OBJECTS ON HDFS
-		EXPORT_EXAMPLE_RDATA = paste(base.ofolder,"export.example.Rdata",sep="/")
-		rhsave("b","NCOEF","NROW", file = EXPORT_EXAMPLE_RDATA,envir=environment() )
+		rhsave("b","NCOEF","NROW", file = "export.example.Rdata",envir=environment() )
 
 
 		################################################################################################
@@ -58,21 +52,8 @@ unit_test = function(base.ofolder = getwd(), zips=NULL, mapred=list(mapred.job.t
 		param$inout = c("lapply","sequence")
 		param$N = 100
 		param$jobname = "export_rdata_sim_data"
-		param$shared = EXPORT_EXAMPLE_RDATA
-
-
-		#where do we put this output?
-		param$ofolder = paste(base.ofolder, param$jobname, sep="/")
-
-		#do you want to run local with mapred=list(mapred.job.tracker='local')?
-		if(exists("mapred"))
-			param$mapred = mapred
-
-
-		#do you need an archive for your runner
-		if(exists("zips"))
-			param$zips = zips
-	
+		param$shared = "export.example.Rdata"
+		param$ofolder = param$jobname
 		mr = do.call("rhmr", param)
 		ex = rhex(mr,async=FALSE)
 

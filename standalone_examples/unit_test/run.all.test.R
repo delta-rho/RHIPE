@@ -6,12 +6,12 @@
 
 library(Rhipe)
 rhinit()
-#rhoptions(runner="R CMD /home/jrounds/R/x86_64-pc-linux-gnu-library/2.14/Rhipe/libs/imperious.so --slave --silent --vanilla") #my .66 runner.
 #YOU MAY NEED TO CHANGE THESE
 rhoptions()$runner                     #MapReduce runner script do you need to change it?
-base.ofolder = getwd()                 #Base HDFS folder to put ouputs into. getwd() is good for local runs.
-mapred = list(mapred.job.tracker='local') #Do you need mapred options to run jobs? Make NULL if not.
-zips = NULL				               #Do you need zips to run jobs? Otherwise leave NULL.
+hdfs.setwd(getwd())
+rhoptions(mapred = list(mapred.job.tracker='local'))  #Do you need mapred options to run jobs? Comment out if not
+rhoptions(zips = c())                  #Do you need zips to run jobs? Otherwise leave c()
+      
 
 
 
@@ -22,8 +22,9 @@ zips = NULL				               #Do you need zips to run jobs? Otherwise leave NUL
 check_unit = function(filename){
 	r = NULL
 	try({
+	unit_test = NULL
 	source(filename)
-	r = unit_test(base.ofolder, zips, mapred)
+	r = unit_test()
 	r$filename = filename
 	cat("TEST ", filename, " " , r$result,"\n")
 	})	

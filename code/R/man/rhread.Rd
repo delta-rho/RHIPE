@@ -8,9 +8,8 @@
     quiet = FALSE, ...)
 }
 \arguments{
-  \item{files}{Absolute path to file or directory
-  containing map, sequence, or text file to be read on the
-  HDFS.}
+  \item{files}{Path to file or directory containing map,
+  sequence, or text file to be read on the HDFS.}
 
   \item{type}{Type of file on HDFS.  Must be "sequence",
   "map", or "text".}

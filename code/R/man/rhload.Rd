@@ -5,7 +5,7 @@
   rhload(file, envir = parent.frame())
 }
 \arguments{
-  \item{file}{Absolute path the .RData file on the HDFS.}
+  \item{file}{Path to the .RData file on the HDFS.}
 
   \item{envir}{Environment in which to load the .RData
   file.}

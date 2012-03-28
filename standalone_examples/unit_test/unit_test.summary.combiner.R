@@ -15,17 +15,11 @@
 #' We seek to calculate the min, max, mean, sum, and nrecords in each column of the matrix.
 #' We use a combiner to speed up calculations.
 
-#' ASSUMES Rhipe library is loaded, rhinit has been called, and rhoptions()$runner is set.
-#' Param default values are appropriate for local Hadoop job.
-#' Otherwise change them to Hadoop appropriate values.  
-#' NOTE: the "testing" aspect of this is little more then "did it run?"
-#' @param base.ofolder Folder to place the output directory into (Not the actual ofolder).
-#' @param zips Argument to pass to rhmr so that this runs on your Hadoop.
-#' @param mapred Argument to pass to rhmr so that this runs on your Hadoop.
+#' ASSUMES Rhipe is set to run arbitrary jobs at a relative file location from current hdfs.getwd().
 #' @author Jeremiah Rounds
 
 
-unit_test = function(base.ofolder = getwd(), zips=NULL, mapred=list(mapred.job.tracker='local')){
+unit_test = function(){
 	is.good = FALSE
 	try({
 	param = list()
@@ -94,18 +88,7 @@ unit_test = function(base.ofolder = getwd(), zips=NULL, mapred=list(mapred.job.t
 	param$N = 1000
 	param$jobname = "simple_summary_combiner_out"
 	param$combiner = TRUE
-
-	#where do we put this output?
-	param$ofolder = paste(base.ofolder, param$jobname, sep="/")
-
-
-	#do you want to run local with mapred=list(mapred.job.tracker='local')?
-	if(exists("mapred"))
-		param$mapred = mapred
-
-	#do you need an archive for your runner
-	if(exists("zips"))
-		param$zips = zips
+	param$ofolder =  param$jobname
 	
 	mr = do.call("rhmr", param)
 	ex = rhex(mr,async=FALSE)

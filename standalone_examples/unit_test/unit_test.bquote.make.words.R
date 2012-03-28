@@ -12,15 +12,10 @@
 #' Make Words 
 #' Creates a comma separated set of words in a text file.
 #'
-#' ASSUMES Rhipe library is loaded, rhinit has been called, and rhoptions()$runner is set.
-#' Param default values are appropriate for local Hadoop job.
-#' Otherwise change them to Hadoop appropriate values.  
+#' ASSUMES Rhipe is set to run arbitrary jobs.
 #' NOTE: the "testing" aspect of this is little more then "did it run?"
-#' @param base.ofolder Folder to place the output directory into (Not the actual ofolder).
-#' @param zips Argument to pass to rhmr so that this runs on your Hadoop.
-#' @param mapred Argument to pass to rhmr so that this runs on your Hadoop.
 #' @author Jeremiah Rounds
-unit_test = function(base.ofolder = getwd(), zips=NULL, mapred=list(mapred.job.tracker='local')){
+unit_test = function(){
 	is.good = FALSE
 	try({
 	
@@ -68,34 +63,19 @@ unit_test = function(base.ofolder = getwd(), zips=NULL, mapred=list(mapred.job.t
 		param$inout = c("lapply","text")
 		param$N = 1000
 		param$jobname = "bquote_make_words_out"
-
-		#where do we put this output?
-		param$ofolder = paste(base.ofolder, param$jobname, sep="/")
-
-
-		#do you want to run local with mapred=list(mapred.job.tracker='local')?
-		if(exists("mapred") && !is.null(mapred)){
-			param$mapred = mapred
-		}else{
-			param$mapred = list()
-		}
-			
+		param$ofolder = param$jobname
+		param$mapred = list()
 		################################################################################################
 		# NEED TO HANDLE THE TEXT OUTPUT FORMAT
 		################################################################################################
 		param$mapred$mapred.field.separator=" "
   		param$mapred$mapred.textoutputformat.usekey=FALSE 
   		param$mapred$rhipe.eol.sequence= "\n"
-  		param$mapred$mapred.reduce.tasks=0
 
 
-		#do you need an archive for your runner
-		if(exists("zips"))
-			param$zips = zips
 
 		mr = do.call("rhmr", param)
 		ex = rhex(mr,async=FALSE)
-
 		output = rhread(param$ofolder,type="text")
 		#do the results look sane?
 		if(length(output) == 1000)
