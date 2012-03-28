@@ -39,5 +39,5 @@ rhwatch <- function(job,mon.sec=5,readback=TRUE,...){
     ## Ideally even with a job.id i can still get the all the job info
     ## by looking somewhere in the output folder.
     ## job is now a job_identifier string
-    rhstatus(job,mon.sec=mon.sec,....) 
+    rhstatus(job,mon.sec=mon.sec,...) 
 }

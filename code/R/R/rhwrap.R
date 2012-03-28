@@ -11,6 +11,7 @@
 #' @export
 rhwrap <- 
 function(expr=NULL,before=NULL,after=NULL,trap=FALSE){
+	rhcounter = function(...) return(...)  #dummy function to pass R package checks.
   co <- substitute(expr); before=substitute(before)
   err <- if(trap) function(e) { rhcounter("R_ERRORS",as.character(e),1)} else function(e) {rhcounter("R_UNTRAPPED_ERRORS",as.character(e),1)}
   as.expression(bquote({
