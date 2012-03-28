@@ -14,6 +14,7 @@
 #' @keywords delete HDFS directory
 #' @export
 rhdel <- function(folder){
+	folder = rhabsolute.hdfs.path(folder)
   x <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhdel",folder))
   x[[1]]=="OK"
 }

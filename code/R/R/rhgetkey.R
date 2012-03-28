@@ -27,6 +27,7 @@
 rhgetkey <- function(keys,paths,mc=FALSE,size=3000,skip=0L){
 	#TODO: Add these back to the functional arguments when someone is ready to comment on what they do.
 	sequence=""
+	paths = rhabsolute.hdfs.path(paths)
 	pat <- rhls(paths)
 	if (substr(pat[1, "permission"], 1, 1) != "-")  paths <- pat$file
 	if (!all(is.character(paths))) 

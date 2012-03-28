@@ -18,6 +18,7 @@
 #' @keywords get HDFS directory
 #' @export
 rhget <- function(src, dest){
+	src = rhabsolute.hdfs.path(src)
   x <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhget",src,path.expand(dest)))
 }
 
