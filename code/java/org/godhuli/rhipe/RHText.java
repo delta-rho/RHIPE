@@ -37,6 +37,12 @@ public class RHText extends RHBytesWritable{
     public void set(String x){
 	textcontainer.set(x);
     }
+
+    public void setAndFinis(String x){
+	textcontainer.set(x);
+	finis();
+    }
+
     public void set(Text x){
 	set(x.toString());
     }
