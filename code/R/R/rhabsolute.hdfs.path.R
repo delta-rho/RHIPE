@@ -6,28 +6,41 @@
 #'
 #' For all returns, any trailing "/" are removed from the path (if path nchar > 1).
 #' 
-#' @param path Path to examine and change to absolute.
-#' @return Absolute HDFS path corresponding to relative path in the input.
+#' @param path Path to examine and change to absolute.  Input may be a list or vector.
+#' @return Absolute HDFS path corresponding to relative path in the input.  If input is a vector or list returns a vector or list of paths.
 #' @author Jeremiah Rounds
-rhabsolute.hdfs.path = function(path){
-	path = as.character(path)
-	if(length(path) > 1)
-		stop("Path is not a single string.")
-	if(length(path) == 0 || nchar(path) == 0)
-		stop("Path is zero length.")
-	n = nchar(path)
-	if(n > 1 && substr(path,n,n) == "/")
-		path = substr(path,1,n-1)
-	lead.char = substr(path,1,1)
-	#already absolute?
-	if(lead.char == "/")
-		return(path)
-	#this is considered relative..
+rhabsolute.hdfs.path = function(paths){
+	inpaths = as.character(paths)
+	ret = list()
 	wd = hdfs.getwd()
-	if(nchar(wd) == 1)
-		return(paste(wd,path,sep=""))
-	else
-		return(paste(wd,path,sep="/"))	
+	for(i in seq_along(inpaths)){
+		p = inpaths[i]
+		if(length(p) == 0 || nchar(p) == 0)
+			stop("Path is zero length.")
+		n = nchar(p)
+		#we take a trailing "/" if it exist.
+		if(n > 1 && substr(path,n,n) == "/")
+			p = substr(p,1,n-1)
+		lead.char = substr(p,1,1)
+		#already absolute?
+		if(lead.char == "/"){
+			retp = p
+		}else{
+			#this is considered relative..
+			if(nchar(wd) == 1)
+				retp = paste(wd,path,sep="")
+			else
+				retp = paste(wd,path,sep="/")	
+		}
+		ret[[i]] = retp
+	}
+	
+	#now match the class of the input
+	#wouldn't surprise me to learn there is a more elegant way to do this.
+	if("character" %in% class(paths))
+		return(as.character(ret))  #should work for everything else.
+	if("list" %in% class(paths))
+		return(ret)  #already a list
 }
 
 
