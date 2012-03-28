@@ -307,6 +307,26 @@ rhmr <- function(map=NULL,reduce=NULL,
                  opts=rhoptions(),
                  jobname="",
                  parameters=NULL){
+                 
+                 
+	################################################################################################
+	# Handling relative file paths by jumping on inputs right at the top
+	################################################################################################
+		if(nchar(ofolder) > 0)
+			ofolder = rhabsolute.hdfs.path(ofolder)
+		if(nchar(ifolder) > 0)
+			ifolder = rhabsolute.hdfs.path(ifolder)
+		if(length(shared) > 0)
+			shared = rhabsolute.hdfs.path(shared)
+		#zips is handled below when the rhoptions()$zips is used.
+		#if(length(zips) > 0)
+		#	zips = rhabsolute.hdfs.path(zips)
+	################################################################################################
+	# Now continue into the sea of code known as "lines"
+	################################################################################################
+			
+
+          
   lines <- list();
   is.Expression <- function(r) is.expression(r) || class(r)=="{"
   parent.deserial.code <- expression({
@@ -384,19 +404,20 @@ rhmr <- function(map=NULL,reduce=NULL,
   cleanup.m <- rawToChar(serialize(cleanup$map,NULL,ascii=T))
   cleanup.r <- rawToChar(serialize(cleanup$reduce,NULL,ascii=T))
 
-  if(ofolder == ""){
-    if(!is.null(rhoptions()$HADOOP.TMP.FOLDER)){
-      fnames <- rhls(rhoptions()$HADOOP.TMP.FOLDER)$files
-      library(digest)
-      w. <- if(grepl("/$",rhoptions()$HADOOP.TMP.FOLDER)) "" else "/"
-      ofolder <- sprintf("%s%srhipe-temp-%s",rhoptions()$HADOOP.TMP.FOLDER, w., digest(fnames, "md5"))
-      read.and.delete.ofolder <- TRUE
-    }else{
-      stop("parameter ofolder is default '' and RHIPE could not find a value for HADOOP.TMP.FOLDER in rhoptions().\n Set this: rhoptions(HADOOP.TMP.FOLDER=path)")
-    }
-  }else{
-    read.and.delete.ofolder <- FALSE
-  }
+if(ofolder == ""){
+	if(!is.null(rhoptions()$HADOOP.TMP.FOLDER)){
+		htf = rhasbolute.hdfs.path(rhoptions()$HADOOP.TMP.FOLDER)
+		fnames <- rhls(htf)$files
+		library(digest)
+		w. <- if(grepl("/$",htf) "" else "/"
+		ofolder <- sprintf("%s%srhipe-temp-%s",htf, w., digest(fnames, "md5"))
+		read.and.delete.ofolder <- TRUE
+	}else{
+	   stop("parameter ofolder is default '' and RHIPE could not find a value for HADOOP.TMP.FOLDER in rhoptions().\n Set this: rhoptions(HADOOP.TMP.FOLDER=path)")
+	}
+}else{
+	read.and.delete.ofolder <- FALSE
+}
 
   ofolder <- sapply(ofolder,function(r) {
     x <- if(substr(r,nchar(r),nchar(r))!="/" && r!=""){
@@ -434,7 +455,7 @@ rhmr <- function(map=NULL,reduce=NULL,
   ## print(ifolder)
   ## stop("woo")
   lines<- append(lines,list(
-                     R_HOME=R.home()
+                     		R_HOME=R.home()
                             ,rhipe.read.and.delete.ofolder=read.and.delete.ofolder
                             ,rhipe_map=(map.s)
                             ,rhipe_setup_map=(setup.m)
@@ -594,6 +615,7 @@ rhmr <- function(map=NULL,reduce=NULL,
   }
 
   zips <- c(zips,rhoptions()$zips)
+  zips = rhabsolute.hdfs.path(zips)
   if(length(zips)>0) lines$rhipe_zips <- paste(unlist(local({
     zips <- path.expand(zips)
     sapply(zips,function(r) {

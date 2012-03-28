@@ -2,7 +2,7 @@
 #'
 #' Reads all or a limited number of key/value pairs from HDFS files.
 #' 
-#' @param files Absolute path to file or directory containing map, sequence, or
+#' @param files Path to file or directory containing map, sequence, or
 #'   text file to be read on the HDFS.
 #' @param type Type of file on HDFS.  Must be "sequence", "map", or "text".
 #' @param max Maximum number of key/value pairs to read for map and sequence
@@ -49,16 +49,17 @@
 #' @keywords read HDFS file
 #' @export
 rhread <- function(files,type=c("sequence"),max=-1L,skip=rhoptions()$file.types.remove.regex,mc=FALSE,asraw=FALSE,size=3000,buffsize=1024*1024,quiet=FALSE,...){
-  files <- getypes(files,type,skip)
-  max <- as.integer(max)
-  p <- if(type %in% c("text","gzip") ){
-    Rhipe:::hmerge(files, buffsize=as.integer(buffsize),max=max,type=type,...)
-  }else{
-    Rhipe:::send.cmd(rhoptions()$child$handle, list("sequenceAsBinary", files,max,as.integer(rhoptions()$child$bufsize)),
-                          getresponse=0L,
-                          continuation = function() Rhipe:::rbstream(rhoptions()$child$handle,size,mc,asraw,quiet))
-  }
-  p
+	files = rhabsolute.hdfs.path(files)
+	files <- getypes(files,type,skip)
+	max <- as.integer(max)
+	p <- if(type %in% c("text","gzip") ){
+	Rhipe:::hmerge(files, buffsize=as.integer(buffsize),max=max,type=type,...)
+	}else{
+	Rhipe:::send.cmd(rhoptions()$child$handle, list("sequenceAsBinary", files,max,as.integer(rhoptions()$child$bufsize)),
+		                  getresponse=0L,
+		                  continuation = function() Rhipe:::rbstream(rhoptions()$child$handle,size,mc,asraw,quiet))
+	}
+  	p
 }
 
 # rhread <- function(files,type="sequence",max=-1,asraw=FALSE,ignore.stderr=T,verbose=F,mc=FALSE,debug=FALSE){

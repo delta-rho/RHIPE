@@ -20,6 +20,7 @@
 #' @export
 rhls <- function(folder,recurse=FALSE){
   ## List of files,
+  folder = rhabsolute.hdfs.path(folder)
   v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhls",folder, if(recurse) 1L else 0L))
   if(is.null(v)) return(NULL)
   f <- as.data.frame(do.call("rbind",sapply(v,strsplit,"\t")),stringsAsFactors=F)

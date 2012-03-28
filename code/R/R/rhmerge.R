@@ -1,4 +1,5 @@
 rhmerge <- function(inr,ou){
+	inr = rhabsolute.hdfs.path(inr)
   system(paste(paste(Sys.getenv("HADOOP_BIN"),"hadoop",
                      sep=.Platform$file.sep,collapse=""),"dfs","-cat",inr,">", ou,collapse=" "))
 }

@@ -16,6 +16,7 @@
 #' @keywords put HDFS file
 #' @export
 rhput <- function(src, dest,deletedest=TRUE){
+	dest = rhabsolute.hdfs.path(dest)
   x <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhput",path.expand(src),dest,as.logical(deletedest)))
 }
 

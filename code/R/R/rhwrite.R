@@ -4,7 +4,7 @@
 #' pointed to by \code{dest} which will be located on the HDFS.
 #' 
 #' @param lo List of R objects to place on the HDFS.
-#' @param dest Absolute path to destination directory on the HDFS.
+#' @param dest Path to destination directory on the HDFS.
 #' @param N See Details.
 #' @details The file
 #' \code{dest} will be in a format interpretable by RHIPE, i.e it can be used
@@ -34,6 +34,7 @@
 #' @keywords write HDFS
 #' @export
 rhwrite <- function(lo,dest,N=NULL){
+	dest = rhabsolute.hdfs.path(dest)
   if(!is.list(lo))
     stop("lo must be a list")
   namv <- names(lo)

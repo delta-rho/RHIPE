@@ -2,7 +2,7 @@
 #'
 #' Calls the function load after fetching an RData file from the HDFS.
 #' 
-#' @param file Absolute path the .RData file on the HDFS.
+#' @param file Path to the .RData file on the HDFS.
 #' @param envir Environment in which to load the .RData file.
 #' @author Saptarshi Guha
 #' @return data from HDFS
