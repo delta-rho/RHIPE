@@ -409,7 +409,7 @@ if(ofolder == ""){
 		htf = rhasbolute.hdfs.path(rhoptions()$HADOOP.TMP.FOLDER)
 		fnames <- rhls(htf)$files
 		library(digest)
-		w. <- if(grepl("/$",htf) "" else "/"
+		w. <- if(grepl("/$",htf)) "" else "/"
 		ofolder <- sprintf("%s%srhipe-temp-%s",htf, w., digest(fnames, "md5"))
 		read.and.delete.ofolder <- TRUE
 	}else{

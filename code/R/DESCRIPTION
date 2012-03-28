@@ -41,3 +41,6 @@ Collate:
     'extra.functions.R'
     'rhwrap.R'
     'rhwatch.R'
+    'hdfs.getwd.R'
+    'hdfs.setwd.R'
+    'rhabsolute.hdfs.path.R'
