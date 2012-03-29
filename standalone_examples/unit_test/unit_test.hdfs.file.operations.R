@@ -45,6 +45,12 @@ unit_test = function(){
 			NULL = NULL #force error
 		b=NULL
 		
+		#POSSIBLE BUG
+		#sometimes we get a .crc file left at this point so detecting and deleting it
+		#if it is left rhput chokes
+		LOCAL.CRC = paste(getwd(),".export.example.Rdata.crc", sep=.Platform$file.sep)
+		try({unlink(LOCAL.CRC)},silent=TRUE)
+		
 		#RHPUT FOLLOWED BY RHLOAD
 		rhput(LOCAL, "tmp3/export.example.Rdata")
 		rhload(file="tmp3/export.example.Rdata",envir=environment())

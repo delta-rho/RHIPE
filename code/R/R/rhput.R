@@ -17,7 +17,7 @@
 #' @export
 rhput <- function(src, dest,deletedest=TRUE){
 	dest = rhabsolute.hdfs.path(dest)
-  x <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhput",path.expand(src),dest,as.logical(deletedest)))
+  	x <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhput",path.expand(src),dest,as.logical(deletedest)))
 }
 
 # rhput <- function(src,dest,deleteDest=TRUE,ignore.stderr=T,verbose=F){

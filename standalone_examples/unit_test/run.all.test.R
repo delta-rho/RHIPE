@@ -3,15 +3,21 @@
 # YOU MUST CHANGE THESE VARIABLES TO SOMETHING GOOD FOR YOUR HADOOP
 # THESE WORK FOR ME ON LOCAL HADOOP FOR EXAMPLE
 ################################################################################################
-
+LOCAL = TRUE
 library(Rhipe)
 rhinit()
-#YOU MAY NEED TO CHANGE THESE
-rhoptions()$runner                     #MapReduce runner script do you need to change it?
-hdfs.setwd(getwd())
-rhoptions(mapred = list(mapred.job.tracker='local'))  #Do you need mapred options to run jobs? Comment out if not
-rhoptions(zips = c())                  #Do you need zips to run jobs? Otherwise leave c()
-      
+if(LOCAL){
+	#YOU MAY NEED TO CHANGE THESE
+	rhoptions()$runner                     #MapReduce runner script do you need to change it?
+	hdfs.setwd(getwd())
+	rhoptions(mapred = list(mapred.job.tracker='local'))  #Do you need mapred options to run jobs? Comment out if not
+	rhoptions(zips = c())                  #Do you need zips to run jobs? Otherwise leave c()
+}else{
+	#definately need to change these!
+	rhoptions
+
+}
+
 
 
 
