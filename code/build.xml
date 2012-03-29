@@ -4,10 +4,10 @@
   <property name="build.dir"   value="build"/>
   <property name="classes.dir" value="${build.dir}/classes"/>
   <property name="jar.dir"     value="${build.dir}/jar"/>
-  <property name="R.dir"     value="${src.dir}/R"/>
+  <property name="R.dir"     value="../R"/>
   <property name="javac.debug" value="on"/>
   <property name="javac.optimize" value="on"/>
-  <property name="javac.deprecation" value="on"/>
+  <property name="javac.deprecation" value="off"/>
   <property name="javac.version" value="1.6"/>
   <property name="javac.args" value=""/>
   <property name="javac.args.warnings" value="-Xlint:unchecked"/>
