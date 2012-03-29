@@ -32,7 +32,7 @@ rhabsolute.hdfs.path = function(paths){
 			else
 				retp = paste(wd,p,sep="/")	
 		}
-		ret[[i]] = normalizePath(retp)
+		ret[[i]] = retp
 	}
 	
 	#now match the class of the input

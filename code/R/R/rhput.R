@@ -5,7 +5,7 @@
 #' parameter.
 #' 
 #' @param src Path to the local file to be copied to the HDFS.
-#' @param dest Absolute path to the file on the HDFS.  rhput creates the file
+#' @param dest Path to the file on the HDFS.  rhput creates the file
 #'   at dest.
 #' @param deletedest If TRUE this function attempts to delete the destination of the HDFS before trying to copy to that location on the HDFS.
 #' @author Saptarshi Guha
