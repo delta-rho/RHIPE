@@ -557,6 +557,7 @@ public class PersonalServer {
 		else if(tag.equals("rhopensequencefile")) rhopensequencefile(r);
 		else if(tag.equals("rhgetnextkv")) rhgetnextkv(r);
 		else if(tag.equals("rhclosesequencefile")) rhclosesequencefile(r);
+		else if(tag.equals("shutdownJavaServer")) System.exit(0);
 
 
 		// else if(tag.equals("rhcp")) rhcp(r);
@@ -587,15 +588,12 @@ public class PersonalServer {
     public static void main(String[] args) throws Exception{
 	int buglevel = Integer.parseInt(args[3]);
 	PersonalServer r = new PersonalServer(args[0],args[1],args[2],buglevel);
-	while(true){
-	    try{
-		// LOG.info("Starting personalserver");
+	try{
 		r.startme();
-
-	    }catch(Exception e){
+	 }catch(Exception e){
 		System.err.println(Thread.currentThread().getStackTrace());
-	    }
-	}
+	 }
+
     }
     public abstract class DelayedExceptionThrowing {
 	abstract void process(Path p, FileSystem srcFs) throws IOException;

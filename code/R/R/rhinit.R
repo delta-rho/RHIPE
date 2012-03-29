@@ -54,6 +54,15 @@ rhinit <-function(errors=TRUE,buglevel=0,info=FALSE,path=NULL,cleanup=FALSE,bufs
   if(info){
     message(cmda)
   }
+  
+################################################################################################
+# Right before creating a new java process at this point so trying to shut down what we already have
+################################################################################################
+	shutdownJavaServer()  #In server.R
+################################################################################################
+# Now making a new one
+################################################################################################
+
   j <- .Call("createProcess", cmda, c(as.integer(errors),as.integer(info)),as.integer(bufsize),as.integer(buglevel),PACKAGE="Rhipe")
   ## This is a potential race here, the child starts the Java server
   ## but before it even starts we arrive here ...

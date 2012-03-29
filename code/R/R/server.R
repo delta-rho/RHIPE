@@ -3,6 +3,8 @@ isalive <- function(z) {
   tryCatch({
     writeBin(as.integer(0),con=z$tojava,endian="big")
     o <- readBin(con=z$fromjava,what=raw(),n=1,endian="big")
+    if(length(o) == 0)
+    	warning("Zero length read in isalive")
     if(length(o) > 0  && o==0x01) TRUE else FALSE
   },error=function(e){
     return(FALSE)
@@ -31,6 +33,7 @@ send.cmd <- function(z,command, getresponse=TRUE,continuation=NULL,...){
   command <- rhsz(command)
   writeBin(length(command),z$tojava, endian='big')
   writeBin(command, z$tojava, endian='big')
+  flush(z$tojava)
   if(getresponse){
     sz <- readBin(z$fromjava,integer(),n=1,endian="big")
     if(sz<0) {
@@ -209,3 +212,25 @@ scalarSummer <- expression(
     reduce = { total <- total+sum(unlist(reduce.values)) },
     post = { rhcollect(reduce.key, total)}
     )
+    
+    
+    
+################################################################################################
+# shutdownJavaServer
+# Tries to shutdown a java process from rhoptions()
+# Unlike the rest of the code in this file doesn't bother to pass in an argument.
+# Just assumes rhoptions() is available and checks
+################################################################################################
+javaServerCommand = function(command){
+	proc = rhoptions()$child$handle
+	con = proc$tojava
+	command <- rhsz(command)
+	writeBin(length(command),con, endian='big')
+	writeBin(command, con, endian='big')
+	flush(con)
+}
+shutdownJavaServer = function(){
+	try({
+		Rhipe:::javaServerCommand(list("shutdownJavaServer"))
+	},silent =TRUE)
+} 
