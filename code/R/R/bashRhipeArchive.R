@@ -27,6 +27,20 @@
 
 bashRhipeArchive = function(archive.base.name="RhipeLib", delete.local.tmp.dir=TRUE){
 	################################################################################################
+	# This is the most portable way I thought up to copy files recursively.
+	# file.copy by itself has let me down....
+	################################################################################################
+	file.copy = function(src, dest, recursive=TRUE,...){
+		if(recursive)
+			system(paste("cp -RLf", src, dest))
+		else
+			system(paste("cp -Lf", src, dest))
+	}
+	#Also rewriting this to be recursive...
+	Sys.chmod = function(dest){
+		system(paste("chmod -R 777",dest))
+	}
+	################################################################################################
 	#Copies the contents of .libPaths() to a destination folder that must already exist.
 	################################################################################################
     copy.libPaths = function(dest){
@@ -83,19 +97,22 @@ bashRhipeArchive = function(archive.base.name="RhipeLib", delete.local.tmp.dir=T
     tfolder = normalizePath(archive.base.name,mustWork = FALSE)
     if(delete.local.tmp.dir && file.exists(tfolder)){
      	cat("Trying to delete old", tfolder, "\n")
+     	Sys.chmod(tfolder)
     	try({unlink(tfolder, recursive=TRUE, force=TRUE)},silent=TRUE)	
     }
     cat("Creating new", tfolder, "\n")
     if(!file.exists(tfolder))
     	dir.create(tfolder)
+    Sys.chmod(tfolder)
 	oldwd = normalizePath(getwd())
 	setwd(tfolder)
     
     # TASK 2: COPY R.home 
-    cat("Copying contents of R.home() to", tfolder, "\n")
+    cat("Copying contents of R.home() to", tfolder, "\n")    
     src = Sys.glob(paste(R.home(),"*", sep=.Platform$file.sep))
     dest = normalizePath(".")
     for(f in src) file.copy(f,dest,recursive=TRUE)
+    Sys.chmod(dest)
     
     # TASK 3: COPY R LIBRARIES
     if(!file.exists("library"))
@@ -103,12 +120,14 @@ bashRhipeArchive = function(archive.base.name="RhipeLib", delete.local.tmp.dir=T
     library = normalizePath("library")
     cat("Copying all detected R libraries to", library, "\n")
 	copy.libPaths("library")
+	Sys.chmod(getwd())
 
 	# TASK 4: FIND ALL SHARED LIBRARY DEPENCIES AND COPY THEM 
     src = sharedLibs(findExecutables())
     dest = normalizePath("lib")
     cat("Copying all detected shared library dependencies to", dest,"\n")
     for(f in src) file.copy(f,dest)
+    Sys.chmod(getwd())
     
     # TASK 5: DETECT RUNNER SCRIPT
     base.runner =paste("library","Rhipe","bin","RhipeMapReduce.sh",sep=.Platform$file.sep)
