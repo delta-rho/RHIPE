@@ -407,10 +407,13 @@ rhmr <- function(map=NULL,reduce=NULL,
 if(ofolder == ""){
 	if(!is.null(rhoptions()$HADOOP.TMP.FOLDER)){
 		htf = rhabsolute.hdfs.path(rhoptions()$HADOOP.TMP.FOLDER)
-		fnames <- rhls(htf)$files
-		library(digest)
+		fnames <- c(rhls(htf)$file, as.POSIXlt(Sys.time())$sec)
+		## library(digest)
 		w. <- if(grepl("/$",htf)) "" else "/"
-		ofolder <- sprintf("%s%srhipe-temp-%s",htf, w., digest(fnames, "md5"))
+		## ofolder <- sprintf("%s%srhipe-temp-%s",htf, w., digest(fnames, "md5"))
+                .t <- serialize(fnames,NULL)
+                ofolder <- sprintf("%s%srhipe-temp-%s",htf, w., .Call("md5", .t,length(.t)))
+
 		read.and.delete.ofolder <- TRUE
 	}else{
 	   stop("parameter ofolder is default '' and RHIPE could not find a value for HADOOP.TMP.FOLDER in rhoptions().\n Set this: rhoptions(HADOOP.TMP.FOLDER=path)")
@@ -617,7 +620,8 @@ if(ofolder == ""){
   if(length(jarfiles)>0) {
     lines$rhipe_jarfiles <- paste(path.expand(jarfiles),collapse=",")
     ## make a temp folder containing jar files
-    p <- system(sprintf("mktemp -p %s -d", tempdir()),intern=TRUE)
+    ## p <- system(sprintf("mktemp -p %s -d", tempdir()),intern=TRUE)
+    p <- Rhipe:::mkdtemp(tempdir())
     invisible(sapply(jarfiles, function(r) rhget(r, p)))
     lines$rhipe_cp_tempdir <- p
     lines$rhipe_classpaths <- paste(list.files(p,full.names=TRUE),collapse=",")

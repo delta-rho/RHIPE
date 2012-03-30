@@ -21,7 +21,7 @@ extern uintptr_t R_CStackLimit;
 
 void CaptureLogInLibrary(LogLevel level, const char* filename, int line,
 		const string& message) {
-	static char* pb_log_level[] = { "LOGLEVEL_INFO", "LOGLEVEL_WARNING",
+  static const char* pb_log_level[] = { "LOGLEVEL_INFO", "LOGLEVEL_WARNING",
 			"LOGLEVEL_ERROR", "LOGLEVEL_FATAL", "LOGLEVEL_DFATAL" };
 	Rf_error("PB ERROR[%s](%s:%d) %s", pb_log_level[level], filename, line,
 			message.c_str());
@@ -530,6 +530,35 @@ SEXP readSQFromPipe(SEXP jcmd, SEXP buf, SEXP verb) {
 	UNPROTECT(2);
 	return (rval);
 }
+  SEXP createTempDir(SEXP inDir){
+     char *dir = ( char*) CHAR(STRING_ELT( inDir , 0));
+     char *newdir = mkdtemp(dir);
+     if(!newdir) Rf_error("RHIPE: There was an error creating a temporary folder in %s: (%s)",dir,strerror(errno));
+     SEXP s = R_NilValue,y=R_NilValue;
+     PROTECT(s = Rf_allocVector(STRSXP,1));
+     PROTECT(y = Rf_mkChar(newdir));
+     SET_STRING_ELT(s,0,y);
+     UNPROTECT(2);
+     return(s);
+  }
 
+#include "md5.h"
+
+  SEXP md5(SEXP aRaw,SEXP len){
+    md5_state_t state;
+    md5_byte_t digest[16];
+    md5_init(&state);
+    md5_append(&state, (const md5_byte_t *)RAW(aRaw), INTEGER(len)[0]);
+    md5_finish(&state, digest);
+    char hex_output[16*2 + 1];
+    for (int di = 0; di < 16; ++di)
+      sprintf(hex_output + di * 2, "%02x", digest[di]);
+    SEXP s = R_NilValue,y=R_NilValue;
+    PROTECT(s = Rf_allocVector(STRSXP,1));
+    PROTECT(y = Rf_mkChar(hex_output));
+    SET_STRING_ELT(s,0,y);
+    UNPROTECT(2);
+    return(s);
+  }
 }
 

@@ -91,7 +91,7 @@ void logg(int level,const char *fmt, ...)
 	}
 }
 
-void mcount(char *g1, char* g2, uint32_t n){
+void mcount(const char *g1, const char* g2, uint32_t n){
   SEXP g,s1,s2,s3;
   PROTECT(g = Rf_allocVector(VECSXP,3));
 
