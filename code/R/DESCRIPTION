@@ -45,3 +45,4 @@ Collate:
     'hdfs.getwd.R'
     'hdfs.setwd.R'
     'rhabsolute.hdfs.path.R'
+    'bashRhipeArchive.R'

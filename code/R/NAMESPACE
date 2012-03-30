@@ -1,6 +1,7 @@
 export(hdfs.getwd)
 export(hdfs.setwd)
 export(rhabsolute.hdfs.path)
+export(bashRhipeArchive)
 export(rhcp)
 export(rhdel)
 export(rhex)
