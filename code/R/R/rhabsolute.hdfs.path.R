@@ -9,6 +9,7 @@
 #' @param paths Path to examine and change to absolute.  Input characters or a list or vector of characters.
 #' @return Absolute HDFS path corresponding to relative path in the input.  If input is a vector or list returns a vector or list of paths.
 #' @author Jeremiah Rounds
+#' @export
 rhabsolute.hdfs.path = function(paths){
 	inpaths = as.character(paths)
 	ret = list()
