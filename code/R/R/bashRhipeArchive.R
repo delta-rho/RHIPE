@@ -86,7 +86,8 @@ bashRhipeArchive = function(archive.base.name="RhipeLib", delete.local.tmp.dir=T
     	try({unlink(tfolder, recursive=TRUE, force=TRUE)},silent=TRUE)	
     }
     cat("Creating new", tfolder, "\n")
-    dir.create(tfolder)
+    if(!file.exists(tfolder))
+    	dir.create(tfolder)
 	oldwd = normalizePath(getwd())
 	setwd(tfolder)
     
@@ -100,7 +101,7 @@ bashRhipeArchive = function(archive.base.name="RhipeLib", delete.local.tmp.dir=T
     if(!file.exists("library"))
     	dir.create("library")
     library = normalizePath("library")
-    cat("Copying all known R libraries to", library, "\n")
+    cat("Copying all detected R libraries to", library, "\n")
 	copy.libPaths("library")
 
 	# TASK 4: FIND ALL SHARED LIBRARY DEPENCIES AND COPY THEM 
