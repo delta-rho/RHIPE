@@ -43,7 +43,7 @@ killServer = function(handle){
 	try({
 		for(x in list(handle$tojava, handle$fromjava,handle$err)) 
 			try({close(x)},silent=TRUE)
-		system(sprintf("kill -9 %s", handle$ports['PID'])) 
+		system(sprintf("kill -9 %s", handle$ports['PID']),ignore.stdout=TRUE, ignore.stderr=TRUE) 
 	},silent=TRUE)
 }
 
