@@ -15,9 +15,9 @@ char* MAPSETUPS = "expression()";
 char* MAPCLEANS = "expression()";
 static int _counter_=0;
 #else
-char* MAPSETUPS = "unserialize(charToRaw(Sys.getenv('rhipe_setup_map')))";
-char* MAPRUNNERS = "unserialize(charToRaw(Sys.getenv('rhipe_map')))";
-char* MAPCLEANS = "unserialize(charToRaw(Sys.getenv('rhipe_cleanup_map')))";
+const char* MAPSETUPS = "unserialize(charToRaw(Sys.getenv('rhipe_setup_map')))";
+const char* MAPRUNNERS = "unserialize(charToRaw(Sys.getenv('rhipe_map')))";
+const char* MAPCLEANS = "unserialize(charToRaw(Sys.getenv('rhipe_cleanup_map')))";
 #endif
 
 

@@ -45,14 +45,14 @@ extern map<string, vector<string> > map_output_buffer;
 extern uint32_t spill_size;
 extern uint32_t total_count;
 /* extern SEXP comb_pre_red,comb_do_red,comb_post_red; */
-extern  char* REDUCESETUP;
-extern  char* REDUCEPREKEY;
-extern  char* REDUCE;
-extern  char* REDUCEPOSTKEY ;
-extern  char* REDUCECLEANUP;
-extern char* MAPSETUPS;
-extern char* MAPRUNNERS;
-extern char* MAPCLEANS;
+extern  const char* REDUCESETUP;
+extern  const char* REDUCEPREKEY;
+extern  const char* REDUCE;
+extern  const char* REDUCEPOSTKEY ;
+extern  const char* REDUCECLEANUP;
+extern const char* MAPSETUPS;
+extern const char* MAPRUNNERS;
+extern const char* MAPCLEANS;
 extern bool combiner_inplace;
 
 
@@ -229,11 +229,10 @@ SEXP readFromMem(void * ,uint32_t );
 SEXP persUnser(SEXP);
 SEXP dbgstr(SEXP);
 void spill_to_reducer(void);
-void mcount(char *,char*, uint32_t);
+void mcount(const char *,const char*, uint32_t);
 
 
 extern  R_CallMethodDef callMethods[];
-
 
 
 #endif
