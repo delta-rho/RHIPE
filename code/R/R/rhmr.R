@@ -432,10 +432,7 @@ if(ofolder == ""){
   flagclz <- NULL
   if(length(inout)==1) inout=c(inout,"null") 
 
-  iftable <- c("sequence","text","lapply","map","null")
-  ## browser()
-  inout.a <- sapply(inout,pmatch,iftable)
-  inout <- iftable[inout.a]
+  inout <- match.arg(inout,  c("sequence","text","lapply","map","null"), several.ok = TRUE)
 
   ifolder=switch(inout[1],
     "map"={
