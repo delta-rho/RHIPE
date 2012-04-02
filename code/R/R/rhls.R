@@ -2,7 +2,7 @@
 #'
 #' List all files and directories contained in a directory on the HDFS.
 #' 
-#' @param folder Absolute path of directory on HDFS
+#' @param folder  Path of directory on HDFS
 #' @param recurse If TRUE list all files and directories in sub-directories.
 #' @author Saptarshi Guha
 #' @details Returns a data.frame of filesystem information for the files located
