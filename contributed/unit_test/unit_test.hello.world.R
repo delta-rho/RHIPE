@@ -33,9 +33,10 @@ unit_test = function(){
 		if(output[[1]][[2]] != "Hello World!")
 			is.good = FALSE
 	})
-	if(is.good) 
+	if(is.good) {
 		result = "GOOD"
-	else 
+	} else { 
 		result = "BAD"
+	}
 	return(as.list(environment()))
 }

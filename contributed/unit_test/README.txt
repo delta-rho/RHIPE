@@ -8,14 +8,7 @@ This folder contains standalone examples in the form of unit_test.  The unit_tes
 
 ## RUNNING EXAMPLES ##
 
-run.all.unit_test.R will need modification before you can run it.  You will need to library(Rhipe) and rhinit().  You will then need to set rhoptions(runner= ...). You will need to set the following things in the global R environment:
-
-
-base.ofolder -- where on the HDFS to place directories and files during unit test?
-zips -- argument to rhmr appropriate for your runner.  Assign NULL to it if you don't need a zips argument.
-mapred -- argument to rhmr appopriate for your Hadoop. For example, do we need a 'local' value?  If you don't need mapred in rhmr to run jobs assign NULL to this.
-
-After modification source run.all.unit_test.R.
+run.all.test.R runs my.hadoop.settings.R to prepare to run Hadoop jobs out of current working directories. Both getwd() and hdfs.getwd() will be used and not cleaned up. It runs unit_test function in all R files with unit_test in the name.
 
 
 
@@ -40,10 +33,11 @@ unit_test = function(base.ofolder = getwd(), zips=NULL, mapred=list(mapred.job.t
 		#See existing unit_test files for example.
 	}) 
 
-	if(is.good) 
+	if(is.good) {
 		result = "GOOD"
-	else 
+	} else { 
 		result = "BAD"
+	}
 	return(as.list(environment()))
 }
 

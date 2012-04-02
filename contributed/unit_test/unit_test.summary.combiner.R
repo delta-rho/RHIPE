@@ -106,10 +106,11 @@ unit_test = function(){
 	}) #end try
 	
 	
-	if(is.good) 
+	if(is.good) {
 		result = "GOOD"
-	else 
+	} else { 
 		result = "BAD"
+	}
 	return(as.list(environment()))
 }
 
