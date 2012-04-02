@@ -1,4 +1,5 @@
-source("my.hadoop.settings.R")
+#do something like:
+#source("my.hadoop.settings.R")
 
 
 

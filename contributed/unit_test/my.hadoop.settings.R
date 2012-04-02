@@ -1,21 +1,26 @@
 ################################################################################################
 # YOU MUST CHANGE THESE VARIABLES TO SOMETHING GOOD FOR YOUR HADOOP
-# THESE WORK FOR ME ON LOCAL HADOOP FOR EXAMPLE
+# THESE ARE FOR ME: JEREMIAH ROUNDS
+# I ALSO WROTE THIS SCRIPT FOR ME AND NOT FOR EXAMPLE!
+# THESE TAKE A LOOK AT SYSTEM VARIABLES TO DECIDE WHAT CLUSTER I AM ON.
 ################################################################################################
-LOCAL = FALSE
-library(Rhipe)
-rhinit()
 
-if(LOCAL){
-	#YOU MAY NEED TO CHANGE THESE
-	rhoptions()$runner                     	#MapReduce runner script do you need to change it?
+library("Rhipe")
+rhinit()
+HOSTNAME = Sys.getenv("HOSTNAME")
+if(HOSTNAME == "jrlaptop"){						
+	#RUNNING ON MY LAPTOP
+	
 	rhoptions(mapred = list(mapred.job.tracker='local'))  #Do you need mapred options to run jobs? Comment out if not
-	rhoptions(zips = c())                  	#Do you need zips to run jobs? Otherwise leave c()
-	hdfs.setwd(getwd())						#Working directory is required to be set before running unit_test
-}else{
-	#definately need to change these!
-	rhoptions(runner="sh ./RhipeLib_0.67/RhipeMapReduce")
-	rhoptions(zips = "/RhipeLib_0.67/RhipeMapReduce")
+	hdfs.setwd(getwd())							#Working directory is required to be set before running unit_test
+	
+	
+}else if(HOSTNAME == "spica.stat.purdue.edu"){
+	#RUNNING ON PURDUE STAT CLUSTER
+	
+
+	rhoptions(zips = '/RhipeLib_0.67.tar.gz')
+	rhoptions(runner = 'sh ./RhipeLib_0.67/library/Rhipe/bin/RhipeMapReduce.sh')
 	hdfs.setwd("/jrounds/tmp")
 	
 
