@@ -15,44 +15,63 @@ Mode <-  "experimental"
 }
 onload.2 <- function(libname, pkgname){
   opts <- get("rhipeOptions",envir=.rhipeEnv)
-  opts$jarloc <- list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
- 
-  if(Sys.getenv("HADOOP")=="" && Sys.getenv("HADOOP_BIN")=="")
-  warning("Rhipe requires the HADOOP or HADOOP_BIN environment variable to be present\n $HADOOP/bin/hadoop or $HADOOP_BIN/hadoop should exists")
+  ################################################################################################
+  # JAVA AND HADOOP
+  ################################################################################################
   
-  if(Sys.getenv("HADOOP_BIN")==""){
-    warning("HADOOP_BIN is missing, using $HADOOP/bin")
-    Sys.setenv(HADOOP_BIN=sprintf("%s/bin",Sys.getenv("HADOOP")))
-  }
+	opts$jarloc <- list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
 
-  opts$RhipeMapReduce <- list.files(paste(system.file(package="Rhipe"),"bin",sep=.Platform$file.sep),
-  										pattern="^RhipeMapReduce$",full=T)
+	if(Sys.getenv("HADOOP")=="" && Sys.getenv("HADOOP_BIN")=="")
+	warning("Rhipe requires the HADOOP or HADOOP_BIN environment variable to be present\n $HADOOP/bin/hadoop or $HADOOP_BIN/hadoop should exists")
 
-  #RhipeMapReduce is the executable, but the simpliest way to run it is via R CMD which sets up environment variables.
-  opts$runner <-paste("R","CMD", opts$RhipeMapReduce ,"--slave","--silent","--vanilla") #,"--max-ppsize=100000","--max-nsize=1G")
-  ## both defaults are arbitrary
-  opts$max.read.in.size <- 200*1024*1024 ## 100MB
-  opts$reduce.output.records.warn <- 200*1000
-  opts$rhmr.max.records.to.read.in <- NA
-  opts$HADOOP.TMP.FOLDER <- "/tmp"
-  opts$zips <- c()
-  opts$hdfs.working.dir = "/"
-  opts$file.types.remove.regex <- "(/_SUCCESS|/_LOG|/_log)"
-  ## other defaults
-  opts$templates <- list()
-  opts$templates$scalarsummer <-  expression(
-      pre={.sum <- 0},
-      reduce={.sum <- .sum+ sum(unlist(reduce.values),na.rm=TRUE)},
-      post = { {rhcollect(reduce.key,.sum)}} )
-  opts$templates$colsummer <-  expression(
-      pre={.sum <- 0},
-      reduce={.sum <- .sum + apply(do.call('rbind', reduce.values),2,sum)},
-      post = { {rhcollect(reduce.key,.sum)}} )
-  opts$templates$rbinder <-  expression(
-      pre    = { data <- list()},
-      reduce = { data[[length(data) + 1 ]] <- reduce.values },
-      post   = { {data <- do.call("rbind", unlist(data,recursive=FALSE));}; {rhcollect(reduce.key, data)}}
-      )
+	if(Sys.getenv("HADOOP_BIN")==""){
+	warning("HADOOP_BIN is missing, using $HADOOP/bin")
+	Sys.setenv(HADOOP_BIN=sprintf("%s/bin",Sys.getenv("HADOOP")))
+	}
+
+	################################################################################################
+	# RhipeMapReduce, runner, and checks
+	################################################################################################
+	
+	opts$RhipeMapReduce <- list.files(paste(system.file(package="Rhipe"),"bin",sep=.Platform$file.sep),
+										pattern="^RhipeMapReduce$",full=T)
+
+	if(is.null(opts$RhipeMapReduce) || length(opts$RhipeMapReduce) != 1){
+		warning("RhipeMapReduce executable not found in package bin folder as expected")
+	}
+	#RhipeMapReduce is the executable, but the simpliest way to run it is via R CMD which sets up environment variables.
+	opts$runner <-paste("R","CMD", opts$RhipeMapReduce ,"--slave","--silent","--vanilla") #,"--max-ppsize=100000","--max-nsize=1G")
+	
+	################################################################################################
+	# OTHER DEFAULTS
+	################################################################################################
+
+	opts$max.read.in.size <- 200*1024*1024 ## 100MB
+	opts$reduce.output.records.warn <- 200*1000
+	opts$rhmr.max.records.to.read.in <- NA
+	opts$HADOOP.TMP.FOLDER <- "/tmp"
+	opts$zips <- c()
+	opts$hdfs.working.dir = "/"
+	opts$file.types.remove.regex <- "(/_SUCCESS|/_LOG|/_log)"
+	## other defaults
+	opts$templates <- list()
+	opts$templates$scalarsummer <-  expression(
+	  pre={.sum <- 0},
+	  reduce={.sum <- .sum+ sum(unlist(reduce.values),na.rm=TRUE)},
+	  post = { {rhcollect(reduce.key,.sum)}} )
+	opts$templates$colsummer <-  expression(
+	  pre={.sum <- 0},
+	  reduce={.sum <- .sum + apply(do.call('rbind', reduce.values),2,sum)},
+	  post = { {rhcollect(reduce.key,.sum)}} )
+	opts$templates$rbinder <-  expression(
+	  pre    = { data <- list()},
+	  reduce = { data[[length(data) + 1 ]] <- reduce.values },
+	  post   = { {data <- do.call("rbind", unlist(data,recursive=FALSE));}; {rhcollect(reduce.key, data)}}
+	  )
+  
+  ################################################################################################
+  # FINSHING
+  ################################################################################################
   
   assign("rhipeOptions",opts,envir=.rhipeEnv)
   message("--------------------------------------------------------
