@@ -95,14 +95,16 @@ unit_test = function(){
 
 	output = rhread(param$ofolder,type="sequence")
 	#do the results look sane?
-	if(length(output) == 2)
-		is.good = TRUE
+
 	mins = output[[1]][[2]]$min
 	if(! all(order(mins) == 1:10))
-		is.good = FALSE
+		stop("Order mins in [[1]] wrong."
 	mins = output[[2]][[2]]$min
 	if(! all(order(mins) == 1:10))
-		is.good = FALSE
+		stop("Order mins in [[2]] wrong.")
+	if(length(output) == 2)
+		stop("Length output wrong.")
+	is.good = TRUE
 	}) #end try
 	
 	

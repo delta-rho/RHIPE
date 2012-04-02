@@ -78,20 +78,19 @@ unit_test = function(){
 		ex = rhex(mr,async=FALSE)
 		output = rhread(param$ofolder,type="text")
 		#do the results look sane?
-		if(length(output) == 1000)
-			is.good = TRUE
-		l = output[[1000]][[2]]
-		if(l != "tgmonfbp angspwzcbtjr jvtauwd kultmvjes gylbe qbtwpav vjwaiedtgbx avehzcxgr zgluroxm puilh zdahbrcntq xgktcnlir aultb\r")
-			is.good = FALSE
-			
+		l = output[[1000]]
+		if(l != "tgmonfbp angspwzcbtjr jvtauwd kultmvjes gylbe qbtwpav vjwaiedtgbx avehzcxgr zgluroxm puilh zdahbrcntq xgktcnlir aultb")
+			stop("Output incorrect")
+		if(length(output) != 1000)
+			stop("Length of output is wrong")
+		is.good = TRUE	
 	}) #end try
 
-
-		
-	if(is.good) 
+	if(is.good) {
 		result = "GOOD"
-	else 
+	} else { 
 		result = "BAD"
+	}
 	return(as.list(environment()))
 }
 

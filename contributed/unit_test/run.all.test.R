@@ -6,11 +6,10 @@ source("my.hadoop.settings.R")
 ################################################################################################
 # IF ABOVE IS APPROPRIATELY SET NOTHING NEED BE CHANGED BELOW THIS LINE
 ################################################################################################
-
+rm(list=ls())
 check_unit = function(filename){
 	r = NULL
 	try({
-		rm(ls())
 		unit_test = NULL
 		source(filename)
 		r = unit_test()
@@ -35,7 +34,7 @@ report.all = function(test.out){
 		
 }
 tests = list.files(pattern="unit_test.*.R")
-test.out = lapply(tests, check_unit)
+test.out = lapply(tests,  check_unit)
 report.all(test.out)
 
 

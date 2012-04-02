@@ -28,10 +28,11 @@ unit_test = function(){
 		output = rhread(param$ofolder,type="sequence")
 		
 		#little more then does it look sane?
-		if(length(output) == 10)
-			is.good = TRUE
+		if(length(output) != 10)
+			stop("Output length wrong.")
 		if(output[[1]][[2]] != "Hello World!")
-			is.good = FALSE
+			stop("Output strong wrong."
+		is.good = TRUE
 	})
 	if(is.good) {
 		result = "GOOD"

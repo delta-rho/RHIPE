@@ -64,15 +64,15 @@ unit_test = function(){
 		Y = value$Y
 		files = value$files
 		
-		is.good = TRUE
+
 		#does output look sane?
 		if(output[[1]][[1]] > param$N)
-			is.good = FALSE
+			stop("Output wrong (1).")
 		if(nrow(X) != NROW)
-			is.good = FALSE
+			stop("nrow in X wrong.")
 		if(ncol(X) != NCOEF)
-			is.good = FALSE
-
+			stop("ncol in X wrong.")	
+		is.good = TRUE
 	}) # end try
 	
 	
