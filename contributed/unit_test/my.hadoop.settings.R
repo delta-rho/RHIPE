@@ -8,20 +8,23 @@
 library("Rhipe")
 rhinit()
 HOSTNAME = Sys.getenv("HOSTNAME")
-if(HOSTNAME == "jrlaptop"){						
-	#RUNNING ON MY LAPTOP
-	
-	rhoptions(mapred = list(mapred.job.tracker='local'))  #Do you need mapred options to run jobs? Comment out if not
-	hdfs.setwd(getwd())							#Working directory is required to be set before running unit_test
-	
-	
-}else if(HOSTNAME == "spica.stat.purdue.edu"){
-	#RUNNING ON PURDUE STAT CLUSTER
-	
-
+HOSTNAME = unlist(strsplit(HOSTNAME,".",fixed =TRUE))
+if("stat" %in% HOSTNAME){
+	cat("Setting Rhipe for Purdue Stat cluster.\n")
 	rhoptions(zips = '/RhipeLib_0.67.tar.gz')
 	rhoptions(runner = 'sh ./RhipeLib_0.67/library/Rhipe/bin/RhipeMapReduce.sh')
 	hdfs.setwd("/jrounds/tmp")
 	
-
+} else if("rcac" %in% HOSTNAME){
+	cat("Setting Rhipe for RCAC Rossmann cluster.\n")
+	rhoptions(zips = '/wsc/jrounds/RhipeLib_0.67.tar.gz')
+	rhoptions(runner = 'sh ./RhipeLib_0.67/library/Rhipe/bin/RhipeMapReduce.sh')
+	hdfs.setwd("/wsc/jrounds/tmp")
+} else {
+	cat("HOSTNAME unknown.  Assuming running on local Hadoop such as a laptop.\n")
+	rhoptions(mapred = list(mapred.job.tracker='local'))  
+	hdfs.setwd(getwd())							#Working directory is required to be set before running unit_test
 }
+
+cat("hdfs.getwd() is", hdfs.getwd(),"\n")
+
