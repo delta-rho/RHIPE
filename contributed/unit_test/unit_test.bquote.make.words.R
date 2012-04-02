@@ -79,7 +79,7 @@ unit_test = function(){
 		output = rhread(param$ofolder,type="text")
 		#do the results look sane?
 		l = output[[1000]]
-		if(l != "tgmonfbp angspwzcbtjr jvtauwd kultmvjes gylbe qbtwpav vjwaiedtgbx avehzcxgr zgluroxm puilh zdahbrcntq xgktcnlir aultb")
+		if(l != "rapfctvjslw savqdbx phwqkufi cahnrtgemy umpoztgwyf dql qguk abvdwklsm zqowjyn euqgifpjz pozbceqf rizajph")
 			stop("Output incorrect")
 		if(length(output) != 1000)
 			stop("Length of output is wrong")

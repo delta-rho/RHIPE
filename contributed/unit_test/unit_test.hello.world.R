@@ -31,7 +31,7 @@ unit_test = function(){
 		if(length(output) != 10)
 			stop("Output length wrong.")
 		if(output[[1]][[2]] != "Hello World!")
-			stop("Output strong wrong."
+			stop("Output string wrong.")
 		is.good = TRUE
 	})
 	if(is.good) {

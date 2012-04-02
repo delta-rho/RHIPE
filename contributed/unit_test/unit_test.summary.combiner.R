@@ -98,11 +98,11 @@ unit_test = function(){
 
 	mins = output[[1]][[2]]$min
 	if(! all(order(mins) == 1:10))
-		stop("Order mins in [[1]] wrong."
+		stop("Order mins in [[1]] wrong.")
 	mins = output[[2]][[2]]$min
 	if(! all(order(mins) == 1:10))
 		stop("Order mins in [[2]] wrong.")
-	if(length(output) == 2)
+	if(length(output) != 2)
 		stop("Length output wrong.")
 	is.good = TRUE
 	}) #end try

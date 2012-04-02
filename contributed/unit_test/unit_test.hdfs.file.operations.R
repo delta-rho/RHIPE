@@ -61,9 +61,9 @@ unit_test = function(){
 		
 
 		#RHSAVE.IMAGE FOLLOWED BY RHLOAD
-		b=b.copy
+		b<<-b.copy
 		rhsave.image(file="tmp4/export.example.Rdata")
-		b=NULL
+		b<<-NULL
 		rhload(file="tmp4/export.example.Rdata",envir=environment())
 		if(all(b != b.copy)){
 			cat("b\n")
@@ -79,16 +79,16 @@ unit_test = function(){
 		rhwrite(value, "tmp5/write.data")
 		copy.keyvalue = rhread("tmp5/write.data")
 		test.equal = function(x,y) if(x[[2]] != y) stop("Data copy not equal (5).")
-		mapply(test.equal,copy.keyvalue, value)
+		x= mapply(test.equal,copy.keyvalue, value)
 		
 		################################################################################################
 		#clean up
 		################################################################################################
-		rhdel("tmp1")
-		rhdel("tmp2")
-		rhdel("tmp3")
-		rhdel("tmp4")
-		rhdel("tmp5")
+		#rhdel("tmp1")
+		#rhdel("tmp2")
+		#rhdel("tmp3")
+		#rhdel("tmp4")
+		#rhdel("tmp5")
 		
 		is.good = TRUE
 	}) #end try
