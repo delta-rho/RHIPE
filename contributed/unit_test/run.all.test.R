@@ -10,11 +10,12 @@ source("my.hadoop.settings.R")
 check_unit = function(filename){
 	r = NULL
 	try({
-	unit_test = NULL
-	source(filename)
-	r = unit_test()
-	r$filename = filename
-	cat("TEST ", filename, " " , r$result,"\n")
+		rm(ls())
+		unit_test = NULL
+		source(filename)
+		r = unit_test()
+		r$filename = filename
+		cat("TEST ", filename, " " , r$result,"\n")
 	})	
 	return(r)
 }

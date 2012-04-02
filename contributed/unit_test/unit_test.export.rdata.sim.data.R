@@ -63,6 +63,7 @@ unit_test = function(){
 		X = value$X
 		Y = value$Y
 		files = value$files
+		
 		is.good = TRUE
 		#does output look sane?
 		if(output[[1]][[1]] > param$N)
@@ -71,6 +72,7 @@ unit_test = function(){
 			is.good = FALSE
 		if(ncol(X) != NCOEF)
 			is.good = FALSE
+
 	}) # end try
 	
 	

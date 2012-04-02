@@ -27,13 +27,14 @@ unit_test = function(){
 		rhsave("b", file = "tmp1/export.example.Rdata",envir=environment() )
 		b = NULL
 		rhcp("tmp1/export.example.Rdata", "tmp2/export.example.Rdata")
-		if(!rhdel("tmp1/export.example.Rdata")) NULL = NULL #force error
+		if(!rhdel("tmp1/export.example.Rdata"))
+			stop("Cannot delete.")
 		x = rhls("tmp1")
 		if(nrow(x) != 0)
-			NULL = NULL #force error
+			stop("nrow not zero in empty temp folder")
 		rhload(file = "tmp2/export.example.Rdata", envir=environment())
 		if(all(b != b.copy))
-			NULL = NULL #force error
+			stop("Data copy not equal (1).")
 		b=NULL	
 			
 		#RHGET FOLLOWED BY LOAD
@@ -42,7 +43,7 @@ unit_test = function(){
 		rhget("tmp2/export.example.Rdata", getwd())
 		load(LOCAL)
 		if(all(b != b.copy))
-			NULL = NULL #force error
+			stop("Data copy not equal (2).")
 		b=NULL
 		
 		#POSSIBLE BUG
@@ -55,7 +56,7 @@ unit_test = function(){
 		rhput(LOCAL, "tmp3/export.example.Rdata")
 		rhload(file="tmp3/export.example.Rdata",envir=environment())
 		if(all(b != b.copy))
-			NULL = NULL #force error
+			stop("Data copy not equal (3).")
 		b=NULL
 		
 
@@ -64,15 +65,20 @@ unit_test = function(){
 		rhsave.image(file="tmp4/export.example.Rdata")
 		b=NULL
 		rhload(file="tmp4/export.example.Rdata",envir=environment())
-		if(all(b != b.copy))
-			NULL = NULL #force error
+		if(all(b != b.copy)){
+			cat("b\n")
+			print(b)
+			cat("b.copy\n")
+			print(b.copy)
+			stop("Data copy not equal (4).")
+		}
 		b=NULL
 	
 		#RHWRITE FOLLOWED BY RHREAD
 		value = as.list(1:100)
 		rhwrite(value, "tmp5/write.data")
 		copy.keyvalue = rhread("tmp5/write.data")
-		test.equal = function(x,y) if(x[[2]] != y) NULL = NULL #force error
+		test.equal = function(x,y) if(x[[2]] != y) stop("Data copy not equal (5).")
 		mapply(test.equal,copy.keyvalue, value)
 		
 		################################################################################################
