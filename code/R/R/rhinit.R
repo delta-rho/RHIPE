@@ -7,7 +7,7 @@
 #' @param errors If TRUE errors are printed to the display.
 #' @param info If TRUE reports command line information related to how it is starting Rhipe PersonalServer.
 #' @param path Depreciated. Still used internally.
-#' @param cleanup Depreciated.  Still used internally.
+#' @param cleanup Force the shutdown of Rhipe's Java server on garbage collection of rhoptions()$child$handle?  Not really needed can leave FALSE.
 #' @param bufsize Size of buffer from which data is sent to and from hadoop
 #'   client.
 #' @param buglevel The higher the number the more information that is outputted
@@ -87,6 +87,7 @@ rhinit <-function(errors=TRUE,buglevel=0,info=FALSE,path=NULL,cleanup=FALSE,bufs
   y$tojava <- socketConnection(f1,as.numeric(y$ports['fromR']),open='wb',blocking=TRUE)
   y$fromjava <- socketConnection(f1,as.numeric(y$ports['toR']),open='rb',blocking=TRUE)
   y$err <- socketConnection(f1,as.numeric(y$ports['err']),open='rb',blocking=TRUE)
+  y$killed = FALSE     
 
   reg.finalizer(y, function(r){
     if(cleanup) {

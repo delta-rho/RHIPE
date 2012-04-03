@@ -574,6 +574,10 @@ public class PersonalServer {
 		}
 		send_result("OK");
 	}
+	public void shutdownJavaServer() throws Exception {
+		//send_alive();  Actually, I will let R ask for send_alive().
+		System.exit(0);
+	}
 
 	public void startme() {
 		while (true) {
@@ -628,7 +632,7 @@ public class PersonalServer {
 					else if (tag.equals("rhclosesequencefile"))
 						rhclosesequencefile(r);
 					else if (tag.equals("shutdownJavaServer"))
-						System.exit(0);
+						shutDownJavaServer();
 
 					// else if(tag.equals("rhcp")) rhcp(r);
 					// else if(tag.equals("rhmv")) rhmv(r);
