@@ -27,7 +27,7 @@ send.cmd <- function(z,command, getresponse=TRUE,continuation=NULL,...){
     if(!is.null(rhoptions()$quiet) && !rhoptions()$quiet)
       warning("RHIPE: Creating a new RHIPE connection object, previous one died!")
     rhinit(errors = rhoptions()$child$errors,info=rhoptions()$child$info,first=FALSE)
-    z <- rhoptions()$child$handle
+    z <- rhoptions()$child$handle	
   }
   ## browser()
   command <- rhsz(command)
@@ -39,8 +39,8 @@ send.cmd <- function(z,command, getresponse=TRUE,continuation=NULL,...){
     if(sz<0) {
     	#abs(sz) because sendMessage in Java PersonalServer sends negative sizes on error.
       resp <- readBin(z$fromjava,raw(),n=abs(sz),endian="big")
-      resp <- rhuz(resp)
-      stop(resp)
+      #resp <- rhuz(resp)
+      stop(paste("Error in command", command))
     }
     resp <- readBin(z$fromjava,raw(),n=sz,endian="big")
     resp <- rhuz(resp)
@@ -240,10 +240,13 @@ shutdownJavaServer = function(handle){
 # NOTE: The forked process doesn't seem to shutdown just because the JVM shutdown so kill is needed.
 ################################################################################################
 killServer = function(handle){
-	shutdownJavaServer(handle)
+
 	try({
 		for(x in list(handle$tojava, handle$fromjava,handle$err)) 
 			try({close(x)},silent=TRUE)
-		system(sprintf("kill -9 %s &> /dev/null ", handle$ports['PID']),ignore.stdout=TRUE, ignore.stderr=TRUE) 
+		if(!is.null(rhoptions()$quiet) && !rhoptions()$quiet && !is.null(handle$ports))
+			cat(sprintf("Rhipe shutting down Java server.\n")) #,handle$ports['PID']));
+		shutdownJavaServer(handle)
+		#system(sprintf("kill -9 %s &> /dev/null ", handle$ports['PID']),ignore.stdout=TRUE, ignore.stderr=TRUE) 
 	},silent=TRUE)
 }

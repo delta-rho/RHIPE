@@ -664,6 +664,7 @@ public class PersonalServer {
 			try {
 				r.startme();
 			} catch (Exception e) {
+				System.err.println("In main catch:")
 				System.err.println(Thread.currentThread().getStackTrace());
 			}
 		}
