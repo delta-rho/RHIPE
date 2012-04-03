@@ -3,8 +3,8 @@ isalive <- function(z) {
   tryCatch({
     writeBin(as.integer(0),con=z$tojava,endian="big")
     o <- readBin(con=z$fromjava,what=raw(),n=1,endian="big")
-    if(length(o) == 0)
-    	warning("Zero length read in isalive")
+    #if(length(o) == 0)
+    #	warning("Zero length read in isalive")            #now understand why this happens (ctrl + C kills RunJar)
     if(length(o) > 0  && o==0x01) TRUE else FALSE
   },error=function(e){
     return(FALSE)
@@ -43,7 +43,7 @@ send.cmd <- function(z,command, getresponse=TRUE,continuation=NULL,...){
       resp <- readBin(z$fromjava,raw(),n=abs(sz),endian="big")
       #resp <- rhuz(resp)
       #Used to report resp, but it goes to stderr too.
-      stop(paste("Error response from Rhipe Java Server."))
+      stop(paste("Error response from Rhipe Java server."))
     }
     resp <- readBin(z$fromjava,raw(),n=sz,endian="big")
     resp <- rhuz(resp)
@@ -240,7 +240,11 @@ javaServerCommand = function(con,command	){
 ################################################################################################
 killServer = function(handle){	
 	if(is.null(handle))
-		return(FALSE)
+		stop("Handle is NULL")
+	if(!is.environment(handle))
+		stop("Handle must be environment.")
+		
+		
 	killed=FALSE
 	if(!is.null(handle$killed))
 		killed= handle$killed
@@ -252,9 +256,7 @@ killServer = function(handle){
 		if(isalive(handle)){
 			#assumes it will shutdown if it is responding to heartbeats.
 			javaServerCommand(handle$tojava, list("shutdownJavaServer"))
-		}else{	
-			system(sprintf("kill -9 %s &> /dev/null ", handle$ports['PID']),ignore.stdout=TRUE, ignore.stderr=TRUE) 
-		}		
+		}	
 		for(x in list(handle$tojava, handle$fromjava,handle$err)) 
 			try({close(x)},silent=TRUE)
 		handle$killed = TRUE
