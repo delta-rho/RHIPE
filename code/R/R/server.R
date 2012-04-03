@@ -23,7 +23,7 @@ restartR <- function(){
 send.cmd <- function(z,command, getresponse=TRUE,continuation=NULL,...){
 
   if(!Rhipe:::isalive(z)){
-    rm(z);gc()
+    # rm(z);gc()   #removed this line.  gc does almost nothing here because z is not being rm from other objects that point to it.
     if(!is.null(rhoptions()$quiet) && !rhoptions()$quiet)
       warning("RHIPE: Creating a new RHIPE connection object, previous one died!")
     rhinit(errors = rhoptions()$child$errors,info=rhoptions()$child$info,first=FALSE)
@@ -37,7 +37,8 @@ send.cmd <- function(z,command, getresponse=TRUE,continuation=NULL,...){
   if(getresponse){
     sz <- readBin(z$fromjava,integer(),n=1,endian="big")
     if(sz<0) {
-      resp <- readBin(z$fromjava,raw(),n=sz,endian="big")
+    	#abs(sz) because sendMessage in Java PersonalServer sends negative sizes on error.
+      resp <- readBin(z$fromjava,raw(),n=abs(sz),endian="big")
       resp <- rhuz(resp)
       stop(resp)
     }
@@ -243,6 +244,6 @@ killServer = function(handle){
 	try({
 		for(x in list(handle$tojava, handle$fromjava,handle$err)) 
 			try({close(x)},silent=TRUE)
-		system(sprintf("kill -9 %s > /dev/null", handle$ports['PID']),ignore.stdout=TRUE, ignore.stderr=TRUE) 
+		system(sprintf("kill -9 %s &> /dev/null ", handle$ports['PID']),ignore.stdout=TRUE, ignore.stderr=TRUE) 
 	},silent=TRUE)
 }
