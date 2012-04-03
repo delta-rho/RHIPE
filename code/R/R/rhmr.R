@@ -314,7 +314,7 @@ rhmr <- function(map=NULL,reduce=NULL,
 	################################################################################################
 		if(nchar(ofolder) > 0)
 			ofolder = rhabsolute.hdfs.path(ofolder)
-		if(nchar(ifolder) > 0)
+		if(all(sapply(ifolder, function(r) nchar(r)>0)))
 			ifolder = rhabsolute.hdfs.path(ifolder)
 		if(length(shared) > 0)
 			shared = rhabsolute.hdfs.path(shared)
