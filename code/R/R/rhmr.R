@@ -432,7 +432,8 @@ if(ofolder == ""){
   flagclz <- NULL
   if(length(inout)==1) inout=c(inout,"null") 
 
-  inout <- match.arg(inout,  c("sequence","text","lapply","map","null"), several.ok = TRUE)
+  inout[2] <- if(!is.na(inout[2])) match.arg(inout[2],  c("sequence","text","lapply","map","null")) else NA
+  inout[1] <- if(!is.na(inout[1])) match.arg(inout[1],  c("sequence","text","lapply","map","null")) else NA
 
   ifolder=switch(inout[1],
     "map"={

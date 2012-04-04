@@ -11,6 +11,7 @@
 #' @author Jeremiah Rounds
 #' @export
 rhabsolute.hdfs.path = function(paths){
+        if(is.na(paths)||paths=="") return(paths)
 	inpaths = as.character(paths)
 	ret = list()
 	wd = hdfs.getwd()
