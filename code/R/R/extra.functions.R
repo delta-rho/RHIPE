@@ -6,7 +6,7 @@ rhextract <-  function(alist, what="keys",unlist=FALSE,lapply=lapply,...){
 
 
 mkdtemp <- function(indir){
-  .Call("createTempDir",sprintf("%s/rhipedir-XXXXXX",indir))
+  .Call("createTempDir",sprintf("%s/rhipedir-XXXXXX",indir),PACKAGE="Rhipe")
 }
   
 

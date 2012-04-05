@@ -412,7 +412,7 @@ if(ofolder == ""){
 		w. <- if(grepl("/$",htf)) "" else "/"
 		## ofolder <- sprintf("%s%srhipe-temp-%s",htf, w., digest(fnames, "md5"))
                 .t <- serialize(fnames,NULL)
-                ofolder <- sprintf("%s%srhipe-temp-%s",htf, w., .Call("md5", .t,length(.t)))
+                ofolder <- sprintf("%s%srhipe-temp-%s",htf, w., .Call("md5", .t,length(.t),PACKAGE="Rhipe"))
 
 		read.and.delete.ofolder <- TRUE
 	}else{
