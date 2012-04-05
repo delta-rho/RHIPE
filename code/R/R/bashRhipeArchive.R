@@ -132,10 +132,11 @@ bashRhipeArchive = function(archive.base.name="RhipeLib", delete.local.tmp.dir=T
     # TASK 5: DETECT RUNNER SCRIPT
     base.runner =paste("library","Rhipe","bin","RhipeMapReduce.sh",sep=.Platform$file.sep)
     runner = normalizePath(base.runner)
-    if(file.exists(runner))
+    if(file.exists(runner)){
     	cat("Runner script found at", runner, "\n")
-    else
+    } else {
     	stop("Runner script not detected at", runner,"\n")
+    }
     
 	# TASK 6: CREATE ARCHIVE FROM TMP FOLDER
 	tar.file.name = paste(archive.base.name, ".tar.gz", sep="")
