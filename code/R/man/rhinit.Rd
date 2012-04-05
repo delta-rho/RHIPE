@@ -9,11 +9,14 @@
 \arguments{
   \item{errors}{If TRUE errors are printed to the display.}
 
-  \item{info}{Depreciated. Still used internally.}
+  \item{info}{If TRUE reports command line information
+  related to how it is starting Rhipe PersonalServer.}
 
   \item{path}{Depreciated. Still used internally.}
 
-  \item{cleanup}{Depreciated.  Still used internally.}
+  \item{cleanup}{Force the shutdown of Rhipe's Java server
+  on garbage collection of rhoptions()$child$handle?  Not
+  really needed can leave FALSE.}
 
   \item{bufsize}{Size of buffer from which data is sent to
   and from hadoop client.}

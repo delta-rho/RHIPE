@@ -5,7 +5,7 @@
   rhls(folder, recurse = FALSE)
 }
 \arguments{
-  \item{folder}{Absolute path of directory on HDFS}
+  \item{folder}{Path of directory on HDFS}
 
   \item{recurse}{If TRUE list all files and directories in
   sub-directories.}

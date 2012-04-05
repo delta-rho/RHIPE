@@ -9,7 +9,7 @@
   relative the current HDFS working directory or absolute.}
 
   \item{check.valid.hdfs}{Optional.  By default hdfs.setwd
-  checks to see if if the HDFS directory exist by trying to
+  checks to see if the HDFS directory exist by trying to
   list files in it.  If it doesn't appear to exist it
   doesn't set the working directory.  If this check seems
   cumbersome to you, you may disable it by setting this to

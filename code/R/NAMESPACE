@@ -1,7 +1,7 @@
+export(bashRhipeArchive)
 export(hdfs.getwd)
 export(hdfs.setwd)
 export(rhabsolute.hdfs.path)
-export(bashRhipeArchive)
 export(rhcp)
 export(rhdel)
 export(rhex)
@@ -24,4 +24,3 @@ export(rhuz)
 export(rhwatch)
 export(rhwrap)
 export(rhwrite)
-

@@ -23,7 +23,8 @@
 #' system("rm -Rf RhipeLib_0.67")
 #' createBashRhipeLibArchive("RhipeLib_0.67")
 #'}
-#' @author Jeremiah Rounds \email{roundsjeremiah@gmail.com}
+#' @author Jeremiah Rounds 
+#' @export
 
 bashRhipeArchive = function(archive.base.name="RhipeLib", delete.local.tmp.dir=TRUE){
 	################################################################################################
