@@ -257,7 +257,7 @@ void spill_to_reducer(void){
 		fflush(NULL);
 	}
 	UNPROTECT(6);
-	rexpress("rhcollect<-function(key,value) .Call('rh_collect_buffer',key,value,PACKAGE='Rhipe')");
+	rexpress("rhcollect<-function(key,value) .Call('rh_collect_buffer',key,value)");
 #ifdef USETIMER
   gettimeofday(&tms,NULL);
   bend = tms.tv_sec*1000000 + tms.tv_usec;
