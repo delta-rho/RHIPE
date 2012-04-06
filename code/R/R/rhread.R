@@ -8,10 +8,7 @@
 #' @param max Maximum number of key/value pairs to read for map and sequence
 #'   files.  Maximum number of bytes to read for text files.
 #' @param asraw Return key/value pairs as Raw data type (ie not deserialized).
-#' @param mc Setting \code{mc} to TRUE will use the the \code{multicore}
-#'   package to convert the data to R objects in parallel. The user must have
-#'   first loaded \code{multicore} via call to library. This often does
-#'   accelerate the process of reading data into R.
+#' @param mc Set to lapply by default. User can change this to \code{mclapply} for parallel lapply.
 #' @param skip Files to skip while reading the hdfs.  Various installs of Hadoop add additional log
 #'			info to HDFS output from MapReduce.  Attempting to read these files is not what we want to do 
 #'	        in rhread.  To get around this we specify pieces of filenames to grep and remove from the read.
@@ -37,10 +34,7 @@
 #' default all the key,value pairs will be read.  Specifying \code{max} for
 #' text files, limits the number of bytes read and is currently alpha quality.
 #' 
-#' Setting \code{mc} to TRUE will use the the \code{multicore} package to
-#' convert the data to R objects in parallel. The user must have first loaded
-#' \code{multicore} via call to library. This often does accelerate the process
-#' of reading data into R.
+#' \code{mc} is by default \code{lapply}. The user can change this to mclapply for faster throughput.
 #' 
 #' Data written by \code{\link{rhwrite}} can be read using \code{rhread}.
 #' @author Saptarshi Guha
@@ -48,7 +42,7 @@
 #'   \code{\link{rhdel}}, \code{\link{rhwrite}}, \code{\link{rhsave}}
 #' @keywords read HDFS file
 #' @export
-rhread <- function(files,type=c("sequence"),max=-1L,skip=rhoptions()$file.types.remove.regex,mc=FALSE,asraw=FALSE,size=3000,buffsize=1024*1024,quiet=FALSE,...){
+rhread <- function(files,type=c("sequence"),max=-1L,skip=rhoptions()$file.types.remove.regex,mc=lapply,asraw=FALSE,size=3000,buffsize=1024*1024,quiet=FALSE,...){
 	files = rhabsolute.hdfs.path(files)
 	files <- getypes(files,type,skip)
 	max <- as.integer(max)

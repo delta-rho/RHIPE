@@ -4,10 +4,7 @@
 #' 
 #' @param keys Keys to return values for.
 #' @param paths Absolute path to map file on HDFS.
-#' @param mc Setting \code{mc} to TRUE will use the the \code{multicore}
-#'   package to convert the data to R objects in parallel. The user must have
-#'   first loaded \code{multicore} via call to library. This often does
-#'   accelerate the process of reading data into R.
+#' @param mc This is set to \code{lapply}, the user can set this to \code{mclapply} for parallel \code{lapply}
 #' @param skip Corresponds to io.map.index.skip
 #' @param size Number of Key,Value pairs to increase the buffer size by at a time.
 #' @author Saptarshi Guha
@@ -24,7 +21,7 @@
 #'   \code{\link{rhdel}}, \code{\link{rhwrite}}, \code{\link{rhsave}}
 #' @keywords keys HDFS file
 #' @export
-rhgetkey <- function(keys,paths,mc=FALSE,size=3000,skip=0L){
+rhgetkey <- function(keys,paths,mc=lapply,size=3000,skip=0L){
 	#TODO: Add these back to the functional arguments when someone is ready to comment on what they do.
 	sequence=""
 	paths = rhabsolute.hdfs.path(paths)

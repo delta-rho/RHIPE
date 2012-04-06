@@ -8,9 +8,9 @@ Maintainer: Jeremiah Rounds  <roundsjeremiah@gmail.com>
 Description: Run MapReduce scripts using R code.
 URL: http://www.rhipe.org
 License: Apache License (== 2.0)
+OS_type: unix
 Depends:
-    methods,
-    multicore,
+    methods
 Packaged: Fri Mar  6 17:02:01 2012; jrounds
 Collate:
     'dohelp.R'

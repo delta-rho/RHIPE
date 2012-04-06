@@ -136,11 +136,7 @@ rbstream <- function(z,size=3000,mc,asraw=FALSE,quiet=FALSE){
 		else
 		  message(sprintf("RHIPE: Read %s %s occupying %s MB, deserializing", i,prs, round(by/1024^2,3)))
 	}
-	MCL <- if(mc) {
-		require(multicore)
-		mclapply
-	}else 
-		lapply
+	MCL <- mc
 	p <- v[unlist(MCL(v,function(r) !is.null(r)))]
 	if (!asraw) 
 		MCL(p,function(r) list(rhuz(r[[1]]),rhuz(r[[2]]))) 
