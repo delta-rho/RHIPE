@@ -159,7 +159,7 @@ int32_t readJavaInt(FILE* );
  * Signal Handler Related
  ************************/
 typedef void Sigfunc(int);
-Sigfunc *signal(int , Sigfunc *);
+Sigfunc *signal_ours(int , Sigfunc *);
 Sigfunc *Signal(int , Sigfunc *);
 void sigHandler(int );
 

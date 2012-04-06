@@ -56,7 +56,7 @@ void sig_chld(int signo)
         return;
 }
 
-Sigfunc *signal(int signo, Sigfunc *func)
+Sigfunc *signal_ours(int signo, Sigfunc *func)
 {
   struct sigaction      act, oact;
   act.sa_handler = func;
@@ -78,7 +78,7 @@ Sigfunc *signal(int signo, Sigfunc *func)
 Sigfunc * Signal(int signo, Sigfunc *func)      /* for our signal() function */
 {
   Sigfunc *sigfunc;
-  if ( (sigfunc = signal(signo, func)) == SIG_ERR)
+  if ( (sigfunc = signal_ours(signo, func)) == SIG_ERR)
     fprintf(stderr,"signal error");
   return(sigfunc);
 }
