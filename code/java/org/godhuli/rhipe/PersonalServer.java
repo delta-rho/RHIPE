@@ -632,7 +632,7 @@ public class PersonalServer {
 					else if (tag.equals("rhclosesequencefile"))
 						rhclosesequencefile(r);
 					else if (tag.equals("shutdownJavaServer"))
-						shutDownJavaServer();
+						shutdownJavaServer();
 
 					// else if(tag.equals("rhcp")) rhcp(r);
 					// else if(tag.equals("rhmv")) rhmv(r);
@@ -668,7 +668,6 @@ public class PersonalServer {
 			try {
 				r.startme();
 			} catch (Exception e) {
-				System.err.println("In main catch:")
 				System.err.println(Thread.currentThread().getStackTrace());
 			}
 		}
