@@ -66,11 +66,10 @@
 #'   \code{type}.  See details.
 #' @param copyFiles Will the files created in the R code e.g. PDF output, be
 #'   copied to the destination folder, \code{ofolder}?
-#' @param N To apply a computation to the numbers 1, 2, \ldots{}, \emph{N}, set
-#'   argument \code{inout[[1]]} to \code{"lapply"} and specify the value of
+#' @param N To apply a computation to the numbers 1, 2, \ldots{}, \emph{N},specify the value of
 #'   \emph{N} in this parameter. Set the number of map tasks in
 #'   \code{mapred.map.tasks} (hence each task will run approximately
-#'   floor(\emph{N}/\code{mapred.map.tasks}) computations sequentially).
+#'   floor(\emph{N}/\code{mapred.map.tasks}) computations sequentially). Note that \code{rhmr} automatically sets \code{inout[1]} to 'lapply' is \emph{N} is not \emph{NA}
 #' @param opts RHIPE launches the C engine on the remote computers using the
 #'   value found in \code{rhoptions()$opts$runner}. This is created from the
 #'   local R installation which is possibly different from the Tasktrackers. If
@@ -431,6 +430,7 @@ if(ofolder == ""){
   
   flagclz <- NULL
   if(length(inout)==1) inout=c(inout,"null") 
+  if(!is.na(N)) inout[1] <- 'lapply'
 
   inout[2] <- if(!is.na(inout[2])) match.arg(inout[2],  c("sequence","text","lapply","map","null")) else NA
   inout[1] <- if(!is.na(inout[1])) match.arg(inout[1],  c("sequence","text","lapply","map","null")) else NA
