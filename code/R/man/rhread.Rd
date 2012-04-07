@@ -3,9 +3,9 @@
 \title{Read Key/Value Pairs From The HDFS}
 \usage{
   rhread(files, type = c("sequence"), max = -1L,
-    skip = rhoptions()$file.types.remove.regex, mc = FALSE,
-    asraw = FALSE, size = 3000, buffsize = 1024 * 1024,
-    quiet = FALSE, ...)
+    skip = rhoptions()$file.types.remove.regex,
+    mc = lapply, asraw = FALSE, size = 3000,
+    buffsize = 1024 * 1024, quiet = FALSE, ...)
 }
 \arguments{
   \item{files}{Path to file or directory containing map,
@@ -21,11 +21,8 @@
   \item{asraw}{Return key/value pairs as Raw data type (ie
   not deserialized).}
 
-  \item{mc}{Setting \code{mc} to TRUE will use the the
-  \code{multicore} package to convert the data to R objects
-  in parallel. The user must have first loaded
-  \code{multicore} via call to library. This often does
-  accelerate the process of reading data into R.}
+  \item{mc}{Set to lapply by default. User can change this
+  to \code{mclapply} for parallel lapply.}
 
   \item{skip}{Files to skip while reading the hdfs.
   Various installs of Hadoop add additional log info to
@@ -75,11 +72,8 @@
   be read.  Specifying \code{max} for text files, limits
   the number of bytes read and is currently alpha quality.
 
-  Setting \code{mc} to TRUE will use the the
-  \code{multicore} package to convert the data to R objects
-  in parallel. The user must have first loaded
-  \code{multicore} via call to library. This often does
-  accelerate the process of reading data into R.
+  \code{mc} is by default \code{lapply}. The user can
+  change this to mclapply for faster throughput.
 
   Data written by \code{\link{rhwrite}} can be read using
   \code{rhread}.
