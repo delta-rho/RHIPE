@@ -2,14 +2,14 @@
 ## Other functions
 ###############################
 
-rhreadBin <- function(file,maxnum=-1, readbuf=0,mc=FALSE,verb=FALSE){
+rhreadBin <- function(file,maxnum=-1, readbuf=0,mc=lapply,verb=FALSE){
   sz=file.info(file[1])['size']
   x= .Call("readBinaryFile",file[1],as.integer(maxnum),as.integer(readbuf),as.logical(verb),PACKAGE="Rhipe")
   if(sz < 0.9*(1024^2)) { U="kb"; pw=1}
   else if(sz < 0.9*(1024^3)) {U="mb";pw=2} else {U="gb";pw=3}
   cat(sprintf("%s %s read,unserializing, please wait\n",round(sz/(1024^pw),2),U))
-  if(mc) LL=mclapply else LL=lapply
-  LL(x,function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
+  
+  mc(x,function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
 }
 
 #test!
