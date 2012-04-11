@@ -251,13 +251,11 @@ killServer = function(handle){
 
 		if(!is.null(rhoptions()$quiet) && !rhoptions()$quiet)
 			cat(sprintf("Rhipe shutting down old Java server.\n")) #,handle$ports['PID']));
-		#Some use cases can have a java server that do not respond to isalive right away
-		#but down the line would respond to a request to shutdown
-		#So commented out isalive and just trying to shut down.
-		#if(isalive(handle)){
+		#necessary to wait for a response before trying to shutdown
+		if(isalive(handle)){
 			#assumes it will shutdown if it is responding to heartbeats.
-		try({javaServerCommand(handle$tojava, list("shutdownJavaServer"))}, silent=TRUE)
-		#}	
+			try({javaServerCommand(handle$tojava, list("shutdownJavaServer"))}, silent=TRUE)
+		}	
 		for(x in list(handle$tojava, handle$fromjava,handle$err)) 
 			try({close(x)},silent=TRUE)
 
