@@ -247,19 +247,23 @@ killServer = function(handle){
 	if(killed)
 		return(TRUE)
 	handle$killed = TRUE
-	try({				
+		
 
+	#Decided best practice at the moment is to do nothing if the handle won't respond to heart beats.
+	#We did nothing for a year in all cases.  Reverting to that in the case where the server is 
+	#unresponsive cannot hurt compared to older versions of Rhipe.
+	#necessary to wait for a response before trying to shutdown
+	if(isalive(handle)){
 		if(!is.null(rhoptions()$quiet) && !rhoptions()$quiet)
 			cat(sprintf("Rhipe shutting down old Java server.\n")) #,handle$ports['PID']));
-		#necessary to wait for a response before trying to shutdown
-		if(isalive(handle)){
-			#assumes it will shutdown if it is responding to heartbeats.
-			try({javaServerCommand(handle$tojava, list("shutdownJavaServer"))}, silent=TRUE)
-		}	
+		#assumes it will shutdown if it is responding to heartbeats.
+		try({javaServerCommand(handle$tojava, list("shutdownJavaServer"))}, silent=TRUE)
 		for(x in list(handle$tojava, handle$fromjava,handle$err)) 
 			try({close(x)},silent=TRUE)
+	}	
 
-	})
+
+
 	return(TRUE)
 
 }
