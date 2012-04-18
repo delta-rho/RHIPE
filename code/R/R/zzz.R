@@ -8,6 +8,14 @@ class(vvvv) <- "rhversion"
 assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )
 Mode <-  "experimental"
 
+.G <- function(e,k,r){
+            if(length(.errors$h)<.errors$maxcount) {
+              .errors$h <- append(.errors$h, list(list(error=e,map.value=r)))
+              rhcounter("@R_DebugMessage",as.character(e),1)
+            }
+          }
+
+
 .onLoad <- function(libname,pkgname){
   library.dynam("Rhipe", pkgname, libname)
   #require(methods)
@@ -68,6 +76,13 @@ onload.2 <- function(libname, pkgname){
 	  reduce = { data[[length(data) + 1 ]] <- reduce.values },
 	  post   = { {data <- do.call("rbind", unlist(data,recursive=FALSE));}; {rhcollect(reduce.key, data)}}
 	  )
+        opts$debug <- list( map=list(setup=expression({
+          .errors <- as.environment(list(h=list(),maxcount=100))
+        }), cleanup=expression({
+          if(length(.errors$h)>0){
+            save(.errors,file=sprintf("./tmp/rhipe_debug_%s",Sys.getenv("mapred.task.id")))
+            rhcounter("@R_DebugFile","saved.files",1)
+          }}),handler = .G))
   
   ################################################################################################
   # FINSHING
