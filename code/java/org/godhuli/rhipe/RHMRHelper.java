@@ -394,7 +394,7 @@ public class RHMRHelper {
 			    k = new byte[ln]; 
 			    clientErr_.readFully(k,0,ln);
 			    String pmsg = new String(k);
-			    System.out.print(pmsg);
+			    LOG.info(pmsg);
 			    break;
 			case RHTypes.SET_STATUS:
 			    ln = clientErr_.readInt();

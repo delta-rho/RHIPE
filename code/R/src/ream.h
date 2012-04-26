@@ -6,6 +6,7 @@
 #include <map>
 
 #include <google/protobuf/stubs/common.h>
+#include <google/protobuf/io/coded_stream.h>
 #include <rexp.pb.h>
 
 #include <stdint.h>
@@ -22,6 +23,7 @@
 #include <sys/wait.h>
 #include <stdarg.h>
 using namespace std;
+using namespace google::protobuf::io;
 
 #define R_NO_REMAP
 #define R_INTERFACE_PTRS 1
@@ -179,6 +181,9 @@ void doTest_Serialize2FD(char *,const int );
 struct Streams {
   FILE* BSTDERR,*BSTDIN,*BSTDOUT;
   int NBSTDERR,NBSTDIN,NBSTDOUT;
+  /* CodedOutputStream *stream_cdo; */
+  /* ZeroCopyOutputStream *zco; */
+  /* CodedOutputStream *cdo; */
 };
 extern Streams *CMMNC;
 int setup_stream(Streams *);
@@ -214,7 +219,7 @@ const int reducer_setup(void);
 void Re_ShowMessage(const char*);
 void Re_WriteConsoleEx(const char *, int , int );
 void merror(const char *, ...);
-void mmessage(char *fmt, ...);
+void mmessage(const char *fmt, ...);
 void logg(int , const char *, ...);
 
 /******************

@@ -124,7 +124,7 @@ void merror(const char *fmt, ...)
 	Re_WriteConsoleEx(errmsg,strlen(errmsg),1);
 }
 
-void mmessage(char *fmt, ...)
+void mmessage(const char *fmt, ...)
 {
 	va_list args;
 	char errmsg[512];
@@ -309,45 +309,20 @@ SEXP collect_buffer(SEXP k,SEXP v){
   return(R_NilValue);
 }
 
-
 void sendToHadoop(SEXP k){
 
-	int size;
+  int32_t size,rsize;
 	oiinfo.rxp->Clear();
 	sexpToRexp(oiinfo.rxp,k);
-	size = oiinfo.rxp->ByteSize();
+	size = (int32_t)oiinfo.rxp->ByteSize();
 	writeVInt64ToFileDescriptor( size , CMMNC->BSTDOUT);
-	// if (size < PSIZE){
+	// rsize = reverseUInt(size);
+	// fwrite( &rsize, sizeof(int32_t),1,CMMNC->BSTDOUT);
 	oiinfo.rxp_s->clear();
 	oiinfo.rxp->SerializeToString(oiinfo.rxp_s);
 	fwrite( oiinfo.rxp_s->data(), size,1,CMMNC->BSTDOUT);
-	// }else{
-	//   oiinfo.rxp->SerializeToFileDescriptor(fileno(CMMNC->BSTDOUT));
-	// }
-	// fflush(CMMNC->BSTDOUT);
+	fflush(NULL);
 }
-
-// SEXP readFromHadoop(const uint32_t nbytes,int *err){
-//   SEXP r = R_NilValue;
-//   SEXP rv ;
-//   PROTECT(rv = Rf_allocVector(RAWSXP, nbytes));
-//   if(fread(RAW(rv),nbytes,1,CMMNC->BSTDIN)<=0){
-//     *err=1;
-//     UNPROTECT(1);
-//     return(R_NilValue);
-//   }
-//   REXP *rxp = new REXP();
-//   if (rxp->ParseFromArray(RAW(rv),LENGTH(rv))){
-//     LOGG(1,"%s\n", rxp->DebugString().c_str());
-
-//     PROTECT(r = message2rexp(*rxp));
-//     UNPROTECT(1);
-//   }
-//   UNPROTECT(1);
-//   delete rxp;
-//   return(r);
-// }
-
 
 SEXP readFromHadoop(const uint32_t nbytes,int *err){
 	SEXP r = R_NilValue;
