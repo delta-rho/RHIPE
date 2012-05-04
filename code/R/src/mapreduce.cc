@@ -7,7 +7,7 @@ R_CallMethodDef callMethods [] = {
   {"rh_counter",(DL_FUNC) counter,1},
   {"rh_status",(DL_FUNC) status,1},
   {"rh_collect",(DL_FUNC) collect,2},
-  {"rh_collect_buffer",(DL_FUNC) collect_buffer,2},
+  {"rh_collect_buffer",(DL_FUNC) rh_collect_buffer,2},
   {"rh_uz",(DL_FUNC) persUnser,1},
   {"rh_dbgstr",(DL_FUNC) dbgstr,1},
   {NULL, NULL, 0}

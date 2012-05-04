@@ -354,24 +354,15 @@ rhmr <- function(map=NULL,reduce=NULL,
   lines$rhipe_jobname=jobname
   if(combiner & is.null(reduce))
     combiner <- FALSE
+
+  ## setup can either be an expression or NULL
+  ## also, if an expression it can either have no components or two (map/reduce)              
   if(is.null(setup)){
+    setup <- expression()
     setup$map <- expression()
     setup$reduce <- expression()
-  }
-
-  if(!is.Expression(setup) && !is.list(setup))
-    stop("'setup' is either a list of expressions (map=,reduce=) or expression")
-
-  if(is.list(setup)){
-    if(! all(unlist(lapply(setup,is.Expression))))
-      stop("elements of 'setup' must be expressions")
-    if(is.null(setup$reduce)) setup$reduce <- expression()
-    if(is.null(setup$map)) setup$map <- expression()
-  }
-  if(is.null(setup))
-    setup <- expression()
-  if(is.Expression(setup)){
-    setup <- list(map=setup,reduce=setup)
+  }else if(!is.Expression(setup)){
+    stop("'setup' is an expression with or without components (map=,reduce=)")
   }
   setup$map <- c(parent.deserial.code,setup$map)
   setup$reduce <- c(parent.deserial.code,setup$reduce)

@@ -90,8 +90,12 @@ public class RHMRHelper {
 	    if(name.equals("mapred.input.dir") 
 	       || name.equals("rhipe_input_folder")) 
 		continue;
-
-	    String value = conf.get(name); // does variable expansion 
+	    String value = null;
+	    if(!(name.equals("LD_LIBRARY_PATH") || name.equals("PATH"))){
+		value = conf.get(name); // does variable expansion
+	    } else {
+		value = conf.getRaw(name);
+	    }
 	    env.put(name, value);
 	}
     }

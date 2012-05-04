@@ -228,7 +228,7 @@ void logg(int , const char *, ...);
 SEXP counter(SEXP );
 SEXP status(SEXP );
 SEXP collect(SEXP ,SEXP );
-SEXP collect_buffer(SEXP ,SEXP );
+SEXP rh_collect_buffer(SEXP ,SEXP );
 SEXP readFromHadoop(const uint32_t,int* );
 SEXP readFromMem(void * ,uint32_t );
 SEXP persUnser(SEXP);

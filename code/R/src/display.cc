@@ -266,14 +266,7 @@ void spill_to_reducer(void){
 
 }
 
-SEXP collect_buffer(SEXP k,SEXP v){
-
-#ifdef USETIMER
-  struct timeval tms;
-  long int bstart, bend;
-  gettimeofday(&tms,NULL);
-  bstart = tms.tv_sec*1000000 + tms.tv_usec;
-#endif
+SEXP rh_collect_buffer(SEXP k,SEXP v){
 
   static bool once = false;
   static std::string *ks;
@@ -296,16 +289,7 @@ SEXP collect_buffer(SEXP k,SEXP v){
     spill_to_reducer();
     total_count = 0;
     map_output_buffer.clear();
-  }// else{
-  //   map_output_buffer[*ks].push_back(*vs);
-  // }
-  // delete(ks);delete(vs);
-#ifdef USETIMER
-  gettimeofday(&tms,NULL);
-  bend = tms.tv_sec*1000000 + tms.tv_usec;
-  collect_buffer_total += (bend - bstart);
-#endif
-
+  }
   return(R_NilValue);
 }
 
