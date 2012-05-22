@@ -65,6 +65,9 @@ import org.apache.hadoop.io.SequenceFile;
 import com.google.protobuf.CodedOutputStream;
 import org.apache.hadoop.mapred.TIPStatus;
 import org.apache.hadoop.mapred.JobStatus;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class FileUtils {
     private FsShell fsshell;
     private Configuration cfg;
@@ -73,6 +76,9 @@ public class FileUtils {
 	new SimpleDateFormat("yyyy-MM-dd HH:mm");
     private static final String fsep="\t";
     private org.apache.hadoop.mapred.JobClient jclient;
+    protected static final Log LOG = LogFactory.getLog(FileUtils.class
+			.getName());
+
     public FileUtils(Configuration cfg) throws IOException{
 	this.cfg = cfg;
 	fsshell = new FsShell(cfg);
@@ -146,7 +152,8 @@ public class FileUtils {
 	}
     }
 
-    public String[] ls(REXP r,int f) throws IOException,FileNotFoundException{
+    public String[] ls(REXP r,int f) throws IOException,FileNotFoundException,
+    URISyntaxException{
 	ArrayList<String> lsco = new ArrayList<String>();
 	for(int i=0;i<r.getStringValueCount();i++){
 	    String path = r.getStringValue(i).getStrval();
@@ -155,9 +162,11 @@ public class FileUtils {
 	return(lsco.toArray(new String[]{}));
     }
 
-    private void ls__(String path, ArrayList<String> lsco,boolean dorecurse)  throws IOException,FileNotFoundException{
-	FileSystem srcFS = FileSystem.get(cfg);
-	Path spath = new Path(path);
+    private void ls__(String path, ArrayList<String> lsco,boolean dorecurse)  throws IOException,FileNotFoundException,URISyntaxException{
+	
+	Path spath = null;
+	spath = new Path(path);
+	FileSystem srcFS = spath.getFileSystem(getConf());
 	FileStatus[] srcs;
 	srcs = srcFS.globStatus(spath);
 	if (srcs==null || srcs.length==0) {

@@ -363,7 +363,13 @@ rhmr <- function(map=NULL,reduce=NULL,
     setup$reduce <- expression()
   }else if(!is.Expression(setup)){
     stop("'setup' is an expression with or without components (map=,reduce=)")
+  }else if(is.Expression(setup)){
+    ## is it without  names?
+    if(is.null(names(setup))){
+      setup <- expression(map=setup,reduce=setup)
+    }
   }
+                
   setup$map <- c(parent.deserial.code,setup$map)
   setup$reduce <- c(parent.deserial.code,setup$reduce)
   

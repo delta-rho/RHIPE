@@ -7,7 +7,9 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 import org.apache.hadoop.fs.FileUtil;
-
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.fs.Path;
@@ -18,7 +20,7 @@ import org.apache.hadoop.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class PersonalServer {
+public class PersonalServer extends Configured implements Tool {
 	protected static final Log LOG = LogFactory.getLog(PersonalServer.class
 			.getName());
 	byte[] bbuf;
@@ -28,53 +30,53 @@ public class PersonalServer {
 	FileUtils fu;
 	int buglevel;
 	Hashtable<String, SequenceFile.Reader> seqhash;
+    public PersonalServer(){}
 
-	public static String getPID() throws IOException, InterruptedException {
-		// Taken from
-		// http://www.coderanch.com/t/109334/Linux-UNIX/UNIX-process-ID-java-program
-		Vector<String> commands = new Vector<String>();
-		commands.add("/bin/bash");
-		commands.add("-c");
+    public static String getPID() throws IOException, InterruptedException {
+	// Taken from
+	// http://www.coderanch.com/t/109334/Linux-UNIX/UNIX-process-ID-java-program
+	Vector<String> commands = new Vector<String>();
+	commands.add("/bin/bash");
+	commands.add("-c");
 		commands.add("echo $PPID");
 		ProcessBuilder pb = new ProcessBuilder(commands);
 		Process pr = pb.start();
 		pr.waitFor();
 		if (pr.exitValue() == 0) {
-			BufferedReader outReader = new BufferedReader(
-					new InputStreamReader(pr.getInputStream()));
-			return outReader.readLine().trim();
+		    BufferedReader outReader = new BufferedReader(
+								  new InputStreamReader(pr.getInputStream()));
+		    return outReader.readLine().trim();
 		} else {
-			throw new IOException("Problem getting PPID");
+		    throw new IOException("Problem getting PPID");
 		}
-	}
-
-	public void docrudehack(String temp) throws IOException {
-		FileWriter outFile = new FileWriter(temp);
-		String x = "DONE";
-		outFile.write(x, 0, x.length());
-		outFile.flush();
-		outFile.close();
-	}
-
-	public PersonalServer(String ipaddress, String tempfile, String tempfile2,
-			int bugl) throws InterruptedException, FileNotFoundException,
-			UnknownHostException, SecurityException, IOException {
-		bbuf = new byte[100];
-		this.buglevel = bugl;
-		seqhash = new Hashtable<String, SequenceFile.Reader>();
-		REXP.Builder thevals = REXP.newBuilder();
+    }
+    
+    public void docrudehack(String temp) throws IOException {
+	FileWriter outFile = new FileWriter(temp);
+	String x = "DONE";
+	outFile.write(x, 0, x.length());
+	outFile.flush();
+	outFile.close();
+    }
+    public void setUserInfo(String ipaddress, String tempfile, String tempfile2,
+			    int bugl) throws InterruptedException, FileNotFoundException,
+					     UnknownHostException, SecurityException, IOException {
+	bbuf = new byte[100];
+	this.buglevel = bugl;
+	seqhash = new Hashtable<String, SequenceFile.Reader>();
+	REXP.Builder thevals = REXP.newBuilder();
 		thevals.setRclass(REXP.RClass.LOGICAL);
 		thevals.addBooleanValue(REXP.RBOOLEAN.T);
 		yesalive = thevals.build();
 		if (buglevel > 10)
-			LOG.info("Calling FileUtils");
-		fu = new FileUtils(new Configuration());
+		    LOG.info("Calling FileUtils");
+		fu = new FileUtils(getConf());
 		if (buglevel > 10)
-			LOG.info("Got FileUtils object:" + fu);
-
+		    LOG.info("Got FileUtils object:" + fu);
+		
 		ServerSocket fromRsock, errsock, toRsock;
 		if (buglevel > 10)
-			LOG.info("Creating listening and writing sockets");
+		    LOG.info("Creating listening and writing sockets");
 		fromRsock = new ServerSocket(0, 0, InetAddress.getByName(ipaddress));
 		toRsock = new ServerSocket(0);
 		errsock = new ServerSocket(0);
@@ -161,119 +163,7 @@ public class PersonalServer {
 		}
 	}
 
-	// private void printToStdout(InputStream in) throws IOException {
-	// BufferedReader br;
-	// PrintStream ps=null;
-	// try {
-	// br = new BufferedReader(new InputStreamReader(in),1024*1024);
-	// ps = new PrintStream(_toR,true);
-	// // byte buf[] = new byte[1024*1024];
-	// while(true){
-	// String line = br.readLine();
-	// if(line == null) break;
-	// ps.print(line);
-	// System.out.println(line);
-	// // int bytesRead = in.read(buf);
-	// // System.err.println("Read "+bytesRead);
-	// // while (bytesRead >= 0) {
-	// // ps.write(buf, 0, bytesRead);
-	// // for(int i=0;i < bytesRead;i++) System.err.print((char)buf[i]);
-	// // if (ps.checkError()) {
-	// // throw new IOException("Unable to write to output stream.");
-	// // }
-	// // bytesRead = in.read(buf);
-	// }
-	// } finally {
-	// if(ps !=null) ps.flush();
-	// in.close();
-	// }
-	// }
 
-	// void copy(String srcf, String dstf, Configuration conf) throws
-	// IOException {
-	// Path srcPath = new Path(srcf);
-	// FileSystem srcFs = srcPath.getFileSystem(getConf());
-	// Path dstPath = new Path(dstf);
-	// FileSystem dstFs = dstPath.getFileSystem(getConf());
-	// Path [] srcs = FileUtil.stat2Paths(srcFs.globStatus(srcPath), srcPath);
-	// if (srcs.length > 1 && !dstFs.isDirectory(dstPath)) {
-	// throw new IOException("When copying multiple files, "
-	// + "destination should be a directory.");
-	// }
-	// for(int i=0; i<srcs.length; i++) {
-	// FileUtil.copy(srcFs, srcs[i], dstFs, dstPath, false, conf);
-	// }
-	// }
-	// public void rhcp(REXP r) throws Exception{
-	// String[] argv = new String[r.getRexpValue(1).getStringValueCount()+1];
-	// for(int i=0;i<argv.length;i++)
-	// argv[i] = r.getRexpValue(1).getStringValue(i).getStrval();
-	// argv[argv.length] = r.getRexpValue(2).getStringValue(0).getStrval();
-	// int i = 0;
-	// String dest = argv[argv.length-1];
-	// if (argv.length > 3) {
-	// Path dst = new Path(dest);
-	// if (!fu.getConf().isDirectory(dst)) {
-	// throw new IOException("When copying multiple files, "
-	// + "destination " + dest + " should be a directory.");
-	// }
-	// }
-	// for (; i < argv.length - 1; i++) {
-	// try {
-	// copy(argv[i], dest, conf);
-	// } catch (RemoteException e) {
-	// exitCode = -1;
-	// try {
-	// String[] content;
-	// content = e.getLocalizedMessage().split("\n");
-	// System.err.println(cmd.substring(1) + ": " +
-	// content[0]);
-	// } catch (Exception ex) {
-	// System.err.println(cmd.substring(1) + ": " +
-	// ex.getLocalizedMessage());
-	// }
-	// } catch (IOException e) {
-	// //
-	// // IO exception encountered locally.
-	// //
-	// exitCode = -1;
-	// System.err.println(cmd.substring(1) + ": " +
-	// e.getLocalizedMessage());
-	// }
-	// }
-	// return exitCode;
-	// }
-
-	// private void printToStdout(InputStream in) throws IOException {
-	// try {
-	// IOUtils.copyBytes(in, System.out, fu.getConf(), false);
-	// } finally {
-	// in.close();
-	// }
-	// }
-
-	// public void rhmerge(REXP r) throws Exception{
-	// Path srcPattern = new Path(src);
-	// new DelayedExceptionThrowing() {
-	// void process(Path p, FileSystem srcFs) throws IOException {
-	// if (srcFs.getFileStatus(p).isDir()) {
-	// throw new IOException("Source must be a file.");
-	// }
-	// printToStdout(srcFs.open(p));
-	// }
-	// }.globAndProcess(srcPattern, getSrcFileSystem(srcPattern, true));
-	// }
-
-	// public void rhmv(REXP r) throws Exception{
-	// String[] fromfiles = new
-	// String[r.getRexpValue(1).getStringValueCount()+1];
-	// for(int i=0;i<fromfiles.length;i++)
-	// fromfiles[i] = r.getRexpValue(1).getStringValue(i).getStrval();
-	// fromfiles[fromfiles.length] =
-	// r.getRexpValue(2).getStringValue(i).getStrval();
-	// fu.getFsShell().rename(fromfiles, fu.getConf());
-
-	// }
 
 	public void rhls(REXP r) throws Exception {
 		String[] result0 = fu.ls(r.getRexpValue(1) // This is a string vector
@@ -660,22 +550,30 @@ public class PersonalServer {
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		int buglevel = Integer.parseInt(args[3]);
-		PersonalServer r = new PersonalServer(args[0], args[1], args[2],
-				buglevel);
-		while (true) {
-			try {
-				r.startme();
-			} catch (Exception e) {
-				System.err.println(Thread.currentThread().getStackTrace());
-			}
-		}
-	}
+    public int run(String[] args) throws Exception {
+	// Configuration processed by ToolRunner
+	Configuration conf = getConf();
+	int buglevel = Integer.parseInt(args[3]);
+	setUserInfo(args[0], args[1], args[2],
+		    buglevel);
+	startme();
 
-	public abstract class DelayedExceptionThrowing {
-		abstract void process(Path p, FileSystem srcFs) throws IOException;
+	// while (true) {
+	//     try {
+	//     } catch (Exception e) {
+	// 	System.err.println(Thread.currentThread().getStackTrace());
+	//     }
+	// }
+	return(0);
+    }
 
+    public static void main(String[] args) throws Exception {
+	int res = ToolRunner.run(new Configuration(), new PersonalServer(), args);
+    }
+    
+    public abstract class DelayedExceptionThrowing {
+	abstract void process(Path p, FileSystem srcFs) throws IOException;
+	
 		final void globAndProcess(Path srcPattern, FileSystem srcFs)
 				throws IOException {
 			ArrayList<IOException> exceptions = new ArrayList<IOException>();
