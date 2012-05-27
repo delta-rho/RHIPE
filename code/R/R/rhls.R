@@ -20,10 +20,7 @@
 #' @export
 rhls <- function(folder,recurse=FALSE){
 	## List of files,
-  original.folder <- folder
-  which.are.hdfs <- grepl("^(hdfs://)",folder)
-  folder <- rhabsolute.hdfs.path(folder[!which.are.hdfs])
-  folder <- c(folder,original.folder[which.are.hdfs])
+  folder <- rhabsolute.hdfs.path(folder)
   v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhls",folder, if(recurse) 1L else 0L))
   if(is.null(v)) return(NULL)
                                         #condition nothing in the directory?

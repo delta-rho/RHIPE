@@ -313,6 +313,7 @@ rhmr <- function(map=NULL,reduce=NULL,
 	################################################################################################
 		if(nchar(ofolder) > 0)
 			ofolder = rhabsolute.hdfs.path(ofolder)
+                if(is(ifolder,"rhmr")) ifolder <- ifolder[[1]]$rhipe_output_folder
 		if(all(sapply(ifolder, function(r) nchar(r)>0)))
 			ifolder = rhabsolute.hdfs.path(ifolder)
 		if(length(shared) > 0)
@@ -432,19 +433,21 @@ if(ofolder == ""){
   inout[2] <- if(!is.na(inout[2])) match.arg(inout[2],  c("sequence","text","lapply","map","null")) else NA
   inout[1] <- if(!is.na(inout[1])) match.arg(inout[1],  c("sequence","text","lapply","map","null")) else NA
 
-  ifolder=switch(inout[1],
-    "map"={
-      flagclz="sequence"
-      uu=unclass(rhls(ifolder,rec=TRUE)['file'])$file
-      uu[grep("data$",uu)]
-    },
-    "sequence"={
-      a <- rhls(ifolder,rec=TRUE)$file
-    },
-    "text"={
-      rhls(ifolder)$file
-    }
-    )
+  ifolder=if(is.null(mapred$parse.ifolder)){
+    switch(inout[1],
+           "map"={
+             flagclz="sequence"
+             uu=unclass(rhls(ifolder,rec=TRUE)['file'])$file
+             uu[grep("data$",uu)]
+           },
+           "sequence"={
+             a <- rhls(ifolder,rec=TRUE)$file
+           },
+           "text"={
+             rhls(ifolder)$file
+           }
+           )
+  } else ifolder
   remr <- c(grep(rhoptions()$file.types.remove.regex,ifolder))
   if(length(remr)>0)
     ifolder <- ifolder[-remr]
