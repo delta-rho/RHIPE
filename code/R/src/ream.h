@@ -6,7 +6,6 @@
 #include <map>
 
 #include <google/protobuf/stubs/common.h>
-#include <google/protobuf/io/coded_stream.h>
 #include <rexp.pb.h>
 
 #include <stdint.h>
@@ -23,7 +22,6 @@
 #include <sys/wait.h>
 #include <stdarg.h>
 using namespace std;
-using namespace google::protobuf::io;
 
 #define R_NO_REMAP
 #define R_INTERFACE_PTRS 1
@@ -181,9 +179,6 @@ void doTest_Serialize2FD(char *,const int );
 struct Streams {
   FILE* BSTDERR,*BSTDIN,*BSTDOUT;
   int NBSTDERR,NBSTDIN,NBSTDOUT;
-  /* CodedOutputStream *stream_cdo; */
-  /* ZeroCopyOutputStream *zco; */
-  /* CodedOutputStream *cdo; */
 };
 extern Streams *CMMNC;
 int setup_stream(Streams *);
@@ -200,7 +195,7 @@ void do_unser(void);
  ** Map & Reduce
  *****************/
 extern "C" SEXP execMapReduce();
-int readToKeyValueBuffers(FILE* fin, SEXP keys, SEXP values, int max_keyvalues,int* actual_keyvalues) ;
+int readToKeyValueBuffers(FILE* fin, SEXP keys, SEXP values, int max_keyvalues,int32_t max_bytes_to_read,int* actual_keyvalues,int* reason) ;
 void shallowCopyVector(SEXP,SEXP);
 void setupCombiner();
 void cleanupCombiner();
@@ -219,7 +214,7 @@ const int reducer_setup(void);
 void Re_ShowMessage(const char*);
 void Re_WriteConsoleEx(const char *, int , int );
 void merror(const char *, ...);
-void mmessage(const char *fmt, ...);
+void mmessage(char *fmt, ...);
 void logg(int , const char *, ...);
 
 /******************
@@ -228,7 +223,7 @@ void logg(int , const char *, ...);
 SEXP counter(SEXP );
 SEXP status(SEXP );
 SEXP collect(SEXP ,SEXP );
-SEXP rh_collect_buffer(SEXP ,SEXP );
+SEXP collect_buffer(SEXP ,SEXP );
 SEXP readFromHadoop(const uint32_t,int* );
 SEXP readFromMem(void * ,uint32_t );
 SEXP persUnser(SEXP);

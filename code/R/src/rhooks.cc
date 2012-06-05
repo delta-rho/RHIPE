@@ -228,7 +228,46 @@ SEXP returnListOfKV(SEXP raw, SEXP numread) {
 	return (rval);
 }
 
+//   SEXP returnListOfKV(SEXP raw,SEXP numread){
 
+//    //  SEXP raw ;
+// //     PROTECT(raw = Rf_duplicate(raw0));
+//     SEXP rval,rv,l;
+//     int num = INTEGER(numread)[0];
+//     char *rawdata = (char*)RAW(raw);
+//     int r;
+//     char *x = rawdata;
+//     //yeah, why a grow list when i know numread?
+//     PROTECT(rv = NewList());
+//     while(true){
+//       SEXP k,v;
+//       r = reverseUInt(*((int*) x  ));
+//       if(r<0) break;
+//       PROTECT(l = Rf_allocVector(VECSXP,2));
+//       x+=4;
+//       PROTECT(k= kk_(x,r));
+//       x+= r;
+//       SET_VECTOR_ELT( l, 0, k);
+
+//       r = reverseUInt(*((int*) x));
+//       x+=4;
+//       PROTECT(v= kk_(x,r));
+//       SET_VECTOR_ELT( l, 1, v);
+//       x+=r;
+
+//       UNPROTECT(3);
+//       rv = GrowList(rv, l);
+//     }
+
+//      rv = CDR(rv);
+
+//      PROTECT(rval = Rf_allocVector(VECSXP, Rf_length(rv)));
+//      for (int n = 0 ; n < LENGTH(rval) ; n++, rv = CDR(rv))
+//        SET_VECTOR_ELT(rval, n, CAR(rv));
+//      UNPROTECT(2);
+
+//     return(rval);
+//   }
 
 
 SEXP readBinaryFile(SEXP filename0, SEXP max0, SEXP bf, SEXP vb) {

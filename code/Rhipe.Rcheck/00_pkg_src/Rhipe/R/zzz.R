@@ -1,0 +1,190 @@
+.rhipeEnv <- new.env()
+vvvv <- "0.67"
+attr(vvvv,"minor") <- '1'
+attr(vvvv,"date") <- 'Thu Jun 16'
+
+class(vvvv) <- "rhversion"
+
+assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )
+Mode <-  "experimental"
+
+.G <- function(e,k,r){
+            if(length(.errors$h)<.errors$maxcount) {
+              .errors$h <- append(.errors$h, list(list(error=e,map.value=r)))
+              rhcounter("@R_DebugMessage",as.character(e),1)
+            }
+          }
+
+
+.onLoad <- function(libname,pkgname){
+  library.dynam("Rhipe", pkgname, libname)
+  #require(methods)
+  onload.2(libname,pkgname)
+}
+onload.2 <- function(libname, pkgname){
+  opts <- get("rhipeOptions",envir=.rhipeEnv)
+  ################################################################################################
+  # JAVA AND HADOOP
+  ################################################################################################
+  
+	opts$jarloc <- list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
+
+	if(Sys.getenv("HADOOP")=="" && Sys.getenv("HADOOP_BIN")=="")
+	warning("Rhipe requires the HADOOP or HADOOP_BIN environment variable to be present\n $HADOOP/bin/hadoop or $HADOOP_BIN/hadoop should exists")
+
+	if(Sys.getenv("HADOOP_BIN")==""){
+	warning("HADOOP_BIN is missing, using $HADOOP/bin")
+	Sys.setenv(HADOOP_BIN=sprintf("%s/bin",Sys.getenv("HADOOP")))
+	}
+
+	################################################################################################
+	# RhipeMapReduce, runner, and checks
+	################################################################################################
+	
+	opts$RhipeMapReduce <- list.files(paste(system.file(package="Rhipe"),"bin",sep=.Platform$file.sep),
+										pattern="^RhipeMapReduce$",full=T)
+
+	if(is.null(opts$RhipeMapReduce) || length(opts$RhipeMapReduce) != 1){
+		warning("RhipeMapReduce executable not found in package bin folder as expected")
+	}
+	#RhipeMapReduce is the executable, but the simpliest way to run it is via R CMD which sets up environment variables.
+	opts$runner <-paste("R","CMD", opts$RhipeMapReduce ,"--slave","--silent","--vanilla") #,"--max-ppsize=100000","--max-nsize=1G")
+	
+	################################################################################################
+	# OTHER DEFAULTS
+	################################################################################################
+
+        opts$file.types.remove.regex     ="(/_SUCCESS|/_LOG|/_log|rhipe\\.debug)"
+	opts$max.read.in.size <- 200*1024*1024 ## 100MB
+	opts$reduce.output.records.warn <- 200*1000
+	opts$rhmr.max.records.to.read.in <- NA
+	opts$HADOOP.TMP.FOLDER <- "/tmp"
+	opts$zips <- c()
+	opts$hdfs.working.dir = "/"
+	## other defaults
+	opts$templates <- list()
+	opts$templates$scalarsummer <-  expression(
+	  pre={.sum <- 0},
+	  reduce={.sum <- .sum+ sum(unlist(reduce.values),na.rm=TRUE)},
+	  post = { {rhcollect(reduce.key,.sum)}} )
+        opts$templates$scalarsummer <- structure(opts$templates$scalarsummer,combine=TRUE)
+	opts$templates$colsummer <-  expression(
+	  pre={.sum <- 0},
+	  reduce={.sum <- .sum + apply(do.call('rbind', reduce.values),2,sum)},
+	  post = { {rhcollect(reduce.key,.sum)}} )
+        opts$templates$colsummer <- structure(opts$templates$colsummer,combine=TRUE)
+	opts$templates$rbinder <-  expression(
+	  pre    = { data <- list()},
+	  reduce = { data[[length(data) + 1 ]] <- reduce.values },
+	  post   = { {data <- do.call("rbind", unlist(data,recursive=FALSE));}; {rhcollect(reduce.key, data)}}
+	  )
+       opts$templates$rbinder <- structure(opts$templates$rbinder,combine=TRUE)
+       opts$template$range= expression(
+           pre = {
+             rng <- c(Inf,-Inf)
+           },
+           reduce = {
+             rx <- unlist(reduce.values)
+             rng <- c(min(rng[1],rx,na.rm=TRUE),max(rng[2],rx,na.rm=TRUE))
+           },
+           post={rhcollect(reduce.key,rng)}
+           )
+       opts$templates$range <- structure(opts$templates$range,combine=TRUE)
+
+       opts$debug <- list(map=list(
+                            setup=expression({
+                              .errors <- as.environment(list(h=list(),maxcount=20))
+                            }),
+                            cleanup=expression({
+                              if(length(.errors$h)>0){
+                                save(.errors,file=sprintf("./tmp/rhipe_debug_%s",Sys.getenv("mapred.task.id")))
+                                rhcounter("@R_DebugFile","saved.files",1)
+                               }})
+                            ,handler=list(
+                               "count"    =function(e,k,r) rhcounter("R_UNTRAPPED_ERRORS",as.character(e),1)
+                               ,"stop"    =function(e,k,r) rhcounter("R_ERRORS",as.character(e),1)
+                               ,"collect" =function(e,k,r){
+                                 if(length(.errors$h)<.errors$maxcount) {
+                                   .errors$h <- append(.errors$h, list(list(error=e,map.value=r)))
+                                   rhcounter("R_UNTRAPPED_ERRORS",e,1)
+                                 }
+                               }
+                               )
+                            )
+  
+  ################################################################################################
+  # FINSHING
+  ################################################################################################
+  
+  assign("rhipeOptions",opts,envir=.rhipeEnv)
+  message("--------------------------------------------------------
+| IMPORTANT: Before using Rhipe call rhinit()           |
+| Rhipe will not work or most probably crash            |
+--------------------------------------------------------")
+}
+
+first.run <- function(buglevel=0){
+  ## if(buglevel>0) message("Initial call to personal server")
+  ## Rhipe::rhinit(errors=TRUE,info=if(buglevel) TRUE else FALSE,buglevel=buglevel)
+  ## rhoptions(mode = Rhipe:::Mode,mropts=rhmropts(),quiet=FALSE) # "experimental"
+  ## if(buglevel>0) message("Secondary call to personal server")
+  ## Rhipe::rhinit(errors=TRUE,info=if(buglevel) TRUE else FALSE,buglevel=buglevel)
+  ## Sys.sleep(2)
+  ## message("Rhipe first run complete")
+  ## return(TRUE)
+
+  stop("Function has been deprecated, call rhinit(first=TRUE)")
+}
+
+
+
+
+
+
+
+
+
+
+onload <- function(libname, pkgname){
+  opts <- get("rhipeOptions",envir=.rhipeEnv)
+  
+  ## start server
+  opts$jarloc <- list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
+##   cp <- c(list.files(Sys.getenv("HADOOP"),pattern="jar$",full=T),
+##           list.files(Sys.getenv("HADOOP_LIB"),pattern="jar$",full=T),
+##           Sys.getenv("HADOOP_CONF_DIR"),
+##           opts$jarloc
+##           )
+##   opts$cp <- cp
+##   opts$port <- 12874
+##   opts$socket <- rhGetConnection(paste(cp,collapse=":"),opts$port)
+  ##  print("WHY2")
+  ##$HADOOP should be such that $HADOOP/bin contains the hadoop executable
+  if(Sys.getenv("HADOOP")=="") stop("Rhipe requires the HADOOP environment variable to be present")
+  if(.Platform$r_arch!="")
+    opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",.Platform$r_arch,
+                                    sep=.Platform$file.sep),pattern="RhipeMapReduce",full=T)
+  else
+    opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",
+                                    sep=.Platform$file.sep),pattern="RhipeMapReduce",full=T)
+
+  
+  opts$runner <- c("R","CMD", opts$runner,"--slave","--silent","--vanilla","--max-ppsize=100000",
+                   "--max-nsize=1G")
+##   opts$runner <- c(paste(R.home(component='bin'),"/R",sep=""), opts$runner,"--slave","--silent","--vanilla")
+##  print("WHY3")
+
+  opts$runner <-opts$runner[-c(1,2)]
+  opts$cmd <- list(opt=0,ls=1,get=2,del=3,put=4,b2s=5,s2b=6,getkey=7,s2m=8,rename=9,join=10,status=11)
+  ##print("WHY4")
+  ## print(opts)
+  opts$mropts <- doCMD(opts$cmd['opt'],opts=opts,needo=T,ignore=FALSE,verbose=FALSE)
+  opts$mode <- Mode #mode = "current"
+  assign("rhipeOptions",opts,envir=.rhipeEnv)
+##  print("WHY")
+}
+
+##  c(paste(R.home(component='bin'),"/R",sep=""), rhoptions()$runner[3],"--slave","--silent","--vanilla")
+
+
+

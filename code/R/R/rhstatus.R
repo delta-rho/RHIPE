@@ -17,6 +17,8 @@
 #'   user defined and Hadoop MapReduce built in counters (counters can be user
 #'   defined with a call to \code{rhcounter}).
 #' @param showErrors If TRUE display errors from R in MapReduce tasks.
+#' @param handler is a function that gets the counters and job related information
+#' and you can use it to kill the job, returning FALSE, stops monitoring
 #' @return a list of the current state
 #' @author Saptarshi Guha
 #' @note This function does something different depending on if it is used in
@@ -34,7 +36,8 @@
 #' @seealso \code{\link{rhex}}, \code{\link{rhmr}}, \code{\link{rhkill}}
 #' @keywords MapReduce job status
 #' @export
-rhstatus <- function(job,mon.sec=5,autokill=TRUE, showErrors=TRUE,verbose=FALSE){
+rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
+                     ,handler=NULL){
   if(class(job)!="jobtoken" && class(job)!="character" ) stop("Must give a jobtoken object(as obtained from rhex)")
   if(class(job)=="character") id <- job else {
     job <- job[[1]]
@@ -43,6 +46,7 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE, showErrors=TRUE,verbose=FALSE)
   if(mon.sec<=0) {
     return(Rhipe:::.rhstatus(id,autokill,showErrors))
   }else{
+    handler <- if(is.null(handler)) function(y) TRUE else handler
     while(TRUE){
       y <- .rhstatus(id,autokill=TRUE,showErrors)
       cat(sprintf("\n[%s] Job: %s, State: %s, Duration: %s\nURL:%s\n",date(),id,y$state,y$duration,y$tracking))
@@ -50,7 +54,9 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE, showErrors=TRUE,verbose=FALSE)
       if(verbose){
         print(y$counters)
       }
-      if(!(y$state %in% c("PREP","RUNNING"))) break;
+      res <- handler(y)
+      if(!is.null(res) && !res) break
+      if(!y$state %in% c("PREP","RUNNING")) break 
       cat(sprintf("Waiting %s seconds\n", mon.sec))
       Sys.sleep(max(1,as.integer(mon.sec)))
     }
@@ -74,13 +80,14 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE, showErrors=TRUE,verbose=FALSE)
   state = result[[1]]
   errs=unique(result[[7]])
   haveRError <- FALSE
+  msg.str <- "There were R errors, showing 30:"
 
   if(!is.null(result[[6]]$R_ERRORS)) {
     ## I treat these errors differently from other types
     ## not sure if thats need, if not, this code can be eliminated
     ## and errs can be extended by R_ERRORS
     haveRError <- TRUE
-    message(sprintf("There were R errors, showing 30:"))
+    message(sprintf("\n%s\n%s",paste(rep("-",nchar(msg.str)),collapse=""),msg.str))
     v <- unique(names(sort(result[[6]]$R_ERRORS)))
     newr <- t(sapply(v,function(x){
         y <- strsplit(x,"\n")[[1]]
@@ -103,7 +110,7 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE, showErrors=TRUE,verbose=FALSE)
       },USE.NAMES=FALSE))
       if(any(newr[,1]=="R")) {
         haveRError <- TRUE
-        message(sprintf("There were R errors, showing at most 30:"))
+        message(sprintf("\n%s\n%s",paste(rep("-",nchar(msg.str)),collapse=""),msg.str))
         rerr <- head(newr[newr[,1]=="R",2],30)
         sapply(rerr,cat)
       }

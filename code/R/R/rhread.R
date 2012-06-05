@@ -43,6 +43,7 @@
 #' @keywords read HDFS file
 #' @export
 rhread <- function(files,type=c("sequence"),max=-1L,skip=rhoptions()$file.types.remove.regex,mc=lapply,asraw=FALSE,size=3000,buffsize=1024*1024,quiet=FALSE,...){
+        if(is(files, "rhwatch")) files <- rhofolder(files)
 	files = rhabsolute.hdfs.path(files)
 	files <- getypes(files,type,skip)
 	max <- as.integer(max)

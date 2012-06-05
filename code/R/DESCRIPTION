@@ -1,7 +1,7 @@
 Package: Rhipe
 Type: Package
 Title: R and Hadoop Integrated Programming Environment
-Version: 0.67
+Version: 0.68
 Date: 2012-03-13
 Author: Saptarshi Guha <saptarshi.guha@gmail.com>
 Maintainer: Jeremiah Rounds  <roundsjeremiah@gmail.com>
@@ -44,4 +44,7 @@ Collate:
     'hdfs.getwd.R'
     'hdfs.setwd.R'
     'rhabsolute.hdfs.path.R'
+    'rhofolder.R'
+    'rhclean.R'
     'bashRhipeArchive.R'
+    'rhErrors.R'

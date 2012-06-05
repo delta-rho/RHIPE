@@ -197,6 +197,7 @@ void writeVInt64ToFileDescriptor( int64_t  i , FILE* fd) {
     len--;
   }
   x=(char)len;
+  // mmessage("B=%x %d",x,x);
   fwrite(&x,sizeof(x),1,fd);
   len = (len < -120) ? -(len + 120) : -(len + 112);
   int32_t idx;
@@ -204,8 +205,16 @@ void writeVInt64ToFileDescriptor( int64_t  i , FILE* fd) {
     int32_t shiftbits = (idx - 1) * 8;
     int64_t mask = 0xFFLL << shiftbits;
     x = (char)((i & mask) >> shiftbits);
+    // mmessage("B=%x",x);
     fwrite(&x,sizeof(x),1,fd);
   }
+
+
+
+  // int32_t x = (int32_t) i, tonetwork;
+  // tonetwork = reverseUInt(x);
+  // fwrite(&tonetwork,sizeof(int32_t),1,fd);
+
 }
 
 

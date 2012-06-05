@@ -124,7 +124,7 @@ void merror(const char *fmt, ...)
 	Re_WriteConsoleEx(errmsg,strlen(errmsg),1);
 }
 
-void mmessage(const char *fmt, ...)
+void mmessage(char *fmt, ...)
 {
 	va_list args;
 	char errmsg[512];
@@ -266,7 +266,14 @@ void spill_to_reducer(void){
 
 }
 
-SEXP rh_collect_buffer(SEXP k,SEXP v){
+SEXP collect_buffer(SEXP k,SEXP v){
+
+#ifdef USETIMER
+  struct timeval tms;
+  long int bstart, bend;
+  gettimeofday(&tms,NULL);
+  bstart = tms.tv_sec*1000000 + tms.tv_usec;
+#endif
 
   static bool once = false;
   static std::string *ks;
@@ -289,24 +296,58 @@ SEXP rh_collect_buffer(SEXP k,SEXP v){
     spill_to_reducer();
     total_count = 0;
     map_output_buffer.clear();
-  }
+  }// else{
+  //   map_output_buffer[*ks].push_back(*vs);
+  // }
+  // delete(ks);delete(vs);
+#ifdef USETIMER
+  gettimeofday(&tms,NULL);
+  bend = tms.tv_sec*1000000 + tms.tv_usec;
+  collect_buffer_total += (bend - bstart);
+#endif
+
   return(R_NilValue);
 }
 
+
 void sendToHadoop(SEXP k){
 
-  int32_t size,rsize;
+	int size;
 	oiinfo.rxp->Clear();
 	sexpToRexp(oiinfo.rxp,k);
-	size = (int32_t)oiinfo.rxp->ByteSize();
+	size = oiinfo.rxp->ByteSize();
 	writeVInt64ToFileDescriptor( size , CMMNC->BSTDOUT);
-	// rsize = reverseUInt(size);
-	// fwrite( &rsize, sizeof(int32_t),1,CMMNC->BSTDOUT);
+	// if (size < PSIZE){
 	oiinfo.rxp_s->clear();
 	oiinfo.rxp->SerializeToString(oiinfo.rxp_s);
 	fwrite( oiinfo.rxp_s->data(), size,1,CMMNC->BSTDOUT);
-	fflush(NULL);
+	// }else{
+	//   oiinfo.rxp->SerializeToFileDescriptor(fileno(CMMNC->BSTDOUT));
+	// }
+	// fflush(CMMNC->BSTDOUT);
 }
+
+// SEXP readFromHadoop(const uint32_t nbytes,int *err){
+//   SEXP r = R_NilValue;
+//   SEXP rv ;
+//   PROTECT(rv = Rf_allocVector(RAWSXP, nbytes));
+//   if(fread(RAW(rv),nbytes,1,CMMNC->BSTDIN)<=0){
+//     *err=1;
+//     UNPROTECT(1);
+//     return(R_NilValue);
+//   }
+//   REXP *rxp = new REXP();
+//   if (rxp->ParseFromArray(RAW(rv),LENGTH(rv))){
+//     LOGG(1,"%s\n", rxp->DebugString().c_str());
+
+//     PROTECT(r = message2rexp(*rxp));
+//     UNPROTECT(1);
+//   }
+//   UNPROTECT(1);
+//   delete rxp;
+//   return(r);
+// }
+
 
 SEXP readFromHadoop(const uint32_t nbytes,int *err){
 	SEXP r = R_NilValue;

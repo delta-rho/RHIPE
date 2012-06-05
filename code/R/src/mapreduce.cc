@@ -7,7 +7,7 @@ R_CallMethodDef callMethods [] = {
   {"rh_counter",(DL_FUNC) counter,1},
   {"rh_status",(DL_FUNC) status,1},
   {"rh_collect",(DL_FUNC) collect,2},
-  {"rh_collect_buffer",(DL_FUNC) rh_collect_buffer,2},
+  {"rh_collect_buffer",(DL_FUNC) collect_buffer,2},
   {"rh_uz",(DL_FUNC) persUnser,1},
   {"rh_dbgstr",(DL_FUNC) dbgstr,1},
   {NULL, NULL, 0}
@@ -74,13 +74,15 @@ void shallowCopyVector(SEXP src, SEXP dest, int n) {
  * NOTE: Function provides core read logic for Mappers and Reducers
  * author: roundsjeremiah@gmail.com
  */
-int readToKeyValueBuffers(FILE* fin, SEXP keys, SEXP values, int max_keyvalues,
-		int* actual_keyvalues) {
+int readToKeyValueBuffers(FILE* fin, SEXP keys, SEXP values, int32_t max_bytes_read,int max_keyvalues,
+			  int* actual_keyvalues,int* reason) {
 	int32_t nbytes;
 	SEXP k = R_NilValue, v = R_NilValue;
 	int err;
 	int i;
 	*actual_keyvalues = 0;
+	int32_t bytesread=0;
+	*reason = 0;
 	for (i = 0; i < max_keyvalues; ++i) {
 		nbytes = readVInt64FromFileDescriptor(fin);
 		//IT IS NOT BYTES BUT A MESSAGE IF THIS IS TRUE:
@@ -88,7 +90,7 @@ int readToKeyValueBuffers(FILE* fin, SEXP keys, SEXP values, int max_keyvalues,
 			*actual_keyvalues = i;
 			return nbytes;
 		}
-
+		bytesread += nbytes;
 		PROTECT(k = readFromHadoop(nbytes,&err));
 		if (err) {
 			*actual_keyvalues = i;
@@ -101,7 +103,7 @@ int readToKeyValueBuffers(FILE* fin, SEXP keys, SEXP values, int max_keyvalues,
 			UNPROTECT(1);
 			return RHIPE_PIPE_READ_ERROR;
 		}
-
+		bytesread += nbytes;
 		PROTECT(v = readFromHadoop(nbytes,&err));
 		if (err) {
 			*actual_keyvalues = i;
@@ -111,11 +113,18 @@ int readToKeyValueBuffers(FILE* fin, SEXP keys, SEXP values, int max_keyvalues,
 		SET_VECTOR_ELT(keys, i, k);
 		SET_VECTOR_ELT(values, i, v);
 		UNPROTECT(2);
-
+#ifdef USEAUTOSHORT
+		if(bytesread >= max_bytes_read) {
+		  *reason = 1;
+		  break;
+		}
+#endif
 	}
-	*actual_keyvalues = max_keyvalues;
+	if(i < max_keyvalues)
+	  *actual_keyvalues = i+1;
+	else
+	  *actual_keyvalues = max_keyvalues;
 	return RHIPE_PIPE_READ_FULL;
-
 }
 
 /*
@@ -201,6 +210,7 @@ int mainMapperLoop(FILE* fin){
 	  SEXP runner1,runner2,cleaner,kvector,vvector;
 	  char * mapbustr;
 	  int protect= 0;
+	  int32_t  max_bytes_to_read = 0;
 
 	  //CREATE MAP EXPRESSION LANGUAGE OBJECTS
 	  PROTECT(runner1=rexpress(MAPRUNNERS));
@@ -220,7 +230,12 @@ int mainMapperLoop(FILE* fin){
 	    buffer_size = 10000;
 	  }
 
-
+	  // Get How many Bytes to Read (so we don't adjust rhipe_map_buff_size)
+	  if ((mapbustr=getenv("rhipe_map_bytes_read"))){
+	    max_bytes_to_read = (int)strtol(mapbustr,NULL,10);
+	  }else{
+	    max_bytes_to_read = 150*1024*1024;
+	  }
 	  //CREATE PRIMARY BUFFERS
 	  PROTECT(kvector = Rf_allocVector(VECSXP,buffer_size));
 	  PROTECT(vvector = Rf_allocVector(VECSXP,buffer_size));
@@ -230,39 +245,52 @@ int mainMapperLoop(FILE* fin){
 
 	  int Rerr;
 	  int nread;
-
+	  int reason;
 
 	  //READ AND EXEC LOOP
 	  while(TRUE){
-		  type = readToKeyValueBuffers(fin,kvector,vvector,buffer_size, &nread);
-		  if(0 < nread < buffer_size){
-			  //CORNER CASE DID NOT FILL BUFFER
-			  //allocate a new vector with appropriate length.
-			  //maybe inefficient but should be a corner case at the end of each Mapper.
-				SEXP temp_keys, temp_values;
-				PROTECT(temp_keys = Rf_allocVector(VECSXP,nread));
-				PROTECT(temp_values = Rf_allocVector(VECSXP,nread));
-				shallowCopyVector(kvector, temp_keys,nread);
-				shallowCopyVector(vvector, temp_values,nread);
-				Rf_setVar(Rf_install("map.keys"),temp_keys,R_GlobalEnv);
-				Rf_setVar(Rf_install("map.values"),temp_values,R_GlobalEnv);
-				R_tryEval(runner2,NULL,&Rerr);  //do something with the error?
-				UNPROTECT(2);
-		  }else if (nread == buffer_size){
-				//PRIMARY BUFFER IS USUABLE BY CLIENT
-				Rf_setVar(Rf_install("map.keys"),kvector,R_GlobalEnv);
-				Rf_setVar(Rf_install("map.values"),vvector,R_GlobalEnv);
-				R_tryEval(runner2,NULL,&Rerr);  //do something with the error?
-		  }
-		  fflush(NULL);
-		 if(type == EVAL_CLEANUP_MAP)
-			 break;
-		 if(type == RHIPE_PIPE_READ_ERROR){
-			 merror("Error bad pipe read between RhipeMapReduce and RHMRMapper\n");
-			 break;
-		 }
-		 if(type == RHIPE_PIPE_READ_EMPTY)  // I don't understand how this isn't a race condition, but it was in the original logic.
-			 break;
+	    type = readToKeyValueBuffers(fin,kvector,vvector,max_bytes_to_read,buffer_size,&nread,&reason);
+	    if(0 < nread  && nread < buffer_size){
+	      //CORNER CASE DID NOT FILL BUFFER
+	      //allocate a new vector with appropriate length.
+	      //maybe inefficient but should be a corner case at the end of each Mapper.
+	      SEXP temp_keys, temp_values;
+	      mcount("rhipeInternal","partialFlush",1);
+	      PROTECT(temp_keys   = Rf_allocVector(VECSXP,nread));
+	      PROTECT(temp_values = Rf_allocVector(VECSXP,nread));
+	      shallowCopyVector(kvector, temp_keys,nread);
+	      shallowCopyVector(vvector, temp_values,nread);
+	      Rf_setVar(Rf_install("map.keys"),temp_keys,R_GlobalEnv);
+	      Rf_setVar(Rf_install("map.values"),temp_values,R_GlobalEnv);
+	      R_tryEval(runner2,NULL,&Rerr);  //do something with the error?
+	      UNPROTECT(2);
+#ifdef USEAUTOSHORT
+	      if(reason == 1){
+		UNPROTECT(2);
+		buffer_size = nread;
+		mcount("rhipeInternal","bufferShrink",1);
+		PROTECT(kvector = Rf_allocVector(VECSXP,buffer_size));
+		PROTECT(vvector = Rf_allocVector(VECSXP,buffer_size));
+	      }
+#endif
+	    }else if (nread == buffer_size){
+#ifdef USEAUTOSHORT
+	      mcount("rhipeInternal","completeFlush",1);
+#endif
+	      //PRIMARY BUFFER IS USUABLE BY CLIENT
+	      Rf_setVar(Rf_install("map.keys"),kvector,R_GlobalEnv);
+	      Rf_setVar(Rf_install("map.values"),vvector,R_GlobalEnv);
+	      R_tryEval(runner2,NULL,&Rerr);  //do something with the error?
+	    }
+	    fflush(NULL);
+	    if(type == EVAL_CLEANUP_MAP)
+	      break;
+	    if(type == RHIPE_PIPE_READ_ERROR){
+	      merror("Error bad pipe read between RhipeMapReduce and RHMRMapper\n");
+	      break;
+	    }
+	    if(type == RHIPE_PIPE_READ_EMPTY)  // I don't understand how this isn't a race condition, but it was in the original logic.
+	      break;
 	  }
 	  //do we really need to know type == EVAL_CLEANUP_MAP before cleaning up?
 	  //I don't think so, so I am moving cleanupMap to execMapperWithCombiner()

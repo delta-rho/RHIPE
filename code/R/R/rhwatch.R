@@ -8,12 +8,84 @@
 #' @param mon.sec If \code{mon.sec} is greater than 0, a small data frame
 #'   indicating the progress will be returned every \code{mon.sec} seconds.
 #' @param readback if FALSE, results will not be read back and insteat results from rhstatus is returned
+#' @debug can be one of 'count' which counts the number of errors but does not stop the job, 'stop' which
+#' stops the job (setting debug to NULL (default) is the same and is much faster)
+#' and 'collect' which collects 20 errors per split, saves them in
+#' files (inside the output folder) prefixed with rhipe.debug and does not kill the job.
+#' The maximum number of errors to collect can be set in the \code{param} argument to rhmr, i.e rh.max.errors=10 collects a maximum of 10 errors
 #' @param ... Extra parameters passed to \code{rhstatus}.
 #' @return If the state is SUCCEEDED and total output size (in MB) is less than \code{rhoptions()$max.read.in.size} the data is read with a warning if the number of records is more than \code{rhoptions()$reduce.output.records.warn}. If \code{rhoptions()$rhmr.max.records.to.read.in} is not NA, that many records is read. This only works for Sequence output.
 #' @seealso \code{\link{rhex}}, \code{\link{rhmr}}, \code{\link{rhkill}}
 #' @keywords MapReduce job status
 #' @export
-rhwatch <- function(job,mon.sec=5,readback=TRUE,...){
+rhwatch <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
+  if(!is.null(job[[1]]$mapred.job.tracker) && job[[1]]$mapred.job.tracker == TRUE){
+    z <- Rhipe:::rhwatch.runner(job, mon.sec,readback,....)
+    if(readback==FALSE){
+      class(z) <- append(class(z),"rhwatch")
+    }
+    return(z)
+  }
+  if(!is.null(debug)){
+
+    if(! "rhmr-map" %in% class(m <- unserialize(charToRaw(job[[1]]$rhipe_map))))
+      stop("RHIPE: for debugging purposes, must use a map expression returned  by ewrap")
+     
+    ##Replace the map expression
+    j=m[[1]][[3]] ##the mapply
+    jj <- j[[3]][[2]] ## the function passed to mapply
+    l <- list()
+    l$replace <-  jj[[3]][[2]] ## body of jj
+    l$before=m[[1]][[2]]
+    l$after=m[[1]][[4]]
+    FIX <- function(x) if(is.null(x)) NULL else x
+    newm <- as.expression(bquote({
+      .(BEFORE)
+      result <- mapply(function(.index,k,r) {
+        tryCatch(.(REPLACE),error=function(e) {rhipe.trap(e,k,r);NULL}  )  },1:length(map.values),map.keys,map.values)
+      .(AFTER)
+    },list(BEFORE=FIX(l$before),AFTER=FIX(l$after),REPLACE=FIX(l$replace))))
+    environment(newm) <- .BaseNamespaceEnv
+    job[[1]]$rhipe_map <- rawToChar(serialize(newm,NULL,ascii=TRUE))
+    
+    setup   <- rhoptions()$debug$map$setup
+    cleanup <- rhoptions()$debug$map$cleanup
+    handler <- rhoptions()$debug$map$handler$count
+    
+    if(is.list(debug) && !is.null(debug$map)){
+      if(!is.null(debug$map$setup))   setup   <- debug$map$setup
+      if(!is.null(debug$map$cleanup)) cleanup <- debug$map$cleanup
+      if(!is.null(debug$map$handler)) handler <- debug$map$handler
+    }else if(is.character(debug)){
+      handler <- rhoptions()$debug$map$handler[[debug]]
+      if(is.null(handler)) stop("Rhipe(rhwatch): invalid debug character string provided")
+    }
+    environment(setup) <- environment(cleanup) <- environment(handler) <- .BaseNamespaceEnv
+    
+    setupmap <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
+    job[[1]]$rhipe_setup_map<- rawToChar(serialize(c(setupmap,setup),NULL,ascii=TRUE))
+    
+    cleanupmap <- unserialize(charToRaw(job[[1]]$rhipe_cleanup_map))
+    job[[1]]$rhipe_cleanup_map<- rawToChar(serialize(c(cleanupmap,cleanup),NULL,ascii=TRUE))
+    
+    if(is.null(job[[1]]$rhipe.params.names)){
+      job[[1]]$rhipe.params.names <- "rhipe.trap"
+    }else{
+      job[[1]]$rhipe.params.names <- sprintf("%s;%s",job[[1]]$rhipe.params.names,"rhipe.trap")
+    }
+    job[[1]]$rhipe.trap <- rawToChar(serialize(handler,NULL,ascii=TRUE))
+    job[[1]]$rhipe_copy_file <- 'TRUE' ##logic for local runner is wrong here
+    ## job[[1]]$keep.failed.task.files <- 'true'
+  }
+  if(!is.null((list(...))) && !is.null(list(...)[[".rdb"]])) return(job)
+  z <- Rhipe:::rhwatch.runner(job, mon.sec,readback,....)
+  if(readback==FALSE){
+    class(z) <- append(class(z),"rhwatch")
+  }
+  z
+}
+
+rhwatch.runner <- function(job,mon.sec=5,readback=TRUE,...){
   if(class(job)=="rhmr"){
     results <- rhstatus(rhex(job,async=TRUE),mon.sec=mon.sec,...)
     ofolder <- job[[1]]$rhipe_output_folder

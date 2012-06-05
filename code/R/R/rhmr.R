@@ -307,13 +307,13 @@ rhmr <- function(map=NULL,reduce=NULL,
                  jobname="",
                  parameters=NULL){
                  
-                 
+  
 	################################################################################################
 	# Handling relative file paths by jumping on inputs right at the top
 	################################################################################################
 		if(nchar(ofolder) > 0)
 			ofolder = rhabsolute.hdfs.path(ofolder)
-                if(is(ifolder,"rhmr")) ifolder <- ifolder[[1]]$rhipe_output_folder
+                if(!is.null(ifolder)) ifolder <- rhofolder(ifolder)
 		if(all(sapply(ifolder, function(r) nchar(r)>0)))
 			ifolder = rhabsolute.hdfs.path(ifolder)
 		if(length(shared) > 0)
@@ -340,21 +340,24 @@ rhmr <- function(map=NULL,reduce=NULL,
     stop("'map' must be an expression")
   reduces <- TRUE
   lines$rhipe_reduce_justcollect <- "FALSE"
+  combiner <- if(!is.null(attr(reduce,"combine")) && attr(reduce,"combine"))
+    combiner <- TRUE
+  else combiner
   
   if(is.null(reduce)){
     reduces <- FALSE
+    combiner <- FALSE
   } else if(!is.expression(reduce) && is.na(reduce)){  #Can't check if reduce is.na unless you make sure it is not NULL
     reduce <- NULL
     reduces <- FALSE
     lines$mapred.reduce.tasks <- 0
   }
-  lines$rhipe_reduce <- rawToChar(serialize(reduce$reduce,NULL,ascii=T))
-  lines$rhipe_reduce_prekey <- rawToChar(serialize(reduce$pre ,NULL,ascii=T))
+  lines$rhipe_reduce         <- rawToChar(serialize(reduce$reduce,NULL,ascii=T))
+  lines$rhipe_reduce_prekey  <- rawToChar(serialize(reduce$pre ,NULL,ascii=T))
   lines$rhipe_reduce_postkey <- rawToChar(serialize(reduce$post,NULL,ascii=T))
 
   lines$rhipe_jobname=jobname
-  if(combiner & is.null(reduce))
-    combiner <- FALSE
+
 
   ## setup can either be an expression or NULL
   ## also, if an expression it can either have no components or two (map/reduce)              
