@@ -97,7 +97,7 @@ onload.2 <- function(libname, pkgname){
                if(retrieve) return(errors)
                if(counter<maximum.errors){
                  counter <<- counter+1
-                 errors[[counter]]  <- X
+                 errors[[counter]] <<- X
                }
                                })}
            x()
@@ -105,7 +105,7 @@ onload.2 <- function(libname, pkgname){
        })
        opts$debug$map$cleanup <- expression({
          rhipe.errors=rhAccumulateError(ret=TRUE)
-         if(length(rhipe.errors>0)){
+         if(length(rhipe.errors)>0){
            save(rhipe.errors,file=sprintf("./tmp/rhipe_debug_%s",Sys.getenv("mapred.task.id")))
            rhcounter("@R_DebugFile","saved.files",1)
          }

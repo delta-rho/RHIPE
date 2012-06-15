@@ -42,7 +42,7 @@ rhwatch <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
     newm <- as.expression(bquote({
       .(BEFORE)
       result <- mapply(function(.index,k,r) {
-        tryCatch(.(REPLACE),error=function(e) {rhipe.trap(e,k,r);NULL}  )  },1:length(map.values),map.keys,map.values)
+        tryCatch(.(REPLACE),error=function(e) {rhipe.trap(e,k,r);NULL}  )  },seq_along(map.values),map.keys,map.values,SIMPLIFY=FALSE)
       .(AFTER)
     },list(BEFORE=FIX(l$before),AFTER=FIX(l$after),REPLACE=FIX(l$replace))))
     environment(newm) <- .BaseNamespaceEnv
@@ -78,14 +78,14 @@ rhwatch <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
     ## job[[1]]$keep.failed.task.files <- 'true'
   }
   if(!is.null((list(...))) && !is.null(list(...)[[".rdb"]])) return(job)
-  z <- Rhipe:::rhwatch.runner(job, mon.sec,readback,....)
+  z <- Rhipe:::rhwatch.runner(job, mon.sec,readback,debug,....)
   if(readback==FALSE){
     class(z) <- append(class(z),"rhwatch")
   }
   z
 }
 
-rhwatch.runner <- function(job,mon.sec=5,readback=TRUE,...){
+rhwatch.runner <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
   if(class(job)=="rhmr"){
     results <- rhstatus(rhex(job,async=TRUE),mon.sec=mon.sec,...)
     ofolder <- job[[1]]$rhipe_output_folder
@@ -102,8 +102,10 @@ rhwatch.runner <- function(job,mon.sec=5,readback=TRUE,...){
     }
     if(results$state %in% c("FAILED","KILLED"))
       {
-        warning(sprintf("Job failure, deleting output: %s:", ofolder))
-        rhdel(ofolder)
+        if(is.null(debug) || (!is.null(debug) && debug!='collect')){
+          warning(sprintf("Job failure, deleting output: %s:", ofolder))
+          rhdel(ofolder)
+        } else warning("debug is 'collect', so not deleting output folder")
       }
     return(list(results,job))
   }

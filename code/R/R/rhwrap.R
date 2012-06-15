@@ -10,15 +10,17 @@
 #' @export
 rhwrap <- 
 function(co1=NULL,before=NULL,after=NULL){
-  co <- substitute(co1); before=substitute(before)
+  co <- substitute(co1); before=substitute(before);after=substitute(after)
   j <- as.expression(bquote({
     .(BE)
     result <- mapply(function(.index,k,r){
       .(CO)
-    },seq_along(map.values),map.keys,map.values)
+      },seq_along(map.values),map.keys,map.values,SIMPLIFY=FALSE)
     .(AF)
   },list(CO=co,BE=before,AF=after)))
   environment(j) <- .BaseNamespaceEnv
   class(j) <- c(class(j),"rhmr-map")
   j
 }
+
+

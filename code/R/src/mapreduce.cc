@@ -166,7 +166,7 @@ void cleanupCombiner(){
 	rexpress(
 			"rhcollect<-function(key,value) .Call('rh_collect',key,value)");
 	if (!map_output_buffer.empty() || total_count > 0) { //mmessage("\n\n SPILLING LEFTOVER\n\n ");
-		mcount("combiner", "bytesent", total_count);
+		mcount("rhipeInternal", "combine_bytes_sent", total_count);
 		spill_to_reducer(); //do i need total_count >0 ?
 		fflush(NULL);
 	}
