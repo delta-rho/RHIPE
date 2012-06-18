@@ -3,7 +3,7 @@
 \title{Report Status Of A MapReduce Job}
 \usage{
   rhstatus(job, mon.sec = 5, autokill = TRUE,
-    showErrors = TRUE, verbose = FALSE)
+    showErrors = TRUE, verbose = FALSE, handler = NULL)
 }
 \arguments{
   \item{job}{The parameter \code{job} can either be a
@@ -31,6 +31,10 @@
 
   \item{showErrors}{If TRUE display errors from R in
   MapReduce tasks.}
+
+  \item{handler}{is a function that gets the counters and
+  job related information and you can use it to kill the
+  job, returning FALSE, stops monitoring}
 }
 \value{
   a list of the current state

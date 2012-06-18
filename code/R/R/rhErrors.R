@@ -3,7 +3,7 @@
 #' Retrieves errors from a job when debug=='collect' in rhwatch
 #' @param job is the result of rhwatch (when read=FALSE) or rhmr
 #' @param prefix is the prefix string of the debug files
-#' @num.file is the number of debug files to read
+#' @param num.file is the number of debug files to read
 #' @author Saptarshi Guha
 #' @export
 rherrors <- function(job,prefix="rhipe_debug",num.file=1){

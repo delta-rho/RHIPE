@@ -2,7 +2,8 @@
 \alias{rhwatch}
 \title{Start and Monitor Status of a MapReduce Job}
 \usage{
-  rhwatch(job, mon.sec = 5, readback = TRUE, ...)
+  rhwatch(job, mon.sec = 5, readback = TRUE, debug = NULL,
+    ...)
 }
 \arguments{
   \item{job}{The parameter \code{job} can either be a
@@ -16,6 +17,16 @@
 
   \item{readback}{if FALSE, results will not be read back
   and insteat results from rhstatus is returned}
+
+  \item{debug}{can be one of 'count' which counts the
+  number of errors but does not stop the job, 'stop' which
+  stops the job (setting debug to NULL (default) is the
+  same and is much faster) and 'collect' which collects 20
+  errors per split, saves them in files (inside the output
+  folder) prefixed with rhipe.debug and does not kill the
+  job. The maximum number of errors to collect can be set
+  in the \code{param} argument to rhmr, i.e
+  rh.max.errors=10 collects a maximum of 10 errors}
 
   \item{...}{Extra parameters passed to \code{rhstatus}.}
 }

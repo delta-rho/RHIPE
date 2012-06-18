@@ -2,8 +2,7 @@
 \alias{rhwrap}
 \title{Macro to Wrap Boilerplate Around RHIPE Map code}
 \usage{
-  rhwrap(expr = NULL, before = NULL, after = NULL,
-    trap = FALSE)
+  rhwrap(co1 = NULL, before = NULL, after = NULL)
 }
 \arguments{
   \item{expr}{Any R expression, that operates on current
@@ -16,9 +15,6 @@
 
   \item{after}{An R expression to run after the loop. The
   results of the loop is contained in \code{result}}
-
-  \item{trap}{Any R error causes the MapReduce job to quit
-  if set to TRUE.}
 }
 \description{
   Returns an expression corresponding to given input
