@@ -46,7 +46,10 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
   if(mon.sec<=0) {
     return(Rhipe:::.rhstatus(id,autokill,showErrors))
   }else{
-    handler <- if(is.null(handler)) function(y) TRUE else handler
+    handler <- if(is.null(handler)) function(y) TRUE else {
+      message("RHIPE: Using custom handler")
+      handler
+    }
     while(TRUE){
       y <- .rhstatus(id,autokill=TRUE,showErrors)
       cat(sprintf("\n[%s] Job: %s, State: %s, Duration: %s\nURL:%s\n",date(),id,y$state,y$duration,y$tracking))

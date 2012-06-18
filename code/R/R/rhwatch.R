@@ -78,7 +78,7 @@ rhwatch <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
     ## job[[1]]$keep.failed.task.files <- 'true'
   }
   if(!is.null((list(...))) && !is.null(list(...)[[".rdb"]])) return(job)
-  z <- Rhipe:::rhwatch.runner(job, mon.sec,readback,debug,....)
+  z <- Rhipe:::rhwatch.runner(job, mon.sec,readback,debug,...)
   if(readback==FALSE){
     class(z) <- append(class(z),"rhwatch")
   }
