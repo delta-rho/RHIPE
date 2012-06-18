@@ -58,7 +58,10 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
         print(y$counters)
       }
       res <- handler(y)
-      if(!is.null(res) && !res) break
+      if(!is.null(res) && !res) {
+        warning("RHIPE: Breaking because users handler function said so")
+        break
+      }
       if(!y$state %in% c("PREP","RUNNING")) break 
       cat(sprintf("Waiting %s seconds\n", mon.sec))
       Sys.sleep(max(1,as.integer(mon.sec)))
