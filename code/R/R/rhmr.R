@@ -337,7 +337,7 @@ rhmr <- function(map=NULL,reduce=NULL,
   combiner <- if(!is.null(attr(reduce,"combine")) && attr(reduce,"combine"))
     combiner <- TRUE
   else combiner
-                orig.reduce.task <- NA
+  orig.reduce.task.is.NA <- FALSE
   
   if(is.null(reduce)){
     reduces <- FALSE
@@ -345,7 +345,7 @@ rhmr <- function(map=NULL,reduce=NULL,
   } else if(!is.expression(reduce) && is.na(reduce)){  #Can't check if reduce is.na unless you make sure it is not NULL
     reduce <- NULL
     reduces <- FALSE
-    orig.reduce.task <- 0
+    orig.reduce.task.is.NA <- TRUE
     lines$mapred.reduce.tasks <- 0
   }
   lines$rhipe_reduce         <- rawToChar(serialize(reduce$reduce,NULL,ascii=T))
@@ -604,7 +604,8 @@ if(ofolder == ""){
   if(!is.null(options.mapred))
   	for(n in names(options.mapred)) lines[[n]] = options.mapred[[n]]
   for(n in names(mapred)) lines[[n]] <- mapred[[n]]
-  if(!is.na(orig.reduce.task)) lines$mapred.reduce.task=0
+  if(orig.reduce.task.is.NA)
+    lines$mapred.reduce.tasks <- 0
   ################################################################################################
   # END HANDLE MAPRED EXTRA PARAMS
   ################################################################################################
