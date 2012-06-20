@@ -7,8 +7,7 @@
     ifolder = "", inout = c("sequence", "sequence"),
     orderby = "bytes", mapred = NULL, shared = c(),
     jarfiles = c(), zips = c(), partitioner = NULL,
-    copyFiles = F, N = NA, opts = rhoptions(),
-    jobname = "", parameters = NULL)
+    copyFiles = F, N = NA, jobname = "", parameters = NULL)
 }
 \arguments{
   \item{map}{\code{map} is an R expression (created using
@@ -114,13 +113,6 @@
   computations sequentially). Note that \code{rhmr}
   automatically sets \code{inout[1]} to 'lapply' is
   \emph{N} is not \emph{NA}}
-
-  \item{opts}{RHIPE launches the C engine on the remote
-  computers using the value found in
-  \code{rhoptions()$opts$runner}. This is created from the
-  local R installation which is possibly different from the
-  Tasktrackers. If this is the case, specify the command
-  that launches the R session via this parameter.}
 
   \item{jobname}{The name of the job, which is visible on
   the Jobtracker website. If not provided, Hadoop MapReduce

@@ -48,7 +48,7 @@ onload.2 <- function(libname, pkgname){
 	# OTHER DEFAULTS
 	################################################################################################
 
-        opts$file.types.remove.regex     ="(/_SUCCESS|/_LOG|/_log|rhipe\\.debug)"
+        opts$file.types.remove.regex     ="(/_SUCCESS|/_LOG|/_log|rhipe_debug)"
 	opts$max.read.in.size <- 200*1024*1024 ## 100MB
 	opts$reduce.output.records.warn <- 200*1000
 	opts$rhmr.max.records.to.read.in <- NA
@@ -73,7 +73,7 @@ onload.2 <- function(libname, pkgname){
 	  post   = { {data <- do.call("rbind", unlist(data,recursive=FALSE));}; {rhcollect(reduce.key, data)}}
 	  )
        opts$templates$rbinder <- structure(opts$templates$rbinder,combine=TRUE)
-       opts$template$range= expression(
+       opts$template$range <-  expression(
            pre = {
              rng <- c(Inf,-Inf)
            },
@@ -83,7 +83,7 @@ onload.2 <- function(libname, pkgname){
            },
            post={rhcollect(reduce.key,rng)}
            )
-       opts$templates$range <- structure(opts$templates$range,combine=TRUE)
+       opts$templates$range <- structure(opts$template$range,combine=TRUE)
        opts$debug <- list()
        opts$debug$map <- list()
        opts$debug$map$setup <- expression({

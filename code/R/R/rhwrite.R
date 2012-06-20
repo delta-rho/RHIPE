@@ -39,8 +39,8 @@ rhwrite <- function(lo,dest,N=NULL){
     stop("lo must be a list")
   namv <- names(lo)
   if(is.null(N)){
-    x1 <- rhoptions()$mropts[[1]]$mapred.map.tasks
-    x2 <- rhoptions()$mropts[[1]]$mapred.tasktracker.map.tasks.maximum
+    x1 <- rhoptions()$mropts$mapred.map.tasks
+    x2 <- rhoptions()$mropts$mapred.tasktracker.map.tasks.maximum
     N <- as.numeric(x1)*as.numeric(x2) #number of files to write to
     if(is.null(N)) warning("Cannot infer N (because at least one of mapred.map.tasks and mapred.trasktracker.map.tasks.maximum is missing), defaulting to 1")
     N <- 1

@@ -70,11 +70,6 @@
 #'   \emph{N} in this parameter. Set the number of map tasks in
 #'   \code{mapred.map.tasks} (hence each task will run approximately
 #'   floor(\emph{N}/\code{mapred.map.tasks}) computations sequentially). Note that \code{rhmr} automatically sets \code{inout[1]} to 'lapply' is \emph{N} is not \emph{NA}
-#' @param opts RHIPE launches the C engine on the remote computers using the
-#'   value found in \code{rhoptions()$opts$runner}. This is created from the
-#'   local R installation which is possibly different from the Tasktrackers. If
-#'   this is the case, specify the command that launches the R session via this
-#'   parameter.
 #' @param jobname The name of the job, which is visible on the Jobtracker
 #'   website. If not provided, Hadoop MapReduce uses the default name
 #'   \emph{job_date_time_number} e.g. \code{job_201007281701_0274}.
@@ -303,7 +298,6 @@ rhmr <- function(map=NULL,reduce=NULL,
                  partitioner=NULL,
                  copyFiles=F,
                  N=NA,
-                 opts=rhoptions(),
                  jobname="",
                  parameters=NULL){
                  
@@ -343,6 +337,7 @@ rhmr <- function(map=NULL,reduce=NULL,
   combiner <- if(!is.null(attr(reduce,"combine")) && attr(reduce,"combine"))
     combiner <- TRUE
   else combiner
+                orig.reduce.task <- NA
   
   if(is.null(reduce)){
     reduces <- FALSE
@@ -350,6 +345,7 @@ rhmr <- function(map=NULL,reduce=NULL,
   } else if(!is.expression(reduce) && is.na(reduce)){  #Can't check if reduce is.na unless you make sure it is not NULL
     reduce <- NULL
     reduces <- FALSE
+    orig.reduce.task <- 0
     lines$mapred.reduce.tasks <- 0
   }
   lines$rhipe_reduce         <- rawToChar(serialize(reduce$reduce,NULL,ascii=T))
@@ -456,8 +452,6 @@ if(ofolder == ""){
     ifolder <- ifolder[-remr]
   if(!is.null(flagclz)) inout <- c('sequence',inout[2])
 
-  ## print(ifolder)
-  ## stop("woo")
   lines<- append(lines,list(
                      		R_HOME=R.home()
                             ,rhipe.read.and.delete.ofolder=read.and.delete.ofolder
@@ -466,7 +460,7 @@ if(ofolder == ""){
                             ,rhipe_cleanup_map= (cleanup.m)
                             ,rhipe_cleanup_reduce= (cleanup.r)
                             ,rhipe_setup_reduce= (setup.r)
-                            ,rhipe_command=paste(opts$runner,collapse=" ")
+                            ,rhipe_command=paste(rhoptions()$runner,collapse=" ")
                             ,rhipe_input_folder=paste(ifolder,collapse=",")
                             ,rhipe_output_folder=paste(ofolder,collapse=",")))
 
@@ -581,6 +575,7 @@ if(ofolder == ""){
   lines$rhipe_map_buff_size <- 3000
   lines$rhipe_job_verbose <- "TRUE"
   lines$rhipe_stream_buffer <- 10*1024
+  lines$mapred.output.compress <- "true"
   lines$mapred.compress.map.output="true"
   lines$rhipe.use.hadoop.combiner="FALSE"
   ##If user does not provide
@@ -605,11 +600,11 @@ if(ofolder == ""){
   ################################################################################################
   # HANDLE MAPRED EXTRA MAPREDUCE PARAMS
   ################################################################################################
-  options.mapred = rhoptions()$mapred
+  options.mapred = rhoptions()$mropts
   if(!is.null(options.mapred))
   	for(n in names(options.mapred)) lines[[n]] = options.mapred[[n]]
   for(n in names(mapred)) lines[[n]] <- mapred[[n]]
-  
+  if(!is.na(orig.reduce.task)) lines$mapred.reduce.task=0
   ################################################################################################
   # END HANDLE MAPRED EXTRA PARAMS
   ################################################################################################
