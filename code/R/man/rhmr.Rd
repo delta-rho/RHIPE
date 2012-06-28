@@ -24,7 +24,8 @@
   and if not specified the map output keys will be sorted
   and shuffled and saved to disk. If it is not specified,
   then a default identity reduce is performed. Setting it
-  to NA is equivalent to mapred.reduce.tasks=0}
+  to 0 or another integer is equivalent to
+  mapred.reduce.tasks=reduce}
 
   \item{combiner}{If set to TRUE, RHIPE will run the
   \code{reduce} expression on the output of the \code{map}

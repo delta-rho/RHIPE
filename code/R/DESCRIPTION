@@ -39,7 +39,6 @@ Collate:
     'server.R'
     'zzz.R'
     'extra.functions.R'
-    'rhwrap.R'
     'rhwatch.R'
     'hdfs.getwd.R'
     'hdfs.setwd.R'
@@ -48,3 +47,4 @@ Collate:
     'rhclean.R'
     'bashRhipeArchive.R'
     'rhErrors.R'
+    'rhmap.R'

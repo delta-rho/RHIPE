@@ -8,7 +8,7 @@
 #' @export
 rherrors <- function(job,prefix="rhipe_debug",num.file=1){
   files <- rhls(rhofolder(job))$file
-  files <- files[grepl(prefix,files)]
+  files <- files[grepl(prefix,files)][1:num.file]
   y <- new.env()
   unlist(lapply(files, function(r){
     rhload(r,envir=y)

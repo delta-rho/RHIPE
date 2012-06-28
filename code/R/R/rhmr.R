@@ -12,7 +12,7 @@
 #'   it is a vector of expressions with names pre, reduce, and post.  For
 #'   example \code{reduce = expression(pre={...}, reduce={...}, post={...})}.
 #'   \code{reduce} is optional, and if not specified the map output keys will
-#'   be sorted and shuffled and saved to disk. If it is not specified, then a default identity reduce is performed. Setting  it to NA is equivalent to mapred.reduce.tasks=0
+#'   be sorted and shuffled and saved to disk. If it is not specified, then a default identity reduce is performed. Setting  it to 0 or another integer is equivalent to mapred.reduce.tasks=reduce
 #' @param combiner
 #' 
 #' If set to TRUE, RHIPE will run the \code{reduce} expression on the output of
@@ -342,11 +342,11 @@ rhmr <- function(map=NULL,reduce=NULL,
   if(is.null(reduce)){
     reduces <- FALSE
     combiner <- FALSE
-  } else if(!is.expression(reduce) && is.na(reduce)){  #Can't check if reduce is.na unless you make sure it is not NULL
+  } else if(!(is.expression(reduce)) && is.integer(reduce)){  #Can't check if reduce is.na unless you make sure it is not NULL
     reduce <- NULL
     reduces <- FALSE
     orig.reduce.task.is.NA <- TRUE
-    lines$mapred.reduce.tasks <- 0
+    lines$mapred.reduce.tasks <- reduce
   }
   lines$rhipe_reduce         <- rawToChar(serialize(reduce$reduce,NULL,ascii=T))
   lines$rhipe_reduce_prekey  <- rawToChar(serialize(reduce$pre ,NULL,ascii=T))

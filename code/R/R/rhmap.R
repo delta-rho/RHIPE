@@ -8,7 +8,7 @@
 #' @seealso \code{\link{rhmr}}
 #' @keywords MapReduce Map
 #' @export
-rhwrap <- 
+rhmap <- 
 function(co1=NULL,before=NULL,after=NULL){
   co <- substitute(co1); before=substitute(before);after=substitute(after)
   j <- as.expression(bquote({

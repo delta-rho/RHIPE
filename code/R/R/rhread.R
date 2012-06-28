@@ -3,7 +3,7 @@
 #' Reads all or a limited number of key/value pairs from HDFS files.
 #' 
 #' @param files Path to file or directory containing map, sequence, or
-#'   text file to be read on the HDFS.
+#'   text file to be read on the HDFS. This can also be the output from rhwatch(provided read=FALSE) or rhmr.
 #' @param type Type of file on HDFS.  Must be "sequence", "map", or "text".
 #' @param max Maximum number of key/value pairs to read for map and sequence
 #'   files.  Maximum number of bytes to read for text files.

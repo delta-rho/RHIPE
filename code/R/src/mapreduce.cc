@@ -409,6 +409,8 @@ SEXP execMapReduce() {
 	// Load the functions into the R global environmen
 	// rexpress("options(width=200)");
 	rexpress("rhstatus<-function(string) .Call('rh_status',string);");
+	rexpress("rhreturn<-function(r) .Call('rh_collect',.Internal(runif(1, 0, 1)),r);");
+
 	rexpress(
 			"rhcounter<-function(group,counter='',n=1) .Call('rh_counter',list(group,counter,n))");
 	if (!strcmp(getenv("rhipe_outputformat_class"),

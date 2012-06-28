@@ -67,12 +67,21 @@ onload.2 <- function(libname, pkgname){
 	  reduce={.sum <- .sum + apply(do.call('rbind', reduce.values),2,sum)},
 	  post = { {rhcollect(reduce.key,.sum)}} )
         opts$templates$colsummer <- structure(opts$templates$colsummer,combine=TRUE)
-	opts$templates$rbinder <-  expression(
-	  pre    = { data <- list()},
-	  reduce = { data[[length(data) + 1 ]] <- reduce.values },
-	  post   = { {data <- do.call("rbind", unlist(data,recursive=FALSE));}; {rhcollect(reduce.key, data)}}
-	  )
-       opts$templates$rbinder <- structure(opts$templates$rbinder,combine=TRUE)
+        opts$templates$rbinder <-  function(r=NULL,combine=FALSE,dfname='adata'){
+          r <- substitute(r)
+          def <- if(is.null(r)) TRUE else FALSE
+          r <- if(is.null(r)) substitute({rhcollect(reduce.key, adata)}) else r
+          y <-bquote(expression(
+              pre    = { adata <- list()},
+              reduce = { adata[[length(adata) + 1 ]] <- reduce.values },
+              post   = {
+                adata <- do.call("rbind", unlist(adata,recursive=FALSE));
+                .(P)
+              }), list(P=r))
+          y <- if(combine || def) structure(y,combine=TRUE) else y
+          environment(y) <- .BaseNamespaceEnv
+          y
+        }
        opts$template$range <-  expression(
            pre = {
              rng <- c(Inf,-Inf)
