@@ -90,7 +90,7 @@ void readVInt_from_R(const unsigned char *data, int *vint) {
 	vint[1] = (int32_t) (isNegativeVInt(firstByte) ? (i ^ -1L) : i);
 }
 
-SEXP returnBytesForVInt(SEXP n0) {
+SEXP returnBytesForVIntx(SEXP n0) {
 	int i = INTEGER(n0)[0];
 	SEXP r;
 	int nm = getVIntSize(i);

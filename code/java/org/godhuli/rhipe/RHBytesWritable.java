@@ -92,13 +92,17 @@ public class RHBytesWritable
     public void readFields(final DataInput in) throws IOException {
     	setSize(0); 
     	setSize(readVInt(in));
+	// byte[] b = new byte[30];
+	// in.readFully(b);
+	// LOG.info("Oh dear ..."+RHBytesWritable.bytesPretty(b));
+	// setSize(in.readInt());
+	// LOG.info("SAPSI-----------------: The size read is "+size);
     	in.readFully(bytes, 0, size);
 	// readIntFields(in);
     }
     public void readIntFields(final DataInput in) throws IOException {
     	setSize(0); // clear the old data
 	final int d=in.readInt();
-	// LOG.info("Read this "+d+" many bytes") ;
     	setSize(d);
     	in.readFully(bytes, 0, size);
     }
@@ -173,7 +177,23 @@ public class RHBytesWritable
     public String toString() {
 	return REXPHelper.toString(bytes,0,size);
     }
-		
+	
+    public static String bytesPretty(byte[] b) { 
+	int sz= b.length;
+	StringBuffer sb = new StringBuffer(3*sz);
+	for (int idx = 0; idx < sz; idx++) {
+	    if (idx != 0) {
+		sb.append(" 0x");
+	    }else sb.append("0x");
+	    String num = Integer.toHexString(0xff & b[idx]);
+	    if (num.length() < 2) {
+		sb.append('0');
+	    }
+	    sb.append(num);
+	}
+	return sb.toString();
+    }
+
     public static boolean isNegativeVInt(byte value) {
 	return value < -120 || (value >= -112 && value < 0);
     }

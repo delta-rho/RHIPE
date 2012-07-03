@@ -2,7 +2,9 @@
 #include <time.h>
 #include <locale.h>
 #include <langinfo.h>
+#include <arpa/inet.h>
 #include <google/protobuf/io/coded_stream.h>
+
 using namespace google::protobuf::io;
 
 #include <iostream>
@@ -311,12 +313,15 @@ SEXP collect_buffer(SEXP k,SEXP v){
 
 
 void sendToHadoop(SEXP k){
-
+  
 	int size;
 	oiinfo.rxp->Clear();
 	sexpToRexp(oiinfo.rxp,k);
 	size = oiinfo.rxp->ByteSize();
+	
+	// uint32_t nsize = htonl(size);
 	writeVInt64ToFileDescriptor( size , CMMNC->BSTDOUT);
+	// fwrite(&nsize, sizeof(nsize),1,CMMNC->BSTDOUT);
 	// if (size < PSIZE){
 	oiinfo.rxp_s->clear();
 	oiinfo.rxp->SerializeToString(oiinfo.rxp_s);
@@ -327,26 +332,7 @@ void sendToHadoop(SEXP k){
 	// fflush(CMMNC->BSTDOUT);
 }
 
-// SEXP readFromHadoop(const uint32_t nbytes,int *err){
-//   SEXP r = R_NilValue;
-//   SEXP rv ;
-//   PROTECT(rv = Rf_allocVector(RAWSXP, nbytes));
-//   if(fread(RAW(rv),nbytes,1,CMMNC->BSTDIN)<=0){
-//     *err=1;
-//     UNPROTECT(1);
-//     return(R_NilValue);
-//   }
-//   REXP *rxp = new REXP();
-//   if (rxp->ParseFromArray(RAW(rv),LENGTH(rv))){
-//     LOGG(1,"%s\n", rxp->DebugString().c_str());
 
-//     PROTECT(r = message2rexp(*rxp));
-//     UNPROTECT(1);
-//   }
-//   UNPROTECT(1);
-//   delete rxp;
-//   return(r);
-// }
 
 
 SEXP readFromHadoop(const uint32_t nbytes,int *err){

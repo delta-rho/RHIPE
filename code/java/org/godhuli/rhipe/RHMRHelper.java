@@ -307,9 +307,13 @@ public class RHMRHelper {
 	}
 	boolean readRecord(WritableComparable k, Writable v) {
 	    try{
+		// LOG.info("SAPSI------------ Reading the key");
 		k.readFields(clientIn_);
+		// LOG.info("SAPSI------------- The key is "+k);
+		// LOG.info("SAPSI------------ Reading the value");
 		v.readFields(clientIn_);
-	
+		// LOG.info("SAPSI------------ The valuse is"+v);
+
 	    }catch(IOException e){
 		return(false);
 	    }
