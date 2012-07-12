@@ -342,7 +342,7 @@ rhmr <- function(map=NULL,reduce=NULL,
   if(is.null(reduce)){
     reduces <- FALSE
     combiner <- FALSE
-  } else if(!(is.expression(reduce)) && is.integer(reduce)){  #Can't check if reduce is.na unless you make sure it is not NULL
+  } else if(!(is.expression(reduce)) && (is.numeric(reduce) || is.integer(reduce))){  #Can't check if reduce is.na unless you make sure it is not NULL
     reduce <- NULL
     reduces <- FALSE
     orig.reduce.task.is.NA <- TRUE

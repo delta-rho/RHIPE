@@ -3,7 +3,7 @@
 #' Takes a list of objects, found in \code{lo} and writes them to the folder
 #' pointed to by \code{dest} which will be located on the HDFS.
 #' 
-#' @param lo List of R objects to place on the HDFS.
+#' @param lo List of R objects to place on the HDFS or a data frame/matrix.
 #' @param dest Path to destination directory on the HDFS.
 #' @param N See Details.
 #' @details The file
@@ -26,6 +26,8 @@
 #' job, the variable \code{map.keys} will contain numbers in the range $[1,
 #' length(list)]$. The variable \code{map.values} will contain elements of
 #' \code{list}.
+#' If \code{lo} is a data frame/matrix, it will converted into a list of pairs,
+#' each pair a list of the i'th row.
 #' @author Saptarshi Guha
 #' @return NULL
 #' @seealso \code{\link{rhget}}, \code{\link{rhput}},
@@ -34,9 +36,14 @@
 #' @keywords write HDFS
 #' @export
 rhwrite <- function(lo,dest,N=NULL){
-	dest = rhabsolute.hdfs.path(dest)
-  if(!is.list(lo))
-    stop("lo must be a list")
+  dest = rhabsolute.hdfs.path(dest)
+  if(!is.list(lo) || ! is.data.frame(lo))
+    stop("lo must be a list or data frame")
+  if(is.data.frame(lo)){
+    rlo <- rownames(lo)
+    if(is.null(rlo)) rlo <- 1:nrow(lo)
+    lo <- lapply(1:nrow(lo),function(i) list(rlo[i], lo[i,]))
+  }
   namv <- names(lo)
   if(is.null(N)){
     x1 <- rhoptions()$mropts$mapred.map.tasks

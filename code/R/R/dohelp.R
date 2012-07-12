@@ -10,7 +10,7 @@ doCMD <- function(CMD=0,needoutput=F,opts=rhoptions(),verbose=T,ignore.stderr=F
  ##  ip <- paste("java -cp ",paste(cp,sep="",collapse=":")," ",
 ##               "org.godhuli.rhipe.FileUtils",sep="",collapse="")
 
-  ip <- paste(Sys.getenv("HADOOP"),"/bin/hadoop jar ",opts$jarloc," ",
+  ip <- paste(Sys.getenv("HADOOP_BIN"),"/hadoop jar ",opts$jarloc," ",
               "org.godhuli.rhipe.FileUtils",sep="",collapse="")
   
   p <- switch(as.integer(CMD),

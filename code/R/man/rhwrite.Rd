@@ -5,7 +5,8 @@
   rhwrite(lo, dest, N = NULL)
 }
 \arguments{
-  \item{lo}{List of R objects to place on the HDFS.}
+  \item{lo}{List of R objects to place on the HDFS or a
+  data frame/matrix.}
 
   \item{dest}{Path to destination directory on the HDFS.}
 
@@ -43,7 +44,9 @@
   when used as a source for a MapReduce job, the variable
   \code{map.keys} will contain numbers in the range $[1,
   length(list)]$. The variable \code{map.values} will
-  contain elements of \code{list}.
+  contain elements of \code{list}. If \code{lo} is a data
+  frame/matrix, it will converted into a list of pairs,
+  each pair a list of the i'th row.
 }
 \author{
   Saptarshi Guha
