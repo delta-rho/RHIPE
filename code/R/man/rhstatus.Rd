@@ -13,7 +13,8 @@
 
   \item{mon.sec}{If \code{mon.sec} is greater than 0, a
   small data frame indicating the progress will be returned
-  every \code{mon.sec} seconds.}
+  every \code{mon.sec} seconds.If 0, it will return
+  immediately. If Inf, it will wait till over.}
 
   \item{autokill}{If \code{autokill} is TRUE, then any R
   errors caused by the map/reduce code will cause the job

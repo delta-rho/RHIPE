@@ -6,7 +6,7 @@
 #'   \emph{job_datetime_id} (e.g. \emph{job_201007281701_0274}) or the value
 #'   returned from \code{rhex} with the \code{async} option set to TRUE.
 #' @param mon.sec If \code{mon.sec} is greater than 0, a small data frame
-#'   indicating the progress will be returned every \code{mon.sec} seconds.
+#'   indicating the progress will be returned every \code{mon.sec} seconds.If 0, it will return immediately. If Inf, it will wait till over.
 #' @param autokill If \code{autokill} is TRUE, then any R errors caused by the
 #'   map/reduce code will cause the job to be killed.
 #' @param verbose If \code{verbose} is TRUE, also provided is the state of the
@@ -42,6 +42,12 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
   if(class(job)=="character") id <- job else {
     job <- job[[1]]
     id <- job[['job.id']]
+  }
+  if(mon.sec==Inf){
+    result <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhjoin", list(id,
+                                                                             needoutput=as.character(TRUE),
+                                                                             joinwordy = as.character(as.logical(TRUE)))))[[1]]
+    mon.sec=1
   }
   if(mon.sec<=0) {
     return(Rhipe:::.rhstatus(id,autokill,showErrors))
