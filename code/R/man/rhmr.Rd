@@ -41,10 +41,10 @@
   expressions.}
 
   \item{setup}{An expression of R code to be run before map
-  and reduce.  Alternatively a list with elements map and
-  reduce e.g \code{setup=list(map=,reduce=)} and each of
-  those is, ran respectively, before the map and reduce
-  phases. See details.}
+  and reduce.  Alternatively an expression with elements
+  map and reduce e.g \code{setup=expression(map=,reduce=)}
+  and each of those is, ran respectively, before the map
+  and reduce phases. See details.}
 
   \item{cleanup}{As in setup except cleanup runs after the
   map and reduce phases.}

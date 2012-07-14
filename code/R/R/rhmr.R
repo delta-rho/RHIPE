@@ -26,8 +26,8 @@
 #'   We recommend only advanced users try to use both a combiner and
 #'   setup/cleanup expressions.
 #' @param setup An expression of R code to be run before map and reduce.
-#'   Alternatively a list with elements map and reduce e.g
-#'   \code{setup=list(map=,reduce=)} and each of those is, ran respectively,
+#'   Alternatively an expression with elements map and reduce e.g
+#'   \code{setup=expression(map=,reduce=)} and each of those is, ran respectively,
 #'   before the map and reduce phases. See details.
 #' @param cleanup As in setup except cleanup runs after the map and reduce
 #'   phases.
@@ -362,11 +362,11 @@ rhmr <- function(map=NULL,reduce=NULL,
     setup$map <- expression()
     setup$reduce <- expression()
   }else if(!is.Expression(setup)){
-    stop("'setup' is an expression with or without components (map=,reduce=)")
+    stop("'setup' should be an expression (named or not). See ?rhmr")
   }else if(is.Expression(setup)){
     ## is it without  names?
     if(is.null(names(setup))){
-      setup <- expression(map=setup,reduce=setup)
+      setup <- bquote(expression(map=.(setup),reduce=.(setup)),list(setup=setup[[1]]))
     }
   }
                 
