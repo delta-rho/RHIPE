@@ -37,7 +37,7 @@
 #' @export
 rhwrite <- function(lo,dest,N=NULL){
   dest = rhabsolute.hdfs.path(dest)
-  if(!is.list(lo) || ! is.data.frame(lo))
+  if(!(is.list(lo) || is.data.frame(lo)))
     stop("lo must be a list or data frame")
   if(is.data.frame(lo)){
     rlo <- rownames(lo)
