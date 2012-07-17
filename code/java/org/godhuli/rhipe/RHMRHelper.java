@@ -220,7 +220,9 @@ public class RHMRHelper {
 	    int exitVal = sim.waitFor();
 	    if (exitVal != 0) {
 		if (nonZeroExitIsFailure_) {
-		    ctx.getCounter("R_ERRORS","subprocess failed with code: "+exitval).increment(1);
+		    ctx.getCounter("R_ERRORS","subprocess failed with code: "+exitVal).increment(1);
+		}else{
+		    ctx.getCounter("R_SUBPROCESS","subprocess failed with code: "+exitVal).increment(1);
 		}
 	    }
 	    if (outThread_ != null) 
