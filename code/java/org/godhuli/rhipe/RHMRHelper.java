@@ -43,7 +43,6 @@ public class RHMRHelper {
     private  static int BUFFER_SIZE = 10*1024;
     private  static final String R_MAP_ERROR = "R MAP ERROR";
     private  static final String R_REDUCE_ERROR = "R REDUCE ERROR";
-
     protected static final Log LOG = LogFactory.getLog(RHMRHelper.class.getName());
     public boolean copyFile;
     static private Environment env_;
@@ -144,7 +143,6 @@ public class RHMRHelper {
 	    keyclass = _kc.asSubclass( RHBytesWritable.class );
 
 
-
 	    if(cfg.get("rhipe_output_folder")!=null)
 		outputFolder = new Path(cfg.get("rhipe_output_folder"));
 	    if(!doPipe_) return;
@@ -222,9 +220,8 @@ public class RHMRHelper {
 	    int exitVal = sim.waitFor();
 	    if (exitVal != 0) {
 		if (nonZeroExitIsFailure_) {
-		    throw new RuntimeException("RHMRMapRed.waitOutputThreads(): subprocess failed with code "
-					       + exitVal);
-		} 
+		    ctx.getCounter("R_ERRORS","subprocess failed with code: "+exitval).increment(1);
+		}
 	    }
 	    if (outThread_ != null) 
 		outThread_.join(joinDelay_);

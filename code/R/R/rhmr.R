@@ -596,7 +596,7 @@ if(ofolder == ""){
   lines$RHIPE_DEBUG <- 0
   lines$rhipe_map_input_type <- "default"
   lines$mapred.job.reuse.jvm.num.tasks <- -1
-  
+  lines$mapreduce.job.counters.groups.max <- "200"
   ################################################################################################
   # HANDLE MAPRED EXTRA MAPREDUCE PARAMS
   ################################################################################################
