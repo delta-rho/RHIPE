@@ -82,6 +82,20 @@ onload.2 <- function(libname, pkgname){
           environment(y) <- .BaseNamespaceEnv
           y
         }
+        opts$templates$raggregate <-  function(r=NULL,combine=FALSE,dfname='adata'){
+          r <- substitute(r)
+          def <- if(is.null(r)) TRUE else FALSE
+          r <- if(is.null(r)) substitute({rhcollect(reduce.key, adata)}) else r
+          y <-bquote(expression(
+              pre    = { adata <- list()},
+              reduce = { adata[[length(adata) + 1 ]] <- reduce.values },
+              post   = {
+                .(P)
+              }), list(P=r))
+          y <- if(combine || def) structure(y,combine=TRUE) else y
+          environment(y) <- .BaseNamespaceEnv
+          y
+        }
        opts$template$range <-  expression(
            pre = {
              rng <- c(Inf,-Inf)
