@@ -7,6 +7,7 @@ R_CallMethodDef callMethods [] = {
   {"rh_counter",(DL_FUNC) counter,1},
   {"rh_status",(DL_FUNC) status,1},
   {"rh_collect",(DL_FUNC) collect,2},
+  {"rh_vcollect",(DL_FUNC) collectList,2},
   {"rh_collect_buffer",(DL_FUNC) collect_buffer,2},
   {"rh_uz",(DL_FUNC) persUnser,1},
   {"rh_dbgstr",(DL_FUNC) dbgstr,1},
@@ -145,8 +146,7 @@ void setupCombiner(){
 	//If we are here we are using a spill combiner and need to setup for it.
 
 	spill_size = (uint32_t) ((strtod(getenv("io_sort_mb"), NULL) * 1024* 1024));
-	rexpress(
-				".rhipe.current.state<-'map.combine';rhcollect<-function(key,value) .Call('rh_collect_buffer',key,value)");
+	rexpress(".rhipe.current.state<-'map.combine';rhcollect<-function(key,value) .Call('rh_collect_buffer',key,value)");
 	SEXP reducesetup;
 	int Rerr = 0;
 	PROTECT(reducesetup=rexpress(REDUCESETUP));
@@ -416,8 +416,11 @@ SEXP execMapReduce() {
 	if (!strcmp(getenv("rhipe_outputformat_class"),
 			"org.apache.hadoop.mapreduce.lib.output.NullOutputFormat"))
 		rexpress("rhcollect<-function(key,value) {}");
-	else
-		rexpress("rhcollect<-function(key,value) .Call('rh_collect',key,value)");
+	else{
+	  rexpress("rhcollect<-function(key,value) .Call('rh_collect',key,value)");
+	  rexpress("rhvcollect<-function(key,value) .Call('rh_vcollect',key,value)");
+	}
+
 
 	LOGG(9,"Loaded R Wrappers\n");
 

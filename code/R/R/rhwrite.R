@@ -89,34 +89,3 @@ rhwrite <- function(lo,dest,N=NULL){
   p[[1]]=="OK"
 }
 
-
-# rhwrite <- function(lo,f,N=NULL,ignore.stderr=T,verbose=F){
-#   on.exit({
-#     unlink(tmf)
-#   })
-#   if(!is.list(lo))
-#     stop("lo must be a list")
-#   namv <- names(lo)
-# 
-#   if(is.null(N)){
-#     x1 <- rhoptions()$mropts$mapred.map.tasks
-#     x2 <- rhoptions()$mropts$mapred.tasktracker.map.tasks.maximum
-#     N <- as.numeric(x1)*as.numeric(x2)
-#   }
-#   if(is.null(N) || N==0 || N>length(lo)) N<- length(lo) ##why should it be zero????
-#   tmf <- tempfile()
-#   ## convert lo into a list of key-value lists
-#   if(is.null(namv)) namv <- as.character(1:length(lo))
-#   if(!(is.list(lo[[1]]) && length(lo[[1]])==2)){
-#     ## we just checked the first element to see if it conforms
-#     ## if not we convert, where keys
-#     lo <- lapply(1:length(lo),function(r) {
-#       list( namv[[r]], lo[[r]])
-#     })
-#   }
-#   .Call("writeBinaryFile",lo,tmf,as.integer(16384))
-#   doCMD(rhoptions()$cmd['b2s'],tempf=tmf,
-#         output=f,groupsize = as.integer(length(lo)/N),
-#         howmany=as.integer(N),
-#         N=as.integer(length(lo)),needoutput=F,ignore.stderr=ignore.stderr,verbose=verbose)
-# }

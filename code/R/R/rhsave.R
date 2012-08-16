@@ -29,6 +29,6 @@
 rhsave <- function(...,file){
   on.exit({unlink(x)})
   x <- tempfile(pattern='rhipe.save')
-  save(file=x,...)
+  save(...,file=x)
   rhput(src=x,dest=file)
 }
