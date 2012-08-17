@@ -22,7 +22,7 @@
 #' 	# prints a slew of information; sometimes useful if Rhipe is not installed correctly.
 #' 	# rhinit(TRUE,TRUE,buglevel=2000) 
 #' @export
-rhinit <-function(errors=TRUE,buglevel=0,info=FALSE,path=NULL,cleanup=FALSE,bufsize=as.integer(3*1024*1024),cleanTMP=FALSE,first=TRUE){
+rhinit <-function(errors=TRUE,buglevel=0,info=FALSE,path=NULL,cleanup=FALSE,bufsize=as.integer(3*1024*1024),first=TRUE){
   ## for debug: rhinit(errors=TRUE,info
   Rhipe:::.rhinit(errors,info,path,cleanup,bufsize,buglevel)
   if(first){
@@ -33,10 +33,6 @@ rhinit <-function(errors=TRUE,buglevel=0,info=FALSE,path=NULL,cleanup=FALSE,bufs
     ## Rhipe:::.rhinit(errors=TRUE,info=if(buglevel) TRUE else FALSE,path,cleanup,bufsize,buglevel=buglevel)
     Sys.sleep(2)
     message("Rhipe first run complete")
-    if(cleanTMP){
-      message("Cleaning Temporary Folder")
-      rhclean()
-    }
     return(TRUE)
   }
 }

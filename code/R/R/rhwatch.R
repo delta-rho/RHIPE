@@ -61,6 +61,18 @@ rhwatch <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
       cleanup   <- rhoptions()$debug$map[[debug]]$cleanup
       if(is.null(handler)) stop("Rhipe(rhwatch): invalid debug character string provided")
     }
+    if(is.null(job$paramaters)){
+      environment(handler) <- .BaseNamespaceEnv
+      job$paramaters <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",paramaters=list(rhipe.trap=handler))
+      x <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
+      y <- job$paramaters$setup; environment(y) <- .BaseNamespaceEnv
+      job[[1]]$rhipe_setup_map <- rawToChar(serialize( c(y,x),NULL,ascii=TRUE))
+      x <- unserialize(charToRaw(job[[1]]$rhipe_setup_reduce))
+      job[[1]]$rhipe_setup_reduce <- rawToChar(serialize( c(y,x),NULL,ascii=TRUE))
+      ## This is becoming quite the HACK
+      ## Of all lines magic and thiss hit should be in rhex ...
+      job[[1]]$rhipe_shared <- sprintf("%s,%s#%s",job[[1]]$rhipe_shared,job$paramaters$file,basename(job$paramaters$file))
+    }else job$paramaters$envir$rhipe.trap <- handler
 
     if(is.expression(setup)){
       environment(setup) <- .BaseNamespaceEnv
@@ -73,9 +85,6 @@ rhwatch <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
       job[[1]]$rhipe_cleanup_map<- rawToChar(serialize(c(cleanupmap,cleanup),NULL,ascii=TRUE))
     }
     environment(handler) <- .BaseNamespaceEnv
-    if(is.null(job$paramaters)){
-      job$paramaters <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",paramaters=list(rhipe.trap=handler))
-    }else job$paramaters$envir$rhipe.trap <- handler
     
     job[[1]]$rhipe_copy_file <- 'TRUE' ##logic for local runner is wrong here
   }

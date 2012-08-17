@@ -92,21 +92,30 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
   state = result[[1]]
   errs=unique(result[[7]])
   haveRError <- FALSE
-  msg.str <- "There were R errors, showing 30:"
-
+  msg.str <- "There were R errors, showing 30:\n"
+  if(!is.null(result[[6]]$R_UNTRAPPED_ERRORS)){
+    k <- length(result[[6]]$R_UNTRAPPED_ERRORS)
+    if(k==1)
+      warning(sprintf("The RHIPE( %s ) job has %s untrapped error",as.character(id),k))
+    else
+      warning(sprintf("The RHIPE( %s ) job has %s untrapped errors",as.character(id),k))
+  }
+  
   if(!is.null(result[[6]]$R_ERRORS)) {
     ## I treat these errors differently from other types
     ## not sure if thats need, if not, this code can be eliminated
     ## and errs can be extended by R_ERRORS
     haveRError <- TRUE
     message(sprintf("\n%s\n%s",paste(rep("-",nchar(msg.str)),collapse=""),msg.str))
-    v <- unique(names(sort(result[[6]]$R_ERRORS)))
-    newr <- t(sapply(v,function(x){
-        y <- strsplit(x,"\n")[[1]]
-        f <- which(sapply(y,function(r) grep("(R ERROR)",r),USE.NAMES=FALSE)>=1)
-        if(length(f)>0) c("R",paste(y[(f[1]+3):(f[2]-1)],collapse="\n")) else c("NR",x)
-      },USE.NAMES=FALSE))
-    rerr <- head(newr[newr[,1]=="R",2],30)
+    a <- result[[6]]$R_ERRORS
+    v <- unique(names(sort(a)))
+    ## newr <- t(sapply(v,function(x){
+    ##     y <- strsplit(x,"\n")[[1]]
+    ##     f <- which(sapply(y,function(r) grep("(R ERROR)",r),USE.NAMES=FALSE)>=1)
+    ##     if(length(f)>0) c("R",paste(y[(f[1]+3):(f[2]-1)],collapse="\n")) else c("NR",x)
+    ##   },USE.NAMES=FALSE))
+    ## rerr <- head(newr[newr[,1]=="R",2],30)
+    rerr <- head(v,30)
     sapply(rerr,cat)
     if(autokill) {
       message(sprintf("Autokill is true and terminating %s", id))

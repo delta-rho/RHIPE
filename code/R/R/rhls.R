@@ -2,7 +2,7 @@
 #'
 #' List all files and directories contained in a directory on the HDFS.
 #' 
-#' @param folder  Path of directory on HDFS
+#' @param folder  Path of directory on HDFS or output from rhmr or rhwatch(read=FALSE)
 #' @param recurse If TRUE list all files and directories in sub-directories.
 #' @author Saptarshi Guha
 #' @details Returns a data.frame of filesystem information for the files located
@@ -20,6 +20,8 @@
 #' @export
 rhls <- function(folder,recurse=FALSE){
 	## List of files,
+  if( is(folder,"rhmr") || is(folder, "rhwatch"))
+    folder <- rhofolder(folder)
   folder <- rhabsolute.hdfs.path(folder)
   v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhls",folder, if(recurse) 1L else 0L))
   if(is.null(v)) return(NULL)

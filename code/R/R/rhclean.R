@@ -12,7 +12,7 @@ rhclean <- function(temp=rhoptions()$HADOOP.TMP.FOLDER){
     files <- files[grepl("/rhipe-temp-",files)]
     if(length(files)>0){
       rhdel(files)
-      message(sprintf("Deleted %s files",length(files)))
+      message(sprintf("Deleted %s file%s",length(files),if(length(files)>1) "s" else ""))
     } else {
       message("Nothing to delete")
     }

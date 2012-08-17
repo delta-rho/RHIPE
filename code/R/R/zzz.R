@@ -136,7 +136,7 @@ onload.2 <- function(libname, pkgname){
                                         rhAccumulateError(list(as.character(e),k,r))
                                       })
       opts$debug$map$count <- list(setup=NA, cleanup=NA, handler=function(e,k,r) rhcounter("R_UNTRAPPED_ERRORS",as.character(e),1))
-      opts$debug$map[["stop"]] <- list(setup=NA, cleanup=NA, handler=function(e,k,r)  rhcounter("R_ERRORS",as.character(e),1))
+      opts$debug$map[["stop"]] <- list(setup=NA, cleanup=NA, handler=function(e,k,r)  rhcounter("R_ERRORS", as.character(e),1))
 
                         
   ################################################################################################

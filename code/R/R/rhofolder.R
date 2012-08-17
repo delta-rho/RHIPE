@@ -10,7 +10,7 @@
 rhofolder <- function(job){
   if(is.character(job)) return (job)
   if(is(job,'rhmr'))
-    return (job[[2]][[1]]$rhipe_output_folder)
+    return (job[[1]]$rhipe_output_folder)
   if(is(job,"rhwatch"))
     return(job[[2]][[1]]$rhipe_output_folder)
 }
