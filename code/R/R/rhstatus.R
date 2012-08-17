@@ -94,11 +94,18 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
   haveRError <- FALSE
   msg.str <- "There were R errors, showing 30:\n"
   if(!is.null(result[[6]]$R_UNTRAPPED_ERRORS)){
-    k <- length(result[[6]]$R_UNTRAPPED_ERRORS)
-    if(k==1)
-      warning(sprintf("The RHIPE( %s ) job has %s untrapped error",as.character(id),k))
-    else
-      warning(sprintf("The RHIPE( %s ) job has %s untrapped errors",as.character(id),k))
+    local({
+      k <- length(result[[6]]$R_UNTRAPPED_ERRORS)
+      ff <- result[[6]]$R_UNTRAPPED_ERRORS
+      d <- data.frame(errors=names(ff)
+                      ,count=as.integer(ff))
+      d <- d[order(d$count),]
+      rownames(d) <- NULL
+      amsg <- if(k==1)
+        warning(sprintf("The RHIPE( %s ) job has %s untrapped error\n",as.character(id),k))
+      else
+        warning(sprintf("The RHIPE( %s ) job has %s untrapped errors\n",as.character(id),k))
+    })
   }
   
   if(!is.null(result[[6]]$R_ERRORS)) {
