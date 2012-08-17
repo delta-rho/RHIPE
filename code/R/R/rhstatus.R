@@ -123,7 +123,9 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
     ##   },USE.NAMES=FALSE))
     ## rerr <- head(newr[newr[,1]=="R",2],30)
     rerr <- head(v,30)
-    sapply(rerr,cat)
+    sapply(seq_along(rerr),function(i){
+      cat(sprintf("%s(%s): %s", i,as.integer(a[rerr[i]]), rerr[i]))
+    })
     if(autokill) {
       message(sprintf("Autokill is true and terminating %s", id))
       rhkill(id)
