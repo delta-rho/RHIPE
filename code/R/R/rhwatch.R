@@ -73,7 +73,9 @@ rhwatch <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
       job[[1]]$rhipe_cleanup_map<- rawToChar(serialize(c(cleanupmap,cleanup),NULL,ascii=TRUE))
     }
     environment(handler) <- .BaseNamespaceEnv
-    job$paramaters$envir$rhipe.trap <- handler
+    if(is.null(job$paramaters)){
+      job$paramaters <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",paramaters=list(rhipe.trap=handler))
+    }else job$paramaters$envir$rhipe.trap <- handler
     
     job[[1]]$rhipe_copy_file <- 'TRUE' ##logic for local runner is wrong here
   }

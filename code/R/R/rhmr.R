@@ -477,7 +477,7 @@ rhmr <- function(map         = NULL,
            }else{
              linesToTable <- Rhipe:::linesToTable
              environment(linesToTable) <- .BaseNamespaceEnv
-             param.temp.file$vars$linesToTable <- linesToTable
+             param.temp.file$envir$linesToTable <- linesToTable
            }
          },
          'sequence'={
@@ -596,10 +596,9 @@ rhmr <- function(map         = NULL,
   ## Handle Shared Files
   ############################################################
   if(!is.null(param.temp.file)){
-    vnames <- ls(param.temp.file$vars); vwhere <- param.temp.file$vars
+    vnames <- ls(param.temp.file$envir); vwhere <- param.temp.file$envir
     paramaters <- list(envir=vwhere,file=param.temp.file$file)
     shared <- c(shared, if(is.null(param.temp.file)) NULL else param.temp.file$file)
-    pl <- if(length(param.temp.file$vars)>1) "s" else ""
     ##Note also the setup has to be re-written ...
     setup$map <- c(param.temp.file$setup,setup$map)
     setup$reduce <- c(param.temp.file$setup,setup$reduce)
@@ -752,7 +751,7 @@ mkdHDFSTempFolder <- function(dirprefix=rhabsolute.hdfs.path(rhoptions()$HADOOP.
   sprintf("%s%s%s-%s",dirprefix, pathsep, file, .Call("md5", unqsalt,length(unqsalt),PACKAGE="Rhipe"))
 }
 
-  makeParamTempFile <- function(file,paramaters,aframe){
+makeParamTempFile <- function(file,paramaters,aframe){
     oldparam <- paramaters
     for(i in seq_along(oldparam)){
       paramaters[[i]] = if(is.name(oldparam[[i]])) get(as.character(oldparam[[i]]),envir=aframe) else oldparam[[i]]
@@ -772,7 +771,7 @@ mkdHDFSTempFolder <- function(dirprefix=rhabsolute.hdfs.path(rhoptions()$HADOOP.
   
     tfile <- Rhipe:::mkdHDFSTempFolder(file="rhipe-temp-params")
     list(file=tfile
-         ,vars=as.environment(paramaters)
+         ,envir=as.environment(paramaters)
          ,setup= as.expression(bquote({
            load(.(paramfile))
          },list(paramfile = basename(tfile)))))
