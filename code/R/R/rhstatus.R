@@ -7,7 +7,7 @@
 #'   returned from \code{rhex} with the \code{async} option set to TRUE.
 #' @param mon.sec If \code{mon.sec} is greater than 0, a small data frame
 #'   indicating the progress will be returned every \code{mon.sec} seconds.If 0, it will return immediately. If Inf, it will wait till over.
-#' @param autokill If \code{autokill} is TRUE, then any R errors caused by the
+#' @param autokill If \code{autokill} is TUE, then any R errors caused by the
 #'   map/reduce code will cause the job to be killed.
 #' @param verbose If \code{verbose} is TRUE, also provided is the state of the
 #'   job, the duration in seconds, a data frame with columns for the Map and
@@ -58,7 +58,7 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
     }
     while(TRUE){
       y <- .rhstatus(id,autokill=TRUE,showErrors)
-      cat(sprintf("\n[%s] Job: %s, State: %s, Duration: %s\nURL:%s\n",date(),id,y$state,y$duration,y$tracking))
+      cat(sprintf("\n[%s] Job: %s, State: %s, Duration: %s\nURL: %s\n",date(),id,y$state,y$duration,y$tracking))
       print(y$progress)
       if(verbose){
         print(y$counters)

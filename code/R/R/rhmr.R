@@ -597,11 +597,9 @@ rhmr <- function(map         = NULL,
   ############################################################
   if(!is.null(param.temp.file)){
     vnames <- ls(param.temp.file$vars); vwhere <- param.temp.file$vars
-    rhsave(list=vnames,envir=vwhere,file=param.temp.file$file)
+    paramaters <- list(envir=vwhere,file=param.temp.file$file)
     shared <- c(shared, if(is.null(param.temp.file)) NULL else param.temp.file$file)
     pl <- if(length(param.temp.file$vars)>1) "s" else ""
-    message(sprintf("Saving %s paramater%s to %s (use rhclean to delete all temp files)", length(param.temp.file$vars),pl
-                    ,param.temp.file$file))
     ##Note also the setup has to be re-written ...
     setup$map <- c(param.temp.file$setup,setup$map)
     setup$reduce <- c(param.temp.file$setup,setup$reduce)
@@ -686,7 +684,7 @@ reduce = expression(
   lines <- lapply(lines,as.character);
   conf <- tempfile(pattern='rhipe')
 
-  h <- list(lines,temp=conf)
+  h <- list(lines=lines,temp=conf,paramaters=paramaters)
   if(!is.null(mapred$class))
     class(h)=mapred$class
   else

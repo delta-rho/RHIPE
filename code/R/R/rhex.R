@@ -30,13 +30,10 @@ rhex <- function (conf,async=TRUE,mapred,...)
 {
   exitf <- NULL
   ## browser()
-  if(class(conf)=="rhlapply") {
-    zonf <- conf[[1]]$temp
-    exitf <- conf[[2]]
-    lines <- conf[[1]][[1]]
-  }else if(class(conf)=='rhmr'){
+  if(class(conf)=='rhmr'){
     zonf <- conf$temp
     lines <- conf[[1]]
+    paramaters <- conf$paramaters
   }else
   stop("Wrong class of list given")
   on.exit({
@@ -60,6 +57,12 @@ rhex <- function (conf,async=TRUE,mapred,...)
     writeBin(charToRaw(as.character(lines[[x]])),conffile,endian='big')
   }
   close(conffile)
+  message(sprintf("Saving %s paramater%s to %s (use rhclean to delete all temp files)", length(ls(paramaters$envir))
+                  ,if( length(ls(paramaters$envir))>1) "s" else "",paramaters$file))
+  vlist <- ls(paramaters$envir)
+  vwhere <- paramaters$envir
+  rhsave(list=vlist,envir=vwhere,file=paramaters$file)
+
   cmd <- sprintf("%s/hadoop jar %s  org.godhuli.rhipe.RHMR %s  ",Sys.getenv("HADOOP_BIN"),rhoptions()$jarloc,zonf)
   x. <- paste("Running: ", cmd)
   y. <- paste(rep("-",min(nchar(x.),40)))

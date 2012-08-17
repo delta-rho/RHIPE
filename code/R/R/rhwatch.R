@@ -47,35 +47,35 @@ rhwatch <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
     },list(BEFORE=FIX(l$before),AFTER=FIX(l$after),REPLACE=FIX(l$replace))))
     environment(newm) <- .BaseNamespaceEnv
     job[[1]]$rhipe_map <- rawToChar(serialize(newm,NULL,ascii=TRUE))
-    
-    setup   <- rhoptions()$debug$map$setup
-    cleanup <- rhoptions()$debug$map$cleanup
-    handler <- rhoptions()$debug$map$handler$count
-    
+
+    ## Has the user given one?
+    if(is.list(debug) && is.null(debug$map))
+      stop("debug should be list with a sublist named 'map'")
     if(is.list(debug) && !is.null(debug$map)){
       if(!is.null(debug$map$setup))   setup   <- debug$map$setup
       if(!is.null(debug$map$cleanup)) cleanup <- debug$map$cleanup
       if(!is.null(debug$map$handler)) handler <- debug$map$handler
     }else if(is.character(debug)){
-      handler <- rhoptions()$debug$map$handler[[debug]]
+      handler <- rhoptions()$debug$map[[debug]]$handler
+      setup   <- rhoptions()$debug$map[[debug]]$setup
+      cleanup   <- rhoptions()$debug$map[[debug]]$cleanup
       if(is.null(handler)) stop("Rhipe(rhwatch): invalid debug character string provided")
     }
-    environment(setup) <- environment(cleanup) <- environment(handler) <- .BaseNamespaceEnv
-    
-    setupmap <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
-    job[[1]]$rhipe_setup_map<- rawToChar(serialize(c(setupmap,setup),NULL,ascii=TRUE))
-    
-    cleanupmap <- unserialize(charToRaw(job[[1]]$rhipe_cleanup_map))
-    job[[1]]$rhipe_cleanup_map<- rawToChar(serialize(c(cleanupmap,cleanup),NULL,ascii=TRUE))
-    
-    if(is.null(job[[1]]$rhipe.params.names)){
-      job[[1]]$rhipe.params.names <- "rhipe.trap"
-    }else{
-      job[[1]]$rhipe.params.names <- sprintf("%s;%s",job[[1]]$rhipe.params.names,"rhipe.trap")
+
+    if(is.expression(setup)){
+      environment(setup) <- .BaseNamespaceEnv
+      setupmap <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
+      job[[1]]$rhipe_setup_map<- rawToChar(serialize(c(setupmap,setup),NULL,ascii=TRUE))
     }
-    job[[1]]$rhipe.trap <- rawToChar(serialize(handler,NULL,ascii=TRUE))
+    if(is.expression(cleanup)){
+      environment(cleanup) <- .BaseNamespaceEnv
+      cleanupmap <- unserialize(charToRaw(job[[1]]$rhipe_cleanup_map))
+      job[[1]]$rhipe_cleanup_map<- rawToChar(serialize(c(cleanupmap,cleanup),NULL,ascii=TRUE))
+    }
+    environment(handler) <- .BaseNamespaceEnv
+    job$paramaters$envir$rhipe.trap <- handler
+    
     job[[1]]$rhipe_copy_file <- 'TRUE' ##logic for local runner is wrong here
-    ## job[[1]]$keep.failed.task.files <- 'true'
   }
   if(!is.null((list(...))) && !is.null(list(...)[[".rdb"]])) return(job)
   z <- Rhipe:::rhwatch.runner(job, mon.sec,readback,debug,...)

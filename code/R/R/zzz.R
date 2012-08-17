@@ -109,7 +109,7 @@ onload.2 <- function(libname, pkgname){
        opts$templates$range <- structure(opts$template$range,combine=TRUE)
        opts$debug <- list()
        opts$debug$map <- list()
-       opts$debug$map$setup <- expression({
+       opts$debug$map$collect <- list(setup= expression({
          rhAccumulateError <- local({
            maxm <- tryCatch(rh.max.errors,error=function(e) 20)
            x <- function(maximum.errors=maxm){
@@ -125,22 +125,18 @@ onload.2 <- function(libname, pkgname){
                                })}
            x()
          })
-       })
-       opts$debug$map$cleanup <- expression({
+       }), cleanup =  expression({
          rhipe.errors=rhAccumulateError(ret=TRUE)
          if(length(rhipe.errors)>0){
            save(rhipe.errors,file=sprintf("./tmp/rhipe_debug_%s",Sys.getenv("mapred.task.id")))
            rhcounter("@R_DebugFile","saved.files",1)
          }
-       })
-       opts$debug$map$handler <- list(
-                                      "count"    =function(e,k,r) rhcounter("R_UNTRAPPED_ERRORS",as.character(e),1)
-                                      ,"stop"    =function(e,k,r) rhcounter("R_ERRORS",as.character(e),1)
-                                      ,"collect" =function(e,k,r){
+       }), handler=function(e,k,r){
                                         rhcounter("R_UNTRAPPED_ERRORS",as.character(e),1)
                                         rhAccumulateError(list(as.character(e),k,r))
-                                      }
-                                      )
+                                      })
+      opts$debug$map$count <- list(setup=NA, cleanup=NA, handler=function(e,k,r) rhcounter("R_UNTRAPPED_ERRORS",as.character(e),1))
+      opts$debug$map[["stop"]] <- list(setup=NA, cleanup=NA, handler=function(e,k,r)  rhcounter("R_ERRORS",as.character(e),1))
 
                         
   ################################################################################################
