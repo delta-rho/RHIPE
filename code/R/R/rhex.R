@@ -58,12 +58,7 @@ rhex <- function (conf,async=TRUE,mapred,...)
   }
   close(conffile)
   if(!is.null(paramaters)){
-    message(sprintf("Saving %s paramater%s to %s (use rhclean to delete all temp files)", length(ls(paramaters$envir))
-                    ,if( length(ls(paramaters$envir))>1) "s" else "",paramaters$file))
-    vlist <- ls(paramaters$envir)
-    vwhere <- paramaters$envir
-    lines$rhipe.has.params <- TRUE
-    rhsave(list=vlist,envir=vwhere,file=paramaters$file)
+    lines <- Rhipe:::saveParams(paramaters,lines=lines)
   }
   cmd <- sprintf("%s/hadoop jar %s  org.godhuli.rhipe.RHMR %s  ",Sys.getenv("HADOOP_BIN"),rhoptions()$jarloc,zonf)
   x. <- paste("Running: ", cmd)
@@ -101,4 +96,16 @@ rhex <- function (conf,async=TRUE,mapred,...)
     }else rr <- TRUE
   }else rr <- FALSE
   return(list(state=rr, counters=f3))
+}
+
+
+
+saveParams <- function(paramaters,lines){
+  message(sprintf("Saving %s paramater%s to %s (use rhclean to delete all temp files)", length(ls(paramaters$envir))
+                  ,if( length(ls(paramaters$envir))>1) "s" else "",paramaters$file))
+  vlist <- ls(paramaters$envir)
+  vwhere <- paramaters$envir
+  lines$rhipe.has.params <- TRUE
+  rhsave(list=vlist,envir=vwhere,file=paramaters$file)
+  return(lines)
 }

@@ -38,15 +38,16 @@ message CMPLX {
   optional double real = 1 [default=0];
   required double imag = 2;
 }
-message PROMISE {
-  optional REXP environment;
-  optional REXP attributes;
-  optional REXP value;
-  optional REXP expression;
-}
-message CLOSURE {
-  optional attributes
 
-
-
-}
+//message PROMISE {
+//  optional REXP environment;
+//  optional REXP attributes;
+//  optional REXP value;
+//  optional REXP expression;
+//}
+//message CLOSURE {
+//  optional attributes
+//
+//
+//
+//}

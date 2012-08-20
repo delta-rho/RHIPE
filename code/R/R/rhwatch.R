@@ -64,20 +64,25 @@ rhwatch <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
     if(is.null(job$paramaters)){
       environment(handler) <- .BaseNamespaceEnv
       job$paramaters <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",paramaters=list(rhipe.trap=handler))
+
+      ## need the code to load temporary files!
       x <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
       y <- job$paramaters$setup; environment(y) <- .BaseNamespaceEnv
       job[[1]]$rhipe_setup_map <- rawToChar(serialize( c(y,x),NULL,ascii=TRUE))
+
       x <- unserialize(charToRaw(job[[1]]$rhipe_setup_reduce))
       job[[1]]$rhipe_setup_reduce <- rawToChar(serialize( c(y,x),NULL,ascii=TRUE))
       ## This is becoming quite the HACK
       ## Of all lines magic and thiss hit should be in rhex ...
       job[[1]]$rhipe_shared <- sprintf("%s,%s#%s",job[[1]]$rhipe_shared,job$paramaters$file,basename(job$paramaters$file))
-    }else job$paramaters$envir$rhipe.trap <- handler
-
+    }else {
+      environment(handler) <- .BaseNamespaceEnv
+      job$paramaters$envir$rhipe.trap <- handler
+    }
     if(is.expression(setup)){
       environment(setup) <- .BaseNamespaceEnv
-      setupmap <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
-      job[[1]]$rhipe_setup_map<- rawToChar(serialize(c(setupmap,setup),NULL,ascii=TRUE))
+      x <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
+      job[[1]]$rhipe_setup_map<- rawToChar(serialize(c(x,setup),NULL,ascii=TRUE))
     }
     if(is.expression(cleanup)){
       environment(cleanup) <- .BaseNamespaceEnv
