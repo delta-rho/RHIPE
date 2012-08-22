@@ -409,13 +409,27 @@ SEXP persUnser(SEXP robj)
 	CodedInputStream cds(RAW(robj),LENGTH(robj));
 	cds.SetTotalBytesLimit(256*1024*1024,256*1024*1024);
 	if(rexp_container->ParseFromCodedStream(&cds)){
-		// if(rexp_container->ParseFromArray(RAW(robj),LENGTH(robj))){
-		PROTECT(ans = rexpToSexp(*rexp_container));
-		UNPROTECT(1);
+	  PROTECT(ans = rexpToSexp(*rexp_container));
+	  UNPROTECT(1);
 	}
 	delete(rexp_container);
 	return(ans);
 }
+
+SEXP persSer(SEXP robj){
+  REXP *rexp_container = new REXP();
+  rexp_container->Clear();
+  sexpToRexp(rexp_container, robj);
+  int bs = rexp_container->ByteSize();
+  SEXP result = R_NilValue;
+  PROTECT(result = Rf_allocVector(RAWSXP,bs));
+  rexp_container->SerializeWithCachedSizesToArray(RAW(result));
+  UNPROTECT(1);
+  delete (rexp_container);
+  return (result);
+}
+
+
 SEXP dbgstr(SEXP robj)
 {
 	SEXP ans  = R_NilValue;

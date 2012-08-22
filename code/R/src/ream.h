@@ -228,6 +228,7 @@ SEXP collect_buffer(SEXP ,SEXP );
 SEXP readFromHadoop(const uint32_t,int* );
 SEXP readFromMem(void * ,uint32_t );
 SEXP persUnser(SEXP);
+SEXP persSer(SEXP);
 SEXP dbgstr(SEXP);
 void spill_to_reducer(void);
 void mcount(const char *,const char*, uint32_t);

@@ -10,6 +10,7 @@ R_CallMethodDef callMethods [] = {
   {"rh_vcollect",(DL_FUNC) collectList,2},
   {"rh_collect_buffer",(DL_FUNC) collect_buffer,2},
   {"rh_uz",(DL_FUNC) persUnser,1},
+  {"rh_sz",(DL_FUNC) persSer,1},
   {"rh_dbgstr",(DL_FUNC) dbgstr,1},
   {NULL, NULL, 0}
 };
