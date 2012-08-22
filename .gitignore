@@ -12,3 +12,4 @@ code/ec2/bin/hadoop-ec2-env.sh
 .R*
 code/java/Rhipe.jar
 code/Rhipe.Rcheck
+.DS_Store
