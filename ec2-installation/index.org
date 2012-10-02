@@ -1,0 +1,234 @@
+# -*- mode: org;-*-
+#+SETUPFILE: ~/mz/orgstuff/basic.org
+
+** Installation
+
+*** Sign up for EC2 and S3
+   http://docs.amazonwebservices.com/AWSEC2/latest/GettingStartedGuide/
+
+*** Download whirr
+Download from cloudera, notice i expect to be using CDH3   update 4.
+
+#+begin_src sh
+wget http://archive.cloudera.com/cdh/3/whirr-0.5.0-cdh3u4.tar.gz
+tar -xvzf whirr-0.5.0-cdh3u4.tar.gz
+#+end_src
+
+*** Build Whirr
+We need /Maven/ installed
+#+begin_src sh
+cd whirr-*
+mvn clean install
+#+end_src
+
+*** Configure Whirr
+Useful links can be found here[fn:cdh-whirr] and this is [fn:tom] the source of these notes.
+The following should be saved in =hadoop.properties=. My file layout is:
+#+begin_example
+chodaipaaki-2:dev sguha$ ls -l cdh-ec2/
+total 42144
+-rw-r--r--   1 sguha  staff       960 Oct  2 01:18 hadoop.properties
+lrwxr-xr-x   1 sguha  staff        18 Oct  1 23:49 whirr -> whirr-0.5.0-cdh3u4
+drwxr-xr-x  26 sguha  staff       884 Oct  2 10:00 whirr-0.5.0-cdh3u4
+-rw-r--r--   1 sguha  staff  21300660 May  9 11:52 whirr-0.5.0-cdh3u4.tar.gz
+-rw-r--r--   1 sguha  staff    260431 Oct  2 11:25 whirr.log
+#+end_example
+Within =whirr=, create another folder called =functions=.
+
+Also i'm using Ubuntu 10.04. Upon booting the image allows you to upgrade to Ubuntu 'Precise' - we shall not.
+Also in the following properties file( save it as =hadoop.properties=),
+- =AWS_ACCESS_KEY_ID= and =AWS_SECRET_ACCESS_KEY= are environment variables.
+- I have uploaded my own =id_rsa.pub= to the EC2 console, hence I can use my own without having to create another. The link[fn:tom] has an example of producing your own key.
+#+begin_src sh
+whirr.cluster-name=rhipetesting0
+whirr.instance-templates=1 hadoop-jobtracker+hadoop-namenode,1 hadoop-datanode+hadoop-tasktracker
+whirr.provider=aws-ec2
+
+whirr.identity=${env:AWS_ACCESS_KEY_ID}
+whirr.credential=${env:AWS_SECRET_ACCESS_KEY}
+
+whirr.private-key-file=${sys:user.home}/.ssh/id_rsa
+whirr.public-key-file=${sys:user.home}/.ssh/id_rsa.pub
+
+whirr.hadoop-install-function=install_cdh_hadoop
+whirr.hadoop-configure-function=configure_cdh_hadoop
+whirr.hardware-id=m1.large
+
+
+#rightscale - west coast (http://thecloudmarket.com/image/ami-4810400d--rightimage-ubuntu-10-04-x64-v5-5-9-6)
+whirr.image-id=us-west-1/ami-4810400d
+whirr.location-id=us-west-1
+
+#rightscale - east coast
+#whirr.image-id=us-east-1/ami-ccb35ea5                                                                                                                                           
+#whirr.location-id=us-east-1 
+
+# hadoop options
+hadoop-mapreduce.mapred.child.ulimit=unlimited
+#+end_src
+EC2 Instance types can be found here: http://aws.amazon.com/ec2/instance-types/ (varying degrees of IO and/or CPU capacity) and their prices here: http://aws.amazon.com/ec2/pricing/.
+Hadoop properties can be overridden (this is taken from [fn:tom])
+#+begin_example
+Overriding Hadoop Configuration params
+
+Taken directly from http://svn.apache.org/repos/asf/whirr/trunk/recipes/hadoop-yarn-cdh-ec2.properties:
+
+# Expert: override Hadoop properties by setting properties with the prefix
+# hadoop-common, hadoop-hdfs, hadoop-mapreduce to set Common, HDFS, MapReduce
+# site properties, respectively. The prefix is removed by Whirr, so that for
+# example, setting 
+# hadoop-common.fs.trash.interval=1440
+# will result in fs.trash.interval being set to 1440 in core-site.xml.
+
+So, you can make configuration changes like these:
+
+hadoop-mapreduce.mapred.child.ulimit=unlimited
+hadoop-mapreduce.mapred.tasktracker.map.tasks.maximum=2
+hadoop-mapreduce.mapred.tasktracker.reduce.tasks.maximum=1
+hadoop-mapreduce.mapred.reduce.tasks=1
+hadoop-mapreduce.mapred.task.timeout=1800000
+hadoop-mapreduce.mapred.child.java.opts=-Xmx2048m
+hadoop-common.hadoop.proxyuser.oozie.groups=*
+hadoop-common.hadoop.proxyuser.oozie.hosts=*
+
+The file mapping is:
+hadoop-mapreduce => mapred-site.xml
+hadoop-hdfs => hdfs-site.xml
+hadoop-common => core-site.xml
+#+end_example
+
+*** Customize Configuration of Whirr to Install RHIPE on Nodes
+Copy =whirr/services/cdh/src/main/resources/functions/configure_cdh_hadoop.sh= to =whirr/functions/configure_cdh_hadoop.sh= (you created the =functions= folder above) This file is modified to install RHIPE.  It can be downloaded from [[./hadoop-properties][here]].
+
+This is the output off the diff
+#+begin_src sh
+chodaipaaki-2:cdh-ec2 sguha$ diff --unified=5 whirr/services/cdh//src/main/resources/functions/configure_cdh_hadoop.sh whirr/functions/configure_cdh_hadoop.sh 
+--- whirr/services/cdh//src/main/resources/functions/configure_cdh_hadoop.sh	2011-05-16 21:36:30.000000000 -0700
++++ whirr/functions/configure_cdh_hadoop.sh	2012-10-02 10:49:31.000000000 -0700
+@@ -94,10 +94,11 @@
+     hadoop-tasktracker)
+       start_hadoop_daemon tasktracker
+       ;;
+     esac
+   done
++  install_rhipe
+ }
+ 
+ function start_namenode() {
+   if which dpkg &> /dev/null; then
+     apt-get -y install $HADOOP-namenode
+@@ -140,5 +141,24 @@
+     yum install -y $HADOOP-$daemon
+   fi
+   service $HADOOP-$daemon start
+ }
+ 
++function install_rhipe() {
++    ## other mirrors:  http://cran.r-project.org/mirrors.html
++    echo 'deb http://cran.fhcrc.org/bin/linux/ubuntu lucid/' >>  /etc/apt/sources.list
++    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
++    sudo apt-get update
++    sudo apt-get install -y r-base-dev r-recommended r-cran-rodbc ess
++    wget http://protobuf.googlecode.com/files/protobuf-2.4.1.tar.gz
++    tar xzf protobuf-2.4.1.tar.gz
++    cd protobuf-2.4.1
++    ./configure
++    make
++    sudo sudo make install
++    sudo ldconfig
++    sudo apt-get install pkg-config
++    export HADOOP=/usr/
++    echo 'export HADOOP=/usr/' >> /etc/bash.bashrc
++    wget https://github.com/downloads/saptarshiguha/RHIPE/Rhipe_0.69.tar.gz
++    sudo R CMD INSTALL Rhipe_0.69.tar.gz
++}
+#+end_src
+
+*** Launch Cluster
+We are ready to launch the cluster using Whirr. This takes some time and you can monitor things via the [[https://console.aws.amazon.com/ec2/][AWS Console]]. This took 13 minutes.
+#+begin_src sh
+> whirr launch-cluster --config whirr.hadoop.properties
+Bootstrapping cluster
+Configuring template
+Starting 1 node(s) with roles [hadoop-datanode, hadoop-tasktracker]
+Configuring template
+Starting 1 node(s) with roles [hadoop-jobtracker, hadoop-namenode] 
+...
+Running configuration script
+Configuration script run completed
+Running configuration script
+Configuration script run completed
+Completed configuration of rhipetesting0
+Namenode web UI available at http://ec2-184-169-252-219.us-west-1.compute.amazonaws.com:50070
+Jobtracker web UI available at http://ec2-184-169-252-219.us-west-1.compute.amazonaws.com:50030
+Wrote Hadoop site file /Users/sguha/.whirr/rhipetesting0/hadoop-site.xml
+Wrote Hadoop proxy script /Users/sguha/.whirr/rhipetesting0/hadoop-proxy.sh
+Wrote instances file /Users/sguha/.whirr/rhipetesting0/instances
+Started cluster of 2 instances
+....
+#+end_src
+*More notes from [fn:tom]*  (these are not my own and thanks to this website[fn:tom])
+- You can get info about what instances where launched with:
+#+begin_src sh
+whirr list-cluster --config whirr.hadoop.properties
+#+end_src
+- You can ship a script on the cluster and run it on each node with:
+#+begin_src sh
+whirr run-script --config whirr.hadoop.properties --script "/path/to/my/script"
+#+end_src
+- Log into the actual instance with (though in my case i dont need the pem file) where node is obtained from =cat ~/.whirr/<whirr.cluster-name>/instances=
+#+begin_src sh
+ssh -i ./cluster-test.pem $USER@node 
+#+end_src
+- Take down a cluster with:
+#+begin_src sh
+whirr destroy-cluster --config whirr.hadoop.properties
+#+end_src
+
+** Testing RHIPE
+
+(1) Log into the cluster (replace /rhipetesting0/  with your cluster name)
+#+begin_src sh
+cat ~/.whirr/rhipetesting0/instances | grep namenode
+ssh ec2-50-18-76-248.us-west-1.compute.amazonaws.com
+#+end_src
+
+
+#+end_src
+
+Now start R, (type =R= , you should see R 2.15). The following code computes 10 groups of uniform numbers and computes the sum of the random numbers and the number of random numbers in each group.
+
+#+begin_src R
+  library(Rhipe)
+  rhinit()
+  rhls("/")
+#+end_src
+See the HDFS file listing
+#+begin_src R
+> rhls("/")
+  permission owner      group size          modtime    file
+1 drwxrwxrwx  hdfs supergroup    0 2012-10-02 18:25 /hadoop
+2 drwxrwxrwx  hdfs supergroup    0 2012-10-02 18:25  /hbase
+3 drwxrwxrwx  hdfs supergroup    0 2012-10-02 18:25    /mnt
+4 drwxrwxrwx  hdfs supergroup    0 2012-10-02 18:25    /tmp
+5 drwxrwxrwx  hdfs supergroup    0 2012-10-02 18:25   /user
+#+end_src
+And now run a quick mapreduce script (only to check things work)
+#+begin_src R
+  map <- rhmap({
+    rhcollect(sample(1:10,1),c(1,runif(1)))
+  })
+  results <- rhwatch(rhmr(map     = map
+                          ,reduce = rhoptions()$templates$colsummer
+                          ,N      = 10000L))
+  
+  results <- do.call(rbind, lapply(results,"[[",2))
+  results <- cbind(results, results[,2]/results[,1])
+#+end_src
+  
+
+
+* Footnotes
+
+[fn:tom] http://www.supertom.com/code/whirr_and_cloudera_on_ec2_on_ubuntu.html
+[fn:cdh-whirr] archive.cloudera.com/cdh/3/whirr-0.5.0-cdh3u3/configuration-guide.html

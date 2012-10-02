@@ -44,7 +44,7 @@ public class RXLineRecordReader extends RecordReader<RHNumeric, RHText> {
   private int maxLineLength;
   private RHNumeric key = null;
   private RHText value = null;
-
+  private int linecounter = 0;
   public void initialize(InputSplit genericSplit,
                          TaskAttemptContext context) throws IOException {
     FileSplit split = (FileSplit) genericSplit;
@@ -74,7 +74,8 @@ public class RXLineRecordReader extends RecordReader<RHNumeric, RHText> {
     }
     if (skipFirstLine) {  // skip first line and re-establish "start".
 	start += in.readLine((new RHText()).getText(), 0,
-                           (int)Math.min((long)Integer.MAX_VALUE, end - start));
+			     (int)Math.min((long)Integer.MAX_VALUE, end - start));
+	// linecounter ++ ;
     }
     this.pos = start;
   }
@@ -92,6 +93,7 @@ public class RXLineRecordReader extends RecordReader<RHNumeric, RHText> {
 	newSize = in.readLine(value.getText(), maxLineLength,
                             Math.max((int)Math.min(Integer.MAX_VALUE, end-pos),
                                      maxLineLength));
+	// linecounter ++ ;
 	value.finis();
 	if (newSize == 0) {
 	    break;
