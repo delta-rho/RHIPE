@@ -98,7 +98,7 @@ hadoop-common => core-site.xml
 #+end_example
 
 *** Customize Configuration of Whirr to Install RHIPE on Nodes
-Copy =whirr/services/cdh/src/main/resources/functions/configure_cdh_hadoop.sh= to =whirr/functions/configure_cdh_hadoop.sh= (you created the =functions= folder above) This file is modified to install RHIPE.  It can be downloaded from [[./hadoop-properties][here]].
+Copy =whirr/services/cdh/src/main/resources/functions/configure_cdh_hadoop.sh= to =whirr/functions/configure_cdh_hadoop.sh= (you created the =functions= folder above) This file is modified to install RHIPE.  It can be downloaded from [[./configure_cdf_hadoop.sh][here]].
 
 This is the output off the diff
 #+begin_src sh
@@ -139,15 +139,15 @@ chodaipaaki-2:cdh-ec2 sguha$ diff --unified=5 whirr/services/cdh//src/main/resou
 +    sudo apt-get install pkg-config
 +    export HADOOP=/usr/
 +    echo 'export HADOOP=/usr/' >> /etc/bash.bashrc
-+    wget https://github.com/downloads/saptarshiguha/RHIPE/Rhipe_0.69.tar.gz
-+    sudo R CMD INSTALL Rhipe_0.69.tar.gz
++    wget https://github.com/downloads/saptarshiguha/RHIPE/Rhipe_0.70.tar.gz
++    sudo R CMD INSTALL Rhipe_0.70.tar.gz
 +}
 #+end_src
 
 *** Launch Cluster
 We are ready to launch the cluster using Whirr. This takes some time and you can monitor things via the [[https://console.aws.amazon.com/ec2/][AWS Console]]. This took 13 minutes.
 #+begin_src sh
-> whirr launch-cluster --config whirr.hadoop.properties
+> whirr/bin/whirr launch-cluster --config hadoop.properties
 Bootstrapping cluster
 Configuring template
 Starting 1 node(s) with roles [hadoop-datanode, hadoop-tasktracker]
@@ -170,11 +170,11 @@ Started cluster of 2 instances
 *More notes from [fn:tom]*  (these are not my own and thanks to this website[fn:tom])
 - You can get info about what instances where launched with:
 #+begin_src sh
-whirr list-cluster --config whirr.hadoop.properties
+whirr/bin/whirr list-cluster --config hadoop.properties
 #+end_src
 - You can ship a script on the cluster and run it on each node with:
 #+begin_src sh
-whirr run-script --config whirr.hadoop.properties --script "/path/to/my/script"
+whirr/bin/whirr  run-script --config hadoop.properties --script "/path/to/my/script"
 #+end_src
 - Log into the actual instance with (though in my case i dont need the pem file) where node is obtained from =cat ~/.whirr/<whirr.cluster-name>/instances=
 #+begin_src sh
@@ -182,7 +182,7 @@ ssh -i ./cluster-test.pem $USER@node
 #+end_src
 - Take down a cluster with:
 #+begin_src sh
-whirr destroy-cluster --config whirr.hadoop.properties
+whirr/bin/whirr  destroy-cluster --config hadoop.properties
 #+end_src
 
 ** Testing RHIPE
