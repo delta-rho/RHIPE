@@ -84,10 +84,13 @@ public class RHText extends RHBytesWritable{
 	    byte[] thisValue,thatValue;
 	    thisValue=thatValue=null;
 	    try{
+		// System.err.println("The barray started at:"+ s1+", the REXP started "+off1+" bytes later and continued for "+l1+"from the begining of byte array: "+RHBytesWritable.bytesPretty(b1,s1,l1));
+		// System.err.println("The barray started at:"+ s2+", the REXP started "+off2+" bytes later and continued for "+l2+"from the begining of byte array: "+RHBytesWritable.bytesPretty(b2,s2,l2));
+		// System.err.println("-----------------------------");
 		tir = REXP.newBuilder().mergeFrom(b1, s1+off1, l1-off1).build();
-	        thr = REXP.newBuilder().mergeFrom(b2, s2+off1, l2-off1).build();
+	        thr = REXP.newBuilder().mergeFrom(b2, s2+off2, l2-off2).build();
 	    }catch(com.google.protobuf.InvalidProtocolBufferException e){
-		System.err.println(e);
+		throw new RuntimeException("RHIPE String Comparator:"+e);
 	    }
 	    int til=tir.getStringValueCount(), thl=thr.getStringValueCount();
 	    int minl = til < thl? til: thl;

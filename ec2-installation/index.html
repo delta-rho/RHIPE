@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title></title>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
 <meta name="title" content=""/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2012-10-02 11:36:28 PDT"/>
+<meta name="generated" content="2012-10-02 13:43:58 PDT"/>
 <meta name="author" content="Saptarshi Guha"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -113,6 +113,7 @@
 </ul>
 </li>
 <li><a href="#sec-2">2 Testing RHIPE</a></li>
+<li><a href="#sec-3">3 Summary</a></li>
 </ul>
 </div>
 </div>
@@ -274,7 +275,7 @@ hadoop-common =&gt; core-site.xml
 <h4 id="sec-1-5"><span class="section-number-4">1.5</span> Customize Configuration of Whirr to Install RHIPE on Nodes</h4>
 <div class="outline-text-4" id="text-1-5">
 
-<p>Copy <code>whirr/services/cdh/src/main/resources/functions/configure_cdh_hadoop.sh</code> to <code>whirr/functions/configure_cdh_hadoop.sh</code> (you created the <code>functions</code> folder above) This file is modified to install RHIPE.  It can be downloaded from <a href="./hadoop-properties">here</a>.
+<p>Copy <code>whirr/services/cdh/src/main/resources/functions/configure_cdh_hadoop.sh</code> to <code>whirr/functions/configure_cdh_hadoop.sh</code> (you created the <code>functions</code> folder above) This file is modified to install RHIPE.  It can be downloaded from <a href="./configure_cdh_hadoop.sh">here</a>.
 </p>
 <p>
 This is the output off the diff
@@ -318,8 +319,8 @@ This is the output off the diff
 +    sudo apt-get install pkg-config
 +    export <span style="color: #2E91AF;">HADOOP</span>=/usr/
 +    echo <span style="color: #008000;">'export HADOOP=/usr/'</span> &gt;&gt; /etc/bash.bashrc
-+    wget https://github.com/downloads/saptarshiguha/RHIPE/Rhipe_0.69.tar.gz
-+    sudo R CMD INSTALL Rhipe_0.69.tar.gz
++    wget https://github.com/downloads/saptarshiguha/RHIPE/Rhipe_0.70.tar.gz
++    sudo R CMD INSTALL Rhipe_0.70.tar.gz
 +}
 </pre>
 
@@ -332,11 +333,11 @@ This is the output off the diff
 <h4 id="sec-1-6"><span class="section-number-4">1.6</span> Launch Cluster</h4>
 <div class="outline-text-4" id="text-1-6">
 
-<p>We are ready to launch the cluster using Whirr. This takes some time and you can monitor things via the <a href="https://console.aws.amazon.com/ec2/">AWS Console</a>. This took 13 minutes.
+<p>We are ready to launch the cluster using Whirr. This takes some time (13-16 minutes for this set properties) and you can monitor things via the <a href="https://console.aws.amazon.com/ec2/">AWS Console</a>.
 </p>
 
 
-<pre class="src src-sh">&gt; whirr launch-cluster --config whirr.hadoop.properties
+<pre class="src src-sh">&gt; whirr/bin/whirr launch-cluster --config hadoop.properties
 Bootstrapping cluster
 Configuring template
 Starting 1 node(s) with roles [hadoop-datanode, hadoop-tasktracker]
@@ -367,18 +368,20 @@ Started cluster of 2 instances
 
 
 
-<pre class="src src-sh">whirr list-cluster --config whirr.hadoop.properties
+<pre class="src src-sh">whirr/bin/whirr list-cluster --config hadoop.properties
 </pre>
 
 <ul>
-<li>You can ship a script on the cluster and run it on each node with:
+<li>You can ship a script on the cluster and run it on each node with
+  (this is a good way to install R packages on the nodes, though you
+  could also do it in the above configuration shell script):
 </li>
 </ul>
 
 
 
 
-<pre class="src src-sh">whirr run-script --config whirr.hadoop.properties --script <span style="color: #008000;">"/path/to/my/script"</span>
+<pre class="src src-sh">whirr/bin/whirr  run-script --config hadoop.properties --script <span style="color: #008000;">"/path/to/my/script"</span>
 </pre>
 
 <ul>
@@ -400,7 +403,7 @@ Started cluster of 2 instances
 
 
 
-<pre class="src src-sh">whirr destroy-cluster --config whirr.hadoop.properties
+<pre class="src src-sh">whirr/bin/whirr  destroy-cluster --config hadoop.properties
 </pre>
 
 
@@ -432,7 +435,8 @@ Now start R, (type <code>R</code> , you should see R 2.15). The following code c
 
 
 
-<pre class="src src-R"><span style="color: #009944;">library</span>(Rhipe)
+<pre class="src src-R">options(width=200)
+<span style="color: #009944;">library</span>(Rhipe)
 rhinit()
 rhls(<span style="color: #008000;">"/"</span>)
 </pre>
@@ -461,13 +465,38 @@ And now run a quick mapreduce script (only to check things work)
 })
 results <span style="color: #009944;">&lt;-</span> rhwatch(rhmr(map     = map
                         ,reduce = rhoptions()$templates$colsummer
-                        ,N      = 10000L))
+                        ,N      = 100000L,mapred=list(mapred.map.tasks=10)))
 
 results <span style="color: #009944;">&lt;-</span> do.call(rbind, lapply(results,<span style="color: #008000;">"[["</span>,2))
 results <span style="color: #009944;">&lt;-</span> cbind(results, results[,2]/results[,1])
 </pre>
 
 
+
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-3">
+<h3 id="sec-3"><span class="section-number-3">3</span> Summary</h3>
+<div class="outline-text-3" id="text-3">
+
+
+<p>
+In summary, 
+</p><ul>
+<li>download Whirr, build it
+</li>
+<li>download <a href="./hadoop.properties">./hadoop.properties</a> and <a href="./configure_cdh_hadoop.sh">./configure_cdh_hadoop.sh</a>, keeping the latter one in <code>whirr-installation-folder/functions</code> (create the <code>functions</code> folder if not present)
+</li>
+<li>Launch the cluster <code>whirr/bin/whirr launch-cluster --config hadoop.properties</code> (here <code>whirr/</code> is a soft link to my installation folder)
+</li>
+</ul>
+
+
+<p>
+And hopefully, a few 10's of minutes later, you're good to go.
+</p>
 <div id="footnotes">
 <h2 class="footnotes">Footnotes: </h2>
 <div id="text-footnotes">
@@ -481,6 +510,7 @@ results <span style="color: #009944;">&lt;-</span> cbind(results, results[,2]/re
 
 
 
+
 </div>
 </div>
 
@@ -489,7 +519,7 @@ results <span style="color: #009944;">&lt;-</span> cbind(results, results[,2]/re
 </div>
 
 <div id="postamble">
-<p class="date">Date: 2012-10-02 11:36:28 PDT</p>
+<p class="date">Date: 2012-10-02 13:43:58 PDT</p>
 <p class="author">Author: Saptarshi Guha</p>
 <p class="creator">Org version 7.8.11 with Emacs version 24</p>
 <a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>

@@ -115,9 +115,9 @@ public class RHNumeric extends RHBytesWritable {
 	    thisValue=thatValue=0;
 	    try{
 		tir = REXP.newBuilder().mergeFrom(b1, s1+off1, l1-off1).build();
-	        thr = REXP.newBuilder().mergeFrom(b2, s2+off1, l2-off1).build();
+	        thr = REXP.newBuilder().mergeFrom(b2, s2+off2, l2-off2).build();
 	    }catch(com.google.protobuf.InvalidProtocolBufferException e){
-		System.err.println(e);
+		throw new RuntimeException("RHIPE Numeric Comparator:"+e);
 	    }
 	    int til=tir.getRealValueCount(), thl=thr.getRealValueCount();
 	    int minl = til < thl? til: thl;

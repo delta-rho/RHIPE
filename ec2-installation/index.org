@@ -98,7 +98,7 @@ hadoop-common => core-site.xml
 #+end_example
 
 *** Customize Configuration of Whirr to Install RHIPE on Nodes
-Copy =whirr/services/cdh/src/main/resources/functions/configure_cdh_hadoop.sh= to =whirr/functions/configure_cdh_hadoop.sh= (you created the =functions= folder above) This file is modified to install RHIPE.  It can be downloaded from [[./configure_cdf_hadoop.sh][here]].
+Copy =whirr/services/cdh/src/main/resources/functions/configure_cdh_hadoop.sh= to =whirr/functions/configure_cdh_hadoop.sh= (you created the =functions= folder above) This file is modified to install RHIPE.  It can be downloaded from [[./configure_cdh_hadoop.sh][here]].
 
 This is the output off the diff
 #+begin_src sh
@@ -145,7 +145,7 @@ chodaipaaki-2:cdh-ec2 sguha$ diff --unified=5 whirr/services/cdh//src/main/resou
 #+end_src
 
 *** Launch Cluster
-We are ready to launch the cluster using Whirr. This takes some time and you can monitor things via the [[https://console.aws.amazon.com/ec2/][AWS Console]]. This took 13 minutes.
+We are ready to launch the cluster using Whirr. This takes some time (13-16 minutes for this set properties) and you can monitor things via the [[https://console.aws.amazon.com/ec2/][AWS Console]].
 #+begin_src sh
 > whirr/bin/whirr launch-cluster --config hadoop.properties
 Bootstrapping cluster
@@ -172,7 +172,9 @@ Started cluster of 2 instances
 #+begin_src sh
 whirr/bin/whirr list-cluster --config hadoop.properties
 #+end_src
-- You can ship a script on the cluster and run it on each node with:
+- You can ship a script on the cluster and run it on each node with
+  (this is a good way to install R packages on the nodes, though you
+  could also do it in the above configuration shell script):
 #+begin_src sh
 whirr/bin/whirr  run-script --config hadoop.properties --script "/path/to/my/script"
 #+end_src
@@ -199,6 +201,7 @@ ssh ec2-50-18-76-248.us-west-1.compute.amazonaws.com
 Now start R, (type =R= , you should see R 2.15). The following code computes 10 groups of uniform numbers and computes the sum of the random numbers and the number of random numbers in each group.
 
 #+begin_src R
+  options(width=200)
   library(Rhipe)
   rhinit()
   rhls("/")
@@ -220,12 +223,23 @@ And now run a quick mapreduce script (only to check things work)
   })
   results <- rhwatch(rhmr(map     = map
                           ,reduce = rhoptions()$templates$colsummer
-                          ,N      = 10000L))
+                          ,N      = 100000L,mapred=list(mapred.map.tasks=10)))
   
   results <- do.call(rbind, lapply(results,"[[",2))
   results <- cbind(results, results[,2]/results[,1])
 #+end_src
   
+
+** Summary
+
+In summary, 
+- download Whirr, build it
+- download [[./hadoop.properties]] and [[./configure_cdh_hadoop.sh]], keeping the latter one in =whirr-installation-folder/functions= (create the =functions= folder if not present)
+- Launch the cluster =whirr/bin/whirr launch-cluster --config hadoop.properties= (here =whirr/= is a soft link to my installation folder)
+
+And hopefully, a few 10's of minutes later, you're good to go.
+
+
 
 
 * Footnotes
