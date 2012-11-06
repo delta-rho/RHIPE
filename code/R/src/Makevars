@@ -1,0 +1,80 @@
+OBJECTS=
+#OBJECTS=
+
+#R_HOME is only set when this run from R
+#R_HOME=`echo "cat(Sys.getenv('R_HOME'))" | R --slave `
+
+
+PBINC=`pkg-config --cflags protobuf`
+PBLIB=`pkg-config --libs protobuf` 
+RINC=`${R_HOME}/bin/R CMD config --cppflags`
+RLIB=`${R_HOME}/bin/R CMD config --ldflags`
+
+
+#FOR RELEASE USE
+CXXFLAGS=`${R_HOME}/bin/R CMD config CXXFLAGS`
+#FOR DEBUG USE
+#CXXFLAGS= -WALL -g
+
+
+#LINKER FOR SHARED LIB
+SHLIB_CXXLD=`${R_HOME}/bin/R CMD config SHLIB_CXXLD`
+SHLIB_CXXLDFLAGS=`${R_HOME}/bin/R CMD config SHLIB_CXXLDFLAGS`
+
+
+MYCXXFLAGS+= -I.  ${CXXFLAGS} -DUSEAUTOSHORT -DHAVE_UINTPTR_T    ${RINC} ${PBINC}
+PKG_LIBS+=-fpic ${RLIB} ${PBLIB}
+
+USERDIR = ../inst/lib
+.PHONY: all cpy
+
+
+
+
+all: app rhipe #$(SHLIB) 
+
+# rexp.pb.cc: rexp.proto
+# 	protoc rexp.proto --cpp_out=.
+# rexp.pb.h: rexp.proto
+# 	protoc rexp.proto --cpp_out=.
+rexp.pb.o: rexp.pb.cc 
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+message.o: message.cc
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+fileio.o: fileio.cc
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+signal.o: signal.cc
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+display.o: display.cc
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+reducer.o: reducer.cc
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+mapper.o: mapper.cc
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+mapreduce.o: mapreduce.cc
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+main.o: main.cc
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+rhooks.o: rhooks.cc
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+md5.o: md5.c
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+serverbridge.o: serverbridge.cc
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+app:  rexp.pb.o  message.o fileio.o signal.o display.o reducer.o mapper.o mapreduce.o main.o 
+	$(CXX) ${MYCXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB} $^ -o ../inst/bin/RhipeMapReduce
+rhipe: rexp.pb.o message.o serverbridge.o fileio.o rhooks.o md5.o
+	$(SHLIB_CXXLD) ${SHLIB_CXXLDFLAGS} ${MYCXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB} $^ -o Rhipe.so
+
+
+
+
+
+
+clean:
+	rm -rf *.so *.o
+
+
+
+## To -DFileREADER,the sequencefile should be /ln/mapinput
+##  rhipe_map_buff_size=1000 /ln/meraki/custom/lib64/R/library/Rhipe/libs/imperious.so --slave --silent --vanilla --max-ppsize=100000 --max-nsize=1G

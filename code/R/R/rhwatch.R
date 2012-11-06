@@ -19,6 +19,10 @@
 #' @keywords MapReduce job status
 #' @export
 rhwatch <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
+  if(is.null(job) && is.null(debug)){
+    ## extract params from rhmr and call it
+  }
+  
   if(!is.null(job[[1]]$mapred.job.tracker) && job[[1]]$mapred.job.tracker == TRUE){
     z <- Rhipe:::rhwatch.runner(job, mon.sec,readback,....)
     if(readback==FALSE){
