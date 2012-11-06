@@ -26,6 +26,8 @@ import org.apache.hadoop.fs.LocalFileSystem;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.FileUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.WritableComparable;
@@ -62,6 +64,8 @@ import java.io.File;
 
 public class RXIndexedSQOutputFormat  extends SequenceFileOutputFormat<RHBytesWritable, RHBytesWritable> 
 {
+    final static Log LOG = LogFactory.getLog(RXIndexedSQOutputFormat.class);
+
     public RecordWriter<RHBytesWritable, RHBytesWritable> getRecordWriter(TaskAttemptContext context) 
 	throws IOException, InterruptedException 
 	{
@@ -119,8 +123,10 @@ public class RXIndexedSQOutputFormat  extends SequenceFileOutputFormat<RHBytesWr
 		    theKey.setData(key.getBytes(),0,key.getLength());
 		    theData.setData(toBytes(out.getLength()));
 		    myDatabase.put(null, theKey, theData);
-		    if(counter % 1000 == 0)
+		    if(counter % 1000 == 0){
 			myDbEnvironment.sync();
+			LOG.info("Synced "+counter+ "keys");
+		    }
 		    out.append(key, value);
 		}
 		
