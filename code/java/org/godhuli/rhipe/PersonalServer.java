@@ -21,7 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocalFileSystem;
-import org.godhuli.rhipe.index.IndexService;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
@@ -322,38 +321,6 @@ public class PersonalServer extends Configured implements Tool {
 	fu.killjob(jid);
 	send_result("OK");
     }
-    public void rhindexdata(REXP r) throws  Exception {
-	//args: jobname, tablename, input-source, output-path
-	String jobname =  r.getRexpValue(1).getStringValue(0).getStrval();
-	String tablename = r.getRexpValue(1).getStringValue(1).getStrval();
-	String inputsource = r.getRexpValue(1).getStringValue(2).getStrval();
-	String outputsource = r.getRexpValue(1).getStringValue(3).getStrval();
-	String tmpdir = r.getRexpValue(1).getStringValue(4).getStrval();
-	IndexService i = new IndexService();
-	int exitCode = i.run( new String[]{jobname, tablename, inputsource, outputsource, tmpdir});
-	if(exitCode>0)
-	    send_result("OK");
-	else
-	    send_error_message("Indexing Failed");
-	// ADD a NAME to Dataset so that two datasets with same key dont overwrite!
-    }
-    public void rhslowQuery(REXP r) throws  Exception {
-	byte[] row = r.getRexpValue(1).getRawValue().toByteArray();
-	String tablename =  r.getRexpValue(2).getStringValue(0).getStrval();
-	String offset =  r.getRexpValue(2).getStringValue(1).getStrval();
-	String file =  r.getRexpValue(2).getStringValue(2).getStrval();
-	RHBytesWritable b= IndexService.getForQuery(row, tablename, offset, file);
-	if(b!=null)
-	    send_result(b.getParsed());
-	else
-	    send_result("OK");
-    }
-
-    public void bytesToLong(REXP r) throws Exception{
-	long l = IndexService.toLong(r.getRexpValue(1).getRawValue().toByteArray());
-	send_result(""+l);
-    }
-	
     public void send_alive() throws Exception {
 	try {
 
@@ -569,12 +536,6 @@ public class PersonalServer extends Configured implements Tool {
 			rhgetnextkv(r);
 		    else if (tag.equals("rhclosesequencefile"))
 			rhclosesequencefile(r);
-		    else if (tag.equals("rhindexdata"))
-			rhindexdata(r);
-		    else if (tag.equals("rhslowQuery"))
-			rhslowQuery(r);
-		    else if (tag.equals("bytesToLong"))
-			bytesToLong(r);
 		    else if (tag.equals("shutdownJavaServer"))
 			shutdownJavaServer();
 
