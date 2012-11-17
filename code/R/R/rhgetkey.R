@@ -3,9 +3,8 @@
 #' Returns the values associated with a key in a map file on the HDFS.
 #' 
 #' @param keys Keys to return values for.
-#' @param paths Absolute path to map file on HDFS.
+#' @param paths Absolute path to map file on HDFS or the output from \code{rhwatch}.
 #' @param mc This is set to \code{lapply}, the user can set this to \code{mclapply} for parallel \code{lapply}
-#' @param skip Corresponds to io.map.index.skip
 #' @param size Number of Key,Value pairs to increase the buffer size by at a time.
 #' @author Saptarshi Guha
 #' @return Returns the values from the map files contained in \code{path} corresponding
@@ -21,24 +20,25 @@
 #'   \code{\link{rhdel}}, \code{\link{rhwrite}}, \code{\link{rhsave}}
 #' @keywords keys HDFS file
 #' @export
-rhgetkey <- function(keys,paths,mc=lapply,size=3000,skip=0L){
-	#TODO: Add these back to the functional arguments when someone is ready to comment on what they do.
-	sequence=""
-	paths = rhabsolute.hdfs.path(paths)
-	pat <- rhls(paths)
-	if (substr(pat[1, "permission"], 1, 1) != "-")  paths <- pat$file
-	if (!all(is.character(paths))) 
-	stop("paths must be a character vector of mapfiles( a directory containing them or a single one)")
-	keys <- lapply(keys, rhsz)
-	paths <- unlist(paths)
-	p <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhgetkeys", list(keys,paths,sequence,
-		       if(sequence=="") FALSE else TRUE,
-		       as.integer(skip)))
-	   ,getresponse=0L,
-	   conti = function(){
-		 return(Rhipe:::rbstream(rhoptions()$child$handle,size,mc))
-	   })
-	p
+rhgetkey <- function (keys, paths, mc = lapply, size = 3000) 
+{
+    sequence = ""
+    if (is(paths, "rhwatch")) 
+      paths <- rhofolder(paths)
+    paths = rhabsolute.hdfs.path(paths)
+    paths <- rhls(paths)$file
+    paths <- paths[!grepl(rhoptions()$file.types.remove.regex, paths)]
+    if (length(paths)==0 || !all(is.character(paths))) 
+        stop("paths must be a character vector of mapfiles( a directory containing them or a single one)")
+    keys <- lapply(keys, rhsz)
+    akey <- paste(head(strsplit(paths[1],"/")[[1]],-1),sep="",collapse="/")
+    p <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhgetkeys", 
+        list(keys, paths, sequence, if (sequence == "") FALSE else TRUE
+             ,akey)), getresponse = 0L, conti = function() {
+        return(Rhipe:::rbstream(rhoptions()$child$handle, size, 
+            mc))
+    })
+    p
 }
 
 # rhgetkey <- function(keys,paths,sequence=NULL,skip=0,ignore.stderr=T,verbose=F,...){

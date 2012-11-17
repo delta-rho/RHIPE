@@ -2,18 +2,16 @@
 \alias{rhgetkey}
 \title{Get Value Associated With a Key In A Map File}
 \usage{
-  rhgetkey(keys, paths, mc = lapply, size = 3000,
-    skip = 0L)
+  rhgetkey(keys, paths, mc = lapply, size = 3000)
 }
 \arguments{
   \item{keys}{Keys to return values for.}
 
-  \item{paths}{Absolute path to map file on HDFS.}
+  \item{paths}{Absolute path to map file on HDFS or the
+  output from \code{rhwatch}.}
 
   \item{mc}{This is set to \code{lapply}, the user can set
   this to \code{mclapply} for parallel \code{lapply}}
-
-  \item{skip}{Corresponds to io.map.index.skip}
 
   \item{size}{Number of Key,Value pairs to increase the
   buffer size by at a time.}

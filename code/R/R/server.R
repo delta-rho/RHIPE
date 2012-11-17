@@ -55,28 +55,33 @@ send.cmd <- function(z,command, getresponse=TRUE,continuation=NULL,...){
 
 
 getypes <- function(files,type,skip){
-	type = match.arg(type,c("sequence","map","text","gzip"))
-	files <- switch(type,
-		          "text"={
-		            unclass(rhls(files)['file'])$file
-		          },
-		          "gzip"={
-		            uu=unclass(rhls(files)['file'])$file
-		            uu[grep("gz$",uu)]
-		          },
-		          "sequence"={
-		            unclass(rhls(files)['file'])$file
-		          },
-		          "map"={
-		            uu=unclass(rhls(files,rec=TRUE)['file'])$file
-		            uu[grep("data$",uu)]
-		          })
-	for(s in skip){
-		remr <- c(grep(s,files))
-		if(length(remr)>0)
-			files <- files[-remr]
-	}
-	return(files)
+  type = match.arg(type,c("sequence","map","text","gzip","index"))
+  files <- switch(type,
+                  "text"={
+                    unclass(rhls(files)['file'])$file
+                  },
+                  "gzip"={
+                    uu=unclass(rhls(files)['file'])$file
+                    uu[grep("gz$",uu)]
+                  },
+                  "sequence"={
+                    unclass(rhls(files)['file'])$file
+                  },
+                  "map"={
+                    uu=unclass(rhls(files,rec=TRUE)['file'])$file
+                    uu[grep("data$",uu)]
+                  },
+                  "index"={
+                    uu=unclass(rhls(files,rec=TRUE)['file'])$file
+                    uu[grep("data$",uu)]
+                  }
+                  )
+  for(s in skip){
+    remr <- c(grep(s,files))
+    if(length(remr)>0)
+      files <- files[-remr]
+  }
+  return(files)
 }
 
 

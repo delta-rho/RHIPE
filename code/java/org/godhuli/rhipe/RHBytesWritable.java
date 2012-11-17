@@ -57,6 +57,11 @@ public class RHBytesWritable
     public byte[] getBytes() {
 	return bytes;
     }
+    public byte[] getActualBytes(){
+	byte[] b = new byte[ getLength()];
+	System.arraycopy( bytes, 0,b,0, getLength());
+	return b;
+    }
     public void setSize(int size) {
 	if (size > getCapacity()) {
 	    setCapacity(size * 3 / 2);
@@ -92,12 +97,10 @@ public class RHBytesWritable
     public void readFields(final DataInput in) throws IOException {
     	setSize(0); 
     	setSize(readVInt(in));
-	// byte[] b = new byte[30];
-	// in.readFully(b);
-	// LOG.info("Oh dear ..."+RHBytesWritable.bytesPretty(b));
-	// setSize(in.readInt());
-	// LOG.info("SAPSI-----------------: The size read is "+size);
+	// LOG.info("Read Size="+size);	
     	in.readFully(bytes, 0, size);
+	// LOG.info("PrettyBYtes: "+RHBytesWritable.bytesPretty(bytes));
+	
 	// readIntFields(in);
     }
     public void readIntFields(final DataInput in) throws IOException {
@@ -177,7 +180,9 @@ public class RHBytesWritable
     public String toString() {
 	return REXPHelper.toString(bytes,0,size);
     }
-	
+    public static String bytesPretty(byte[] b) { 
+	return RHBytesWritable.bytesPretty(b,0,b.length);
+    }
     public static String bytesPretty(byte[] b,int offset, int length) { 
 	int sz= length;
 	StringBuffer sb = new StringBuffer(3*sz);

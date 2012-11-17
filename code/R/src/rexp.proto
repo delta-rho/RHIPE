@@ -10,6 +10,10 @@ message REXP {
     LIST	= 5;
     LOGICAL	= 6;
     NULLTYPE	= 7;
+    REAL1       = 8;
+    INTEGER1    = 10;
+    STRING1     = 9;
+
   }
   enum RBOOLEAN {
     F	= 0;
@@ -27,6 +31,10 @@ message REXP {
   repeated REXP	    rexpValue		= 8;
   repeated string   attrName		= 11;
   repeated REXP     attrValue		= 12;
+  double   singleRealValue		= 13;
+  STRING   singleStringValue		= 15;
+  sint32   singleIntegerValue		= 16;
+
 }
 
 

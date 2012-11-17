@@ -125,8 +125,6 @@ public class FileUtils {
 	    }
 	}
     }
-
-
     public void makeFolderToDelete(String s) throws IOException{
 	Path p = new Path(s);
 	FileSystem fs = FileSystem.get(cfg);
@@ -309,7 +307,6 @@ public class FileUtils {
 	    w.close();
 	}
     }
-
 
 
     public void sequence2binary(REXP rexp0) throws Exception{
@@ -639,7 +636,6 @@ public class FileUtils {
 	cn.add(cvalues.build());
 	return(RObjects.makeList(groupdispname,cn));
     }
-
     public static void main(String[] args) throws Exception{
 	int cmd = Integer.parseInt(args[0]);
 	//parse data
@@ -726,7 +722,6 @@ public class FileUtils {
 		fu.writeTo(args[1], b);
 		break;
 	    }
-	    
 	}catch(Exception e){
 	    e.printStackTrace();
 	    String x = getStackTrace(e);

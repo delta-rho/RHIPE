@@ -1,7 +1,7 @@
 .rhipeEnv <- new.env()
-vvvv <- "0.70"
+vvvv <- "0.71"
 attr(vvvv,"minor") <- '0'
-attr(vvvv,"date") <- 'Wed Aug 16'
+attr(vvvv,"date") <- 'Saturday 17th November'
 
 class(vvvv) <- "rhversion"
 
@@ -48,7 +48,7 @@ onload.2 <- function(libname, pkgname){
 	# OTHER DEFAULTS
 	################################################################################################
 
-        opts$file.types.remove.regex     ="(/_SUCCESS|/_LOG|/_log|rhipe_debug)"
+        opts$file.types.remove.regex     ="(/_SUCCESS|/_LOG|/_log|rhipe_debug|rhipe_merged_index_db)"
 	opts$max.read.in.size <- 200*1024*1024 ## 100MB
 	opts$reduce.output.records.warn <- 200*1000
 	opts$rhmr.max.records.to.read.in <- NA
@@ -68,7 +68,9 @@ onload.2 <- function(libname, pkgname){
 	  post = { {rhcollect(reduce.key,.sum)}} )
         opts$templates$colsummer <- structure(opts$templates$colsummer,combine=TRUE)
         opts$templates$rbinder <-  function(r=NULL,combine=FALSE,dfname='adata'){
+          rold <- r
           r <- substitute(r)
+          r <- if( is(r,"name")) get(as.character(quote(rold))) else r
           def <- if(is.null(r)) TRUE else FALSE
           r <- if(is.null(r)) substitute({rhcollect(reduce.key, adata)}) else r
           y <-bquote(expression(
@@ -83,9 +85,11 @@ onload.2 <- function(libname, pkgname){
           y
         }
         opts$templates$raggregate <-  function(r=NULL,combine=FALSE,dfname='adata'){
+          rold <- r
           r <- substitute(r)
+          r <- if( is(r,"name")) get(as.character(quote(rold))) else r
           def <- if(is.null(r)) TRUE else FALSE
-          r <- if(is.null(r)) substitute({rhcollect(reduce.key, adata)}) else r
+          r <- if(is.null(r)) substitute({ adata <- unlist(adata, recursive = FALSE); rhcollect(reduce.key, adata)}) else r
           y <-bquote(expression(
               pre    = { adata <- list()},
               reduce = { adata[[length(adata) + 1 ]] <- reduce.values },

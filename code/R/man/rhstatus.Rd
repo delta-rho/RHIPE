@@ -16,7 +16,7 @@
   every \code{mon.sec} seconds.If 0, it will return
   immediately. If Inf, it will wait till over.}
 
-  \item{autokill}{If \code{autokill} is TRUE, then any R
+  \item{autokill}{If \code{autokill} is TUE, then any R
   errors caused by the map/reduce code will cause the job
   to be killed.}
 

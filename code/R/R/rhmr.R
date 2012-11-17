@@ -42,7 +42,8 @@
 #'   formats of the input and output destinations. If \code{inout} is of length
 #'   one this specifies the input format, the output being NULL (nothing is
 #'   written) Vector element values must be from c("sequence", "text", "map",
-#'   "lapply").  See details. Also, see argument \code{N} for information about
+#'   "lapply").  \code{inout[1]} can be a function, which should modify the first argument it gets.
+#'   See details. Also, see argument \code{N} for information about
 #'   the "lapply" value.
 #' @param orderby This is one of \emph{bytes}, \emph{integer} , \emph{numeric}
 #'   and \emph{character}. The intermediate keys will be ordered assuming the
@@ -426,8 +427,16 @@ rhmr <- function(map         = NULL,
   if(length(inout)==1) inout=c(inout,"null") 
   if(!is.na(N)) inout[1] <- 'lapply'
 
-  inout[2] <- if(!is.na(inout[2])) match.arg(inout[2],  c("sequence","text","lapply","map","null")) else NA
-  inout[1] <- if(!is.na(inout[1])) match.arg(inout[1],  c("sequence","text","lapply","map","null")) else NA
+  inout[2] <- if(is.function(inout[2]))
+    inout[2]
+  else if(!is.na(inout[2]))
+    match.arg(inout[2],  c("sequence","text","lapply","map","null"))
+  else NA
+  inout[1] <- if(is.function(inout[1]))
+    inout[1]
+  else if(!is.na(inout[1]))
+    match.arg(inout[1],  c("sequence","text","lapply","map","null"))
+  else NA
 
   ifolder=if(is.null(mapred$parse.ifolder)){
     switch(inout[1],
@@ -464,72 +473,78 @@ rhmr <- function(map         = NULL,
   inout <- as.vector(matrix(inout,ncol=2))
   lines$rhipe_map_output_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
   lines$rhipe_map_output_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
-  switch(inout[1],
-         'text' = {
-           lines$rhipe_inputformat_class <- 'org.godhuli.rhipe.RXTextInputFormat'
-           ## 'org.godhuli.rhipe.RXTextInputFormat'
-           lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHNumeric'
-           lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHText'
-           if(is.null(param.temp.file)){
-             linesToTable <- Rhipe:::linesToTable
-             environment(linesToTable) <- .BaseNamespaceEnv
-             param.temp.file <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",list(linesToTable=linesToTable))
-           }else{
-             linesToTable <- Rhipe:::linesToTable
-             environment(linesToTable) <- .BaseNamespaceEnv
-             param.temp.file$envir$linesToTable <- linesToTable
-           }
-         },
-         'sequence'={
-           lines$rhipe_inputformat_class <-
-             'org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat'
-           lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-           lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
-         },
-         'lapply'={
-           lines$rhipe_inputformat_class <-
-             'org.godhuli.rhipe.LApplyInputFormat'
-           lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHNumeric'
-           lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHNumeric'
-           lines$rhipe_lapply_lengthofinput <- as.integer(N)
-         },
-         'binary'={
-           stop("'binary' cannot be used as input format")
-         })
 
-  switch(inout[2],
-         'text' = {
-           lines$rhipe_outputformat_class <-
-             'org.godhuli.rhipe.RXTextOutputFormat'
-              ## 'org.apache.hadoop.mapreduce.lib.output.TextOutputFormat'
-##'org.apache.hadoop.mapred.TextOutputFormat'
-           lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-           lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
-         },
-         'sequence' = {
-           lines$rhipe_outputformat_class <-
-##'org.apache.hadoop.mapred.SequenceFileOutputFormat'
-              'org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat'
-           lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-           lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
-         },
-         'binary' = {
-           lines$rhipe_outputformat_class <-'org.godhuli.rhipe.RXBinaryOutputFormat'
-           lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-           lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
-         },
-         'null'= {
-           lines$rhipe_outputformat_class <-'org.apache.hadoop.mapreduce.lib.output.NullOutputFormat'
-           lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
-           lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
-           lines$rhipe_map_output_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
-           lines$rhipe_map_output_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
-         },
-         'map' = {
-           lines$rhipe_outputformat_class <-'org.godhuli.rhipe.RHMapFileOutputFormat'
-           lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-           lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
-         })
+  if(!is.function(inout[1])){
+    switch(inout[1],
+           'text' = {
+             lines$rhipe_inputformat_class <- 'org.godhuli.rhipe.RXTextInputFormat'
+             ## 'org.godhuli.rhipe.RXTextInputFormat'
+             lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHNumeric'
+             lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHText'
+             if(is.null(param.temp.file)){
+               linesToTable <- Rhipe:::linesToTable
+             environment(linesToTable) <- .BaseNamespaceEnv
+               param.temp.file <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",list(linesToTable=linesToTable))
+             }else{
+               linesToTable <- Rhipe:::linesToTable
+               environment(linesToTable) <- .BaseNamespaceEnv
+               param.temp.file$envir$linesToTable <- linesToTable
+             }
+           },
+           'sequence'={
+             lines$rhipe_inputformat_class <-
+               'org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat'
+             lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
+             lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
+           },
+           'lapply'={
+             lines$rhipe_inputformat_class <-
+               'org.godhuli.rhipe.LApplyInputFormat'
+             lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHNumeric'
+             lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHNumeric'
+             lines$rhipe_lapply_lengthofinput <- as.integer(N)
+           },
+           'binary'={
+             stop("'binary' cannot be used as input format")
+           })
+  }else lines <- inout[1](lines,match.call())
+
+  if(!is.function(inout[2])){
+    switch(inout[2],
+           'text' = {
+             lines$rhipe_outputformat_class <-
+               'org.godhuli.rhipe.RXTextOutputFormat'
+             ## 'org.apache.hadoop.mapreduce.lib.output.TextOutputFormat'
+             ##'org.apache.hadoop.mapred.TextOutputFormat'
+             lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
+             lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
+           },
+           'sequence' = {
+             lines$rhipe_outputformat_class <-
+               ##'org.apache.hadoop.mapred.SequenceFileOutputFormat'
+               'org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat'
+             lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
+             lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
+           },
+           'binary' = {
+             lines$rhipe_outputformat_class <-'org.godhuli.rhipe.RXBinaryOutputFormat'
+             lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
+             lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
+           },
+           'null'= {
+             lines$rhipe_outputformat_class <-'org.apache.hadoop.mapreduce.lib.output.NullOutputFormat'
+             lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
+             lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
+             lines$rhipe_map_output_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
+             lines$rhipe_map_output_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
+           },
+           'map' = {
+             lines$rhipe_outputformat_class <-'org.godhuli.rhipe.RHMapFileOutputFormat'
+             lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
+             lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
+           })
+  }else lines <- inout[2](lines,match.call())
+  
   ordert <- c("bytes","integer","numeric","character")
   orderp <- switch(
                    pmatch(orderby,ordert),

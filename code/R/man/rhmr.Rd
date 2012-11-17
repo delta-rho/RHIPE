@@ -7,7 +7,7 @@
     ifolder = "", inout = c("sequence", "sequence"),
     orderby = "bytes", mapred = NULL, shared = c(),
     jarfiles = c(), zips = c(), partitioner = NULL,
-    copyFiles = F, N = NA, jobname = "", parameters = NULL)
+    copyFiles = F, N = NA, jobname = "", paramaters = NULL)
 }
 \arguments{
   \item{map}{\code{map} is an R expression (created using
@@ -65,9 +65,10 @@
   destinations. If \code{inout} is of length one this
   specifies the input format, the output being NULL
   (nothing is written) Vector element values must be from
-  c("sequence", "text", "map", "lapply").  See details.
-  Also, see argument \code{N} for information about the
-  "lapply" value.}
+  c("sequence", "text", "map", "lapply").  \code{inout[1]}
+  can be a function, which should modify the first argument
+  it gets.  See details. Also, see argument \code{N} for
+  information about the "lapply" value.}
 
   \item{orderby}{This is one of \emph{bytes},
   \emph{integer} , \emph{numeric} and \emph{character}. The
@@ -101,6 +102,9 @@
 
   \item{partitioner}{A list of two names elements:
   \code{lims} and \code{type}.  See details.}
+
+  \item{paramater}{A named list (or an alist) with
+  paramaters to be passed to a mapreduce job.}
 
   \item{copyFiles}{Will the files created in the R code
   e.g. PDF output, be copied to the destination folder,
