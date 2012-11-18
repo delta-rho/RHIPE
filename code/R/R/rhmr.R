@@ -69,8 +69,7 @@
 #' @param copyFiles Will the files created in the R code e.g. PDF output, be
 #'   copied to the destination folder, \code{ofolder}?
 #' @param N To apply a computation to the numbers 1, 2, \ldots{}, \emph{N},specify the value of
-#'   \emph{N} in this parameter. Set the number of map tasks in
-#'   \code{mapred.map.tasks} (hence each task will run approximately
+#'   \emph{N} in this parameter. To change the number of map tasks, set N to a pair, where first element is N and second element is mapred.map.tasks (hence each task will run approximately
 #'   floor(\emph{N}/\code{mapred.map.tasks}) computations sequentially). Note that \code{rhmr} automatically sets \code{inout[1]} to 'lapply' is \emph{N} is not \emph{NA}
 #' @param jobname The name of the job, which is visible on the Jobtracker
 #'   website. If not provided, Hadoop MapReduce uses the default name
@@ -424,22 +423,36 @@ rhmr <- function(map         = NULL,
   names(ofolder) <- NULL
   
   flagclz <- NULL
-  if(length(inout)==1) inout=c(inout,"null") 
-  if(!is.na(N)) inout[1] <- 'lapply'
+  inout <- as.list(inout)
+  if(length(inout)==1) inout=list(inout,"null")
 
-  inout[2] <- if(is.function(inout[2]))
-    inout[2]
-  else if(!is.na(inout[2]))
-    match.arg(inout[2],  c("sequence","text","lapply","map","null"))
+  ##############################################
+  ## Handle N
+  ##############################################
+  if(length(N)==2){
+    if(is.null(mapred)) mapred <- list()
+    mapred$mapred.map.tasks <- as.integer(N[2])
+  }
+  N <- N[1]
+  if(!is.na(N)) inout[[1]] <- 'lapply'
+  ##############################################
+  ## END Handle N
+  ##############################################
+
+  inout[[2]] <- if(is.function(inout[[2]]))
+    inout[[2]]
+  else if(!is.na(inout[[2]]))
+    match.arg(inout[[2]],  c("sequence","text","lapply","map","null"))
   else NA
-  inout[1] <- if(is.function(inout[1]))
-    inout[1]
-  else if(!is.na(inout[1]))
-    match.arg(inout[1],  c("sequence","text","lapply","map","null"))
+  
+  inout[[1]] <- if(is.function(inout[[1]]))
+    inout[[1]]
+  else if(!is.na(inout[[1]]))
+    match.arg(inout[[1]],  c("sequence","text","lapply","map","null"))
   else NA
 
   ifolder=if(is.null(mapred$parse.ifolder)){
-    switch(inout[1],
+    switch(inout[[1]],
            "map"={
              flagclz="sequence"
              uu=unclass(rhls(ifolder,rec=TRUE)['file'])$file
@@ -456,7 +469,7 @@ rhmr <- function(map         = NULL,
   remr <- c(grep(rhoptions()$file.types.remove.regex,ifolder))
   if(length(remr)>0)
     ifolder <- ifolder[-remr]
-  if(!is.null(flagclz)) inout <- c('sequence',inout[2])
+  if(!is.null(flagclz)) inout <- list('sequence',inout[[2]])
 
   lines<- append(lines,list(
                      		R_HOME=R.home()
@@ -470,12 +483,12 @@ rhmr <- function(map         = NULL,
                             ,rhipe_input_folder=paste(ifolder,collapse=",")
                             ,rhipe_output_folder=paste(ofolder,collapse=",")))
   
-  inout <- as.vector(matrix(inout,ncol=2))
+  ## inout <- as.vector(matrix(inout,ncol=2))
   lines$rhipe_map_output_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
   lines$rhipe_map_output_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
 
-  if(!is.function(inout[1])){
-    switch(inout[1],
+  if(!is.function(inout[[1]])){
+    switch(inout[[1]],
            'text' = {
              lines$rhipe_inputformat_class <- 'org.godhuli.rhipe.RXTextInputFormat'
              ## 'org.godhuli.rhipe.RXTextInputFormat'
@@ -507,10 +520,10 @@ rhmr <- function(map         = NULL,
            'binary'={
              stop("'binary' cannot be used as input format")
            })
-  }else lines <- inout[1](lines,match.call())
+  }else lines <- inout[[1]](lines,match.call())
 
-  if(!is.function(inout[2])){
-    switch(inout[2],
+  if(!is.function(inout[[2]])){
+    switch(inout[[2]],
            'text' = {
              lines$rhipe_outputformat_class <-
                'org.godhuli.rhipe.RXTextOutputFormat'
@@ -543,7 +556,7 @@ rhmr <- function(map         = NULL,
              lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
              lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
            })
-  }else lines <- inout[2](lines,match.call())
+  }else lines <- inout[[2]](lines,match.call())
   
   ordert <- c("bytes","integer","numeric","character")
   orderp <- switch(
@@ -684,12 +697,7 @@ rhmr <- function(map         = NULL,
 
   if(lines$rhipe_map_output_keyclass != c("org.godhuli.rhipe.RHBytesWritable")
      && is.null(reduce)){
-    stop("If using ordered keys, provide a reduce even a dummy reduce e.g.
-
-reduce = expression(
-  reduce={ lapply(reduce.values,function(r) rhcollect(reduce.key,r)) }
-)
-")
+    stop("If using ordered keys, provide a reduce even e.g. rhoptions()$templates$identity")
   }
 
   

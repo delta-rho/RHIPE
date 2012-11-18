@@ -100,7 +100,8 @@ onload.2 <- function(libname, pkgname){
           environment(y) <- .BaseNamespaceEnv
           y
         }
-       opts$template$range <-  expression(
+       opts$templates$identity <-  expression(reduce={ lapply(reduce.values,function(r) rhcollect(reduce.key,r)) })
+       opts$templates$range <-  expression(
            pre = {
              rng <- c(Inf,-Inf)
            },

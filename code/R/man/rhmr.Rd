@@ -112,12 +112,12 @@
 
   \item{N}{To apply a computation to the numbers 1, 2,
   \ldots{}, \emph{N},specify the value of \emph{N} in this
-  parameter. Set the number of map tasks in
-  \code{mapred.map.tasks} (hence each task will run
-  approximately floor(\emph{N}/\code{mapred.map.tasks})
-  computations sequentially). Note that \code{rhmr}
-  automatically sets \code{inout[1]} to 'lapply' is
-  \emph{N} is not \emph{NA}}
+  parameter. To change the number of map tasks, set N to a
+  pair, where first element is N and second element is
+  mapred.map.tasks (hence each task will run approximately
+  floor(\emph{N}/\code{mapred.map.tasks}) computations
+  sequentially). Note that \code{rhmr} automatically sets
+  \code{inout[1]} to 'lapply' is \emph{N} is not \emph{NA}}
 
   \item{jobname}{The name of the job, which is visible on
   the Jobtracker website. If not provided, Hadoop MapReduce
