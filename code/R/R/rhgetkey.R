@@ -41,6 +41,51 @@ rhgetkey <- function (keys, paths, mc = lapply, size = 3000)
     p
 }
 
+#' Creates a Handle to a Mapfile
+#' @param Absolute path to map file on HDFS or the output from \code{rhwatch}.
+#' @export
+rhmapfile <- function(paths){
+  akey <- paste(head(strsplit(paths[1],"/")[[1]],-1),sep="",collapse="/")
+  invisible(rhgetkey(NULL,paths))
+  obj <- new.env()
+  obj$filename <- akey
+  obj$paths <- paths
+  class(obj) = "mapfile"
+  obj
+}
+#' Prints A MapFile Object
+#' @export
+print.mapfile <- function(a,...){
+  cat(sprintf("%s is a MapFile with %s index files\n", a$filename, nrow(rhls(a$paths))))
+}
+
+#' Single Index into MapFile Object(calls \code{rhgetkey}
+#' @export
+"[[.mapfile" <- function(a,i,...){
+  a <- rhgetkey(i,a$paths)
+  if(length(a)==1) a[[1]] else NULL
+}
+
+#' Array Indexing
+#' @export
+"[.mapfile" <- function(a,i,...){
+  rhgetkey(i,a$paths)
+}
+
+#' Cannot Assign to Object
+#' @export
+"[[<-.mapfile" <- function(a,i,...){
+  stop("Assignment to MapFile keys is not supported")
+}
+
+#' Cannot Assign to Object
+#' @export
+"[<-.mapfile" <- function(a,i,...){
+  stop("Assignment to MapFile keys is not supported")
+}
+
+
+
 # rhgetkey <- function(keys,paths,sequence=NULL,skip=0,ignore.stderr=T,verbose=F,...){
 #   on.exit({
 #     if(dodel) unlink(tmf)
@@ -65,3 +110,5 @@ rhgetkey <- function (keys, paths, mc = lapply, size = 3000)
 #   if(is.null(sequence)) rhreadBin(tmf,...,verb=verbose)
 # }
 ## rhgetkey(list(c("f405ad5006b8dda3a7a1a819e4d13abfdbf8a","1"),c("f2b6a5390e9521397031f81c1a756e204fb18","1")) ,"/tmp/small.seq")
+
+
