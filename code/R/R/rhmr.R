@@ -638,7 +638,7 @@ rhmr <- function(map         = NULL,
   options.mapred = rhoptions()$mropts
   if(!is.null(options.mapred))
     for(n in filterOut(names(options.mapred))) lines[[n]] = options.mapred[[n]]
-  for(n in filterOut(names(mapred))) lines[[n]] <- mapred[[n]]
+  for(n in names(mapred)) lines[[n]] <- mapred[[n]]
 
   ################################################################################################
   # END HANDLE MAPRED EXTRA PARAMS
