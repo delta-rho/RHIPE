@@ -42,11 +42,11 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 public class RXTextInputFormat extends 
 				   FileInputFormat<RHNumeric, RHText>
 {
-  protected boolean isSplitable(JobContext context, Path file) {
-    CompressionCodec codec = 
-      new CompressionCodecFactory(context.getConfiguration()).getCodec(file);
-    return codec == null;
-  }
+    protected boolean isSplitable(JobContext context, Path file) {
+	CompressionCodec codec = 
+	    new CompressionCodecFactory(context.getConfiguration()).getCodec(file);
+	return codec == null;
+    }
 
   public RecordReader<RHNumeric, RHText> 
       createRecordReader(InputSplit split,TaskAttemptContext context) throws

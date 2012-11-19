@@ -1,28 +1,16 @@
-#' convenience function to pass to inout[2]. 
-#'
-#' Convenience function to pass inout[2], Sets custom options for map outputformat.
-#' 
-#' @param interval Every 'interval' key to be indexed
-#' @param compression 'NONE','BLOCK',or 'RECORD
-#' @details Call this function as Rhipe:::mapof (e.g. Rhipe:::mapof(1,'RECORD') and pass the result to inout[2]
-mapof <- function(interval=1,compression='BLOCK'){
-  function(lines, args){
-    lines$io.map.index.interval <- interval
-    lines$mapred.output.compression.type <- compression
-    lines$rhipe_outputformat_class <- "org.godhuli.rhipe.RHMapFileOutputFormat"
-    lines$rhipe_outputformat_keyclass <- "org.godhuli.rhipe.RHBytesWritable"
-    lines$rhipe_outputformat_valueclass <- "org.godhuli.rhipe.RHBytesWritable"
-    lines
-  }
-}
-
-
 is.mapfolder <- function(apath){
   f <- rhls(apath)$file
   idx <- any(sapply(f,function(r) grepl("index$",r)))
   dta <- any(sapply(f,function(r) grepl("data$",r)))
   if(idx && dta) TRUE else FALSE
 }
+dir.contain.mapfolders <- function(dir){
+  paths = rhabsolute.hdfs.path(dir)
+  paths <- rhls(paths)$file
+  paths <- paths[!grepl(rhoptions()$file.types.remove.regex, paths)]
+  all(sapply(paths, is.mapfolder))
+}
+    
 
 #' Get Value Associated With a Key In A Map File
 #'
@@ -71,6 +59,8 @@ rhgetkey <- function (keys, paths, mc = lapply, size = 3000)
 #' @param Absolute path to map file on HDFS or the output from \code{rhwatch}.
 #' @export
 rhmapfile <- function(paths){
+  if(is(paths, "rhwatch") || is(paths,"rhmr"))
+    paths <- rhofolder(paths)
   akey <- paste(head(strsplit(paths[1],"/")[[1]],-1),sep="",collapse="/")
   invisible(rhgetkey(NULL,paths))
   obj <- new.env()

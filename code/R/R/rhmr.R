@@ -31,20 +31,6 @@
 #'   before the map and reduce phases. See details.
 #' @param cleanup As in setup except cleanup runs after the map and reduce
 #'   phases.
-#' @param ofolder The destination of the output. If the destination already
-#'   exists, it will be overwritten. This is not needed if there is not output.
-#' @param ifolder This is a path to a folder on the HDFS containing the input
-#'   data. This folder may contain sub folders in which case RHIPE use the all
-#'   the files in the subfolders as input. This argument is optional: if not
-#'   provided, the user must provide a value for \code{N} and set the first
-#'   value of \code{inout} to \code{lapply}.
-#' @param inout A character vector of one or two components which specify the
-#'   formats of the input and output destinations. If \code{inout} is of length
-#'   one this specifies the input format, the output being NULL (nothing is
-#'   written) Vector element values must be from c("sequence", "text", "map",
-#'   "lapply").  \code{inout[1]} can be a function, which should modify the first argument it gets.
-#'   See details. Also, see argument \code{N} for information about
-#'   the "lapply" value.
 #' @param orderby This is one of \emph{bytes}, \emph{integer} , \emph{numeric}
 #'   and \emph{character}. The intermediate keys will be ordered assuming the
 #'   output key in the map is of that type. If not of the type an exception
@@ -283,62 +269,63 @@
 #' rhstatus(ex)  #Wait for job to finish; ctrl + C to quit
 #' }
 #' @export
-
 rhmr <- function(map         = NULL,
-                 reduce      = NULL,
-                 combiner    = FALSE,
-                 setup       = NULL,
-                 cleanup     = NULL,
-                 ofolder     = '',
-                 ifolder     = '',
-                 inout       = c("sequence","sequence"),
-                 orderby     = 'bytes',
-                 mapred      = NULL,
-                 shared      = c(),
-                 jarfiles    = c(),
-                 zips        = c(),
-                 partitioner = NULL,
-                 copyFiles   = F,
-                 N           = NA,
-                 jobname     = "",
-                 paramaters  = NULL){
+                  reduce      = NULL,
+                  combiner    = FALSE,
+                  setup       = NULL,
+                  cleanup     = NULL,
+                  input       = NULL,
+                  output      = NULL,
+                  orderby     = 'bytes',
+                  mapred      = NULL,
+                  shared      = c(),
+                  jarfiles    = c(),
+                  zips        = c(),
+                  partitioner = NULL,
+                  copyFiles   = F,
+                  jobname     = "",
+                  paramaters  = NULL){
+  warning("STOP! Do not call rhmr, call rhwatch with the same arguments you would have done with rhmr")
+  Rhipe:::.rhmr(map=map,reduce=reduce,combiner=combiner,setup=setup, cleanup=cleanup,
+       input=input,output=output,orderby=orderby,mapred=mapred,shared=shared,
+       jarfiles=jarfiles, zips=zips, partitioner=partitioner, copyFiles=copyFiles,jobname=jobname,
+       paramaters=paramaters)
+}
+
+.rhmr <- function(map         = NULL,
+                  reduce      = NULL,
+                  combiner    = FALSE,
+                  setup       = NULL,
+                  cleanup     = NULL,
+                  input       = NULL,
+                  output      = NULL,
+                  orderby     = 'bytes',
+                  mapred      = NULL,
+                  shared      = c(),
+                  jarfiles    = c(),
+                  zips        = c(),
+                  partitioner = NULL,
+                  copyFiles   = F,
+                  jobname     = "",
+                  paramaters  = NULL){
   
   
-################################################################################################
-                                        # Handling relative file paths by jumping on inputs right at the top
-################################################################################################
-  if(nchar(ofolder) > 0)
-			ofolder = rhabsolute.hdfs.path(ofolder)
-  if(!is.null(ifolder)) ifolder <- rhofolder(ifolder)
-  if(all(sapply(ifolder, function(r) nchar(r)>0)))
-    ifolder = rhabsolute.hdfs.path(ifolder)
-  if(length(shared) > 0)
-    shared = rhabsolute.hdfs.path(shared)
-                                        #zips is handled below when the rhoptions()$zips is used.
-                                        #if(length(zips) > 0)
-                                        #	zips = rhabsolute.hdfs.path(zips)
-################################################################################################
-## Now continue into the sea of code known as "lines"
-################################################################################################
-  
-  
+  ## ##############################################################################################
+  ## Now continue into the sea of code known as "lines"
+  ## #############################################################################################
   
   lines <- list();
   is.Expression <- function(r) is.expression(r) || class(r)=="{"
 
   
-  ##
+  ## ###########################
   ## HANDLE paramaters                                                  
-  ##
+  ## ############################
   if(!is.null(paramaters)){
-    param.temp.file <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",paramaters=paramaters,aframe=sys.frame(-1))
+    lines$param.temp.file <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",paramaters=paramaters,aframe=sys.frame(-1))
   }else{
-    param.temp.file <- NULL
+    lines$param.temp.file <- NULL
   }
-  
-  ##
-  ## END HANDLE paramaters
-  ##
   
   if(!is.Expression(map))
     stop("'map' must be an expression")
@@ -403,161 +390,23 @@ rhmr <- function(map         = NULL,
   setup.r <- rawToChar(serialize(setup$reduce,NULL,ascii=T))
   cleanup.m <- rawToChar(serialize(cleanup$map,NULL,ascii=T))
   cleanup.r <- rawToChar(serialize(cleanup$reduce,NULL,ascii=T))
-
-  if(ofolder == ""){
-    if(!is.null(rhoptions()$HADOOP.TMP.FOLDER)){
-      ofolder <- Rhipe:::mkdHDFSTempFolder(file="rhipe-temp")
-      read.and.delete.ofolder <- TRUE
-    }else{
-      stop("paramater ofolder is default '' and RHIPE could not find a value for HADOOP.TMP.FOLDER in rhoptions().\n Set this: rhoptions(HADOOP.TMP.FOLDER=path)")
-    }
-  }else{
-	read.and.delete.ofolder <- FALSE
-      }
-  
-  ofolder <- sapply(ofolder,function(r) {
-    x <- if(substr(r,nchar(r),nchar(r))!="/" && r!=""){
-     paste(r,"/",sep="")
-   } else r
-  })
-  names(ofolder) <- NULL
-  
-  flagclz <- NULL
-  inout <- as.list(inout)
-  if(length(inout)==1) inout=list(inout,"null")
-
-  ##############################################
-  ## Handle N
-  ##############################################
-  if(length(N)==2){
-    if(is.null(mapred)) mapred <- list()
-    mapred$mapred.map.tasks <- as.integer(N[2])
-  }
-  N <- N[1]
-  if(!is.na(N)) inout[[1]] <- 'lapply'
-  ##############################################
-  ## END Handle N
-  ##############################################
-
-  inout[[2]] <- if(is.function(inout[[2]]))
-    inout[[2]]
-  else if(!is.na(inout[[2]]))
-    match.arg(inout[[2]],  c("sequence","text","lapply","map","null"))
-  else NA
-  
-  inout[[1]] <- if(is.function(inout[[1]]))
-    inout[[1]]
-  else if(!is.na(inout[[1]]))
-    match.arg(inout[[1]],  c("sequence","text","lapply","map","null"))
-  else NA
-
-  ifolder=if(is.null(mapred$parse.ifolder)){
-    switch(inout[[1]],
-           "map"={
-             flagclz="sequence"
-             uu=unclass(rhls(ifolder,rec=TRUE)['file'])$file
-             uu[grep("data$",uu)]
-           },
-           "sequence"={
-             a <- rhls(ifolder,rec=TRUE)$file
-           },
-           "text"={
-             rhls(ifolder)$file
-           }
-           )
-  } else ifolder
-  remr <- c(grep(rhoptions()$file.types.remove.regex,ifolder))
-  if(length(remr)>0)
-    ifolder <- ifolder[-remr]
-  if(!is.null(flagclz)) inout <- list('sequence',inout[[2]])
-
   lines<- append(lines,list(
-                     		R_HOME=R.home()
-                            ,rhipe.read.and.delete.ofolder=read.and.delete.ofolder
+                            R_HOME=R.home()
                             ,rhipe_map=(map.s)
                             ,rhipe_setup_map=(setup.m)
                             ,rhipe_cleanup_map= (cleanup.m)
                             ,rhipe_cleanup_reduce= (cleanup.r)
                             ,rhipe_setup_reduce= (setup.r)
                             ,rhipe_command=paste(rhoptions()$runner,collapse=" ")
-                            ,rhipe_input_folder=paste(ifolder,collapse=",")
-                            ,rhipe_output_folder=paste(ofolder,collapse=",")))
+                            ))
   
-  ## inout <- as.vector(matrix(inout,ncol=2))
   lines$rhipe_map_output_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
   lines$rhipe_map_output_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
 
-  if(!is.function(inout[[1]])){
-    switch(inout[[1]],
-           'text' = {
-             lines$rhipe_inputformat_class <- 'org.godhuli.rhipe.RXTextInputFormat'
-             ## 'org.godhuli.rhipe.RXTextInputFormat'
-             lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHNumeric'
-             lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHText'
-             if(is.null(param.temp.file)){
-               linesToTable <- Rhipe:::linesToTable
-             environment(linesToTable) <- .BaseNamespaceEnv
-               param.temp.file <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",list(linesToTable=linesToTable))
-             }else{
-               linesToTable <- Rhipe:::linesToTable
-               environment(linesToTable) <- .BaseNamespaceEnv
-               param.temp.file$envir$linesToTable <- linesToTable
-             }
-           },
-           'sequence'={
-             lines$rhipe_inputformat_class <-
-               'org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat'
-             lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-             lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
-           },
-           'lapply'={
-             lines$rhipe_inputformat_class <-
-               'org.godhuli.rhipe.LApplyInputFormat'
-             lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHNumeric'
-             lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHNumeric'
-             lines$rhipe_lapply_lengthofinput <- as.integer(N)
-           },
-           'binary'={
-             stop("'binary' cannot be used as input format")
-           })
-  }else lines <- inout[[1]](lines,match.call())
 
-  if(!is.function(inout[[2]])){
-    switch(inout[[2]],
-           'text' = {
-             lines$rhipe_outputformat_class <-
-               'org.godhuli.rhipe.RXTextOutputFormat'
-             ## 'org.apache.hadoop.mapreduce.lib.output.TextOutputFormat'
-             ##'org.apache.hadoop.mapred.TextOutputFormat'
-             lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-             lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
-           },
-           'sequence' = {
-             lines$rhipe_outputformat_class <-
-               ##'org.apache.hadoop.mapred.SequenceFileOutputFormat'
-               'org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat'
-             lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-             lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
-           },
-           'binary' = {
-             lines$rhipe_outputformat_class <-'org.godhuli.rhipe.RXBinaryOutputFormat'
-             lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-             lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
-           },
-           'null'= {
-             lines$rhipe_outputformat_class <-'org.apache.hadoop.mapreduce.lib.output.NullOutputFormat'
-             lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
-             lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
-             lines$rhipe_map_output_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
-             lines$rhipe_map_output_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'#'org.apache.hadoop.io.NullWritable'
-           },
-           'map' = {
-             lines$rhipe_outputformat_class <-'org.godhuli.rhipe.RHMapFileOutputFormat'
-             lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-             lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
-           })
-  }else lines <- inout[[2]](lines,match.call())
-  
+  ## #################################################
+  ## Handle Custom Comparators
+  ## #################################################
   ordert <- c("bytes","integer","numeric","character")
   orderp <- switch(
                    pmatch(orderby,ordert),
@@ -568,10 +417,19 @@ rhmr <- function(map         = NULL,
                    )
   if(is.null(orderp)) stop(sprintf("Wrong ordering %s: try bytes,integer,numeric,character"))
   lines$rhipe_map_output_keyclass <- orderp
+  if(lines$rhipe_map_output_keyclass != c("org.godhuli.rhipe.RHBytesWritable")
+     && is.null(reduce)){
+    stop("If using ordered keys, provide a reduce even e.g. rhoptions()$templates$identity")
+  }
+
   lines$rhipe_string_quote <- "\r\n"
   lines$rhipe_string_quote <- ''
   lines$rhipe_send_keys_to_map <- 1L
   lines$rhipe_map_output_valueclass <- "org.godhuli.rhipe.RHBytesWritable"
+
+  ## #######################################################
+  ## Partitioners
+  ## #######################################################
   lines$rhipe_partitioner_class <- "none"
   if(!is.null(partitioner) && is.list(partitioner)){
     if(is.null(partitioner$lims) || is.null(partitioner$type))
@@ -593,43 +451,101 @@ rhmr <- function(map         = NULL,
                  )
         }
   }
+
   lines$rhipe.eol.sequence <- "\r\n"
   lines$mapred.textoutputformat.usekey <-  "TRUE"
   lines$rhipe_reduce_buff_size <- 6000
   lines$rhipe_map_buff_size <- 3000
   lines$rhipe_job_verbose <- "TRUE"
   lines$rhipe_stream_buffer <- 10*1024
+  lines$rhipe.use.hadoop.combiner="FALSE"
   lines$mapred.output.compress <- "true"
   lines$mapred.compress.map.output="true"
-  lines$rhipe.use.hadoop.combiner="FALSE"
+
+  
   ##If user does not provide
   ##a reduce function,set reduce to NULL
   ##however can be over ridden by
   ##mared.reduce.tasks
-  
+
+  ## ###########################################################
+  ## Handle Copy Files
+  ## ###########################################################
   lines$rhipe_copy_file <- paste(copyFiles)
-  if(!is.null(mapred$mapred.job.tracker) &&
-     mapred$mapred.job.tracker=='local')
+  if(!is.null(mapred$mapred.job.tracker) && mapred$mapred.job.tracker=='local')
     lines$rhipe_copy_file <- 'FALSE'
 
+  ## ###########################################################
+  ## MISC
+  ## ###########################################################
   if(is.null(reduce)){
     lines$rhipe_reduce_justcollect <- TRUE
   }
   lines$RHIPE_DEBUG <- 0
+  lines$rhipe_input_folder <- ""
+  lines$rhipe_output_folder <- ""
   lines$rhipe_map_input_type <- "default"
   lines$mapred.job.reuse.jvm.num.tasks <- -1
   lines$mapreduce.job.counters.groups.max <- "200"
 
-  ############################################################
+
+  ################################################################################################
+  # HANDLE MAPRED EXTRA from RHOPTIONS
+  ################################################################################################
+  filterOut <- function(alln,rem=c("mapred.reduce.tasks"))
+    alln[sapply(alln,function(x) if( x %in% rem && x %in% names(lines)) FALSE else TRUE)]
+  options.mapred = rhoptions()$mropts
+  if(!is.null(options.mapred))
+    for(n in filterOut(names(options.mapred))) lines[[n]] = options.mapred[[n]]
+  
+  ## ##########################################################
+  ## Handle Input Output Formats
+  ## ##########################################################
+
+  if(is(input,"numeric") || is(input, "integer")){
+    input <-   rhoptions()$ioformats[["N"]](input)
+  }
+  else if(is(input,"character")){
+    input <- rhoptions()$ioformats[["seq"]](input)
+  }
+  else if(is(input,"rhwatch") ||is(input, "rhmr")){
+    ifo <- rhofolder(input)
+    if(Rhipe:::dir.contain.mapfolders(ifo))
+      input <- rhoptions()$ioformats[["map"]](ifo)
+    else
+      input <- rhoptions()$ioformats[["seq"]](ifo)
+  }
+
+  lines <- input(lines,"input",match.call())
+
+  if(is.null(output)){
+    if(!is.null(rhoptions()$HADOOP.TMP.FOLDER)){
+      output <- Rhipe:::mkdHDFSTempFolder(file="rhipe-temp")
+      lines$rhipe.read.and.delete.ofolder <- TRUE
+    }else{
+      stop("No output specified,and RHIPE could not find a value for HADOOP.TMP.FOLDER
+            in rhoptions(). Set this: rhoptions(HADOOP.TMP.FOLDER=path)")
+    }
+  }else{
+    lines$rhipe.read.and.delete.ofolder <- FALSE
+  }
+  if(is.character(output)){
+    output <- rhoptions()$ioformats[["seq"]](output)
+  }
+  lines <- output(lines,"output",match.call())
+
+  ## ##########################################################
   ## Handle Shared Files
-  ############################################################
-  if(!is.null(param.temp.file)){
-    vnames <- ls(param.temp.file$envir); vwhere <- param.temp.file$envir
-    paramaters <- list(envir=vwhere,file=param.temp.file$file)
-    shared <- c(shared, if(is.null(param.temp.file)) NULL else param.temp.file$file)
+  ## ##########################################################
+  if(length(shared) > 0)
+    shared = rhabsolute.hdfs.path(shared)
+  if(!is.null(lines$param.temp.file)){
+    vnames <- ls(lines$param.temp.file$envir); vwhere <- lines$param.temp.file$envir
+    paramaters <- list(envir=vwhere,file=lines$param.temp.file$file)
+    shared <- c(shared, if(is.null(lines$param.temp.file)) NULL else lines$param.temp.file$file)
     ##Note also the setup has to be re-written ...
-    setup$map <- c(param.temp.file$setup,setup$map)
-    setup$reduce <- c(param.temp.file$setup,setup$reduce)
+    setup$map <- c(lines$param.temp.file$setup,setup$map)
+    setup$reduce <- c(lines$param.temp.file$setup,setup$reduce)
     lines$rhipe_setup_map=rawToChar(serialize(setup$map,NULL,ascii=T))
     lines$rhipe_setup_reduce= rawToChar(serialize(setup$reduce,NULL,ascii=T))
   }
@@ -643,24 +559,22 @@ rhmr <- function(map         = NULL,
   shared.files <- paste(shared.files,collapse=",")
   lines$rhipe_shared <- shared.files
 
-  ################################################################################################
-  # HANDLE MAPRED EXTRA MAPREDUCE PARAMS
-  ################################################################################################
-  filterOut <- function(alln,rem=c("mapred.reduce.tasks"))
-    alln[sapply(alln,function(x) if( x %in% rem && x %in% names(lines)) FALSE else TRUE)]
-  options.mapred = rhoptions()$mropts
-  if(!is.null(options.mapred))
-    for(n in filterOut(names(options.mapred))) lines[[n]] = options.mapred[[n]]
-  for(n in names(mapred)) lines[[n]] <- mapred[[n]]
 
-  ################################################################################################
-  # END HANDLE MAPRED EXTRA PARAMS
-  ################################################################################################
+  ## #############################################################################################
+  ##  HANDLE MAPRED EXTRA PARAMS
+  ## #############################################################################################
+
+  for(n in names(mapred)) lines[[n]] <- mapred[[n]]
   
   
   lines$rhipe_combiner <- paste(as.integer(combiner))
   if(lines$rhipe_combiner=="1")
     lines$rhipe_reduce_justcollect <- "FALSE"
+
+  ## #############################################################################################
+  ##  HANDLE JARFILES
+  ## #############################################################################################
+
   if(length(jarfiles)>0) {
     lines$rhipe_jarfiles <- paste(path.expand(jarfiles),collapse=",")
     ## make a temp folder containing jar files
@@ -674,9 +588,9 @@ rhmr <- function(map         = NULL,
     lines$rhipe_classpaths <- ""
   }
   
-################################################################################################
-# HANDLE ZIPS
-################################################################################################
+  ## ##############################################################################################
+  ## HANDLE ZIPS
+  ## ##############################################################################################
 
   zips <- c(zips,rhoptions()$zips)
   zips = rhabsolute.hdfs.path(zips)
@@ -691,18 +605,9 @@ rhmr <- function(map         = NULL,
     })})),collapse=",")
   else  lines$rhipe_zips=""
 
-################################################################################################
-# END HANDLE ZIPS
-################################################################################################
-
-  if(lines$rhipe_map_output_keyclass != c("org.godhuli.rhipe.RHBytesWritable")
-     && is.null(reduce)){
-    stop("If using ordered keys, provide a reduce even e.g. rhoptions()$templates$identity")
-  }
 
   
-  ## parttype = c("string","integer","numeric","complex","logical","raw")
-
+  lines$param.temp.file <- NULL
   lines <- lapply(lines,as.character);
   conf <- tempfile(pattern='rhipe')
 

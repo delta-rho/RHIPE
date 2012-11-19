@@ -18,13 +18,25 @@
 #' @seealso \code{\link{rhex}}, \code{\link{rhmr}}, \code{\link{rhkill}}
 #' @keywords MapReduce job status
 #' @export
-rhwatch <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
-  if(is.null(job) && is.null(debug)){
-    ## extract params from rhmr and call it
+rhwatch <- function(job=NULL,mon.sec=5,readback=TRUE,debug=NULL,...){
+  ## ##############################
+  ## Handle ...
+  ## ##############################
+  dotargs <- list(...)
+  statusArgs <- list()
+  status <- list(argnames=names(formals(rhstatus)),defaults=formals(formals(rhstatus)))
+  for(x in names(dotargs)){
+    if(x %in% status$argnames){
+      status$defaults[[x]] <-  dotargs[[x]]
+      dotargs[[x]] <- NULL
+    }
   }
-  
-  if(!is.null(job[[1]]$mapred.job.tracker) && job[[1]]$mapred.job.tracker == TRUE){
-    z <- Rhipe:::rhwatch.runner(job, mon.sec,readback,....)
+  if(is.null(job))
+    job <- do.call(Rhipe:::.rhmr,dotargs)
+  else if(is.character(job))
+    return(do.call(Rhipe:::rhwatch.runner,c(list(job=job, mon.sec=mon.sec,readback=readback),status$defaults)))
+  if(!is.null(job$lines$mapred.job.tracker) && job$lines$mapred.job.tracker == TRUE){
+    z <- do.call(Rhipe:::rhwatch.runner,c(list(job=job, mon.sec=mon.sec,readback=readback),status$defaults))
     if(readback==FALSE){
       class(z) <- append(class(z),"rhwatch")
     }
@@ -97,8 +109,8 @@ rhwatch <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
     
     job[[1]]$rhipe_copy_file <- 'TRUE' ##logic for local runner is wrong here
   }
-  if(!is.null((list(...))) && !is.null(list(...)[[".rdb"]])) return(job)
-  z <- Rhipe:::rhwatch.runner(job, mon.sec,readback,debug,...)
+  if(!is.null(dotargs[["dontrun"]])) return(job)
+  z <- do.call(Rhipe:::rhwatch.runner,c(list(job=job, mon.sec=mon.sec,readback=readback),status$defaults))
   if(readback==FALSE){
     class(z) <- append(class(z),"rhwatch")
   }
@@ -107,11 +119,14 @@ rhwatch <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
 
 rhwatch.runner <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
   if(class(job)=="rhmr"){
-    results <- rhstatus(rhex(job,async=TRUE),mon.sec=mon.sec,...)
-    ofolder <- job[[1]]$rhipe_output_folder
+    results <- if(is(job,"rhmr"))
+      rhstatus(rhex(job,async=TRUE),mon.sec=mon.sec,...)
+    else
+      rhstatus(job,mon.sec=mon.sec,...)
+    ofolder <- job$lines$rhipe_output_folder
     if(readback==TRUE && results$state == "SUCCEEDED" && sum(rhls(ofolder)$size)/(1024^2) < rhoptions()$max.read.in.size){
       W <- 'Reduce output records'
-      if(!is.null(job[[1]]$mapred.reduce.tasks) && as.numeric(job[[1]]$mapred.reduce.tasks)==0) W <- 'Map output records'
+      if(!is.null(job$lines$mapred.reduce.tasks) && as.numeric(job$lines$mapred.reduce.tasks)==0) W <- 'Map output records'
       num.records <- results$counters$'Map-Reduce Framework'[W]
       if (num.records > rhoptions()$reduce.output.records.warn)
         warning(sprintf("Number of output records is %s which is greater than rhoptions()$reduce.output.records.warn\n. Consider running a mapreduce to make this smaller, since reading so many key-value pairs is slow in R", num.records))

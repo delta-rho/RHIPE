@@ -2,8 +2,8 @@
 \alias{rhwatch}
 \title{Start and Monitor Status of a MapReduce Job}
 \usage{
-  rhwatch(job, mon.sec = 5, readback = TRUE, debug = NULL,
-    ...)
+  rhwatch(job = NULL, mon.sec = 5, readback = TRUE,
+    debug = NULL, ...)
 }
 \arguments{
   \item{job}{The parameter \code{job} can either be a

@@ -1,5 +1,5 @@
 .rhipeEnv <- new.env()
-vvvv <- "0.71"
+vvvv <- "0.72"
 attr(vvvv,"minor") <- '0'
 attr(vvvv,"date") <- 'Saturday 17th November'
 
@@ -67,10 +67,10 @@ onload.2 <- function(libname, pkgname){
 	  reduce={.sum <- .sum + apply(do.call('rbind', reduce.values),2,sum)},
 	  post = { {rhcollect(reduce.key,.sum)}} )
         opts$templates$colsummer <- structure(opts$templates$colsummer,combine=TRUE)
+  
         opts$templates$rbinder <-  function(r=NULL,combine=FALSE,dfname='adata'){
-          rold <- r
           r <- substitute(r)
-          r <- if( is(r,"name")) get(as.character(quote(rold))) else r
+          r <- if( is(r,"name")) get(as.character(r)) else r
           def <- if(is.null(r)) TRUE else FALSE
           r <- if(is.null(r)) substitute({rhcollect(reduce.key, adata)}) else r
           y <-bquote(expression(
@@ -85,9 +85,8 @@ onload.2 <- function(libname, pkgname){
           y
         }
         opts$templates$raggregate <-  function(r=NULL,combine=FALSE,dfname='adata'){
-          rold <- r
           r <- substitute(r)
-          r <- if( is(r,"name")) get(as.character(quote(rold))) else r
+          r <- if( is(r,"name")) get(as.character(r)) else r
           def <- if(is.null(r)) TRUE else FALSE
           r <- if(is.null(r)) substitute({ adata <- unlist(adata, recursive = FALSE); rhcollect(reduce.key, adata)}) else r
           y <-bquote(expression(
@@ -111,7 +110,7 @@ onload.2 <- function(libname, pkgname){
            },
            post={rhcollect(reduce.key,rng)}
            )
-       opts$templates$range <- structure(opts$template$range,combine=TRUE)
+       opts$templates$range <- structure(opts$templates$range,combine=TRUE)
        opts$debug <- list()
        opts$debug$map <- list()
        opts$debug$map$collect <- list(setup= expression({
@@ -143,7 +142,11 @@ onload.2 <- function(libname, pkgname){
       opts$debug$map$count <- list(setup=NA, cleanup=NA, handler=function(e,k,r) rhcounter("R_UNTRAPPED_ERRORS",as.character(e),1))
       opts$debug$map[["stop"]] <- list(setup=NA, cleanup=NA, handler=function(e,k,r)  rhcounter("R_ERRORS", as.character(e),1))
 
-                        
+  ## #####################
+  ## Handle IO Formats
+  ## ######################
+  opts <- handleIOFormats(opts)
+  
   ################################################################################################
   # FINSHING
   ################################################################################################

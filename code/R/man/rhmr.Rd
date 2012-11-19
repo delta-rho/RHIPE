@@ -3,11 +3,11 @@
 \title{Prepares a MapReduce Job For Execution}
 \usage{
   rhmr(map = NULL, reduce = NULL, combiner = FALSE,
-    setup = NULL, cleanup = NULL, ofolder = "",
-    ifolder = "", inout = c("sequence", "sequence"),
-    orderby = "bytes", mapred = NULL, shared = c(),
-    jarfiles = c(), zips = c(), partitioner = NULL,
-    copyFiles = F, N = NA, jobname = "", paramaters = NULL)
+    setup = NULL, cleanup = NULL, input = NULL,
+    output = NULL, orderby = "bytes", mapred = NULL,
+    shared = c(), jarfiles = c(), zips = c(),
+    partitioner = NULL, copyFiles = F, jobname = "",
+    paramaters = NULL)
 }
 \arguments{
   \item{map}{\code{map} is an R expression (created using
@@ -48,27 +48,6 @@
 
   \item{cleanup}{As in setup except cleanup runs after the
   map and reduce phases.}
-
-  \item{ofolder}{The destination of the output. If the
-  destination already exists, it will be overwritten. This
-  is not needed if there is not output.}
-
-  \item{ifolder}{This is a path to a folder on the HDFS
-  containing the input data. This folder may contain sub
-  folders in which case RHIPE use the all the files in the
-  subfolders as input. This argument is optional: if not
-  provided, the user must provide a value for \code{N} and
-  set the first value of \code{inout} to \code{lapply}.}
-
-  \item{inout}{A character vector of one or two components
-  which specify the formats of the input and output
-  destinations. If \code{inout} is of length one this
-  specifies the input format, the output being NULL
-  (nothing is written) Vector element values must be from
-  c("sequence", "text", "map", "lapply").  \code{inout[1]}
-  can be a function, which should modify the first argument
-  it gets.  See details. Also, see argument \code{N} for
-  information about the "lapply" value.}
 
   \item{orderby}{This is one of \emph{bytes},
   \emph{integer} , \emph{numeric} and \emph{character}. The
