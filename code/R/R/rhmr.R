@@ -574,7 +574,10 @@ rhmr <- function(map         = NULL,
   ## #############################################################################################
   ##  HANDLE JARFILES
   ## #############################################################################################
-
+  if(!is.null(lines$jarfiles)){
+    jarfiles <- c(jarfiles, lines$jarfiles)
+    lines$jarfiles <- NULL
+  }
   if(length(jarfiles)>0) {
     lines$rhipe_jarfiles <- paste(path.expand(jarfiles),collapse=",")
     ## make a temp folder containing jar files
@@ -592,6 +595,10 @@ rhmr <- function(map         = NULL,
   ## HANDLE ZIPS
   ## ##############################################################################################
 
+  if(!is.null(lines$zipfiles)){
+    zips <- c(zips, lines$zipfiles)
+    lines$zipfiles <- NULL
+  }
   zips <- c(zips,rhoptions()$zips)
   zips = rhabsolute.hdfs.path(zips)
   if(length(zips)>0) lines$rhipe_zips <- paste(unlist(local({

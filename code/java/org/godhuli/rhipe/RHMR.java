@@ -285,13 +285,11 @@ public class RHMR implements Tool {
 					.get("rhipe_outputformat_valueclass")));
 
 		} else {
-			job_
-					.setOutputFormatClass(org.apache.hadoop.mapreduce.lib.output.NullOutputFormat.class);
+			job_ .setOutputFormatClass(org.apache.hadoop.mapreduce.lib.output.NullOutputFormat.class);
 			job_.setOutputKeyClass(org.apache.hadoop.io.NullWritable.class);
 			job_.setOutputValueClass(org.apache.hadoop.io.NullWritable.class);
 			job_.setMapOutputKeyClass(org.apache.hadoop.io.NullWritable.class);
-			job_
-					.setMapOutputValueClass(org.apache.hadoop.io.NullWritable.class);
+			job_ .setMapOutputValueClass(org.apache.hadoop.io.NullWritable.class);
 		}
 
 		job_.setMapperClass(RHMRMapper.class);

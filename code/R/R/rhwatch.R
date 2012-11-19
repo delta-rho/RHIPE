@@ -8,6 +8,7 @@
 #' @param mon.sec If \code{mon.sec} is greater than 0, a small data frame
 #'   indicating the progress will be returned every \code{mon.sec} seconds.
 #' @param readback if FALSE, results will not be read back and insteat results from rhstatus is returned
+#' @param noeval If TRUE do not run, just return the job object
 #' @param debug can be one of 'count' which counts the number of errors but does not stop the job, 'stop' which
 #' stops the job (setting debug to NULL (default) is the same and is much faster)
 #' and 'collect' which collects 20 errors per split, saves them in
@@ -18,7 +19,7 @@
 #' @seealso \code{\link{rhex}}, \code{\link{rhmr}}, \code{\link{rhkill}}
 #' @keywords MapReduce job status
 #' @export
-rhwatch <- function(job=NULL,mon.sec=5,readback=TRUE,debug=NULL,...){
+rhwatch <- function(job=NULL,mon.sec=5,readback=TRUE,debug=NULL,noeval=FALSE,...){
   ## ##############################
   ## Handle ...
   ## ##############################
