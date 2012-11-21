@@ -15,9 +15,9 @@
   Returns a function to spec out the input output formats
 }
 \details{
-  the function returned must take 4 arguments
-  'lines',direction(input or output),calling frame and call
-  signature see \code{rhoptions()$ioformats} for examples
-  on how to write your own.
+  the function returned must take 3 arguments
+  'lines',direction(input or output), call signature see
+  \code{rhoptions()$ioformats} for examples on how to write
+  your own.
 }
 

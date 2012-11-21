@@ -64,6 +64,7 @@ mapio <- function(folders,interval=1, compression="BLOCK"){
     }else{
       if(!is.null(lines$mapred.reduce.tasks) && lines$mapred.reduce.tasks==0)
         stop("if you're using map output, use a non zero reducer")
+      folders <- Rhipe:::folder.handler(folders)
       lines$rhipe_output_folder <- paste(folders, collapse = ",")
       lines$io.map.index.interval <- interval
       lines$mapred.output.compression.type <- compression
@@ -88,7 +89,8 @@ sequenceio <- function(folders){
       lines$rhipe_inputformat_class <- 'org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat'
       lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
       lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
-    }else{
+    }else{ ##output
+      folders <- Rhipe:::folder.handler(folders)
       lines$rhipe_output_folder <- paste(folders,collapse=",")
       lines$rhipe_outputformat_class <- 'org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat'
       lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
@@ -121,6 +123,7 @@ textio <- function(folders){
         lines$param.temp.file$envir$linesToTable <- linesToTable
       }
     }else{
+      folders <- Rhipe:::folder.handler(folders)
       lines$rhipe_output_folder <- paste(folders,collapse=",")
       lines$rhipe_outputformat_class <- 'org.godhuli.rhipe.RXTextOutputFormat'
       lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
