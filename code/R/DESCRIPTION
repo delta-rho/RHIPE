@@ -49,3 +49,4 @@ Collate:
     'rhErrors.R'
     'rhmap.R'
     'rhfmt.R'
+    'mapfile.functions.R'

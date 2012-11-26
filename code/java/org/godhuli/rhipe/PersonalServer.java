@@ -5,7 +5,15 @@ import com.google.protobuf.CodedOutputStream;
 import org.godhuli.rhipe.REXPProtos.REXP;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.net.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.IllegalArgumentException;
+import java.lang.IllegalAccessException;
+import java.lang.NoSuchMethodException;
+import java.lang.SecurityException;
+import java.lang.reflect.Method;
+
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;
@@ -23,10 +31,23 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
+
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.Cache;
+import java.util.concurrent.Callable;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.Weigher;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
+import com.google.common.cache.CacheStats;
 
 public class PersonalServer extends Configured implements Tool {
     protected static final Log LOG = LogFactory.getLog(PersonalServer.class
 						       .getName());
+    Configuration _configuration;
+    FileSystem _filesystem;
+    HashPartitioner<RHBytesWritable,RHBytesWritable> _hp;
     byte[] bbuf;
     DataOutputStream _err, _toR;
     DataInputStream _fromR;
@@ -34,8 +55,10 @@ public class PersonalServer extends Configured implements Tool {
     FileUtils fu;
     int buglevel;
     Hashtable<String, SequenceFile.Reader> seqhash;
-    Hashtable<String, MapFile.Reader[]> mrhash;
-
+    Hashtable<String, MapFile.Reader[]> mrhash; //will be removed
+    Hashtable<String,String[]> mapfilehash;
+    Cache<ValuePair, RHBytesWritable> valueCache;
+    Cache<String, MapFile.Reader> mapfileReaderCache;
     public PersonalServer(){}
 
     public static String getPID() throws IOException, InterruptedException {
@@ -71,7 +94,7 @@ public class PersonalServer extends Configured implements Tool {
 	this.buglevel = bugl;
 	seqhash = new Hashtable<String, SequenceFile.Reader>();
 	mrhash = new Hashtable<String, MapFile.Reader[]>();
-
+	mapfilehash = new Hashtable<String, String[]>();
 	REXP.Builder thevals = REXP.newBuilder();
 	thevals.setRclass(REXP.RClass.LOGICAL);
 	thevals.addBooleanValue(REXP.RBOOLEAN.T);
@@ -114,6 +137,9 @@ public class PersonalServer extends Configured implements Tool {
 	a = errsock.accept();
 	_err = new DataOutputStream(new BufferedOutputStream(a
 							     .getOutputStream(), 1024));
+
+	if(buglevel > 10)
+	    LOG.info("Initializing Caches");
 	if (buglevel > 10)
 	    LOG.info("Now waiting on all sockets");
     }
@@ -332,7 +358,7 @@ public class PersonalServer extends Configured implements Tool {
 	}
     }
 
-    public void send_error_message(Exception e) {
+    public void send_error_message(Throwable e) {
 	ByteArrayOutputStream bs = new ByteArrayOutputStream();
 	e.printStackTrace(new PrintStream(bs));
 	String s = bs.toString();
@@ -388,6 +414,104 @@ public class PersonalServer extends Configured implements Tool {
 	sendMessage(thevals.build());
     }
 
+    public void initializeCaches(REXP rexp) throws Exception{
+	REXP rexp0 = rexp.getRexpValue(1);
+	// RemovalListener<ValuePair, RHBytesWritable> rl = new RemovalListener<ValuePair, RHBytesWritable>() {
+	//     public void onRemoval(RemovalNotification<ValuePair, RHBytesWritable> removal) throws RuntimeException{
+	// 	    LOG.info("Extterminate key, emptied from cache:"+removal.getKey());
+	//     }
+	// };
+	valueCache = CacheBuilder.newBuilder()
+	    .maximumWeight(rexp0.getRexpValue(0).getIntValue(0)) //max MB in bytes, set to 100MB
+	    .weigher(new Weigher<ValuePair, RHBytesWritable>() {
+	    	    public int weigh(ValuePair k, RHBytesWritable g) {
+	    		return k.getKey().getLength() + g.getLength();
+	    	    }
+	    	})
+	    // .removalListener(rl)
+	    .recordStats()
+	    .build();
+
+	RemovalListener<String, MapFile.Reader> removalListener = new RemovalListener<String, MapFile.Reader>() {
+	    public void onRemoval(RemovalNotification<String, MapFile.Reader> removal) throws RuntimeException{
+		try{
+		    MapFile.Reader conn = removal.getValue();
+		    LOG.info("Closing a mapfile, emptied from cache:"+conn);
+		    conn.close(); 
+		}catch(IOException e){
+		    throw new RuntimeException(e);
+		}
+	    }
+	};
+	mapfileReaderCache = CacheBuilder.newBuilder()
+	    .maximumSize(rexp0.getRexpValue(0).getIntValue(1))
+	    .removalListener(removalListener)
+	    .recordStats()
+	    .build();
+	
+	send_result("OK");
+    }
+    public void initializeMapFile(REXP rexp) throws Exception{
+	REXP rexp0 = rexp.getRexpValue(1);
+	REXP paths = rexp0.getRexpValue(0); // paths to read from
+	String akey = rexp0.getRexpValue(1).getStringValue(0).getStrval();
+	String[] pathsForMap = new String[ paths.getStringValueCount() ];
+	for (int i = 0; i < pathsForMap.length; i++) {
+	    pathsForMap[i] = paths.getStringValue(i).getStrval();
+	}
+	mapfilehash.put(akey, pathsForMap);
+	send_result("OK");
+    }
+
+    public void rhgetkeys2(REXP rexp) throws Exception,IOException
+    {
+	REXP rexp0 = rexp.getRexpValue(1);
+	final String key = rexp0.getRexpValue(0).getStringValue(0).getStrval();
+	REXP keys = rexp0.getRexpValue(1);
+	final String[] pathsForMap = mapfilehash.get(key);
+	RHBytesWritable v = new RHBytesWritable();
+	DataOutputStream out = _toR;
+	final RHNull anull = new RHNull();
+	for(int i=0; i < keys.getRexpValueCount();i++){
+	    final RHBytesWritable k = new RHBytesWritable(keys.getRexpValue(i).getRawValue().toByteArray());
+	    ValuePair vp = new ValuePair(key,k);
+	    v = valueCache.getIfPresent(vp);
+	    if(v==null){
+		// LOG.info("Not found requested key:"+vp);
+		RHBytesWritable a = new RHBytesWritable();
+		final int which = _hp.getPartition(k,a,pathsForMap.length);
+		MapFile.Reader f = mapfileReaderCache.getIfPresent(pathsForMap[which]);
+		if(f==null){
+		    f = new MapFile.Reader(_filesystem,pathsForMap[which],_configuration);
+		    mapfileReaderCache.put(pathsForMap[which],f);
+		}
+		RHBytesWritable ww= (RHBytesWritable)f.get(k,a);
+		if(ww==null) v= anull; else v = ww;
+		valueCache.put(vp, v);
+	    }
+	    k.writeAsInt(out); v.writeAsInt(out);
+	}
+	out.writeInt(0);
+	out.flush();
+    }
+    
+    public void cacheStatistics(REXP rexp){
+	REXP rexp0 = rexp.getRexpValue(1);
+	int which = rexp0.getRexpValue(0).getIntValue(0);
+	CacheStats c = null;
+	if(which == 0)
+	    c = mapfileReaderCache.stats();
+	else if(which == 1)
+	    c = valueCache.stats();
+	REXP r = RObjects.buildDoubleVector(new double[]{
+		((double)c.averageLoadPenalty())*1e-6,(double)c.evictionCount(),
+		(double)c.hitCount(),c.hitRate(),(double)c.loadCount(),
+		(double)c.loadExceptionCount(), c.loadExceptionRate(),
+		(double)c.loadSuccessCount(),(double)c.missCount(),(double)c.missRate(),
+		(double)c.requestCount(),((double)c.totalLoadTime())*1e-6
+	    }).build();
+	send_result(r);
+    }
     public void rhgetkeys(REXP rexp00) throws Exception {
 	REXP rexp0 = rexp00.getRexpValue(1);
 	REXP keys = rexp0.getRexpValue(0); // keys
@@ -406,7 +530,7 @@ public class PersonalServer extends Configured implements Tool {
 	}
 	MapFile.Reader[] mr  = mrhash.get(akey);
 	if(mr == null){
-	    LOG.info("Did not find in hashtable");
+	    // LOG.info("Did not find in hashtable");
 	    mr = RHMapFileOutputFormat.getReaders(pnames, c);
 	    mrhash.put(akey, mr);
 	}
@@ -504,61 +628,73 @@ public class PersonalServer extends Configured implements Tool {
 		    // arguments
 		    String tag = r.getRexpValue(0).getStringValue(0)
 			.getStrval();
-		    if (tag.equals("rhmropts"))
-			rhmropts(r);
-		    else if (tag.equals("rhls"))
-			rhls(r);
-		    else if (tag.equals("rhget"))
-			rhget(r);
-		    else if (tag.equals("rhput"))
-			rhput(r);
-		    else if (tag.equals("rhdel"))
-			rhdel(r);
-		    else if (tag.equals("rhgetkeys"))
-			rhgetkeys(r);
-		    else if (tag.equals("binaryAsSequence"))
-			binaryAsSequence(r);
-		    else if (tag.equals("sequenceAsBinary"))
-			sequenceAsBinary(r);
-		    else if (tag.equals("rhstatus"))
-			rhstatus(r);
-		    else if (tag.equals("rhjoin"))
-			rhjoin(r);
-		    else if (tag.equals("rhkill"))
-			rhkill(r);
-		    else if (tag.equals("rhex"))
-			rhex(r);
-		    else if (tag.equals("rhcat"))
-			rhcat(r);
-		    else if (tag.equals("rhopensequencefile"))
-			rhopensequencefile(r);
-		    else if (tag.equals("rhgetnextkv"))
-			rhgetnextkv(r);
-		    else if (tag.equals("rhclosesequencefile"))
-			rhclosesequencefile(r);
-		    else if (tag.equals("shutdownJavaServer"))
+		    // if (tag.equals("rhmropts"))
+		    // 	rhmropts(r);
+		    // else if (tag.equals("rhls"))
+		    // 	rhls(r);
+		    // else if (tag.equals("rhget"))
+		    // 	rhget(r);
+		    // else if (tag.equals("rhput"))
+		    // 	rhput(r);
+		    // else if (tag.equals("rhdel"))
+		    // 	rhdel(r);
+		    // else if (tag.equals("rhgetkeys"))
+		    // 	rhgetkeys(r);
+		    // else if (tag.equals("binaryAsSequence"))
+		    // 	binaryAsSequence(r);
+		    // else if (tag.equals("sequenceAsBinary"))
+		    // 	sequenceAsBinary(r);
+		    // else if (tag.equals("rhstatus"))
+		    // 	rhstatus(r);
+		    // else if (tag.equals("rhjoin"))
+		    // 	rhjoin(r);
+		    // else if (tag.equals("rhkill"))
+		    // 	rhkill(r);
+		    // else if (tag.equals("rhex"))
+		    // 	rhex(r);
+		    // else if (tag.equals("rhcat"))
+		    // 	rhcat(r);
+		    // else if (tag.equals("rhopensequencefile"))
+		    // 	rhopensequencefile(r);
+		    // else if (tag.equals("rhgetnextkv"))
+		    // 	rhgetnextkv(r);
+		    // else if (tag.equals("initializeCaches"))
+		    // 	initializeCaches(r);
+		    // else if (tag.equals("initializeMapFile"))
+		    // 	initializeMapFile(r);
+		    // else if (tag.equals("rhgetkeys2"))
+		    // 	rhgetkeys2(r);
+		    // else if (tag.equals("rhclosesequencefile"))
+		    // 	rhclosesequencefile(r);
+		    if (tag.equals("shutdownJavaServer"))
 			shutdownJavaServer();
+		    else{
+			Method method = Class.forName("org.godhuli.rhipe.PersonalServer").getMethod(tag, new Class[]{REXP.class});
+			method.invoke(this, r);
+		    }
 
 		    // else if(tag.equals("rhcp")) rhcp(r);
 		    // else if(tag.equals("rhmv")) rhmv(r);
 		    // else if(tag.equals("rhmerge")) rhmerge(r);
 
-		    else
-			send_error_message("Could not find method with name: "
-					   + tag + "\n");
+		    // else
+		    // 	send_error_message("Could not find method with name: "
+		    // 			   + tag + "\n");
 		}
 	    } catch (EOFException e) {
 		System.exit(0);
 	    } catch (SecurityException e) {
-		send_error_message(e);
-	    } catch (IllegalArgumentException e) {
-		send_error_message(e);
-	    } catch (IllegalAccessException e) {
-		send_error_message(e);
+		send_error_message(e.getCause());
 	    } catch (RuntimeException e) {
 		send_error_message(e);
 	    } catch (IOException e) {
 		send_error_message(e);
+	    } catch(NoSuchMethodException e){
+		send_error_message(e.getCause());
+	    } catch(IllegalAccessException e){
+		send_error_message(e.getCause());
+	    } catch(InvocationTargetException e){
+		send_error_message(e.getCause());
 	    } catch (Exception e) {
 		send_error_message(e);
 	    }
@@ -568,6 +704,9 @@ public class PersonalServer extends Configured implements Tool {
     public int run(String[] args) throws Exception {
 	// Configuration processed by ToolRunner
 	Configuration conf = getConf();
+	_configuration = getConf();
+	_filesystem = FileSystem.get(_configuration);
+	_hp = RHMapFileOutputFormat.getHP();
 	int buglevel = Integer.parseInt(args[3]);
 	setUserInfo(args[0], args[1], args[2],
 		    buglevel);

@@ -21,8 +21,9 @@ onload.2 <- function(libname, pkgname){
   # JAVA AND HADOOP
   ################################################################################################
   
-	opts$jarloc <- list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
-
+	opts$jarloc <- list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="Rhipe.jar$",full=T)
+        opts$mycp <-  list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
+        opts$mycp <- setdiff(opts$mycp, opts$jarloc)
 	if(Sys.getenv("HADOOP")=="" && Sys.getenv("HADOOP_BIN")=="")
 	warning("Rhipe requires the HADOOP or HADOOP_BIN environment variable to be present\n $HADOOP/bin/hadoop or $HADOOP_BIN/hadoop should exists")
 

@@ -55,50 +55,50 @@ rhgetkey <- function (keys, paths, mc = lapply, size = 3000)
     p
 }
 
-#' Creates a Handle to a Mapfile
-#' @param Absolute path to map file on HDFS or the output from \code{rhwatch}.
-#' @export
-rhmapfile <- function(paths){
-  if(is(paths, "rhwatch") || is(paths,"rhmr"))
-    paths <- rhofolder(paths)
-  akey <- paste(head(strsplit(paths[1],"/")[[1]],-1),sep="",collapse="/")
-  invisible(rhgetkey(NULL,paths))
-  obj <- new.env()
-  obj$filename <- akey
-  obj$paths <- paths
-  class(obj) = "mapfile"
-  obj
-}
-#' Prints A MapFile Object
-#' @export
-print.mapfile <- function(a,...){
-  cat(sprintf("%s is a MapFile with %s index files\n", a$filename, nrow(rhls(a$paths))))
-}
+## #' Creates a Handle to a Mapfile
+## #' @param Absolute path to map file on HDFS or the output from \code{rhwatch}.
+## #' @export
+## rhmapfile <- function(paths){
+##   if(is(paths, "rhwatch") || is(paths,"rhmr"))
+##     paths <- rhofolder(paths)
+##   akey <- paste(head(strsplit(paths[1],"/")[[1]],-1),sep="",collapse="/")
+##   invisible(rhgetkey(NULL,paths))
+##   obj <- new.env()
+##   obj$filename <- akey
+##   obj$paths <- paths
+##   class(obj) = "mapfile"
+##   obj
+## }
+## #' Prints A MapFile Object
+## #' @export
+## print.mapfile <- function(a,...){
+##   cat(sprintf("%s is a MapFile with %s index files\n", a$filename, nrow(rhls(a$paths))))
+## }
 
-#' Single Index into MapFile Object(calls \code{rhgetkey}
-#' @export
-"[[.mapfile" <- function(a,i,...){
-  a <- rhgetkey(i,a$paths)
-  if(length(a)==1) a[[1]] else NULL
-}
+## #' Single Index into MapFile Object(calls \code{rhgetkey}
+## #' @export
+## "[[.mapfile" <- function(a,i,...){
+##   a <- rhgetkey(i,a$paths)
+##   if(length(a)==1) a[[1]] else NULL
+## }
 
-#' Array Indexing
-#' @export
-"[.mapfile" <- function(a,i,...){
-  rhgetkey(i,a$paths)
-}
+## #' Array Indexing
+## #' @export
+## "[.mapfile" <- function(a,i,...){
+##   rhgetkey(i,a$paths)
+## }
 
-#' Cannot Assign to Object
-#' @export
-"[[<-.mapfile" <- function(a,i,...){
-  stop("Assignment to MapFile keys is not supported")
-}
+## #' Cannot Assign to Object
+## #' @export
+## "[[<-.mapfile" <- function(a,i,...){
+##   stop("Assignment to MapFile keys is not supported")
+## }
 
-#' Cannot Assign to Object
-#' @export
-"[<-.mapfile" <- function(a,i,...){
-  stop("Assignment to MapFile keys is not supported")
-}
+## #' Cannot Assign to Object
+## #' @export
+## "[<-.mapfile" <- function(a,i,...){
+##   stop("Assignment to MapFile keys is not supported")
+## }
 
 
 

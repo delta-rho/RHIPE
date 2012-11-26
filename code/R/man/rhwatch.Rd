@@ -1,6 +1,6 @@
 \name{rhwatch}
 \alias{rhwatch}
-\title{Prepares and Monitors  MapReduce Job For Execution}
+\title{Prepares,Submits and Monitors  MapReduce Jobs}
 \usage{
   rhwatch(map = NULL, reduce = NULL, combiner = FALSE,
     setup = NULL, cleanup = NULL, input = NULL,
