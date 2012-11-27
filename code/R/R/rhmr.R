@@ -164,8 +164,8 @@ rhmr <- function(...){
         }
   }
 
-  lines$rhipe.eol.sequence <- "\r\n"
-  lines$mapred.textoutputformat.usekey <-  "TRUE"
+  ## lines$rhipe.eol.sequence <- "\r\n"
+  ## lines$mapred.textoutputformat.usekey <-  "TRUE"
   lines$rhipe_reduce_buff_size <- 6000
   lines$rhipe_map_buff_size <- 3000
   lines$rhipe_job_verbose <- "TRUE"

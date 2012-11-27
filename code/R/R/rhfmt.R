@@ -100,8 +100,9 @@ sequenceio <- function(folders){
   }
 }
 
-textio <- function(folders){
+textio <- function(folders,writeKey=TRUE, field.sep=" ",kv.sep="\t",eol="\r\n",stringquote=""){
   folders <- eval(folders)
+  writeKey <- eval(writeKey); field.sep=eval(field.sep);kv.sep=eval(kv.sep);eol=eval(eol);stringquote=eval(stringquote);
   function(lines,direction,caller){
     if(direction=="input"){
       folders <- Rhipe:::folder.handler(folders)
@@ -125,6 +126,11 @@ textio <- function(folders){
     }else{
       folders <- Rhipe:::folder.handler(folders)
       lines$rhipe_output_folder <- paste(folders,collapse=",")
+      lines$mapred.textoutputformat.separator <-  kv.sep
+      lines$mapred.field.separator <- field.sep
+      lines$mapred.textoutputformat.usekey <- writeKey
+      lines$rhipe.eol.sequence <- eol
+      lines$rhipe_string_quote <- stringquote
       lines$rhipe_outputformat_class <- 'org.godhuli.rhipe.RXTextOutputFormat'
       lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
       lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
