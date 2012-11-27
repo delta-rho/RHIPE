@@ -54,11 +54,14 @@ public class PersonalServer extends Configured implements Tool {
     REXP yesalive;
     FileUtils fu;
     int buglevel;
-    Hashtable<String, SequenceFile.Reader> seqhash;
+    Hashtable<String, SequenceFile.Reader> seqhash; //why do i have it?
     Hashtable<String, MapFile.Reader[]> mrhash; //will be removed
     Hashtable<String,String[]> mapfilehash;
     Cache<ValuePair, RHBytesWritable> valueCache;
     Cache<String, MapFile.Reader> mapfileReaderCache;
+    Hashtable<String,ArrayList<ValuePair>> mapToValueCacheKeys =  new Hashtable<String,ArrayList<ValuePair>>();
+    Hashtable<String,ArrayList<String>> mapToValueCacheHandles  = new Hashtable<String,ArrayList<String>>();
+
     public PersonalServer(){}
 
     public static String getPID() throws IOException, InterruptedException {
@@ -451,6 +454,13 @@ public class PersonalServer extends Configured implements Tool {
 	
 	send_result("OK");
     }
+
+    public void clearEntiresFor(String forkey) throws Exception{
+	ArrayList<String> cachedHandle = mapToValueCacheHandles.get(forkey);
+	ArrayList<ValuePair> cachedValues = mapToValueCacheKeys.get(forkey);
+	mapfileReaderCache.invalidate(cachedHandle);
+	valueCache.invalidate(cachedValues);
+    }
     public void initializeMapFile(REXP rexp) throws Exception{
 	REXP rexp0 = rexp.getRexpValue(1);
 	REXP paths = rexp0.getRexpValue(0); // paths to read from
@@ -459,7 +469,12 @@ public class PersonalServer extends Configured implements Tool {
 	for (int i = 0; i < pathsForMap.length; i++) {
 	    pathsForMap[i] = paths.getStringValue(i).getStrval();
 	}
+	if(mapfilehash.get(akey)!=null){
+	    clearEntiresFor(akey);
+	}
 	mapfilehash.put(akey, pathsForMap);
+	mapToValueCacheKeys.put(akey, new ArrayList<ValuePair>(500));
+	mapToValueCacheHandles.put(akey, new ArrayList<String>(100));
 	send_result("OK");
     }
 
@@ -484,9 +499,11 @@ public class PersonalServer extends Configured implements Tool {
 		if(f==null){
 		    f = new MapFile.Reader(_filesystem,pathsForMap[which],_configuration);
 		    mapfileReaderCache.put(pathsForMap[which],f);
+		    mapToValueCacheHandles.get(key).add(pathsForMap[which]);
 		}
 		RHBytesWritable ww= (RHBytesWritable)f.get(k,a);
 		if(ww==null) v= anull; else v = ww;
+		mapToValueCacheKeys.get(key).add(vp);
 		valueCache.put(vp, v);
 	    }
 	    k.writeAsInt(out); v.writeAsInt(out);
