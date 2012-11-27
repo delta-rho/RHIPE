@@ -460,6 +460,8 @@ public class PersonalServer extends Configured implements Tool {
 	ArrayList<ValuePair> cachedValues = mapToValueCacheKeys.get(forkey);
 	mapfileReaderCache.invalidate(cachedHandle);
 	valueCache.invalidate(cachedValues);
+	cachedHandle.clear();
+	cachedValues.clear();
     }
     public void initializeMapFile(REXP rexp) throws Exception{
 	REXP rexp0 = rexp.getRexpValue(1);
@@ -471,10 +473,11 @@ public class PersonalServer extends Configured implements Tool {
 	}
 	if(mapfilehash.get(akey)!=null){
 	    clearEntiresFor(akey);
+	}else{
+	    mapToValueCacheKeys.put(akey, new ArrayList<ValuePair>(500));
+	    mapToValueCacheHandles.put(akey, new ArrayList<String>(100));
 	}
 	mapfilehash.put(akey, pathsForMap);
-	mapToValueCacheKeys.put(akey, new ArrayList<ValuePair>(500));
-	mapToValueCacheHandles.put(akey, new ArrayList<String>(100));
 	send_result("OK");
     }
 
