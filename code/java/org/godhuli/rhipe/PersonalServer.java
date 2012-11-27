@@ -472,6 +472,7 @@ public class PersonalServer extends Configured implements Tool {
 	    pathsForMap[i] = paths.getStringValue(i).getStrval();
 	}
 	if(mapfilehash.get(akey)!=null){
+	    LOG.info("Clearing Caches for "+akey);
 	    clearEntiresFor(akey);
 	}else{
 	    mapToValueCacheKeys.put(akey, new ArrayList<ValuePair>(500));
