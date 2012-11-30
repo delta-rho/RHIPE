@@ -58,8 +58,12 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
     }
     while(TRUE){
       y <- .rhstatus(id,autokill=TRUE,showErrors)
-      cat(sprintf("\n[%s] Job: %s, State: %s, Duration: %s\nURL: %s\n",date(),id,y$state,y$duration,y$tracking))
+      cat(sprintf("\n[%s] Name:%s Job: %s, State: %s, Duration: %s\nURL: %s\n",date(),y$jobname, id,y$state,y$duration,y$tracking))
       print(y$progress)
+      if(!is.null(y$warnings)){
+        cat("\n--Warnings Present, follows:\n")
+        print(y$warnings)
+      }
       if(verbose){
         print(y$counters)
       }
@@ -93,18 +97,19 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
   errs=unique(result[[7]])
   haveRError <- FALSE
   msg.str <- "There were R errors, showing 30:\n"
-  if(!is.null(result[[6]]$R_UNTRAPPED_ERRORS)){
+  wrns <- NULL
+  wrns <- if(!is.null(result[[6]]$R_UNTRAPPED_ERRORS)){
     local({
       k <- length(result[[6]]$R_UNTRAPPED_ERRORS)
       ff <- result[[6]]$R_UNTRAPPED_ERRORS
-      d <- data.frame(errors=names(ff)
-                      ,count=as.integer(ff))
+      d <- data.frame(untrappedError=names(ff) ,count=as.integer(ff))
       d <- d[order(d$count),]
       rownames(d) <- NULL
-      amsg <- if(k==1)
-        warning(sprintf("The RHIPE( %s ) job has %s untrapped error\n",as.character(id),k))
-      else
-        warning(sprintf("The RHIPE( %s ) job has %s untrapped errors\n",as.character(id),k))
+      ## amsg <- if(k==1)
+      ##   warning(sprintf("The RHIPE( %s ) job has %s untrapped error\n",as.character(id),k))
+      ## else
+      ##   warning(sprintf("The RHIPE( %s ) job has %s untrapped errors\n",as.character(id),k))
+      d
     })
   }
   
@@ -158,7 +163,7 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
   if(any(d[,"failed_attempts"]>0) && !showErrors)
         warning("There are failed attempts, call rhstatus with  showErrors=TRUE. Note, some are fatal (e.g R errors) and some are not (e.g node failure)")
   if(haveRError) state <- "FAILED"
-  return(list(state=state,duration=duration,progress=d, counters=result[[6]],rerrors=haveRError,errors=errs,tracking=result[[8]]));
+  return(list(state=state,duration=duration,progress=d, warnings=wrns,counters=result[[6]],rerrors=haveRError,errors=errs,jobname=result[[9]],tracking=result[[8]]));
 }
 
 

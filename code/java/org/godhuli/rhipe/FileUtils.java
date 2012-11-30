@@ -467,6 +467,7 @@ public class FileUtils {
 	if(rj==null)
 	    throw new IOException("No such job: "+jd+" available, wrong job? or try the History Viewer (see the Web UI) ");
     	String jobfile = rj.getJobFile();
+	String jobname = rj.getJobName();
     	// cfg.addResource(new Path(jobfile));
     	org.apache.hadoop.mapred.Counters cc = rj.getCounters();
     	long startsec = getStart(jclient,jj);
@@ -569,6 +570,7 @@ public class FileUtils {
     	thevals.addRexpValue(ro);
     	thevals.addRexpValue( errcontainer);
 	thevals.addRexpValue( RObjects.makeStringVector(rj.getTrackingURL()));
+    	thevals.addRexpValue( RObjects.makeStringVector( new String[]{ jobname}));
     	return(thevals.build());
     }
 	

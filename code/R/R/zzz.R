@@ -89,7 +89,7 @@ onload.2 <- function(libname, pkgname){
           r <- substitute(r)
           r <- if( is(r,"name")) get(as.character(r)) else r
           def <- if(is.null(r)) TRUE else FALSE
-          r <- if(is.null(r)) substitute({ adata <- unlist(adata, recursive = FALSE); rhcollect(reduce.key, adata)}) else r
+          r <- if(is.null(r)) substitute({ adata <- unlist(adata, recursive = FALSE);  rhcollect(reduce.key, adata)}) else r
           y <-bquote(expression(
               pre    = { adata <- list()},
               reduce = { adata[[length(adata) + 1 ]] <- reduce.values },
