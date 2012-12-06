@@ -32,11 +32,11 @@ rhinit <-function(errors=TRUE,buglevel=0,info=FALSE,path=NULL,cleanup=FALSE,bufs
     ## if(buglevel>0) message("Secondary call to personal server")
     ## Rhipe:::.rhinit(errors=TRUE,info=if(buglevel) TRUE else FALSE,path,cleanup,bufsize,buglevel=buglevel)
     Sys.sleep(2)
-    message("Initializing mapfile caches")
-    rh.init.cache()
     message("Rhipe first run complete")
     return(TRUE)
   }
+  message("Initializing mapfile caches")
+  rh.init.cache()
 }
 
 
