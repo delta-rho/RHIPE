@@ -19,7 +19,7 @@ rhmr <- function(...){
                   partitioner = NULL,
                   copyFiles   = F,
                   jobname     = "",
-                  paramaters  = NULL){
+                  parameters  = NULL){
   
   
   ## ##############################################################################################
@@ -29,7 +29,7 @@ rhmr <- function(...){
   lines <- list();
   is.Expression <- function(r) is.expression(r) || class(r)=="{"
 
-  
+  paramaters <- parameters
   ## ###########################
   ## HANDLE paramaters                                                  
   ## ############################

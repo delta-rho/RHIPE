@@ -105,9 +105,8 @@ rhwrite <- function(lo,dest,N=NULL){
 #' @export
 rhwrite2 <- function(object,file,numperfile,elementWriter=NULL){
   dest <- rhabsolute.hdfs.path(file)
-  if(any(is(object,c("character","integer", "numeric"))))
+  if(any(sapply(c("character","numeric","integer"), function(r) is(object,r))))
     object <- as.list(object)
-  
   info <- if(!is.null(elementWriter)){
     elementWriter
   } else if(is(object, "list")){
