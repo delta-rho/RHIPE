@@ -89,3 +89,58 @@ rhwrite <- function(lo,dest,N=NULL){
   p[[1]]=="OK"
 }
 
+
+#' Write R data to the HDFS
+#'
+#' Takes a list of objects, found in \code{lo} and writes them to the folder
+#' pointed to by \code{dest} which will be located on the HDFS.
+#' 
+#' @param object An object whose elements are written
+#' @param file where to write(it is overwritten)
+#' @param numperfile number of elements per file before a new file is created
+#' @param elementWriter a list with 'howmany' (a function) that returns the numbeer of elements in the object and 'mu' (a function) that writes the elements to a handle. 'mu' takes the object and handle as a parameter
+#' @details This code writes NULL keys! The pairs written will be (NULL, element of object). For a list, element of object is self explanatory. For a data frame element is every row.
+#' 
+#' @keywords write HDFS
+#' @export
+rhwrite2 <- function(object,file,numperfile,elementWriter=NULL){
+  dest <- rhabsolute.hdfs.path(file)
+  if(any(is(object,c("character","integer", "numeric"))))
+    object <- as.list(object)
+  
+  info <- if(!is.null(elementWriter)){
+    elementWriter
+  } else if(is(object, "list")){
+    list(howmany = function(o) length(o)
+         ,mu  = function(O,handle){
+           lapply(O, function(s){
+             sz <- rhsz(s)
+             writeBin(length(sz), handle, endian='big')
+             writeBin(sz, handle, endian='big')
+           })
+         })
+  } else if (is(object,"data.frame")){
+    list(howmany = function(o) nrow(o)
+         ,mu  = function(O,handle){
+           for(i in 1:nrow(O)){
+             sz <- rhsz(O[i,])
+             writeBin(length(sz), handle, endian='big')
+             writeBin(sz, handle, endian='big')
+           }})
+  }
+  
+  p <- Rhipe:::send.cmd(rhoptions()$child$handle,list("binaryAsSequence2"
+                                                      ,as.character(dest)
+                                                      ,as.integer(numperfile)
+                                                      ,as.integer(info$howmany(object)))
+                        ,getresponse=FALSE
+                        ,conti = function(){
+                          z <- rhoptions()$child$handle
+                          info$mu(object,z$tojava)
+                          sz <- readBin(z$fromjava,integer(),n=1,endian="big")
+                          resp <- readBin(z$fromjava,raw(),n=sz,endian="big")
+                          resp <- rhuz(resp)
+                          return(resp)
+                        })
+  p[[1]]=="OK"
+}

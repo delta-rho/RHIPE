@@ -55,7 +55,7 @@
 #'   \href{http://hadoop.apache.org/common/docs/r0.20.1/mapred_tutorial.html\#DistributedCache}{Distributed Cache}.
 #' @param partitioner A list of two names elements: \code{lims} and
 #'   \code{type}.  See details.
-#' @param paramater A named list (or an alist) with paramaters to be passed to a mapreduce job.
+#' @param parameter A named list (or an alist) with parameters to be passed to a mapreduce job.
 #' @param copyFiles Will the files created in the R code e.g. PDF output, be
 #'   copied to the destination folder, \code{ofolder}?
 #' @param jobname The name of the job, which is visible on the Jobtracker
@@ -291,7 +291,7 @@ rhwatch <- function(map         = NULL,
                     partitioner = NULL,
                     copyFiles   = FALSE,
                     jobname     = "",
-                    paramaters  = NULL,
+                    parameters  = NULL,
                     job         = NULL,
                     mon.sec     = 5,
                     readback    = TRUE,
@@ -303,7 +303,7 @@ rhwatch <- function(map         = NULL,
   if(is.null(job))
     job <- Rhipe:::.rhmr(map=map, reduce=reduce, combiner=combiner,setup=setup, cleanup=cleanup
                    ,input=input, output=output, orderby=orderby, mapred=mapred, shared=shared,jarfiles=jarfiles
-                   ,zips=zips, partitioner=partitioner, copyFiles=copyFiles, jobname=jobname, paramaters=paramaters)
+                   ,zips=zips, partitioner=partitioner, copyFiles=copyFiles, jobname=jobname, parameters=parameters)
   else if(is.character(job))
     return(Rhipe:::rhwatch.runner(job=job, mon.sec=mon.sec,readback=readback,...))
   if(!is.null(job$lines$mapred.job.tracker) && job$lines$mapred.job.tracker == TRUE){
@@ -348,23 +348,23 @@ rhwatch <- function(map         = NULL,
       cleanup   <- rhoptions()$debug$map[[debug]]$cleanup
       if(is.null(handler)) stop("Rhipe(rhwatch): invalid debug character string provided")
     }
-    if(is.null(job$paramaters)){
+    if(is.null(job$parameters)){
       environment(handler) <- .BaseNamespaceEnv
-      job$paramaters <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",paramaters=list(rhipe.trap=handler))
+      job$parameters <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",parameters=list(rhipe.trap=handler))
 
       ## need the code to load temporary files!
       x <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
-      y <- job$paramaters$setup; environment(y) <- .BaseNamespaceEnv
+      y <- job$parameters$setup; environment(y) <- .BaseNamespaceEnv
       job[[1]]$rhipe_setup_map <- rawToChar(serialize( c(y,x),NULL,ascii=TRUE))
 
       x <- unserialize(charToRaw(job[[1]]$rhipe_setup_reduce))
       job[[1]]$rhipe_setup_reduce <- rawToChar(serialize( c(y,x),NULL,ascii=TRUE))
       ## This is becoming quite the HACK
       ## Of all lines magic and thiss hit should be in rhex ...
-      job[[1]]$rhipe_shared <- sprintf("%s,%s#%s",job[[1]]$rhipe_shared,job$paramaters$file,basename(job$paramaters$file))
+      job[[1]]$rhipe_shared <- sprintf("%s,%s#%s",job[[1]]$rhipe_shared,job$parameters$file,basename(job$parameters$file))
     }else {
       environment(handler) <- .BaseNamespaceEnv
-      job$paramaters$envir$rhipe.trap <- handler
+      job$parameters$envir$rhipe.trap <- handler
     }
     if(is.expression(setup)){
       environment(setup) <- .BaseNamespaceEnv
@@ -398,7 +398,7 @@ rhwatch.runner <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
     if(readback==TRUE && results$state == "SUCCEEDED" && sum(rhls(ofolder)$size)/(1024^2) < rhoptions()$max.read.in.size){
       W <- 'Reduce output records'
       if(!is.null(job$lines$mapred.reduce.tasks) && as.numeric(job$lines$mapred.reduce.tasks)==0) W <- 'Map output records'
-      num.records <- results$counters$'Map-Reduce Framework'[W]
+      num.records <- as.numeric(results$counters$'Map-Reduce Framework'[W,])
       if (num.records > rhoptions()$reduce.output.records.warn)
         warning(sprintf("Number of output records is %s which is greater than rhoptions()$reduce.output.records.warn\n. Consider running a mapreduce to make this smaller, since reading so many key-value pairs is slow in R", num.records))
       if(!is.na(rhoptions()$rhmr.max.records.to.read.in))

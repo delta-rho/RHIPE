@@ -624,6 +624,32 @@ public class PersonalServer extends Configured implements Tool {
 	}
 	send_result("OK");
     }
+    public void binaryAsSequence2(REXP r) throws Exception { // works
+	Configuration cfg = new Configuration();
+	String ofolder = r.getRexpValue(1).getStringValue(0).getStrval();
+	int numperfile = r.getRexpValue(2).getIntValue(0);
+	int howmany = r.getRexpValue(3).getIntValue(0);
+	DataInputStream in = _fromR;
+	int count = 0, i=0;
+	String f = ofolder + "/" + i;
+	RHWriter w = new RHWriter(f, cfg);	
+	while(i < howmany){
+	    w.writeAValue(in);
+	    i++;
+	    if( i  % numperfile == 0){
+		count ++;
+		f = ofolder+"/"+count;
+		w.close();
+		if(i < howmany) 
+		    w = new RHWriter(f, cfg);
+	    }
+	}
+	try{
+	    w.close();
+	}catch(Exception e){}
+	send_result("OK");
+    }
+
     public void shutdownJavaServer() throws Exception {
 	//send_alive();  Actually, I will let R ask for send_alive().
 	System.exit(0);

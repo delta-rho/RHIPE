@@ -7,7 +7,7 @@
     output = NULL, orderby = "bytes", mapred = NULL,
     shared = c(), jarfiles = c(), zips = c(),
     partitioner = NULL, copyFiles = FALSE, jobname = "",
-    paramaters = NULL, job = NULL, mon.sec = 5,
+    parameters = NULL, job = NULL, mon.sec = 5,
     readback = TRUE, debug = NULL, noeval = FALSE, ...)
 }
 \arguments{
@@ -98,8 +98,8 @@
   \item{partitioner}{A list of two names elements:
   \code{lims} and \code{type}.  See details.}
 
-  \item{paramater}{A named list (or an alist) with
-  paramaters to be passed to a mapreduce job.}
+  \item{parameter}{A named list (or an alist) with
+  parameters to be passed to a mapreduce job.}
 
   \item{copyFiles}{Will the files created in the R code
   e.g. PDF output, be copied to the destination folder,
