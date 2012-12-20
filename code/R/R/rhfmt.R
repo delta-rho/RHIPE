@@ -29,6 +29,7 @@ lapplyio <- function(args){
     if(length(args)==2){
       lines$mapred.map.tasks <- as.integer(args[2])
     }
+    lines$mapred.reduce.tasks <- 0
     lines$rhipe_lapply_lengthofinput <- as.integer(args[1])
     lines
   }
@@ -76,6 +77,25 @@ mapio <- function(folders,interval=1, compression="BLOCK"){
   }
 }
 
+robject <- function(object,chunked=NULL,numperfile=1,elementWriter=NULL){
+  object <- eval(object); chunked <- eval(chunked); numperfile <- eval(numperfile); elementWriter <- eval(elementWriter);
+  function(lines, direction, callers){
+    if(direction=="output") stop("cannot use robject as output")
+    if(!is.null(rhoptions()$HADOOP.TMP.FOLDER)){
+      input <- Rhipe:::mkdHDFSTempFolder(file="rhipe-temp")
+    }else{
+      stop("RHIPE could not find a value for HADOOP.TMP.FOLDER
+            in rhoptions(). Set this: rhoptions(HADOOP.TMP.FOLDER=path)")
+    }
+    a <- system.time(cat(sprintf("RHIPE: Writing your robject to temporary: %s\n (this might take time)\n",input)))
+    cat(sprintf("RHIPE: Writing complete in %s seconds\n",round(a['elapsed'],3)))
+    rhwrite2(object,file=input,chunked=chunked,numperfile=numperfile,elementWriter=elementWriter)
+    I <- rhoptions()$ioformats[["seq"]](input)
+    lines$mapred.reduce.tasks <- 0
+    I(lines,direction, callers)
+  }
+}
+
 sequenceio <- function(folders){
   folders <- eval(folders)
   function(lines,direction,callers){
@@ -100,7 +120,7 @@ sequenceio <- function(folders){
   }
 }
 
-textio <- function(folders,writeKey=TRUE, field.sep=" ",kv.sep="\t",eol="\r\n",stringquote=""){
+textio <- function(folders,nline=NULL,writeKey=TRUE, field.sep=" ",kv.sep="\t",eol="\r\n",stringquote=""){
   folders <- eval(folders)
   writeKey <- eval(writeKey); field.sep=eval(field.sep);kv.sep=eval(kv.sep);eol=eval(eol);stringquote=eval(stringquote);
   function(lines,direction,caller){
@@ -111,9 +131,15 @@ textio <- function(folders,writeKey=TRUE, field.sep=" ",kv.sep="\t",eol="\r\n",s
       if(length(remr)>0)
         folders <- folders[-remr]
       lines$rhipe_input_folder <- paste(folders,collapse=",")
-      lines$rhipe_inputformat_class <- 'org.godhuli.rhipe.RXTextInputFormat'
+      if(!is.null(nline) && is.integer(nline)){
+        lines$rhipe_inputformat_class <- "org.godhuli.rhipe.RNLineInputFormat"
+        lines$mapreduce.input.lineinputformat.linespermap <- as.integer(nline)
+      }else{
+        lines$rhipe_inputformat_class <- 'org.godhuli.rhipe.RXTextInputFormat'
+      }
       lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHNumeric'
       lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHText'
+      
       if(is.null(lines$param.temp.file)){
         linesToTable <- Rhipe:::linesToTable
         environment(linesToTable) <- .BaseNamespaceEnv
@@ -141,12 +167,13 @@ textio <- function(folders,writeKey=TRUE, field.sep=" ",kv.sep="\t",eol="\r\n",s
 
 handleIOFormats <- function(opts){
   opts$ioformats <- list(
-                         text=textio,
-                         seq=sequenceio,
-                         sequence=sequenceio,
-                         map=mapio,
-                         N=lapplyio,
-                         null=nullo)
+                      text=textio,
+                      seq=sequenceio,
+                      sequence=sequenceio,
+                      map=mapio,
+                      N=lapplyio,
+                      robject=robject,
+                      null=nullo)
   opts
 }
 
