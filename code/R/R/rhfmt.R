@@ -44,8 +44,8 @@ lapplyio <- function(args){
               if(current.task.number>1){
                 for(i in 2:current.task.number)
                   seed <- nextRNGStream(seed)
-                assign(".Random.seed", seed, envir = .GlobalEnv)
               }
+            seed
           } 
         environment(getUID) <- .BaseNamespaceEnv
         environment(setupRNGStream) <- .BaseNamespaceEnv
@@ -56,8 +56,13 @@ lapplyio <- function(args){
           lines$param.temp.file$envir$setupRNGStream <- setupRNGStream
           lines$param.temp.file$envir$user.seed <- seeding
         }
-        lines$rhipe_setup_reduce <- c(lines$rhipe_setup_reduce,expression({ setupRNGStream(user.seed) }))
-        lines$rhipe_setup_map <- c(lines$rhipe_setup_map,expression({ setupRNGStream(user.seed) }))
+        expr <- expression({
+          seed <- setupRNGStream(user.seed)
+          RNGkind("default")
+          assign(".Random.seed", seed, envir = .GlobalEnv)
+        })
+        lines$rhipe_setup_reduce <- c(lines$rhipe_setup_reduce,expr)
+        lines$rhipe_setup_map <- c(lines$rhipe_setup_map,expr)
       }
     }
     lines$mapred.reduce.tasks <- 0
