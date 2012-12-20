@@ -98,19 +98,17 @@ rhmr <- function(...){
   
   map.s <- rawToChar(serialize(map,NULL,ascii=T))
   
-  setup.m <- rawToChar(serialize(setup$map,NULL,ascii=T))
-  setup.r <- rawToChar(serialize(setup$reduce,NULL,ascii=T))
-  cleanup.m <- rawToChar(serialize(cleanup$map,NULL,ascii=T))
-  cleanup.r <- rawToChar(serialize(cleanup$reduce,NULL,ascii=T))
   lines<- append(lines,list(
                             R_HOME=R.home()
                             ,rhipe_map=(map.s)
-                            ,rhipe_setup_map=(setup.m)
-                            ,rhipe_cleanup_map= (cleanup.m)
-                            ,rhipe_cleanup_reduce= (cleanup.r)
-                            ,rhipe_setup_reduce= (setup.r)
                             ,rhipe_command=paste(rhoptions()$runner,collapse=" ")
                             ))
+  
+  lines$rhipe_setup_map <- setup$map
+  lines$rhipe_setup_reduce <- setup$reduce
+  lines$rhipe_cleanup_map <- cleanup$map
+  lines$rhipe_cleanup_reduce <- cleanup$reduce
+  
   
   lines$rhipe_map_output_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
   lines$rhipe_map_output_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
@@ -256,10 +254,8 @@ rhmr <- function(...){
     paramaters <- list(envir=vwhere,file=lines$param.temp.file$file)
     shared <- c(shared, if(is.null(lines$param.temp.file)) NULL else lines$param.temp.file$file)
     ##Note also the setup has to be re-written ...
-    setup$map <- c(lines$param.temp.file$setup,setup$map)
-    setup$reduce <- c(lines$param.temp.file$setup,setup$reduce)
-    lines$rhipe_setup_map=rawToChar(serialize(setup$map,NULL,ascii=T))
-    lines$rhipe_setup_reduce= rawToChar(serialize(setup$reduce,NULL,ascii=T))
+    lines$rhipe_setup_map<- c(lines$param.temp.file$setup,lines$rhipe_setup_map)
+    lines$rhipe_setup_reduce <- c(lines$param.temp.file$setup,lines$rhipe_setup_reduce)
   }
   shared.files <- unlist(as.character(shared))
   if(! all(sapply(shared.files,is.character)))
@@ -271,6 +267,11 @@ rhmr <- function(...){
   shared.files <- paste(shared.files,collapse=",")
   lines$rhipe_shared <- shared.files
 
+
+  lines$rhipe_setup_map  <- rawToChar(serialize(lines$rhipe_setup_map,NULL,ascii=TRUE))
+  lines$rhipe_setup_reduce  <- rawToChar(serialize(lines$rhipe_setup_reduce,NULL,ascii=TRUE))
+  lines$rhipe_cleanup_map<- rawToChar(serialize(lines$rhipe_cleanup_map,NULL,ascii=TRUE))
+  lines$rhipe_cleanup_reduce <- rawToChar(serialize(lines$rhipe_cleanup_reduce,NULL,ascii=TRUE))
 
   ## #############################################################################################
   ##  HANDLE MAPRED EXTRA PARAMS

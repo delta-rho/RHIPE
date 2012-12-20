@@ -348,23 +348,23 @@ rhwatch <- function(map         = NULL,
       cleanup   <- rhoptions()$debug$map[[debug]]$cleanup
       if(is.null(handler)) stop("Rhipe(rhwatch): invalid debug character string provided")
     }
-    if(is.null(job$parameters)){
+    if(is.null(job$paramaters)){
       environment(handler) <- .BaseNamespaceEnv
-      job$parameters <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",parameters=list(rhipe.trap=handler))
+      job$paramaters <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",paramaters=list(rhipe.trap=handler))
 
       ## need the code to load temporary files!
       x <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
-      y <- job$parameters$setup; environment(y) <- .BaseNamespaceEnv
+      y <- job$paramaters$setup; environment(y) <- .BaseNamespaceEnv
       job[[1]]$rhipe_setup_map <- rawToChar(serialize( c(y,x),NULL,ascii=TRUE))
 
       x <- unserialize(charToRaw(job[[1]]$rhipe_setup_reduce))
       job[[1]]$rhipe_setup_reduce <- rawToChar(serialize( c(y,x),NULL,ascii=TRUE))
       ## This is becoming quite the HACK
       ## Of all lines magic and thiss hit should be in rhex ...
-      job[[1]]$rhipe_shared <- sprintf("%s,%s#%s",job[[1]]$rhipe_shared,job$parameters$file,basename(job$parameters$file))
+      job[[1]]$rhipe_shared <- sprintf("%s,%s#%s",job[[1]]$rhipe_shared,job$paramaters$file,basename(job$paramaters$file))
     }else {
       environment(handler) <- .BaseNamespaceEnv
-      job$parameters$envir$rhipe.trap <- handler
+      job$paramaters$envir$rhipe.trap <- handler
     }
     if(is.expression(setup)){
       environment(setup) <- .BaseNamespaceEnv

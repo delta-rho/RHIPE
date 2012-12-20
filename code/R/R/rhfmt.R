@@ -26,8 +26,39 @@ lapplyio <- function(args){
     lines$rhipe_inputformat_class <- 'org.godhuli.rhipe.LApplyInputFormat'
     lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHNumeric'
     lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHNumeric'
-    if(length(args)==2){
+    if(length(args)>=2){
       lines$mapred.map.tasks <- as.integer(args[2])
+      if(length(args)>2){
+        seeding <- as.integer(args[-c(1:2)])
+        getUID <- function(id=Sys.getenv("mapred.task.id")){
+          a <- strsplit(id,"_")[[1]]
+          a<-as.numeric(a[c(2,3,5)])
+        }
+        setupRNGStream <- function( iseed )
+          {
+            library(parallel)
+            RNGkind("L'Ecuyer-CMRG")
+            set.seed(iseed)
+            current.task.number <- getUID()[3]
+            seed <- .Random.seed
+              if(current.task.number>1){
+                for(i in 2:current.task.number)
+                  seed <- nextRNGStream(seed)
+                assign(".Random.seed", seed, envir = .GlobalEnv)
+              }
+          } 
+        environment(getUID) <- .BaseNamespaceEnv
+        environment(setupRNGStream) <- .BaseNamespaceEnv
+        if(is.null(lines$param.temp.file)){
+          lines$param.temp.file <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",list(getUID=getUID,setupRNGStream=setupRNGStream,user.seed=seeding))
+        }else{
+          lines$param.temp.file$envir$getUID <- getUID
+          lines$param.temp.file$envir$setupRNGStream <- setupRNGStream
+          lines$param.temp.file$envir$user.seed <- seeding
+        }
+        lines$rhipe_setup_reduce <- c(lines$rhipe_setup_reduce,expression({ setupRNGStream(user.seed) }))
+        lines$rhipe_setup_map <- c(lines$rhipe_setup_map,expression({ setupRNGStream(user.seed) }))
+      }
     }
     lines$mapred.reduce.tasks <- 0
     lines$rhipe_lapply_lengthofinput <- as.integer(args[1])
