@@ -103,7 +103,7 @@ rhwrite <- function(lo,dest,N=NULL){
 #' 
 #' @keywords write HDFS
 #' @export
-rhwrite2 <- function(object,file,numperfile,elementWriter=NULL){
+rhwrite2 <- function(object,file,numperfile=1,elementWriter=NULL){
   dest <- rhabsolute.hdfs.path(file)
   if(any(sapply(c("character","numeric","integer"), function(r) is(object,r))))
     object <- as.list(object)
