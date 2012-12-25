@@ -33,6 +33,8 @@ rhinit <-function(errors=TRUE,buglevel=0,info=FALSE,path=NULL,cleanup=FALSE,bufs
     ## Rhipe:::.rhinit(errors=TRUE,info=if(buglevel) TRUE else FALSE,path,cleanup,bufsize,buglevel=buglevel)
     Sys.sleep(2)
     message("Rhipe first run complete")
+    message("Initializing mapfile caches")
+    rh.init.cache()
     return(TRUE)
   }
   message("Initializing mapfile caches")

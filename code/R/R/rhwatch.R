@@ -294,7 +294,7 @@ rhwatch <- function(map         = NULL,
                     parameters  = NULL,
                     job         = NULL,
                     mon.sec     = 5,
-                    readback    = rhoptions()$readback
+                    readback    = rhoptions()$readback,
                     debug       = NULL,
                     noeval      = FALSE,...){
   ## ##############################
