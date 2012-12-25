@@ -188,9 +188,6 @@ rhmr <- function(...){
   ## ###########################################################
   ## MISC
   ## ###########################################################
-  if(is.null(reduce)){
-    lines$rhipe_reduce_justcollect <- TRUE
-  }
   lines$RHIPE_DEBUG <- 0
   lines$rhipe_input_folder <- ""
   lines$rhipe_output_folder <- ""
@@ -207,7 +204,11 @@ rhmr <- function(...){
   options.mapred = rhoptions()$mropts
   if(!is.null(options.mapred))
     for(n in filterOut(names(options.mapred))) lines[[n]] = options.mapred[[n]]
-  
+
+  if(is.null(reduce)){
+    lines$rhipe_reduce_justcollect <- TRUE
+  }
+
   ## ##########################################################
   ## Handle Input Output Formats
   ## ##########################################################

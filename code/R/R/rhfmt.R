@@ -65,7 +65,10 @@ lapplyio <- function(args){
         lines$rhipe_setup_map <- c(lines$rhipe_setup_map,expr)
       }
     }
-    lines$mapred.reduce.tasks <- 0
+    if( !lines$rhipe_reduce_justcollect) {
+      ## user left reduce empty ...
+      lines$mapred.reduce.tasks <- 0
+    }
     lines$rhipe_lapply_lengthofinput <- as.integer(args[1])
     lines
   }
