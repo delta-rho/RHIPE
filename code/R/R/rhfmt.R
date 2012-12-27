@@ -108,6 +108,10 @@ mapio <- function(folders,interval=1, compression="BLOCK"){
       lines$rhipe_output_folder <- paste(folders, collapse = ",")
       lines$io.map.index.interval <- interval
       lines$mapred.output.compression.type <- compression
+      if(compression == "NONE"){
+        lines$mapred.output.compress <- "false"
+        lines$mapred.compress.map.output <- "false"
+      }
       lines$rhipe_outputformat_class <- "org.godhuli.rhipe.RHMapFileOutputFormat"
       lines$rhipe_outputformat_keyclass <- "org.godhuli.rhipe.RHBytesWritable"
       lines$rhipe_outputformat_valueclass <- "org.godhuli.rhipe.RHBytesWritable"
