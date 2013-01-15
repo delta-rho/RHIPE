@@ -28,19 +28,20 @@ lapplyio <- function(args){
     lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHNumeric'
     if(length(args)>=2){
       lines$mapred.map.tasks <- as.integer(args[2])
-      if(length(args)>2){
+      if(length(args)>2)
         seeding <- as.integer(args[-c(1:2)])
-        if(is.null(lines$param.temp.file)){
-          lines$param.temp.file <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",list(initPRNG=Rhipe:::initPRNG(seeding)))
-        }else{
-          lines$param.temp.file$envir$initPRNG <- Rhipe:::initPRNG(seeding)
-        }
-        expr <- expression({
-          initPRNG()
-        })
-        lines$rhipe_setup_reduce <- c(lines$rhipe_setup_reduce,expr)
-        lines$rhipe_setup_map <- c(lines$rhipe_setup_map,expr)
+      else
+        seeding <- NULL
+      if(is.null(lines$param.temp.file)){
+        lines$param.temp.file <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",list(initPRNG=Rhipe:::initPRNG(seeding)))
+      }else{
+        lines$param.temp.file$envir$initPRNG <- Rhipe:::initPRNG(seeding)
       }
+      expr <- expression({
+        initPRNG()
+      })
+      lines$rhipe_setup_reduce <- c(lines$rhipe_setup_reduce,expr)
+      lines$rhipe_setup_map <- c(lines$rhipe_setup_map,expr)
     }
     if( !lines$rhipe_reduce_justcollect) {
       ## user left reduce empty ...
