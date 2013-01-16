@@ -101,8 +101,9 @@ rhex <- function (conf,async=TRUE,mapred,...)
 
 
 saveParams <- function(paramaters,lines){
-  message(sprintf("Saving %s paramater%s to %s (use rhclean to delete all temp files)", length(ls(paramaters$envir))
-                  ,if( length(ls(paramaters$envir))>1) "s" else "",paramaters$file))
+  if(length(ls(paramaters$envir))>0)
+    message(sprintf("Saving %s paramater%s to %s (use rhclean to delete all temp files)", length(ls(paramaters$envir))
+                    ,if( length(ls(paramaters$envir))>1) "s" else "",paramaters$file))
   vlist <- ls(paramaters$envir)
   vwhere <- paramaters$envir
   lines$rhipe.has.params <- TRUE
