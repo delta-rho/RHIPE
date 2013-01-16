@@ -19,7 +19,8 @@ rhmr <- function(...){
                   partitioner = NULL,
                   copyFiles   = F,
                   jobname     = "",
-                  parameters  = NULL){
+                  parameters  = NULL
+                  ){
   
   
   ## ##############################################################################################
@@ -111,33 +112,57 @@ rhmr <- function(...){
       paramaters <- list()
       sampbody <- function(){}
       empty.exp <- expression()
-      funs <- new.env()
-      seen.vars <- new.env()
       require(codetools)
       exp <- list( setup$map, setup$reduce, cleanup$map, cleanup$reduce, map,reduce$pre,reduce$post,reduce$reduce)
-      for(mu in exp){
-        if(identical(mu, empty.exp)) next
-        body(sampbody) <- mu
-        enter <- function(type, v, e, w){
-          if(tryCatch(codetools:::isBaseVar(v, w$env) || codetools:::isStatsVar(v, w$env)
-                      || codetools:::isUtilsVar(v,  w$env) || v == "Quote",error=function(e) FALSE))
-            return()
-          assign(v, TRUE, funs)
+      calling.frame <- sys.frame(-2) #since rhwatch calls this
+      seen.vars <- new.env()
+      getV <- function(mu,cf){
+        .getV <- function(mu){
+          funs <- new.env()
+          varns <- new.env()
+          enter <- function(type, v, e, w){
+            if(tryCatch(codetools:::isBaseVar(v, w$env) || codetools:::isStatsVar(v, w$env)
+                        || codetools:::isUtilsVar(v,  w$env) || v == "Quote",error=function(e) FALSE))
+              return()
+            if(type=="function") assign(v, TRUE, funs) else assign(v,TRUE,varns)
+          }
+          collectUsage(mu, enterGlobal = enter)
+          list(funs=ls(funs,all.names=TRUE),varns=ls(varns, all.names=TRUE))
         }
-        collectUsage(sampbody, enterGlobal = enter)
-        for(x in ls(funs)){
-          if(x %in% c("map.keys","map.values",rhoptions()$copyObjects$exclude)) next
-          paramaters[[x]] <- tryCatch(get(x, envir=parent.frame()), error=function(e){
-            if(!x %in% ls(seen.vars))
-              warning(sprintf("RHIPE: [param=auto], During symbol auto detect phase, object %s not found", x))
+      res <- .getV(mu)
+        if(length(res$funs)==0)
+          return(unlist(res$varns))
+        else{
+          return(unique( unlist(c( res$varns, res$funs
+                                  ,sapply(res$funs, function(kap) {
+                                    moz <- tryCatch(get(kap,envir=cf),error=function(e) NULL)
+                                    if(!is.null(moz))
+                                      getV(moz,cf)
+                                    else
+                                      NULL
+                                })))))
+        }
+      }
+      
+      paramaters <- list()
+      mux <- unique(unlist(lapply(exp, function(mu){
+        if(identical(mu, empty.exp)) return(NULL)
+        body(sampbody) <- mu
+        getV(sampbody,cf=calling.frame)
+      })))
+      for(x in mux){
+          if(x %in% c("map.keys","map.values",".Random.seed",rhoptions()$copyObjects$exclude)) next
+          paramaters[[x]] <- tryCatch(get(x, envir=calling.frame), error=function(e){
+            ## if(!x %in% ls(seen.vars))
+            ##   warning(sprintf("RHIPE: [param=auto], During symbol auto detect phase, object %s not found", x))
             assign(x,TRUE, seen.vars)
             NULL
           })
         }
-      }
+      warning(sprintf("RHIPE(param='auto'): Following variables were discovered but not found: %s",paste(ls(seen.vars,all.names=TRUE),collapse=",")))
     }
     if(!is.list(paramaters))
-      stop("parameters must be a named list or the string 'all'")
+      stop("parameters must be a named list or the string 'all' or 'auto'")
     lines$param.temp.file <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",paramaters=paramaters,aframe=sys.frame(-1))
   }else{
     lines$param.temp.file <- NULL
