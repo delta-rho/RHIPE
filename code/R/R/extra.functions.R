@@ -1,16 +1,10 @@
-rhextract <-  function(alist, what="keys",unlist=FALSE,lapply=lapply,...){
-  what <- what[pmatch(what,c("keys","values"))]
-  j <- if(what=="keys") lapply( alist,"[[",1) else lapply(alist, "[[",2)
-  if(unlist) unlist(j, ...) else j
-} # lapply could be mclapply
-
 
 mkdtemp <- function(indir){
   .Call("createTempDir",sprintf("%s/rhipedir-XXXXXX",indir),PACKAGE="Rhipe")
 }
 
 
-initPRNG <- function(seed=NULL){
+ainitPRNG <- function(seed=NULL){
   seed <- eval(seed)
   mi <- function(){
     getUID <- function(id = Sys.getenv("mapred.task.id")) {
@@ -29,7 +23,7 @@ initPRNG <- function(seed=NULL){
     assign(".Random.seed", seed, envir = .GlobalEnv)
     rhcounter("Seed",paste(.Random.seed,collapse=":"),1)
   }
-  e1 <- new.env(parent = .GlobalEnv)
+  e1 <- new.env(parent = .BaseNamespaceEnv)
   assign("iseed",seed,envir=e1)
   environment(mi) <- e1
   mi

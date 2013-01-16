@@ -129,7 +129,7 @@ rhmr <- function(...){
           if(x %in% c("map.keys","map.values",rhoptions()$copyObjects$exclude)) next
           paramaters[[x]] <- tryCatch(get(x, envir=parent.frame()), error=function(e){
             if(!x %in% ls(seen.vars))
-              warning(sprintf("Object %s not found", x))
+              warning(sprintf("RHIPE: [param=auto], During symbol auto detect phase, object %s not found", x))
             assign(x,TRUE, seen.vars)
             NULL
           })

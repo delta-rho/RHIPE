@@ -332,7 +332,7 @@ rhwatch <- function(map         = NULL,
         tryCatch(.(REPLACE),error=function(e) {rhipe.trap(e,k,r);NULL}  )  },seq_along(map.values),map.keys,map.values,SIMPLIFY=FALSE)
       .(AFTER)
     },list(BEFORE=FIX(l$before),AFTER=FIX(l$after),REPLACE=FIX(l$replace))))
-    environment(newm) <- .GlobalEnv #.BaseNamespaceEnv
+    environment(newm) <- .BaseNamespaceEnv
     job[[1]]$rhipe_map <- rawToChar(serialize(newm,NULL,ascii=TRUE))
 
     ## Has the user given one?
@@ -349,12 +349,12 @@ rhwatch <- function(map         = NULL,
       if(is.null(handler)) stop("Rhipe(rhwatch): invalid debug character string provided")
     }
     if(is.null(job$paramaters)){
-      environment(handler) <- .GlobalEnv #.BaseNamespaceEnv
+      environment(handler) <- .BaseNamespaceEnv
       job$paramaters <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",paramaters=list(rhipe.trap=handler))
 
       ## need the code to load temporary files!
       x <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
-      y <- job$paramaters$setup; environment(y) <- .GlobalEnv #.basenamespaceenv
+      y <- job$paramaters$setup; environment(y) <- .BaseNamespacEenv
       job[[1]]$rhipe_setup_map <- rawToChar(serialize( c(y,x),NULL,ascii=TRUE))
 
       x <- unserialize(charToRaw(job[[1]]$rhipe_setup_reduce))
@@ -363,20 +363,20 @@ rhwatch <- function(map         = NULL,
       ## Of all lines magic and thiss hit should be in rhex ...
       job[[1]]$rhipe_shared <- sprintf("%s,%s#%s",job[[1]]$rhipe_shared,job$paramaters$file,basename(job$paramaters$file))
     }else {
-      environment(handler) <- .GlobalEnv #.BaseNamespaceEnv
+      environment(handler) <- .BaseNamespaceEnv
       job$paramaters$envir$rhipe.trap <- handler
     }
     if(is.expression(setup)){
-      environment(setup) <- .GlobalEnv #.BaseNamespaceEnv
+      environment(setup) <- .BaseNamespaceEnv
       x <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
       job[[1]]$rhipe_setup_map<- rawToChar(serialize(c(x,setup),NULL,ascii=TRUE))
     }
     if(is.expression(cleanup)){
-      environment(cleanup) <- .GlobalEnv #.BaseNamespaceEnv
+      environment(cleanup) <- .BaseNamespaceEnv
       cleanupmap <- unserialize(charToRaw(job[[1]]$rhipe_cleanup_map))
       job[[1]]$rhipe_cleanup_map<- rawToChar(serialize(c(cleanupmap,cleanup),NULL,ascii=TRUE))
     }
-    environment(handler) <- .GlobalEnv #.BaseNamespaceEnv
+    environment(handler) <- .BaseNamespaceEnv
     
     job[[1]]$rhipe_copy_file <- 'TRUE' ##logic for local runner is wrong here
   }
