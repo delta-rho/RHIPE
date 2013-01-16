@@ -4,7 +4,7 @@ mkdtemp <- function(indir){
 }
 
 
-ainitPRNG <- function(seed=NULL){
+initPRNG <- function(seed=NULL){
   seed <- eval(seed)
   mi <- function(){
     getUID <- function(id = Sys.getenv("mapred.task.id")) {
