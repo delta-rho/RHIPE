@@ -18,7 +18,7 @@ function(co1=NULL,before=NULL,after=NULL){
       },seq_along(map.values),map.keys,map.values,SIMPLIFY=FALSE)
     .(AF)
   },list(CO=co,BE=before,AF=after)))
-  environment(j) <- .BaseNamespaceEnv
+  environment(j) <- .GlobalEnv #.BaseNamespaceEnv
   class(j) <- c(class(j),"rhmr-map")
   j
 }

@@ -55,7 +55,7 @@
 #'   \href{http://hadoop.apache.org/common/docs/r0.20.1/mapred_tutorial.html\#DistributedCache}{Distributed Cache}.
 #' @param partitioner A list of two names elements: \code{lims} and
 #'   \code{type}.  See details.
-#' @param parameter A named list (or an alist) with parameters to be passed to a mapreduce job.
+#' @param parameter A named list  with parameters to be passed to a mapreduce job.It can also be the string 'all', and all variables (whose size <= rhoptions()$copyObjects$maxsize (bytes) and the name of the variable not in rhoptions()$copyObjects$exclude) will be automatically copied. If it is equal to 'auto', RHIPE will make an attempt (via codetools) to determine the called variables/functions and copy them automatically.
 #' @param copyFiles Will the files created in the R code e.g. PDF output, be
 #'   copied to the destination folder, \code{ofolder}?
 #' @param jobname The name of the job, which is visible on the Jobtracker
@@ -332,7 +332,7 @@ rhwatch <- function(map         = NULL,
         tryCatch(.(REPLACE),error=function(e) {rhipe.trap(e,k,r);NULL}  )  },seq_along(map.values),map.keys,map.values,SIMPLIFY=FALSE)
       .(AFTER)
     },list(BEFORE=FIX(l$before),AFTER=FIX(l$after),REPLACE=FIX(l$replace))))
-    environment(newm) <- .BaseNamespaceEnv
+    environment(newm) <- .GlobalEnv #.BaseNamespaceEnv
     job[[1]]$rhipe_map <- rawToChar(serialize(newm,NULL,ascii=TRUE))
 
     ## Has the user given one?
@@ -349,12 +349,12 @@ rhwatch <- function(map         = NULL,
       if(is.null(handler)) stop("Rhipe(rhwatch): invalid debug character string provided")
     }
     if(is.null(job$paramaters)){
-      environment(handler) <- .BaseNamespaceEnv
+      environment(handler) <- .GlobalEnv #.BaseNamespaceEnv
       job$paramaters <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",paramaters=list(rhipe.trap=handler))
 
       ## need the code to load temporary files!
       x <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
-      y <- job$paramaters$setup; environment(y) <- .BaseNamespaceEnv
+      y <- job$paramaters$setup; environment(y) <- .GlobalEnv #.basenamespaceenv
       job[[1]]$rhipe_setup_map <- rawToChar(serialize( c(y,x),NULL,ascii=TRUE))
 
       x <- unserialize(charToRaw(job[[1]]$rhipe_setup_reduce))
@@ -363,20 +363,20 @@ rhwatch <- function(map         = NULL,
       ## Of all lines magic and thiss hit should be in rhex ...
       job[[1]]$rhipe_shared <- sprintf("%s,%s#%s",job[[1]]$rhipe_shared,job$paramaters$file,basename(job$paramaters$file))
     }else {
-      environment(handler) <- .BaseNamespaceEnv
+      environment(handler) <- .GlobalEnv #.BaseNamespaceEnv
       job$paramaters$envir$rhipe.trap <- handler
     }
     if(is.expression(setup)){
-      environment(setup) <- .BaseNamespaceEnv
+      environment(setup) <- .GlobalEnv #.BaseNamespaceEnv
       x <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
       job[[1]]$rhipe_setup_map<- rawToChar(serialize(c(x,setup),NULL,ascii=TRUE))
     }
     if(is.expression(cleanup)){
-      environment(cleanup) <- .BaseNamespaceEnv
+      environment(cleanup) <- .GlobalEnv #.BaseNamespaceEnv
       cleanupmap <- unserialize(charToRaw(job[[1]]$rhipe_cleanup_map))
       job[[1]]$rhipe_cleanup_map<- rawToChar(serialize(c(cleanupmap,cleanup),NULL,ascii=TRUE))
     }
-    environment(handler) <- .BaseNamespaceEnv
+    environment(handler) <- .GlobalEnv #.BaseNamespaceEnv
     
     job[[1]]$rhipe_copy_file <- 'TRUE' ##logic for local runner is wrong here
   }

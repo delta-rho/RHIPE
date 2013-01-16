@@ -163,11 +163,11 @@ textio <- function(folders,nline=NULL,writeKey=TRUE, field.sep=" ",kv.sep="\t",e
       
       if(is.null(lines$param.temp.file)){
         linesToTable <- Rhipe:::linesToTable
-        environment(linesToTable) <- .BaseNamespaceEnv
+        environment(linesToTable) <-.GlobalEnv # .BaseNamespaceEnv
         lines$param.temp.file <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",list(linesToTable=linesToTable))
       }else{
         linesToTable <- Rhipe:::linesToTable
-        environment(linesToTable) <- .BaseNamespaceEnv
+        environment(linesToTable) <- .GlobalEnv #.BaseNamespaceEnv
         lines$param.temp.file$envir$linesToTable <- linesToTable
       }
     }else{

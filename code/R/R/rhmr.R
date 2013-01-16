@@ -29,15 +29,6 @@ rhmr <- function(...){
   lines <- list();
   is.Expression <- function(r) is.expression(r) || class(r)=="{"
 
-  paramaters <- parameters
-  ## ###########################
-  ## HANDLE paramaters                                                  
-  ## ############################
-  if(!is.null(paramaters)){
-    lines$param.temp.file <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",paramaters=paramaters,aframe=sys.frame(-1))
-  }else{
-    lines$param.temp.file <- NULL
-  }
   
   if(!is.Expression(map))
     stop("'map' must be an expression")
@@ -96,18 +87,61 @@ rhmr <- function(...){
     cleanup <- list(map=cleanup,reduce=cleanup)
   }
   
-  map.s <- rawToChar(serialize(map,NULL,ascii=T))
-  
   lines<- append(lines,list(
                             R_HOME=R.home()
-                            ,rhipe_map=(map.s)
                             ,rhipe_command=paste(rhoptions()$runner,collapse=" ")
                             ))
-  
+
+  lines$rhipe_map <- rawToChar(serialize(map,NULL,ascii=T))
   lines$rhipe_setup_map <- setup$map
   lines$rhipe_setup_reduce <- setup$reduce
   lines$rhipe_cleanup_map <- cleanup$map
   lines$rhipe_cleanup_reduce <- cleanup$reduce
+
+  
+  paramaters <- parameters
+  ## ###########################
+  ## HANDLE paramaters                                                  
+  ## ############################
+  
+  if(!is.null(paramaters)){
+    if(!is.null(paramaters) && is(paramaters,"character") && tolower( paramaters)=="all")
+      paramaters<- getObjects()
+    if(!is.null(paramaters) && is(paramaters,"character") && tolower( paramaters)=="auto"){
+      paramaters <- list()
+      sampbody <- function(){}
+      empty.exp <- expression()
+      funs <- new.env()
+      seen.vars <- new.env()
+      require(codetools)
+      exp <- list( setup$map, setup$reduce, cleanup$map, cleanup$reduce, map,reduce$pre,reduce$post,reduce$reduce)
+      for(mu in exp){
+        if(identical(mu, empty.exp)) next
+        body(sampbody) <- mu
+        enter <- function(type, v, e, w){
+          if(tryCatch(codetools:::isBaseVar(v, w$env) || codetools:::isStatsVar(v, w$env)
+                      || codetools:::isUtilsVar(v,  w$env) || v == "Quote",error=function(e) FALSE))
+            return()
+          assign(v, TRUE, funs)
+        }
+        collectUsage(sampbody, enterGlobal = enter)
+        for(x in ls(funs)){
+          if(x %in% c("map.keys","map.values",rhoptions()$copyObjects$exclude)) next
+          paramaters[[x]] <- tryCatch(get(x, envir=parent.frame()), error=function(e){
+            if(!x %in% ls(seen.vars))
+              warning(sprintf("Object %s not found", x))
+            assign(x,TRUE, seen.vars)
+            NULL
+          })
+        }
+      }
+    }
+    if(!is.list(paramaters))
+      stop("parameters must be a named list or the string 'all'")
+    lines$param.temp.file <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",paramaters=paramaters,aframe=sys.frame(-1))
+  }else{
+    lines$param.temp.file <- NULL
+  }
   
   
   lines$rhipe_map_output_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
@@ -327,11 +361,12 @@ rhmr <- function(...){
   else  lines$rhipe_zips=""
 
 
-  
+    
   lines$param.temp.file <- NULL
   lines <- lapply(lines,as.character);
   conf <- tempfile(pattern='rhipe')
-
+  
+  
   h <- list(lines=lines,temp=conf,paramaters=paramaters)
   if(!is.null(mapred$class))
     class(h)=mapred$class
@@ -424,4 +459,23 @@ makeParamTempFile <- function(file,paramaters,aframe){
          ,setup= as.expression(bquote({
            load(.(paramfile))
          },list(paramfile = basename(tfile)))))
+  }
+
+getObjects <- function(maxsize=if(is.null(rhoptions()$copyObjects)) 100*1024*1024 else rhoptions()$copyObjects$maxsize
+                       ,excludeObjects=if(is.null(rhoptions()$copyObjects)) character(0) else rhoptions()$copyObjects$exclude)
+  {
+    frames <- if(sys.nframe()==1) 0 else c(0,rev(-(2:sys.nframe())))
+    varcol <- list()
+    for(i in frames ){
+      a <- sys.frame(i)
+      for(varname in ls(a)){
+        if(varname %in% excludeObjects) next
+        x <- get(varname, envir=a)
+        if(object.size(x)<=maxsize)
+          varcol[[varname]] <- x
+        else
+          warning(sprintf("Dropped object: ",varname))
+      }
+    }
+    varcol
   }

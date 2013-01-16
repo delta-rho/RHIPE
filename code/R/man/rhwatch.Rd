@@ -8,7 +8,8 @@
     shared = c(), jarfiles = c(), zips = c(),
     partitioner = NULL, copyFiles = FALSE, jobname = "",
     parameters = NULL, job = NULL, mon.sec = 5,
-    readback = TRUE, debug = NULL, noeval = FALSE, ...)
+    readback = rhoptions()$readback, debug = NULL,
+    noeval = FALSE, ...)
 }
 \arguments{
   \item{map}{\code{map} is an R expression (created using
@@ -98,8 +99,14 @@
   \item{partitioner}{A list of two names elements:
   \code{lims} and \code{type}.  See details.}
 
-  \item{parameter}{A named list (or an alist) with
-  parameters to be passed to a mapreduce job.}
+  \item{parameter}{A named list with parameters to be
+  passed to a mapreduce job.It can also be the string
+  'all', and all variables (whose size <=
+  rhoptions()$copyObjects$maxsize (bytes) and the name of
+  the variable not in rhoptions()$copyObjects$exclude) will
+  be automatically copied. If it is equal to 'auto', RHIPE
+  will make an attempt (via codetools) to determine the
+  called variables/functions and copy them automatically.}
 
   \item{copyFiles}{Will the files created in the R code
   e.g. PDF output, be copied to the destination folder,

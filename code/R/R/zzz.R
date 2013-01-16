@@ -86,7 +86,7 @@ onload.2 <- function(libname, pkgname){
                 .(P)
               }), list(P=r))
           y <- if(combine || def) structure(y,combine=TRUE) else y
-          environment(y) <- .BaseNamespaceEnv
+          environment(y) <- .GlobalEnv #.BaseNamespaceEnv
           y
         }
         opts$templates$raggregate <-  function(r=NULL,combine=FALSE,dfname='adata'){
@@ -101,7 +101,7 @@ onload.2 <- function(libname, pkgname){
                 .(P)
               }), list(P=r))
           y <- if(combine || def) structure(y,combine=TRUE) else y
-          environment(y) <- .BaseNamespaceEnv
+          environment(y) <- .GlobalEnv #.BaseNamespaceEnv
           y
         }
        opts$templates$identity <-  expression(reduce={ lapply(reduce.values,function(r) rhcollect(reduce.key,r)) })
