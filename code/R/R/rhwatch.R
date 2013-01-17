@@ -55,7 +55,7 @@
 #'   \href{http://hadoop.apache.org/common/docs/r0.20.1/mapred_tutorial.html\#DistributedCache}{Distributed Cache}.
 #' @param partitioner A list of two names elements: \code{lims} and
 #'   \code{type}.  See details.
-#' @param parameter A named list  with parameters to be passed to a mapreduce job.It can also be the string 'all', and all variables (whose size <= rhoptions()$copyObjects$maxsize (bytes) and the name of the variable not in rhoptions()$copyObjects$exclude) will be automatically copied. If it is equal to 'auto', RHIPE will make an attempt (via codetools) to determine the called variables/functions and copy them automatically.
+#' @param parameter A named list  with parameters to be passed to a mapreduce job.It can also be the string 'all', and all variables (whose size <= rhoptions()$copyObjects$maxsize (bytes) and the name of the variable not in rhoptions()$copyObjects$exclude) will be automatically copied. If rhoptions()$copyObjects$auto is TRUE (default)', RHIPE will make an attempt (via codetools) to determine the called variables/functions and copy them automatically. 
 #' @param copyFiles Will the files created in the R code e.g. PDF output, be
 #'   copied to the destination folder, \code{ofolder}?
 #' @param jobname The name of the job, which is visible on the Jobtracker

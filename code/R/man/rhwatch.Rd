@@ -104,9 +104,10 @@
   'all', and all variables (whose size <=
   rhoptions()$copyObjects$maxsize (bytes) and the name of
   the variable not in rhoptions()$copyObjects$exclude) will
-  be automatically copied. If it is equal to 'auto', RHIPE
-  will make an attempt (via codetools) to determine the
-  called variables/functions and copy them automatically.}
+  be automatically copied. If rhoptions()$copyObjects$auto
+  is TRUE (default)', RHIPE will make an attempt (via
+  codetools) to determine the called variables/functions
+  and copy them automatically.}
 
   \item{copyFiles}{Will the files created in the R code
   e.g. PDF output, be copied to the destination folder,

@@ -61,7 +61,7 @@ onload.2 <- function(libname, pkgname){
 	opts$zips <- c()
 	opts$hdfs.working.dir = "/"
 	## other defaults
-        opts$copyObjects <- list(auto=TRUE,maxsize=100*1024*1024, exclude="rhcollect")
+        opts$copyObjects <- list(auto=TRUE,maxsize=100*1024*1024, exclude=c("map.values","map.keys","reduce.vakues","reduce.keys","rhcollect"))
 	opts$templates <- list()
 	opts$templates$scalarsummer <-  expression(
 	  pre={.sum <- 0},
