@@ -25,7 +25,7 @@
   information that is outputted during Rhipe operations.
   Currently 2000 prints all information.}
 
-  \item{first}{Depreciated. Still used internally.}
+  \item{first}{Deprecated. Still used internally.}
 }
 \value{
   TRUE if successful

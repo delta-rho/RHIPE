@@ -6,8 +6,8 @@
 #'   \emph{job_datetime_id} (e.g. \emph{job_201007281701_0274}) or the value
 #'   returned from \code{rhex} with the \code{async} option set to TRUE.
 #' @param mon.sec If \code{mon.sec} is greater than 0, a small data frame
-#'   indicating the progress will be returned every \code{mon.sec} seconds.
-#' @param autokill If \code{autokill} is TRUE, then any R errors caused by the
+#'   indicating the progress will be returned every \code{mon.sec} seconds.If 0, it will return immediately. If Inf, it will wait till over.
+#' @param autokill If \code{autokill} is TUE, then any R errors caused by the
 #'   map/reduce code will cause the job to be killed.
 #' @param verbose If \code{verbose} is TRUE, also provided is the state of the
 #'   job, the duration in seconds, a data frame with columns for the Map and
@@ -17,6 +17,8 @@
 #'   user defined and Hadoop MapReduce built in counters (counters can be user
 #'   defined with a call to \code{rhcounter}).
 #' @param showErrors If TRUE display errors from R in MapReduce tasks.
+#' @param handler is a function that gets the counters and job related information
+#' and you can use it to kill the job, returning FALSE, stops monitoring
 #' @return a list of the current state
 #' @author Saptarshi Guha
 #' @note This function does something different depending on if it is used in
@@ -34,23 +36,43 @@
 #' @seealso \code{\link{rhex}}, \code{\link{rhmr}}, \code{\link{rhkill}}
 #' @keywords MapReduce job status
 #' @export
-rhstatus <- function(job,mon.sec=5,autokill=TRUE, showErrors=TRUE,verbose=FALSE){
+rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
+                     ,handler=NULL){
   if(class(job)!="jobtoken" && class(job)!="character" ) stop("Must give a jobtoken object(as obtained from rhex)")
   if(class(job)=="character") id <- job else {
     job <- job[[1]]
     id <- job[['job.id']]
   }
+  if(mon.sec==Inf){
+    result <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhjoin", list(id,
+                                                                             needoutput=as.character(TRUE),
+                                                                             joinwordy = as.character(as.logical(TRUE)))))[[1]]
+    mon.sec=1
+  }
   if(mon.sec<=0) {
     return(Rhipe:::.rhstatus(id,autokill,showErrors))
   }else{
+    handler <- if(is.null(handler)) function(y) TRUE else {
+      message("RHIPE: Using custom handler")
+      handler
+    }
     while(TRUE){
       y <- .rhstatus(id,autokill=TRUE,showErrors)
-      cat(sprintf("\n[%s] Job: %s, State: %s, Duration: %s\nURL:%s\n",date(),id,y$state,y$duration,y$tracking))
+      cat(sprintf("\n[%s] Name:%s Job: %s, State: %s, Duration: %s\nURL: %s\n",date(),y$jobname, id,y$state,y$duration,y$tracking))
       print(y$progress)
+      if(!is.null(y$warnings)){
+        cat("\n--Warnings Present, follows:\n")
+        print(y$warnings)
+      }
       if(verbose){
         print(y$counters)
       }
-      if(!(y$state %in% c("PREP","RUNNING"))) break;
+      res <- handler(y)
+      if(!is.null(res) && !res) {
+        warning("RHIPE: Breaking because users handler function said so")
+        break
+      }
+      if(!y$state %in% c("PREP","RUNNING")) break 
       cat(sprintf("Waiting %s seconds\n", mon.sec))
       Sys.sleep(max(1,as.integer(mon.sec)))
     }
@@ -74,21 +96,41 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE, showErrors=TRUE,verbose=FALSE)
   state = result[[1]]
   errs=unique(result[[7]])
   haveRError <- FALSE
-
+  msg.str <- "There were R errors, showing 30:\n"
+  wrns <- NULL
+  wrns <- if(!is.null(result[[6]]$R_UNTRAPPED_ERRORS)){
+    local({
+      k <- length(result[[6]]$R_UNTRAPPED_ERRORS)
+      ff <- result[[6]]$R_UNTRAPPED_ERRORS
+      d <- data.frame(untrappedError=names(ff) ,count=as.integer(ff))
+      d <- d[order(d$count),]
+      rownames(d) <- NULL
+      ## amsg <- if(k==1)
+      ##   warning(sprintf("The RHIPE( %s ) job has %s untrapped error\n",as.character(id),k))
+      ## else
+      ##   warning(sprintf("The RHIPE( %s ) job has %s untrapped errors\n",as.character(id),k))
+      d
+    })
+  }
+  
   if(!is.null(result[[6]]$R_ERRORS)) {
     ## I treat these errors differently from other types
     ## not sure if thats need, if not, this code can be eliminated
     ## and errs can be extended by R_ERRORS
     haveRError <- TRUE
-    message(sprintf("There were R errors, showing 30:"))
-    v <- unique(names(sort(result[[6]]$R_ERRORS)))
-    newr <- t(sapply(v,function(x){
-        y <- strsplit(x,"\n")[[1]]
-        f <- which(sapply(y,function(r) grep("(R ERROR)",r),USE.NAMES=FALSE)>=1)
-        if(length(f)>0) c("R",paste(y[(f[1]+3):(f[2]-1)],collapse="\n")) else c("NR",x)
-      },USE.NAMES=FALSE))
-    rerr <- head(newr[newr[,1]=="R",2],30)
-    sapply(rerr,cat)
+    message(sprintf("\n%s\n%s",paste(rep("-",nchar(msg.str)),collapse=""),msg.str))
+    a <- result[[6]]$R_ERRORS
+    v <- unique(names(sort(a)))
+    ## newr <- t(sapply(v,function(x){
+    ##     y <- strsplit(x,"\n")[[1]]
+    ##     f <- which(sapply(y,function(r) grep("(R ERROR)",r),USE.NAMES=FALSE)>=1)
+    ##     if(length(f)>0) c("R",paste(y[(f[1]+3):(f[2]-1)],collapse="\n")) else c("NR",x)
+    ##   },USE.NAMES=FALSE))
+    ## rerr <- head(newr[newr[,1]=="R",2],30)
+    rerr <- head(v,30)
+    sapply(seq_along(rerr),function(i){
+      cat(sprintf("%s(%s): %s", i,as.integer(a[rerr[i]]), rerr[i]))
+    })
     if(autokill) {
       message(sprintf("Autokill is true and terminating %s", id))
       rhkill(id)
@@ -103,7 +145,7 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE, showErrors=TRUE,verbose=FALSE)
       },USE.NAMES=FALSE))
       if(any(newr[,1]=="R")) {
         haveRError <- TRUE
-        message(sprintf("There were R errors, showing at most 30:"))
+        message(sprintf("\n%s\n%s",paste(rep("-",nchar(msg.str)),collapse=""),msg.str))
         rerr <- head(newr[newr[,1]=="R",2],30)
         sapply(rerr,cat)
       }
@@ -121,7 +163,9 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE, showErrors=TRUE,verbose=FALSE)
   if(any(d[,"failed_attempts"]>0) && !showErrors)
         warning("There are failed attempts, call rhstatus with  showErrors=TRUE. Note, some are fatal (e.g R errors) and some are not (e.g node failure)")
   if(haveRError) state <- "FAILED"
-  return(list(state=state,duration=duration,progress=d, counters=result[[6]],rerrors=haveRError,errors=errs,tracking=result[[8]]));
+  ro <- result[[6]];trim.trailing <- function (x) sub("\\s+$", "", x)
+  ro2 <- lapply(ro, function(r) { s = as.matrix(r); rownames(s) = trim.trailing(rownames(s)); s })
+  return(list(state=state,duration=duration,progress=d, warnings=wrns,counters=ro2,rerrors=haveRError,errors=errs,jobname=result[[9]],tracking=result[[8]]));
 }
 
 

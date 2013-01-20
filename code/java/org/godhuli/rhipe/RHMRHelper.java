@@ -43,7 +43,6 @@ public class RHMRHelper {
     private  static int BUFFER_SIZE = 10*1024;
     private  static final String R_MAP_ERROR = "R MAP ERROR";
     private  static final String R_REDUCE_ERROR = "R REDUCE ERROR";
-
     protected static final Log LOG = LogFactory.getLog(RHMRHelper.class.getName());
     public boolean copyFile;
     static private Environment env_;
@@ -90,8 +89,12 @@ public class RHMRHelper {
 	    if(name.equals("mapred.input.dir") 
 	       || name.equals("rhipe_input_folder")) 
 		continue;
-
-	    String value = conf.get(name); // does variable expansion 
+	    String value = null;
+	    if(!(name.equals("LD_LIBRARY_PATH") || name.equals("PATH"))){
+		value = conf.get(name); // does variable expansion
+	    } else {
+		value = conf.getRaw(name);
+	    }
 	    env.put(name, value);
 	}
     }
@@ -138,7 +141,6 @@ public class RHMRHelper {
 		_kc = Class.forName( cfg.get("rhipe_outputformat_keyclass"));
 	    }
 	    keyclass = _kc.asSubclass( RHBytesWritable.class );
-
 
 
 	    if(cfg.get("rhipe_output_folder")!=null)
@@ -218,9 +220,10 @@ public class RHMRHelper {
 	    int exitVal = sim.waitFor();
 	    if (exitVal != 0) {
 		if (nonZeroExitIsFailure_) {
-		    throw new RuntimeException("RHMRMapRed.waitOutputThreads(): subprocess failed with code "
-					       + exitVal);
-		} 
+		    ctx.getCounter("R_ERRORS","subprocess failed with code: "+exitVal).increment(1);
+		}else{
+		    ctx.getCounter("R_SUBPROCESS","subprocess failed with code: "+exitVal).increment(1);
+		}
 	    }
 	    if (outThread_ != null) 
 		outThread_.join(joinDelay_);
@@ -303,9 +306,13 @@ public class RHMRHelper {
 	}
 	boolean readRecord(WritableComparable k, Writable v) {
 	    try{
+		// LOG.info("SAPSI------------ Reading the key");
 		k.readFields(clientIn_);
+		// LOG.info("SAPSI------------- The key is "+k);
+		// LOG.info("SAPSI------------ Reading the value");
 		v.readFields(clientIn_);
-	
+		// LOG.info("SAPSI------------ The valuse is"+v);
+
 	    }catch(IOException e){
 		return(false);
 	    }
@@ -394,7 +401,7 @@ public class RHMRHelper {
 			    k = new byte[ln]; 
 			    clientErr_.readFully(k,0,ln);
 			    String pmsg = new String(k);
-			    System.out.print(pmsg);
+			    LOG.info(pmsg);
 			    break;
 			case RHTypes.SET_STATUS:
 			    ln = clientErr_.readInt();

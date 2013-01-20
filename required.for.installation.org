@@ -1,0 +1,18 @@
+* centos 6.1 and 5
+On Centos6.1 , I required the following to get up and running
+sudo yum -y groupinstall 'Development Tools'
+sudo yum -y install readline-devel
+sudo yum -y groupinstall "X Window System"
+install java system from Oracle
+
+yum groupinstall "X Software Development"
+
+download R and ./configure --enable-R-shlib  --prefix
+
+install protobuf 2.4.1 with prefix
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+
+
+Ubuntu
+nstall X11 develop library. Please try this: 
+sudo apt-get install libx11-dev 

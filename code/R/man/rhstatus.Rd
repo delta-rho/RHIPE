@@ -3,7 +3,7 @@
 \title{Report Status Of A MapReduce Job}
 \usage{
   rhstatus(job, mon.sec = 5, autokill = TRUE,
-    showErrors = TRUE, verbose = FALSE)
+    showErrors = TRUE, verbose = FALSE, handler = NULL)
 }
 \arguments{
   \item{job}{The parameter \code{job} can either be a
@@ -13,9 +13,10 @@
 
   \item{mon.sec}{If \code{mon.sec} is greater than 0, a
   small data frame indicating the progress will be returned
-  every \code{mon.sec} seconds.}
+  every \code{mon.sec} seconds.If 0, it will return
+  immediately. If Inf, it will wait till over.}
 
-  \item{autokill}{If \code{autokill} is TRUE, then any R
+  \item{autokill}{If \code{autokill} is TUE, then any R
   errors caused by the map/reduce code will cause the job
   to be killed.}
 
@@ -31,6 +32,10 @@
 
   \item{showErrors}{If TRUE display errors from R in
   MapReduce tasks.}
+
+  \item{handler}{is a function that gets the counters and
+  job related information and you can use it to kill the
+  job, returning FALSE, stops monitoring}
 }
 \value{
   a list of the current state

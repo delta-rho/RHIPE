@@ -5,7 +5,8 @@
   rhcp(ifile, ofile)
 }
 \arguments{
-  \item{ifile}{Absolute path to be copied on the HDFS.}
+  \item{ifile}{Absolute path to be copied on the HDFS or
+  the output from rhwatch(.., read=FALSE).}
 
   \item{ofile}{Absolute path to place the copies on the
   HDFS.}

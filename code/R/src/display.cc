@@ -2,7 +2,9 @@
 #include <time.h>
 #include <locale.h>
 #include <langinfo.h>
+#include <arpa/inet.h>
 #include <google/protobuf/io/coded_stream.h>
+
 using namespace google::protobuf::io;
 
 #include <iostream>
@@ -190,6 +192,24 @@ SEXP collect(SEXP k,SEXP v){
   return(R_NilValue);
 }
 
+SEXP collectList(SEXP k, SEXP v){
+  //if I have to do this operation very often I will write  a zipped
+  //list apply (from Python).
+  if(!Rf_isNewList(k) || !Rf_isNewList(v)) 
+    Rf_error("Argument must be a list.");
+  if(Rf_isNull(k) || Rf_isNull(v))
+    Rf_error("Argument must not be NULL");  //Turns out NULL is a list.
+  if(LENGTH(k) != LENGTH(v))
+    Rf_error("Key list must be same length as Value list.");
+  R_len_t len = LENGTH(k);
+  for(R_len_t i = 0; i < len; ++i){
+    sendToHadoop(VECTOR_ELT(k,i));
+    sendToHadoop(VECTOR_ELT(v,i));
+  }
+  return R_NilValue;
+}
+
+
 static inline uint32_t tobytes(SEXP x,std::string* result){
 	REXP r = REXP();
 	sexpToRexp(&r,x);
@@ -268,13 +288,6 @@ void spill_to_reducer(void){
 
 SEXP collect_buffer(SEXP k,SEXP v){
 
-#ifdef USETIMER
-  struct timeval tms;
-  long int bstart, bend;
-  gettimeofday(&tms,NULL);
-  bstart = tms.tv_sec*1000000 + tms.tv_usec;
-#endif
-
   static bool once = false;
   static std::string *ks;
   static std::string *vs;
@@ -311,12 +324,15 @@ SEXP collect_buffer(SEXP k,SEXP v){
 
 
 void sendToHadoop(SEXP k){
-
+  
 	int size;
 	oiinfo.rxp->Clear();
 	sexpToRexp(oiinfo.rxp,k);
 	size = oiinfo.rxp->ByteSize();
+	
+	// uint32_t nsize = htonl(size);
 	writeVInt64ToFileDescriptor( size , CMMNC->BSTDOUT);
+	// fwrite(&nsize, sizeof(nsize),1,CMMNC->BSTDOUT);
 	// if (size < PSIZE){
 	oiinfo.rxp_s->clear();
 	oiinfo.rxp->SerializeToString(oiinfo.rxp_s);
@@ -327,26 +343,7 @@ void sendToHadoop(SEXP k){
 	// fflush(CMMNC->BSTDOUT);
 }
 
-// SEXP readFromHadoop(const uint32_t nbytes,int *err){
-//   SEXP r = R_NilValue;
-//   SEXP rv ;
-//   PROTECT(rv = Rf_allocVector(RAWSXP, nbytes));
-//   if(fread(RAW(rv),nbytes,1,CMMNC->BSTDIN)<=0){
-//     *err=1;
-//     UNPROTECT(1);
-//     return(R_NilValue);
-//   }
-//   REXP *rxp = new REXP();
-//   if (rxp->ParseFromArray(RAW(rv),LENGTH(rv))){
-//     LOGG(1,"%s\n", rxp->DebugString().c_str());
 
-//     PROTECT(r = message2rexp(*rxp));
-//     UNPROTECT(1);
-//   }
-//   UNPROTECT(1);
-//   delete rxp;
-//   return(r);
-// }
 
 
 SEXP readFromHadoop(const uint32_t nbytes,int *err){
@@ -412,13 +409,27 @@ SEXP persUnser(SEXP robj)
 	CodedInputStream cds(RAW(robj),LENGTH(robj));
 	cds.SetTotalBytesLimit(256*1024*1024,256*1024*1024);
 	if(rexp_container->ParseFromCodedStream(&cds)){
-		// if(rexp_container->ParseFromArray(RAW(robj),LENGTH(robj))){
-		PROTECT(ans = rexpToSexp(*rexp_container));
-		UNPROTECT(1);
+	  PROTECT(ans = rexpToSexp(*rexp_container));
+	  UNPROTECT(1);
 	}
 	delete(rexp_container);
 	return(ans);
 }
+
+SEXP persSer(SEXP robj){
+  REXP *rexp_container = new REXP();
+  rexp_container->Clear();
+  sexpToRexp(rexp_container, robj);
+  int bs = rexp_container->ByteSize();
+  SEXP result = R_NilValue;
+  PROTECT(result = Rf_allocVector(RAWSXP,bs));
+  rexp_container->SerializeWithCachedSizesToArray(RAW(result));
+  UNPROTECT(1);
+  delete (rexp_container);
+  return (result);
+}
+
+
 SEXP dbgstr(SEXP robj)
 {
 	SEXP ans  = R_NilValue;

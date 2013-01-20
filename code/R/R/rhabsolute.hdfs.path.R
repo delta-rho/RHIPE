@@ -18,7 +18,8 @@ rhabsolute.hdfs.path = function(paths){
 	wd = hdfs.getwd()
 	for(i in seq_along(inpaths)){
 		p = inpaths[i]
-		if(is.na(p) || length(p) == 0 || nchar(p) == 0  ){
+		if(is.na(p) || length(p) == 0 || nchar(p) == 0
+                   || grepl("^(hdfs://)",p)){
 			#I had treated the degenerate case as an error in previous code.
 			ret[[i]] = p
 			next

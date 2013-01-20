@@ -2,7 +2,7 @@
 #'
 #' List all files and directories contained in a directory on the HDFS.
 #' 
-#' @param folder  Path of directory on HDFS
+#' @param folder  Path of directory on HDFS or output from rhmr or rhwatch(read=FALSE)
 #' @param recurse If TRUE list all files and directories in sub-directories.
 #' @author Saptarshi Guha
 #' @details Returns a data.frame of filesystem information for the files located
@@ -20,19 +20,21 @@
 #' @export
 rhls <- function(folder,recurse=FALSE){
 	## List of files,
-	folder = rhabsolute.hdfs.path(folder)
-	v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhls",folder, if(recurse) 1L else 0L))
-	if(is.null(v)) return(NULL)
-	#condition nothing in the directory?
-		if(length(v) == 1  && length(v[[1]]) == 0){
-			f = as.data.frame(matrix(0,0,6))
-		} else {
-			f <- as.data.frame(do.call("rbind",sapply(v,strsplit,"\t")),stringsAsFactors=F)
-		}
-		rownames(f) <- NULL
-		colnames(f) <- c("permission","owner","group","size","modtime","file")
-		f$size <- as.numeric(f$size)
-		unique(f)
+  if( is(folder,"rhmr") || is(folder, "rhwatch"))
+    folder <- rhofolder(folder)
+  folder <- rhabsolute.hdfs.path(folder)
+  v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhls",folder, if(recurse) 1L else 0L))
+  if(is.null(v)) return(NULL)
+                                        #condition nothing in the directory?
+  if(length(v) == 1  && length(v[[1]]) == 0){
+    f = as.data.frame(matrix(0,0,6))
+  } else {
+    f <- as.data.frame(do.call("rbind",sapply(v,strsplit,"\t")),stringsAsFactors=F)
+  }
+  rownames(f) <- NULL
+  colnames(f) <- c("permission","owner","group","size","modtime","file")
+  f$size <- as.numeric(f$size)
+  unique(f)
 }
 
 # rhls <- function(fold,recurse=FALSE,ignore.stderr=T,verbose=F){

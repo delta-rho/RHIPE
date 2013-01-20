@@ -9,7 +9,9 @@
 }
 \arguments{
   \item{files}{Path to file or directory containing map,
-  sequence, or text file to be read on the HDFS.}
+  sequence, or text file to be read on the HDFS. This can
+  also be the output from rhwatch(provided read=FALSE) or
+  rhmr.}
 
   \item{type}{Type of file on HDFS.  Must be "sequence",
   "map", or "text".}

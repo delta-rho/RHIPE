@@ -29,10 +29,14 @@ import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import com.google.protobuf.CodedInputStream;
 
 public class RHBytesWritable 
     implements WritableComparable<RHBytesWritable> 
 {
+    protected static final Log LOG = LogFactory.getLog(RHBytesWritable.class.getName());
     public static String fieldSep=" ";		
     private int size;
     private byte[] bytes;
@@ -52,6 +56,11 @@ public class RHBytesWritable
     }
     public byte[] getBytes() {
 	return bytes;
+    }
+    public byte[] getActualBytes(){
+	byte[] b = new byte[ getLength()];
+	System.arraycopy( bytes, 0,b,0, getLength());
+	return b;
     }
     public void setSize(int size) {
 	if (size > getCapacity()) {
@@ -88,11 +97,16 @@ public class RHBytesWritable
     public void readFields(final DataInput in) throws IOException {
     	setSize(0); 
     	setSize(readVInt(in));
+	// LOG.info("Read Size="+size);	
     	in.readFully(bytes, 0, size);
+	// LOG.info("PrettyBYtes: "+RHBytesWritable.bytesPretty(bytes));
+	
+	// readIntFields(in);
     }
     public void readIntFields(final DataInput in) throws IOException {
     	setSize(0); // clear the old data
-    	setSize(in.readInt());
+	final int d=in.readInt();
+    	setSize(d);
     	in.readFully(bytes, 0, size);
     }
 	
@@ -136,7 +150,7 @@ public class RHBytesWritable
 	public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
 	 	    // return comparator.compare(b1, s1, l1, b2, s2, l2);
 	    int off1= decodeVIntSize(b1[s1]), off2 = decodeVIntSize(b2[s2]);
-	    
+	    //TEMPCHANGE
 	    return compareBytes(b1, s1+off1, l1-off1, b2, s2+off2, l2-off2); //why this serialized form?
 	}
     }
@@ -166,8 +180,26 @@ public class RHBytesWritable
     public String toString() {
 	return REXPHelper.toString(bytes,0,size);
     }
-		
-        public static boolean isNegativeVInt(byte value) {
+    public static String bytesPretty(byte[] b) { 
+	return RHBytesWritable.bytesPretty(b,0,b.length);
+    }
+    public static String bytesPretty(byte[] b,int offset, int length) { 
+	int sz= length;
+	StringBuffer sb = new StringBuffer(3*sz);
+	for (int idx = 0; idx < sz; idx++) {
+	    if (idx != 0) {
+		sb.append(" 0x");
+	    }else sb.append("0x");
+	    String num = Integer.toHexString(0xff & b[offset+idx]);
+	    if (num.length() < 2) {
+		sb.append('0');
+	    }
+	    sb.append(num);
+	}
+	return sb.toString();
+    }
+
+    public static boolean isNegativeVInt(byte value) {
 	return value < -120 || (value >= -112 && value < 0);
     }
     // UTILITY
@@ -180,7 +212,8 @@ public class RHBytesWritable
 	return -111 - value;
     }
 
-    public static int readVInt(DataInput stream) throws IOException {
+
+    public static int readVInt(final DataInput stream) throws IOException {
 	byte firstByte = stream.readByte();
 	int len = decodeVIntSize(firstByte);
 	if (len == 1) {
@@ -192,7 +225,10 @@ public class RHBytesWritable
 	    i = i << 8;
 	    i = i | (b & 0xFF);
 	}
-	return (int) ((isNegativeVInt(firstByte) ? (i ^ -1L) : i));
+	return( (int) ((isNegativeVInt(firstByte) ? (i ^ -1L) : i)));
+	
     }
+
+
 
 }

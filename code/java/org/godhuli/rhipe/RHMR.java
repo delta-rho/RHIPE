@@ -179,21 +179,28 @@ public class RHMR implements Tool {
 		}
 
 		DistributedCache.createSymlink(config_);
+		// if (!rhoptions_.get("rhipe_classpaths").equals("")) {
+		// 	String[] cps = rhoptions_.get("rhipe_jarfiles").split(",");
+		// 	for(String s : cps)
+		// 	    DistributedCache.addFileToClassPath(new Path(s), config_);
+		// }
+		
 		if (!rhoptions_.get("rhipe_classpaths").equals("")) {
-			String[] cps = rhoptions_.get("rhipe_classpaths").split(",");
+		    String[] cps = rhoptions_.get("rhipe_classpaths").split(",");
 			URL[] us = new URL[cps.length];
 			for (int i = 0; i < cps.length; i++) {
-				try {
-					us[i] = (new File(cps[i])).toURI().toURL();
-				} catch (java.net.MalformedURLException e) {
-					throw new IOException(e);
-				}
+			    try {
+				us[i] = (new File(cps[i])).toURI().toURL();
+			    } catch (java.net.MalformedURLException e) {
+				throw new IOException(e);
+			    }
 			}
+			System.err.println("Adding "+us.length+" JAR(s)");
 			config_.setClassLoader(new URLClassLoader(us, config_
-					.getClassLoader()));
+								  .getClassLoader()));
 			Thread.currentThread().setContextClassLoader(
-					new URLClassLoader(us, Thread.currentThread()
-							.getContextClassLoader()));
+								     new URLClassLoader(us, Thread.currentThread()
+											.getContextClassLoader()));
 		}
 
 	}
@@ -278,13 +285,11 @@ public class RHMR implements Tool {
 					.get("rhipe_outputformat_valueclass")));
 
 		} else {
-			job_
-					.setOutputFormatClass(org.apache.hadoop.mapreduce.lib.output.NullOutputFormat.class);
+			job_ .setOutputFormatClass(org.apache.hadoop.mapreduce.lib.output.NullOutputFormat.class);
 			job_.setOutputKeyClass(org.apache.hadoop.io.NullWritable.class);
 			job_.setOutputValueClass(org.apache.hadoop.io.NullWritable.class);
 			job_.setMapOutputKeyClass(org.apache.hadoop.io.NullWritable.class);
-			job_
-					.setMapOutputValueClass(org.apache.hadoop.io.NullWritable.class);
+			job_ .setMapOutputValueClass(org.apache.hadoop.io.NullWritable.class);
 		}
 
 		job_.setMapperClass(RHMRMapper.class);

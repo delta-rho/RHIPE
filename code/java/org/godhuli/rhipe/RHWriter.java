@@ -55,16 +55,19 @@ public class RHWriter {
     private byte[] values=null;
     private int num;
     private RHBytesWritable k,v;
+    private RHBytesWritable NullKey;
 
     public RHWriter(){
 	sqw = null;
 	k=new RHBytesWritable();
 	v=new RHBytesWritable();
+	NullKey = new RHBytesWritable((new RHNull()).getRawBytes());
     }
 	    
     public RHWriter(String name,Configuration cf) throws IOException{
 	k=new RHBytesWritable();
 	v=new RHBytesWritable();
+	NullKey = new RHBytesWritable((new RHNull()).getRawBytes());	
 	set(name,cf);
     }
 
@@ -91,7 +94,13 @@ public class RHWriter {
 	    sqw.append(k,v);
 	}
     }
-
+    
+    public void writeAValue(DataInputStream in) throws IOException {
+	try{
+	    v.readIntFields(in);
+	    sqw.append(NullKey,v);
+	}catch(EOFException e){}
+    }
     public void doWriteFile(DataInputStream in,int count) throws IOException{
 	for(int i=0;i<count;i++){
 	    try{

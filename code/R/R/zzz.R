@@ -1,12 +1,17 @@
 .rhipeEnv <- new.env()
-vvvv <- "0.67"
-attr(vvvv,"minor") <- '1'
-attr(vvvv,"date") <- 'Thu Jun 16'
+vvvv <- "0.72"
+attr(vvvv,"minor") <- '0'
+attr(vvvv,"date") <- 'Saturday 17th November'
 
 class(vvvv) <- "rhversion"
 
 assign("rhipeOptions" ,list(version=vvvv) ,envir=.rhipeEnv )
 Mode <-  "experimental"
+
+
+
+
+
 
 .onLoad <- function(libname,pkgname){
   library.dynam("Rhipe", pkgname, libname)
@@ -19,13 +24,14 @@ onload.2 <- function(libname, pkgname){
   # JAVA AND HADOOP
   ################################################################################################
   
-	opts$jarloc <- list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
-
+	opts$jarloc <- list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="Rhipe.jar$",full=T)
+        opts$mycp <-  list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
+        opts$mycp <- setdiff(opts$mycp, opts$jarloc)
 	if(Sys.getenv("HADOOP")=="" && Sys.getenv("HADOOP_BIN")=="")
 	warning("Rhipe requires the HADOOP or HADOOP_BIN environment variable to be present\n $HADOOP/bin/hadoop or $HADOOP_BIN/hadoop should exists")
 
 	if(Sys.getenv("HADOOP_BIN")==""){
-	warning("HADOOP_BIN is missing, using $HADOOP/bin")
+	warning("Rhipe: HADOOP_BIN is missing, using $HADOOP/bin")
 	Sys.setenv(HADOOP_BIN=sprintf("%s/bin",Sys.getenv("HADOOP")))
 	}
 
@@ -46,28 +52,107 @@ onload.2 <- function(libname, pkgname){
 	# OTHER DEFAULTS
 	################################################################################################
 
+        opts$file.types.remove.regex     ="(/_SUCCESS|/_LOG|/_log|rhipe_debug|rhipe_merged_index_db)"
 	opts$max.read.in.size <- 200*1024*1024 ## 100MB
 	opts$reduce.output.records.warn <- 200*1000
 	opts$rhmr.max.records.to.read.in <- NA
 	opts$HADOOP.TMP.FOLDER <- "/tmp"
+        opts$readback <- TRUE
 	opts$zips <- c()
 	opts$hdfs.working.dir = "/"
-	opts$file.types.remove.regex <- "(/_SUCCESS|/_LOG|/_log)"
 	## other defaults
+        opts$copyObjects <- list(auto=TRUE,maxsize=100*1024*1024, exclude=c("map.values","map.keys","reduce.values","reduce.key","rhcollect"))
 	opts$templates <- list()
 	opts$templates$scalarsummer <-  expression(
 	  pre={.sum <- 0},
 	  reduce={.sum <- .sum+ sum(unlist(reduce.values),na.rm=TRUE)},
 	  post = { {rhcollect(reduce.key,.sum)}} )
+        opts$templates$scalarsummer <- structure(opts$templates$scalarsummer,combine=TRUE)
 	opts$templates$colsummer <-  expression(
 	  pre={.sum <- 0},
 	  reduce={.sum <- .sum + apply(do.call('rbind', reduce.values),2,sum)},
 	  post = { {rhcollect(reduce.key,.sum)}} )
-	opts$templates$rbinder <-  expression(
-	  pre    = { data <- list()},
-	  reduce = { data[[length(data) + 1 ]] <- reduce.values },
-	  post   = { {data <- do.call("rbind", unlist(data,recursive=FALSE));}; {rhcollect(reduce.key, data)}}
-	  )
+        opts$templates$colsummer <- structure(opts$templates$colsummer,combine=TRUE)
+  
+        opts$templates$rbinder <-  function(r=NULL,combine=FALSE,dfname='adata'){
+          ..r <- substitute(r)
+          r <- if( is(..r,"name")) get(as.character(..r)) else ..r
+          def <- if(is.null(r)) TRUE else FALSE
+          r <- if(is.null(r)) substitute({rhcollect(reduce.key, adata)}) else r
+          y <-bquote(expression(
+              pre    = { adata <- list()},
+              reduce = { adata[[length(adata) + 1 ]] <- reduce.values },
+              post   = {
+                adata <- do.call("rbind", unlist(adata,recursive=FALSE));
+                .(P)
+              }), list(P=r))
+          y <- if(combine || def) structure(y,combine=TRUE) else y
+          environment(y) <- .BaseNamespaceEnv
+          y
+        }
+        opts$templates$raggregate <-  function(r=NULL,combine=FALSE,dfname='adata'){
+          ..r <- substitute(r)
+          ..r <- if( is(..r,"name")) get(as.character(..r)) else r
+          def <- if(is.null(..r)) TRUE else FALSE
+          r <- if(is.null(..r)) substitute({ adata <- unlist(adata, recursive = FALSE);  rhcollect(reduce.key, adata)}) else ..r
+          y <-bquote(expression(
+              pre    = { adata <- list()},
+              reduce = { adata[[length(adata) + 1 ]] <- reduce.values },
+              post   = {
+                .(P)
+              }), list(P=r))
+          y <- if(combine || def) structure(y,combine=TRUE) else y
+          environment(y) <-.BaseNamespaceEnv ## Using GlobalEnv screws thing sup ...
+          
+          y
+        }
+       opts$templates$identity <-  expression(reduce={ lapply(reduce.values,function(r) rhcollect(reduce.key,r)) })
+       opts$templates$range <-  expression(
+           pre = {
+             rng <- c(Inf,-Inf)
+           },
+           reduce = {
+             rx <- unlist(reduce.values)
+             rng <- c(min(rng[1],rx,na.rm=TRUE),max(rng[2],rx,na.rm=TRUE))
+           },
+           post={rhcollect(reduce.key,rng)}
+           )
+       opts$templates$range <- structure(opts$templates$range,combine=TRUE)
+       opts$debug <- list()
+       opts$debug$map <- list()
+       opts$debug$map$collect <- list(setup= expression({
+         rhAccumulateError <- local({
+           maxm <- tryCatch(rh.max.errors,error=function(e) 20)
+           x <- function(maximum.errors=maxm){
+             errors <- list()
+             maximum.errors <- maximum.errors
+             counter <- 0
+             return(function(X,retrieve=FALSE){
+               if(retrieve) return(errors)
+               if(counter<maximum.errors){
+                 counter <<- counter+1
+                 errors[[counter]] <<- X
+               }
+                               })}
+           x()
+         })
+       }), cleanup =  expression({
+         rhipe.errors=rhAccumulateError(ret=TRUE)
+         if(length(rhipe.errors)>0){
+           save(rhipe.errors,file=sprintf("./tmp/rhipe_debug_%s",Sys.getenv("mapred.task.id")))
+           rhcounter("@R_DebugFile","saved.files",1)
+         }
+       }), handler=function(e,k,r){
+                                        rhcounter("R_UNTRAPPED_ERRORS",as.character(e),1)
+                                        rhAccumulateError(list(as.character(e),k,r))
+                                      })
+      opts$debug$map$count <- list(setup=NA, cleanup=NA, handler=function(e,k,r) rhcounter("R_UNTRAPPED_ERRORS",as.character(e),1))
+      opts$debug$map[["stop"]] <- list(setup=NA, cleanup=NA, handler=function(e,k,r)  rhcounter("R_ERRORS", as.character(e),1))
+
+  ## #####################
+  ## Handle IO Formats
+  ## ######################
+  opts <- handleIOFormats(opts)
   
   ################################################################################################
   # FINSHING
@@ -99,49 +184,6 @@ first.run <- function(buglevel=0){
 
 
 
-
-
-
-onload <- function(libname, pkgname){
-  opts <- get("rhipeOptions",envir=.rhipeEnv)
-  
-  ## start server
-  opts$jarloc <- list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
-##   cp <- c(list.files(Sys.getenv("HADOOP"),pattern="jar$",full=T),
-##           list.files(Sys.getenv("HADOOP_LIB"),pattern="jar$",full=T),
-##           Sys.getenv("HADOOP_CONF_DIR"),
-##           opts$jarloc
-##           )
-##   opts$cp <- cp
-##   opts$port <- 12874
-##   opts$socket <- rhGetConnection(paste(cp,collapse=":"),opts$port)
-  ##  print("WHY2")
-  ##$HADOOP should be such that $HADOOP/bin contains the hadoop executable
-  if(Sys.getenv("HADOOP")=="") stop("Rhipe requires the HADOOP environment variable to be present")
-  if(.Platform$r_arch!="")
-    opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",.Platform$r_arch,
-                                    sep=.Platform$file.sep),pattern="RhipeMapReduce",full=T)
-  else
-    opts$runner <- list.files(paste(system.file(package="Rhipe"),"libs",
-                                    sep=.Platform$file.sep),pattern="RhipeMapReduce",full=T)
-
-  
-  opts$runner <- c("R","CMD", opts$runner,"--slave","--silent","--vanilla","--max-ppsize=100000",
-                   "--max-nsize=1G")
-##   opts$runner <- c(paste(R.home(component='bin'),"/R",sep=""), opts$runner,"--slave","--silent","--vanilla")
-##  print("WHY3")
-
-  opts$runner <-opts$runner[-c(1,2)]
-  opts$cmd <- list(opt=0,ls=1,get=2,del=3,put=4,b2s=5,s2b=6,getkey=7,s2m=8,rename=9,join=10,status=11)
-  ##print("WHY4")
-  ## print(opts)
-  opts$mropts <- doCMD(opts$cmd['opt'],opts=opts,needo=T,ignore=FALSE,verbose=FALSE)
-  opts$mode <- Mode #mode = "current"
-  assign("rhipeOptions",opts,envir=.rhipeEnv)
-##  print("WHY")
-}
-
-##  c(paste(R.home(component='bin'),"/R",sep=""), rhoptions()$runner[3],"--slave","--silent","--vanilla")
 
 
 

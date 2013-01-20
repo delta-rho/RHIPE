@@ -195,7 +195,7 @@ void do_unser(void);
  ** Map & Reduce
  *****************/
 extern "C" SEXP execMapReduce();
-int readToKeyValueBuffers(FILE* fin, SEXP keys, SEXP values, int max_keyvalues,int* actual_keyvalues) ;
+int readToKeyValueBuffers(FILE* fin, SEXP keys, SEXP values, int max_keyvalues,int32_t max_bytes_to_read,int* actual_keyvalues,int* reason) ;
 void shallowCopyVector(SEXP,SEXP);
 void setupCombiner();
 void cleanupCombiner();
@@ -223,10 +223,12 @@ void logg(int , const char *, ...);
 SEXP counter(SEXP );
 SEXP status(SEXP );
 SEXP collect(SEXP ,SEXP );
+SEXP collectList(SEXP ,SEXP );
 SEXP collect_buffer(SEXP ,SEXP );
 SEXP readFromHadoop(const uint32_t,int* );
 SEXP readFromMem(void * ,uint32_t );
 SEXP persUnser(SEXP);
+SEXP persSer(SEXP);
 SEXP dbgstr(SEXP);
 void spill_to_reducer(void);
 void mcount(const char *,const char*, uint32_t);

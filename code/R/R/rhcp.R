@@ -3,7 +3,7 @@
 #' Copies the file (or folder) \code{src} on the HDFS to the destination
 #' \code{dest} also on the HDFS.
 #' 
-#' @param ifile Absolute path to be copied on the HDFS.
+#' @param ifile Absolute path to be copied on the HDFS or the output from rhwatch(.., read=FALSE).
 #' @param ofile Absolute path to place the copies on the HDFS.
 #' @author Saptarshi Guha
 #' @return NULL
@@ -13,8 +13,8 @@
 #' @keywords copy HDFS file
 #' @export
 rhcp <- function(ifile, ofile) {
-	ifile = rhabsolute.hdfs.path(ifile)
-	ofile = rhabsolute.hdfs.path(ofile)
+  ifile = rhabsolute.hdfs.path(rhofolder(ifile))
+  ofile = rhabsolute.hdfs.path(ofile)
   system(command=paste(paste(Sys.getenv("HADOOP_BIN"), "hadoop",
            sep=.Platform$file.sep), "fs", "-cp", ifile, ofile, sep=" "))
   ## v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhcp",ifile, ofile))

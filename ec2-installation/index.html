@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta name="title" content=""/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2012-10-02 13:43:58 PDT"/>
+<meta name="author" content="Saptarshi Guha"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  html { font-family: Times, serif; font-size: 12pt; }
+  .title  { text-align: center; }
+  .todo   { color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #add8e6; font-weight:normal }
+  .target { }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  {margin-left:auto; margin-right:0px;  text-align:right;}
+  .left   {margin-left:0px;  margin-right:auto; text-align:left;}
+  .center {margin-left:auto; margin-right:auto; text-align:center;}
+  p.verse { margin-left: 3% }
+  pre {
+	border: 1pt solid #AEBDCC;
+	background-color: #F3F5F7;
+	padding: 5pt;
+	font-family: courier, monospace;
+        font-size: 90%;
+        overflow:auto;
+  }
+  table { border-collapse: collapse; }
+  td, th { vertical-align: top;  }
+  th.right  { text-align:center;  }
+  th.left   { text-align:center;   }
+  th.center { text-align:center; }
+  td.right  { text-align:right;  }
+  td.left   { text-align:left;   }
+  td.center { text-align:center; }
+  dt { font-weight: bold; }
+  div.figure { padding: 0.5em; }
+  div.figure p { text-align: center; }
+  div.inlinetask {
+    padding:10px;
+    border:2px solid gray;
+    margin:10px;
+    background: #ffffcc;
+  }
+  textarea { overflow-x: auto; }
+  .linenr { font-size:smaller }
+  .code-highlighted {background-color:#ffff00;}
+  .org-info-js_info-navigation { border-style:none; }
+  #org-info-js_console-label { font-size:10px; font-weight:bold;
+                               white-space:nowrap; }
+  .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
+                                 font-weight:bold; }
+  /*]]>*/-->
+</style>
+<link href='http://fonts.googleapis.com/css?family=Arimo:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Tienne:400,700' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="http://people.mozilla.com/~sguha/newstyles.css" />
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+
+</head>
+<body>
+
+<div id="preamble">
+
+</div>
+
+<div id="content">
+<h1 class="title"></h1>
+
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 Installation</a>
+<ul>
+<li><a href="#sec-1-1">1.1 Sign up for EC2 and S3</a></li>
+<li><a href="#sec-1-2">1.2 Download whirr</a></li>
+<li><a href="#sec-1-3">1.3 Build Whirr</a></li>
+<li><a href="#sec-1-4">1.4 Configure Whirr</a></li>
+<li><a href="#sec-1-5">1.5 Customize Configuration of Whirr to Install RHIPE on Nodes</a></li>
+<li><a href="#sec-1-6">1.6 Launch Cluster</a></li>
+</ul>
+</li>
+<li><a href="#sec-2">2 Testing RHIPE</a></li>
+<li><a href="#sec-3">3 Summary</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-3">
+<h3 id="sec-1"><span class="section-number-3">1</span> Installation</h3>
+<div class="outline-text-3" id="text-1">
+
+
+
+</div>
+
+<div id="outline-container-1-1" class="outline-4">
+<h4 id="sec-1-1"><span class="section-number-4">1.1</span> Sign up for EC2 and S3</h4>
+<div class="outline-text-4" id="text-1-1">
+
+<p>   <a href="http://docs.amazonwebservices.com/AWSEC2/latest/GettingStartedGuide/">http://docs.amazonwebservices.com/AWSEC2/latest/GettingStartedGuide/</a>
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-1-2" class="outline-4">
+<h4 id="sec-1-2"><span class="section-number-4">1.2</span> Download whirr</h4>
+<div class="outline-text-4" id="text-1-2">
+
+<p>Download from cloudera, notice i expect to be using CDH3   update 4.
+</p>
+
+
+
+<pre class="src src-sh">wget http://archive.cloudera.com/cdh/3/whirr-0.5.0-cdh3u4.tar.gz
+tar -xvzf whirr-0.5.0-cdh3u4.tar.gz
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-1-3" class="outline-4">
+<h4 id="sec-1-3"><span class="section-number-4">1.3</span> Build Whirr</h4>
+<div class="outline-text-4" id="text-1-3">
+
+<p>We need <i>Maven</i> installed
+</p>
+
+
+<pre class="src src-sh"><span style="color: #FF5803;">cd</span> whirr-*
+mvn clean install
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-1-4" class="outline-4">
+<h4 id="sec-1-4"><span class="section-number-4">1.4</span> Configure Whirr</h4>
+<div class="outline-text-4" id="text-1-4">
+
+<p>Useful links can be found here<sup><a class="footref" name="fnr.1" href="#fn.1">1</a></sup> and this is <sup><a class="footref" name="fnr.2" href="#fn.2">2</a></sup> the source of these notes.
+The following should be saved in <code>hadoop.properties</code>. My file layout is:
+</p>
+
+
+<pre class="example">chodaipaaki-2:dev sguha$ ls -l cdh-ec2/
+total 42144
+-rw-r--r--   1 sguha  staff       960 Oct  2 01:18 hadoop.properties
+lrwxr-xr-x   1 sguha  staff        18 Oct  1 23:49 whirr -&gt; whirr-0.5.0-cdh3u4
+drwxr-xr-x  26 sguha  staff       884 Oct  2 10:00 whirr-0.5.0-cdh3u4
+-rw-r--r--   1 sguha  staff  21300660 May  9 11:52 whirr-0.5.0-cdh3u4.tar.gz
+-rw-r--r--   1 sguha  staff    260431 Oct  2 11:25 whirr.log
+</pre>
+
+<p>
+Within <code>whirr</code>, create another folder called <code>functions</code>.
+</p>
+<p>
+Also i'm using Ubuntu 10.04. Upon booting the image allows you to upgrade to Ubuntu 'Precise' - we shall not.
+Also in the following properties file( save it as <code>hadoop.properties</code>),
+</p><ul>
+<li><code>AWS_ACCESS_KEY_ID</code> and <code>AWS_SECRET_ACCESS_KEY</code> are environment variables.
+</li>
+<li>I have uploaded my own <code>id_rsa.pub</code> to the EC2 console, hence I can use my own without having to create another. The link<sup><a class="footref" name="fnr.2.2" href="#fn.2">2</a></sup> has an example of producing your own key.
+</li>
+</ul>
+
+
+
+
+<pre class="src src-sh">whirr.cluster-name=rhipetesting0
+whirr.instance-templates=1 hadoop-jobtracker+hadoop-namenode,1 hadoop-datanode+hadoop-tasktracker
+whirr.provider=aws-ec2
+
+whirr.identity=${<span style="color: #2E91AF;">env</span>:AWS_ACCESS_KEY_ID}
+whirr.credential=${<span style="color: #2E91AF;">env</span>:AWS_SECRET_ACCESS_KEY}
+
+whirr.private-key-file=${<span style="color: #2E91AF;">sys</span>:user.home}/.ssh/id_rsa
+whirr.public-key-file=${<span style="color: #2E91AF;">sys</span>:user.home}/.ssh/id_rsa.pub
+
+whirr.hadoop-install-function=install_cdh_hadoop
+whirr.hadoop-configure-function=configure_cdh_hadoop
+whirr.hardware-id=m1.large
+
+
+<span style="color: #EE0000;">#</span><span style="color: #EE0000; font-style: italic;">rightscale - west coast (http://thecloudmarket.com/image/ami-4810400d--rightimage-ubuntu-10-04-x64-v5-5-9-6)</span>
+whirr.image-id=us-west-1/ami-4810400d
+whirr.location-id=us-west-1
+
+<span style="color: #EE0000;">#</span><span style="color: #EE0000; font-style: italic;">rightscale - east coast</span>
+<span style="color: #EE0000;">#</span><span style="color: #EE0000; font-style: italic;">whirr.image-id=us-east-1/ami-ccb35ea5                                                                                                                                           </span>
+<span style="color: #EE0000;">#</span><span style="color: #EE0000; font-style: italic;">whirr.location-id=us-east-1 </span>
+
+<span style="color: #EE0000;"># </span><span style="color: #EE0000; font-style: italic;">hadoop options</span>
+hadoop-mapreduce.mapred.child.ulimit=unlimited
+</pre>
+
+<p>
+EC2 Instance types can be found here: <a href="http://aws.amazon.com/ec2/instance-types/">http://aws.amazon.com/ec2/instance-types/</a> (varying degrees of IO and/or CPU capacity) and their prices here: <a href="http://aws.amazon.com/ec2/pricing/">http://aws.amazon.com/ec2/pricing/</a>.
+Hadoop properties can be overridden (this is taken from <sup><a class="footref" name="fnr.2.3" href="#fn.2">2</a></sup>)
+</p>
+
+
+<pre class="example">Overriding Hadoop Configuration params
+
+Taken directly from http://svn.apache.org/repos/asf/whirr/trunk/recipes/hadoop-yarn-cdh-ec2.properties:
+
+# Expert: override Hadoop properties by setting properties with the prefix
+# hadoop-common, hadoop-hdfs, hadoop-mapreduce to set Common, HDFS, MapReduce
+# site properties, respectively. The prefix is removed by Whirr, so that for
+# example, setting 
+# hadoop-common.fs.trash.interval=1440
+# will result in fs.trash.interval being set to 1440 in core-site.xml.
+
+So, you can make configuration changes like these:
+
+hadoop-mapreduce.mapred.child.ulimit=unlimited
+hadoop-mapreduce.mapred.tasktracker.map.tasks.maximum=2
+hadoop-mapreduce.mapred.tasktracker.reduce.tasks.maximum=1
+hadoop-mapreduce.mapred.reduce.tasks=1
+hadoop-mapreduce.mapred.task.timeout=1800000
+hadoop-mapreduce.mapred.child.java.opts=-Xmx2048m
+hadoop-common.hadoop.proxyuser.oozie.groups=*
+hadoop-common.hadoop.proxyuser.oozie.hosts=*
+
+The file mapping is:
+hadoop-mapreduce =&gt; mapred-site.xml
+hadoop-hdfs =&gt; hdfs-site.xml
+hadoop-common =&gt; core-site.xml
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-1-5" class="outline-4">
+<h4 id="sec-1-5"><span class="section-number-4">1.5</span> Customize Configuration of Whirr to Install RHIPE on Nodes</h4>
+<div class="outline-text-4" id="text-1-5">
+
+<p>Copy <code>whirr/services/cdh/src/main/resources/functions/configure_cdh_hadoop.sh</code> to <code>whirr/functions/configure_cdh_hadoop.sh</code> (you created the <code>functions</code> folder above) This file is modified to install RHIPE.  It can be downloaded from <a href="./configure_cdh_hadoop.sh">here</a>.
+</p>
+<p>
+This is the output off the diff
+</p>
+
+
+<pre class="src src-sh">chodaipaaki-2:cdh-ec2 sguha$ diff --unified=5 whirr/services/cdh//src/main/resources/functions/configure_cdh_hadoop.sh whirr/functions/configure_cdh_hadoop.sh 
+--- whirr/services/cdh//src/main/resources/functions/configure_cdh_hadoop.sh    2011-05-16 21:36:30.000000000 -0700
++++ whirr/functions/configure_cdh_hadoop.sh     2012-10-02 10:49:31.000000000 -0700
+@@ -94,10 +94,11 @@
+     hadoop-tasktracker)
+       start_hadoop_daemon tasktracker
+       ;;
+     <span style="color: #A535AE; font-weight: bold;">esac</span>
+   <span style="color: #A535AE; font-weight: bold;">done</span>
++  install_rhipe
+ }
+
+ <span style="color: #A535AE; font-weight: bold;">function</span> <span style="color: #1A50B8;">start_namenode</span>() {
+   <span style="color: #A535AE; font-weight: bold;">if</span> which dpkg &amp;&gt; /dev/null; <span style="color: #A535AE; font-weight: bold;">then</span>
+     apt-get -y install $<span style="color: #2E91AF;">HADOOP</span>-namenode
+@@ -140,5 +141,24 @@
+     yum install -y $<span style="color: #2E91AF;">HADOOP</span>-$<span style="color: #2E91AF;">daemon</span>
+   <span style="color: #A535AE; font-weight: bold;">fi</span>
+   service $<span style="color: #2E91AF;">HADOOP</span>-$<span style="color: #2E91AF;">daemon</span> start
+ }
+
++<span style="color: #A535AE; font-weight: bold;">function</span> <span style="color: #1A50B8;">install_rhipe</span>() {
++    <span style="color: #EE0000;">## </span><span style="color: #EE0000; font-style: italic;">other mirrors:  http://cran.r-project.org/mirrors.html</span>
++    echo <span style="color: #008000;">'deb http://cran.fhcrc.org/bin/linux/ubuntu lucid/'</span> &gt;&gt;  /etc/apt/sources.list
++    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
++    sudo apt-get update
++    sudo apt-get install -y r-base-dev r-recommended r-cran-rodbc ess
++    wget http://protobuf.googlecode.com/files/protobuf-2.4.1.tar.gz
++    tar xzf protobuf-2.4.1.tar.gz
++    cd protobuf-2.4.1
++    ./configure
++    make
++    sudo sudo make install
++    sudo ldconfig
++    sudo apt-get install pkg-config
++    export <span style="color: #2E91AF;">HADOOP</span>=/usr/
++    echo <span style="color: #008000;">'export HADOOP=/usr/'</span> &gt;&gt; /etc/bash.bashrc
++    wget https://github.com/downloads/saptarshiguha/RHIPE/Rhipe_0.70.tar.gz
++    sudo R CMD INSTALL Rhipe_0.70.tar.gz
++}
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-1-6" class="outline-4">
+<h4 id="sec-1-6"><span class="section-number-4">1.6</span> Launch Cluster</h4>
+<div class="outline-text-4" id="text-1-6">
+
+<p>We are ready to launch the cluster using Whirr. This takes some time (13-16 minutes for this set properties) and you can monitor things via the <a href="https://console.aws.amazon.com/ec2/">AWS Console</a>.
+</p>
+
+
+<pre class="src src-sh">&gt; whirr/bin/whirr launch-cluster --config hadoop.properties
+Bootstrapping cluster
+Configuring template
+Starting 1 node(s) with roles [hadoop-datanode, hadoop-tasktracker]
+Configuring template
+Starting 1 node(s) with roles [hadoop-jobtracker, hadoop-namenode] 
+...
+Running configuration script
+Configuration script run completed
+Running configuration script
+Configuration script run completed
+Completed configuration of rhipetesting0
+Namenode web UI available at http://ec2-184-169-252-219.us-west-1.compute.amazonaws.com:50070
+Jobtracker web UI available at http://ec2-184-169-252-219.us-west-1.compute.amazonaws.com:50030
+Wrote Hadoop site file /Users/sguha/.whirr/rhipetesting0/hadoop-site.xml
+Wrote Hadoop proxy script /Users/sguha/.whirr/rhipetesting0/hadoop-proxy.sh
+Wrote instances file /Users/sguha/.whirr/rhipetesting0/instances
+Started cluster of 2 instances
+....
+</pre>
+
+<p>
+<b>More notes from <sup><a class="footref" name="fnr.2.4" href="#fn.2">2</a></sup></b>  (these are not my own and thanks to this website<sup><a class="footref" name="fnr.2.5" href="#fn.2">2</a></sup>)
+</p><ul>
+<li>You can get info about what instances where launched with:
+</li>
+</ul>
+
+
+
+
+<pre class="src src-sh">whirr/bin/whirr list-cluster --config hadoop.properties
+</pre>
+
+<ul>
+<li>You can ship a script on the cluster and run it on each node with
+  (this is a good way to install R packages on the nodes, though you
+  could also do it in the above configuration shell script):
+</li>
+</ul>
+
+
+
+
+<pre class="src src-sh">whirr/bin/whirr  run-script --config hadoop.properties --script <span style="color: #008000;">"/path/to/my/script"</span>
+</pre>
+
+<ul>
+<li>Log into the actual instance with (though in my case i dont need the pem file) where node is obtained from <code>cat ~/.whirr/&lt;whirr.cluster-name&gt;/instances</code>
+</li>
+</ul>
+
+
+
+
+<pre class="src src-sh">ssh -i ./cluster-test.pem $<span style="color: #2E91AF;">USER</span>@node 
+</pre>
+
+<ul>
+<li>Take down a cluster with:
+</li>
+</ul>
+
+
+
+
+<pre class="src src-sh">whirr/bin/whirr  destroy-cluster --config hadoop.properties
+</pre>
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-3">
+<h3 id="sec-2"><span class="section-number-3">2</span> Testing RHIPE</h3>
+<div class="outline-text-3" id="text-2">
+
+
+<p>
+(1) Log into the cluster (replace <i>rhipetesting0</i>  with your cluster name)
+</p>
+
+
+<pre class="src src-sh">cat ~/.whirr/rhipetesting0/instances | grep namenode
+ssh ec2-50-18-76-248.us-west-1.compute.amazonaws.com
+</pre>
+
+
+
+
+<p>
+Now start R, (type <code>R</code> , you should see R 2.15). The following code computes 10 groups of uniform numbers and computes the sum of the random numbers and the number of random numbers in each group.
+</p>
+
+
+
+<pre class="src src-R">options(width=200)
+<span style="color: #009944;">library</span>(Rhipe)
+rhinit()
+rhls(<span style="color: #008000;">"/"</span>)
+</pre>
+
+<p>
+See the HDFS file listing
+</p>
+
+
+<pre class="src src-R">&gt; rhls(<span style="color: #008000;">"/"</span>)
+  permission owner      group size          modtime    file
+1 drwxrwxrwx  hdfs supergroup    0 2012-10-02 18:25 /hadoop
+2 drwxrwxrwx  hdfs supergroup    0 2012-10-02 18:25  /hbase
+3 drwxrwxrwx  hdfs supergroup    0 2012-10-02 18:25    /mnt
+4 drwxrwxrwx  hdfs supergroup    0 2012-10-02 18:25    /tmp
+5 drwxrwxrwx  hdfs supergroup    0 2012-10-02 18:25   /user
+</pre>
+
+<p>
+And now run a quick mapreduce script (only to check things work)
+</p>
+
+
+<pre class="src src-R">map <span style="color: #009944;">&lt;-</span> rhmap({
+  rhcollect(sample(1:10,1),c(1,runif(1)))
+})
+results <span style="color: #009944;">&lt;-</span> rhwatch(rhmr(map     = map
+                        ,reduce = rhoptions()$templates$colsummer
+                        ,N      = 100000L,mapred=list(mapred.map.tasks=10)))
+
+results <span style="color: #009944;">&lt;-</span> do.call(rbind, lapply(results,<span style="color: #008000;">"[["</span>,2))
+results <span style="color: #009944;">&lt;-</span> cbind(results, results[,2]/results[,1])
+</pre>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-3">
+<h3 id="sec-3"><span class="section-number-3">3</span> Summary</h3>
+<div class="outline-text-3" id="text-3">
+
+
+<p>
+In summary, 
+</p><ul>
+<li>download Whirr, build it
+</li>
+<li>download <a href="./hadoop.properties">./hadoop.properties</a> and <a href="./configure_cdh_hadoop.sh">./configure_cdh_hadoop.sh</a>, keeping the latter one in <code>whirr-installation-folder/functions</code> (create the <code>functions</code> folder if not present)
+</li>
+<li>Launch the cluster <code>whirr/bin/whirr launch-cluster --config hadoop.properties</code> (here <code>whirr/</code> is a soft link to my installation folder)
+</li>
+</ul>
+
+
+<p>
+And hopefully, a few 10's of minutes later, you're good to go.
+</p>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+<p class="footnote"><sup><a class="footnum" name="fn.1" href="#fnr.1">1</a></sup> archive.cloudera.com/cdh/3/whirr-0.5.0-cdh3u3/configuration-guide.html
+</p>
+
+
+<p class="footnote"><sup><a class="footnum" name="fn.2" href="#fnr.2">2</a></sup> <a href="http://www.supertom.com/code/whirr_and_cloudera_on_ec2_on_ubuntu.html">http://www.supertom.com/code/whirr_and_cloudera_on_ec2_on_ubuntu.html</a>
+</p>
+
+
+
+
+
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<div id="postamble">
+<p class="date">Date: 2012-10-02 13:43:58 PDT</p>
+<p class="author">Author: Saptarshi Guha</p>
+<p class="creator">Org version 7.8.11 with Emacs version 24</p>
+<a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
+
+</div>
+</body>
+</html>

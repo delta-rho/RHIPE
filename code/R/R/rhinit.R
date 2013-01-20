@@ -12,7 +12,7 @@
 #'   client.
 #' @param buglevel The higher the number the more information that is outputted
 #'   during Rhipe operations. Currently 2000 prints all information.
-#' @param first Depreciated. Still used internally.
+#' @param first Deprecated. Still used internally.
 #' @return TRUE if successful
 #' @author Saptarshi Guha
 #' @seealso \code{\link{rhoptions}}
@@ -33,13 +33,19 @@ rhinit <-function(errors=TRUE,buglevel=0,info=FALSE,path=NULL,cleanup=FALSE,bufs
     ## Rhipe:::.rhinit(errors=TRUE,info=if(buglevel) TRUE else FALSE,path,cleanup,bufsize,buglevel=buglevel)
     Sys.sleep(2)
     message("Rhipe first run complete")
+    message("Initializing mapfile caches")
+    rh.init.cache()
     return(TRUE)
   }
+  message("Initializing mapfile caches")
+  rh.init.cache()
 }
 
 
 .rhinit <- function(errors=FALSE, info=FALSE,path=NULL,cleanup=FALSE,bufsize=as.integer(3*1024*1024),buglevel=0){
 
+
+  Sys.setenv(HADOOP_CLASSPATH=sprintf("%s:%s", Sys.getenv("HADOOP_CLASSPATH"),paste(rhoptions()$mycp,collapse=":")))
   rhoptions(.code.in=sample(1e6,1))
   ntimeout <- options("timeout")[[1]]
   options(timeout = if(!is.null(rhoptions()$timeout)) as.integer(rhoptions()$timeout) else 15552000L)

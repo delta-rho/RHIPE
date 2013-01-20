@@ -2,34 +2,42 @@ option java_package = "org.godhuli.rhipe";
 option java_outer_classname = "REXPProtos";
 message REXP {
   enum RClass {
-    STRING = 0;
-    RAW = 1;
-    REAL = 2;
-    COMPLEX = 3;
-    INTEGER = 4;
-    LIST = 5;
-    LOGICAL = 6;
-    NULLTYPE = 7;
+    STRING	= 0;
+    RAW		= 1;
+    REAL	= 2;
+    COMPLEX	= 3;
+    INTEGER	= 4;
+    LIST	= 5;
+    LOGICAL	= 6;
+    NULLTYPE	= 7;
+    REAL1       = 8;
+    INTEGER1    = 10;
+    STRING1     = 9;
+
   }
   enum RBOOLEAN {
-    F=0;
-    T=1;
-    NA=2;
+    F	= 0;
+    T	= 1;
+    NA	= 2;
   }
 
-  required RClass rclass = 1 ; 
-  repeated double  realValue      = 2 [packed=true];
-  repeated sint32  intValue       = 3 [packed=true];
-  repeated RBOOLEAN booleanValue   = 4;
-  repeated STRING  stringValue    = 5;
+  required RClass   rclass		= 1 ; 
+  repeated double   realValue		= 2 [packed=true];
+  repeated sint32   intValue		= 3 [packed=true];
+  repeated RBOOLEAN booleanValue	= 4;
+  repeated STRING   stringValue		= 5;
+  optional bytes    rawValue		= 6;
+  repeated CMPLX    complexValue	= 7;
+  repeated REXP	    rexpValue		= 8;
+  repeated string   attrName		= 11;
+  repeated REXP     attrValue		= 12;
+  double   singleRealValue		= 13;
+  STRING   singleStringValue		= 15;
+  sint32   singleIntegerValue		= 16;
 
-  optional bytes   rawValue      = 6;
-  repeated CMPLX   complexValue   = 7;
-  repeated REXP	   rexpValue	  = 8;
-
-  repeated string attrName = 11;
-  repeated REXP  attrValue   = 12;
 }
+
+
 message STRING {
   optional string strval = 1;
   optional bool isNA = 2 [default=false];
@@ -39,3 +47,15 @@ message CMPLX {
   required double imag = 2;
 }
 
+//message PROMISE {
+//  optional REXP environment;
+//  optional REXP attributes;
+//  optional REXP value;
+//  optional REXP expression;
+//}
+//message CLOSURE {
+//  optional attributes
+//
+//
+//
+//}

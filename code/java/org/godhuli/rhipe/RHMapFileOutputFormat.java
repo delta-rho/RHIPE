@@ -51,6 +51,9 @@ extends FileOutputFormat<RHBytesWritable, RHBytesWritable> {
     private final static HashPartitioner<RHBytesWritable,RHBytesWritable> hp = 
 	new HashPartitioner<RHBytesWritable,RHBytesWritable>();
 
+    public static HashPartitioner<RHBytesWritable,RHBytesWritable> getHP(){
+	return hp;
+    }
     public RecordWriter<RHBytesWritable, RHBytesWritable> 
 	getRecordWriter(TaskAttemptContext context
 			) throws IOException, InterruptedException {

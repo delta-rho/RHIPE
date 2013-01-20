@@ -208,13 +208,6 @@ void writeVInt64ToFileDescriptor( int64_t  i , FILE* fd) {
     // mmessage("B=%x",x);
     fwrite(&x,sizeof(x),1,fd);
   }
-
-
-
-  // int32_t x = (int32_t) i, tonetwork;
-  // tonetwork = reverseUInt(x);
-  // fwrite(&tonetwork,sizeof(int32_t),1,fd);
-
 }
 
 
