@@ -1,7 +1,7 @@
 Package: Rhipe
 Type: Package
 Title: R and Hadoop Integrated Programming Environment
-Version: 0.72
+Version: 0.73
 Date: 2012-08-16
 Author: Saptarshi Guha <saptarshi.guha@gmail.com>
 Maintainer: Jeremiah Rounds  <roundsjeremiah@gmail.com>

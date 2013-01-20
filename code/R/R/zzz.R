@@ -1,7 +1,7 @@
 .rhipeEnv <- new.env()
-vvvv <- "0.72"
+vvvv <- "0.73"
 attr(vvvv,"minor") <- '0'
-attr(vvvv,"date") <- 'Saturday 17th November'
+attr(vvvv,"date") <- 'Sunday 20th January'
 
 class(vvvv) <- "rhversion"
 
