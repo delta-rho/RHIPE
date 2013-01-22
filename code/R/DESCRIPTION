@@ -46,3 +46,4 @@ Collate:
     'rhmap.R'
     'rhfmt.R'
     'mapfile.functions.R'
+    'rhJobInfo.R'

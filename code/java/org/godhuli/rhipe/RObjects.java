@@ -35,6 +35,9 @@ public class RObjects {
 	}
 	return(cvalues);
     }
+    public static REXP.Builder buildDoubleVector(double b){
+	return buildDoubleVector(new double[]{b});
+    }
     public static REXP.Builder buildDoubleVector(double[] b){
 	REXP.Builder cvalues = REXP.newBuilder();
 	cvalues.setRclass(REXP.RClass.REAL);

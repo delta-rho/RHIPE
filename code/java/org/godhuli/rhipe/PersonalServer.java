@@ -73,7 +73,15 @@ public class PersonalServer {
 	mapfilehash = new Hashtable<String, String[]>();
 	fu = new FileUtils(_configuration);
     }
-
+    public FileUtils getFU(){
+	return fu;
+    }
+    public FileSystem getFS(){
+	return _filesystem;
+    }
+    public Configuration getConf(){
+	return _configuration;
+    }
     public byte[] rhmropts() throws Exception {
 	REXP b = fu.mapredopts();
         return b.toByteArray();

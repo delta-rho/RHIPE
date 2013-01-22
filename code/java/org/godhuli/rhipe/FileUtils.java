@@ -19,7 +19,7 @@ import java.io.Writer;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.io.FileOutputStream;
-
+import org.apache.hadoop.mapred.TaskReport;
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -626,6 +626,75 @@ public class FileUtils {
 	cn.add(cvalues.build());
 	return(RObjects.makeList(groupdispname,cn));
     }
+
+    public byte[] getDetailedInfoForJob(String jd) throws Exception{
+    	org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.forName(jd);
+    	if(jj==null) 
+    	    throw new IOException("Jobtracker could not find jobID: "+jd);
+    	org.apache.hadoop.mapred.RunningJob rj = jclient.getJob(jj);
+	if(rj==null)
+	    throw new IOException("No such job: "+jd+" available, wrong job? or try the History Viewer (see the Web UI) ");
+    	String jobfile = rj.getJobFile();
+	String jobname = rj.getJobName();
+    	org.apache.hadoop.mapred.Counters cc = rj.getCounters();
+    	long startsec = getStart(jclient,jj);
+    	REXP allCounters = FileUtils.buildlistFromOldCounter(cc, 0 );
+    	int jobs = rj.getJobState();
+    	String jobss = null;
+    	if(jobs == JobStatus.FAILED) jobss = "FAILED";
+    	else if(jobs == JobStatus.KILLED) jobss="KILLED";
+    	else if(jobs == JobStatus.PREP) jobss="PREP";
+    	else if(jobs == JobStatus.RUNNING) jobss="RUNNING";
+    	else if(jobs == JobStatus.SUCCEEDED) jobss="SUCCEEDED";
+    	float mapprog = rj.mapProgress(), reduprog = rj.reduceProgress();
+	
+    	REXP.Builder thevals   = REXP.newBuilder();
+    	thevals.setRclass(REXP.RClass.LIST);
+    	thevals.addRexpValue( RObjects.makeStringVector( new String[]{ jobss}));
+    	thevals.addRexpValue( RObjects.buildDoubleVector( new double[]{ startsec}));
+    	thevals.addRexpValue( RObjects.buildDoubleVector( new double[]{ (double)mapprog, (double)reduprog}));
+    	thevals.addRexpValue( allCounters );
+	thevals.addRexpValue( RObjects.makeStringVector(rj.getTrackingURL()));
+    	thevals.addRexpValue( RObjects.makeStringVector( new String[]{ jobname}));
+    	thevals.addRexpValue( RObjects.makeStringVector( new String[]{ jobfile}));
+	
+	org.apache.hadoop.mapred.TaskReport[] maptr = jclient.getMapTaskReports( jj);
+    	REXP.Builder thevalsA   = REXP.newBuilder();
+    	thevalsA.setRclass(REXP.RClass.LIST);
+	for(TaskReport t : maptr){
+	    thevalsA.addRexpValue( TaskReportToRexp( t));
+	}
+	thevals.addRexpValue( thevalsA.build() );
+
+
+
+    	org.apache.hadoop.mapred.TaskReport[] redtr = jclient.getReduceTaskReports( jj);
+    	REXP.Builder thevalsB   = REXP.newBuilder();
+    	thevalsB.setRclass(REXP.RClass.LIST);
+	for(TaskReport t : redtr){
+	    thevalsB.addRexpValue( TaskReportToRexp( t));
+	}
+	thevals.addRexpValue( thevalsB.build() );
+
+	return thevals.build().toByteArray();
+    }
+
+    private String convertTIP(TIPStatus t){
+	return t.toString();
+    }
+	
+    private REXP TaskReportToRexp(TaskReport t){
+    	REXP.Builder thevals   = REXP.newBuilder();
+    	thevals.setRclass(REXP.RClass.LIST);
+    	thevals.addRexpValue( FileUtils.buildlistFromOldCounter(t.getCounters(),0));
+	thevals.addRexpValue( RObjects.makeStringVector( convertTIP(t.getCurrentStatus())));
+	thevals.addRexpValue( RObjects.buildDoubleVector( new double[]{ t.getProgress(),t.getStartTime(),t.getFinishTime()}));
+	thevals.addRexpValue( RObjects.makeStringVector( t.getTaskID().toString()));
+	thevals.addRexpValue( RObjects.makeStringVector( t.getSuccessfulTaskAttempt().toString()));
+
+	return thevals.build();
+    }
+
     public static void main(String[] args) throws Exception{
     }
 }

@@ -165,11 +165,11 @@ initialize <- function(){
   c2 <- hadoop["HADOOP_CONF_DIR"]
   .jinit()
   .jaddClassPath(c(c2,c1,opts$jarloc,opts$mycp))
-  message("Initializing Rhipe")
+  message(sprintf("Initializing Rhipe v%s",vvvv))
   server <-  .jnew("org/godhuli/rhipe/PersonalServer")
   dbg <- as.integer(Sys.getenv("RHIPE_DEBUG_LEVEL"))
   tryCatch(server$run(if(is.na(dbg)) 0L else dbg),Exception=function(e) e$printStackTrace())
-  rhoptions(server=server)
+  rhoptions(server=server,clz=list(fileutils = server$getFU(),filesystem = server$getFS(), config=server$getConf()))
   rhoptions(mropts = Rhipe:::rhmropts()) 
   message("Initializing mapfile caches")
   rh.init.cache()
