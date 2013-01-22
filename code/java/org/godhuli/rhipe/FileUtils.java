@@ -150,11 +150,10 @@ public class FileUtils {
 	}
     }
 
-    public String[] ls(REXP r,int f) throws IOException,FileNotFoundException,
+    public String[] ls(String[] r,int f) throws IOException,FileNotFoundException,
     URISyntaxException{
 	ArrayList<String> lsco = new ArrayList<String>();
-	for(int i=0;i<r.getStringValueCount();i++){
-	    String path = r.getStringValue(i).getStrval();
+	for(String path : r){
 	    ls__(path,lsco,f>0 ? true:false);
 	}
 	return(lsco.toArray(new String[]{}));
@@ -449,20 +448,13 @@ public class FileUtils {
 	    }
 	    rw.close();
 	}
-
     }
 
     
-    public REXP getstatus(REXP r) throws Exception{
-    	String  jd = r.getRexpValue(0).getStringValue(0).getStrval();
- 	boolean  geterrors = r.getRexpValue(1).getIntValue(0)==1? true :false;
-    	// org.apache.hadoop.mapreduce.JobID jid = org.apache.hadoop.mapreduce.JobID.forName(jd);
+    public REXP getstatus(String jd, boolean geterrors) throws Exception{
     	org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.forName(jd);
     	if(jj==null) 
     	    throw new IOException("Jobtracker could not find jobID: "+jd);
-    	// org.apache.hadoop.mapred.JobClient jclient = new org.apache.hadoop.mapred.JobClient(
-    	// 	  org.apache.hadoop.mapred.JobTracker.getAddress(c),c);
-    	// org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.downgrade(jid);
     	org.apache.hadoop.mapred.RunningJob rj = jclient.getJob(jj);
 	if(rj==null)
 	    throw new IOException("No such job: "+jd+" available, wrong job? or try the History Viewer (see the Web UI) ");
@@ -571,6 +563,7 @@ public class FileUtils {
     	thevals.addRexpValue( errcontainer);
 	thevals.addRexpValue( RObjects.makeStringVector(rj.getTrackingURL()));
     	thevals.addRexpValue( RObjects.makeStringVector( new String[]{ jobname}));
+    	thevals.addRexpValue( RObjects.makeStringVector( new String[]{ jobfile}));
     	return(thevals.build());
     }
 	
@@ -585,18 +578,13 @@ public class FileUtils {
 	}
 	return(0);
     }
-    public void killjob(REXP r) throws Exception{
-	String  jd = r.getRexpValue(0).getStringValue(0).getStrval();
-	// org.apache.hadoop.mapreduce.JobID jid = org.apache.hadoop.mapreduce.JobID.forName(jd);
-	// org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.downgrade(jid);
+    public void killjob(String jd) throws Exception{
     	org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.forName(jd);
 	org.apache.hadoop.mapred.RunningJob rj = jclient.getJob(jj);
 	rj.killJob();
     }
 
-    public REXP joinjob(REXP r) throws Exception{
-	String  jd = r.getRexpValue(0).getStringValue(0).getStrval();
-	boolean verbose = r.getRexpValue(1).getStringValue(0).getStrval().equals("TRUE")? true:false;
+    public REXP joinjob(String jd, boolean verbose) throws Exception{
     	org.apache.hadoop.mapred.JobID jj = org.apache.hadoop.mapred.JobID.forName(jd);
 	org.apache.hadoop.mapred.RunningJob rj = jclient.getJob(jj);
 	String jobfile = rj.getJobFile();
@@ -639,98 +627,5 @@ public class FileUtils {
 	return(RObjects.makeList(groupdispname,cn));
     }
     public static void main(String[] args) throws Exception{
-	int cmd = Integer.parseInt(args[0]);
-	//parse data
-	//invokes class CMD inputfile
-	//writes results(or erors) to inputfile
-	REXP r;
-	REXP b=null;
-	boolean error = false;
-	FileUtils fu= new FileUtils(new Configuration());
-	try{
-	    switch(cmd){
-	    case 0:
-		// hadoop options
-		b = fu.mapredopts();
-		fu.writeTo(args[1], b);
-		break;
-	    case 1:
-		// ls
-		r = fu.readInfo(args[1]);
-		String[] result0 = fu.ls(r.getRexpValue(0),r.getRexpValue(1).getIntValue(0));
-		b = RObjects.makeStringVector(result0);
-		fu.writeTo(args[1], b);
-		break;
-	    case 2:
-		//copy from hdfs to local
-		r = fu.readInfo(args[1]);
-		String src = r.getStringValue(0).getStrval();
-		String dest = r.getStringValue(1).getStrval();
-		fu.copyMain(src,dest);
-		break;
-	    case 3:
-		//delete from the hdfs
-		r = fu.readInfo(args[1]);
-		for(int i=0;i< r.getStringValueCount();i++){
-		    String s = r.getStringValue(i).getStrval();
-		    fu.delete(s,true);
-		}
-		break;
-	    case 4:
-		//copy local files to hdfs
-		r = fu.readInfo(args[1]);
-		String[] locals = new String[r.getRexpValue(0).getStringValueCount()];
-		for(int i=0;i<locals.length;i++) locals[i] = r.getRexpValue(0).
-						getStringValue(i).getStrval();
-		String dest2 = r.getRexpValue(1).getStringValue(0).getStrval();
-		REXP.RBOOLEAN overwrite_ = r.getRexpValue(2).getBooleanValue(0);
-		boolean overwrite;
-		if(overwrite_==REXP.RBOOLEAN.F)
-		    overwrite=false;
-		else if(overwrite_==REXP.RBOOLEAN.T)
-		    overwrite=true;
-		else
-		    overwrite=false;
-		fu.copyFromLocalFile(locals,dest2,overwrite);
-		break;
-	    case 5:
-		r = fu.readInfo(args[1]);
-		fu.binary2sequence(r);
-		break;
-	    case 6:
-		r = fu.readInfo(args[1]);
-		fu.sequence2binary(r);
-		break;
-	    case 7:
-		r = fu.readInfo(args[1]);
-		fu.getKeys(r);
-		break;
-	    case 8:
-		r = fu.readInfo(args[1]);
-		fu.sequence2map(r);
-		break;
-	    case 9:
-		r = fu.readInfo(args[1]);
-		fu.hdfsrename(r);
-		break;
-	    case 10:
-		r = fu.readInfo(args[1]);
-		b= fu.joinjob(r);
-		fu.writeTo(args[1], b);
-		break;
-	    case 11:
-		r = fu.readInfo(args[1]);
-		b= fu.getstatus(r);
-		fu.writeTo(args[1], b);
-		break;
-	    }
-	}catch(Exception e){
-	    e.printStackTrace();
-	    String x = getStackTrace(e);
-	    error=true;
-	    b = RObjects.makeStringVector(x);
-	    fu.writeTo(args[1], b);
-	}
-	System.exit(error? 1:0);
     }
 }

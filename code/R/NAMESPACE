@@ -1,5 +1,6 @@
 export(bashRhipeArchive)
 export(hdfs.getwd)
+export(hdfsReadLines)
 export(hdfs.setwd)
 export("[<-.mapfile")
 export("[.mapfile")

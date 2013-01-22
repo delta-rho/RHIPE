@@ -13,18 +13,15 @@ Depends:
     methods
 Packaged: Fri Mar  6 17:02:01 2012; jrounds
 Collate:
-    'dohelp.R'
     'rhcp.R'
     'rhdel.R'
     'rhex.R'
     'rhget.R'
     'rhgetkey.R'
-    'rhinit.R'
     'rhjoin.R'
     'rhkill.R'
     'rhload.R'
     'rhls.R'
-    'rhmerge.R'
     'rhmv.R'
     'rhoptions.R'
     'rhput.R'
@@ -36,7 +33,6 @@ Collate:
     'rhwrite.R'
     'dfs.R'
     'rhmr.R'
-    'server.R'
     'zzz.R'
     'extra.functions.R'
     'rhwatch.R'

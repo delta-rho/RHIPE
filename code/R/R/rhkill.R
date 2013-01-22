@@ -19,13 +19,5 @@ rhkill <- function(job) {
     job <- job[[1]]
     id <- job[['job.id']]
   }
-  result <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhkill", list(id)))
+  result <- rhoptions()$server$rhkill(id)
 }
-
-# rhkill <- function(w,...){
-#   if(class(w)=="jobtoken")
-#     w= w[[1]][['job.id']] else {
-#       if(length(grep("^job_",w))==0) w=paste("job_",w,sep="",collapse="")
-#     }
-#   system(command=paste(paste(Sys.getenv("HADOOP_BIN"),"hadoop",sep=.Platform$file.sep,collapse=""),"job","-kill",w,collapse=" "),...)
-# }

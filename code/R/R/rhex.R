@@ -60,17 +60,14 @@ rhex <- function (conf,async=TRUE,mapred,...)
   if(!is.null(paramaters)){
     lines <- Rhipe:::saveParams(paramaters,lines=lines)
   }
-  cmd <- sprintf("%s/hadoop jar %s  org.godhuli.rhipe.RHMR %s  ",Sys.getenv("HADOOP_BIN"),rhoptions()$jarloc,zonf)
-  x. <- paste("Running: ", cmd)
-  y. <- paste(rep("-",min(nchar(x.),40)))
-  message(y.);message(x.);message(y.)
-  if(rhoptions()$mode=="current"){
-    result <- system(cmd,...)
-  }else if (rhoptions()$mode=="experimental"){
-    result <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhex", zonf))
-    result <- as.integer(result[[1]])
+  ## cmd <- sprintf("%s/hadoop jar %s  org.godhuli.rhipe.RHMR %s  ",Sys.getenv("HADOOP_BIN"),rhoptions()$jarloc,zonf)
+  ## x. <- paste("Running: ", cmd)
+  ## y. <- paste(rep("-",min(nchar(x.),40)))
+  ## message(y.);message(x.);message(y.)
+  {
+    result <- rhoptions()$server$rhex(zonf)
     if(result == 1) result <- 256
-    cat(sprintf("result:%s\n",result))
+    ## cat(sprintf("result:%s\n",result))
   }
   f3=NULL
   if(result==256){

@@ -16,13 +16,9 @@
 #' @keywords put HDFS file
 #' @export
 rhput <- function(src, dest,deletedest=TRUE){
-	dest = rhabsolute.hdfs.path(dest)
-  	x <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhput",path.expand(src),dest,as.logical(deletedest)))
+  dest = rhabsolute.hdfs.path(dest)
+  y <- as.logical(deletedest)
+  Y <- if(is.na(y) || y==FALSE) FALSE else TRUE
+  rhoptions()$server$rhput(path.expand(src),dest,y)
 }
-
-# rhput <- function(src,dest,deleteDest=TRUE,ignore.stderr=T,verbose=F){
-#   doCMD(rhoptions()$cmd['put'],locals=path.expand(src),dest=dest,overwrite=deleteDest,needoutput=F
-#         ,ignore.stderr=ignore.stderr,verbose=verbose)
-# ##   doCMD(src,dest,deleteDest,if(is.null(socket)) rhoptions()$socket else socket)
-# }
 

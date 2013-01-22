@@ -19,5 +19,4 @@ rhmv <- function(ifile, ofile) {
   system(command=paste(paste(Sys.getenv("HADOOP_BIN"), "hadoop",
            sep=.Platform$file.sep), "fs", "-cp", ifile, ofile, sep=" "))
   rhdel(ifile)
-  ## v <- Rhipe:::send.cmd(rhoptions()$child$handlygene,list("rhcp",ifile, ofile))
 }

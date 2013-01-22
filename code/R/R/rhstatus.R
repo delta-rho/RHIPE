@@ -44,9 +44,7 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
     id <- job[['job.id']]
   }
   if(mon.sec==Inf){
-    result <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhjoin", list(id,
-                                                                             needoutput=as.character(TRUE),
-                                                                             joinwordy = as.character(as.logical(TRUE)))))[[1]]
+    result <-rhoptions()$server$rhjoin(id,TRUE)
     mon.sec=1
   }
   if(mon.sec<=0) {
@@ -58,7 +56,7 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
     }
     while(TRUE){
       y <- .rhstatus(id,autokill=TRUE,showErrors)
-      cat(sprintf("\n[%s] Name:%s Job: %s, State: %s, Duration: %s\nURL: %s\n",date(),y$jobname, id,y$state,y$duration,y$tracking))
+      cat(sprintf("\n[%s] Name:%s Job: %s  State: %s Duration: %s\nURL: %s\n",date(),y$jobname, id,y$state,y$duration,y$tracking))
       print(y$progress)
       if(!is.null(y$warnings)){
         cat("\n--Warnings Present, follows:\n")
@@ -81,7 +79,8 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
 }
 
 .rhstatus <- function(id,autokill=FALSE,showErrors=FALSE){
-  result <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhstatus", list(id, as.integer(showErrors))))[[1]]
+  result <-  rhoptions()$server$rhstatus(as.character(id), as.logical(showErrors))
+  result <-  rhuz(result)
   d <- data.frame("pct"=result[[3]],"numtasks"=c(result[[4]][1],result[[5]][[1]]),
                   "pending"=c(result[[4]][2],result[[5]][[2]]),
                   "running" = c(result[[4]][3],result[[5]][[3]]),
@@ -165,8 +164,9 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
   if(haveRError) state <- "FAILED"
   ro <- result[[6]];trim.trailing <- function (x) sub("\\s+$", "", x)
   ro2 <- lapply(ro, function(r) { s = as.matrix(r); rownames(s) = trim.trailing(rownames(s)); s })
-  return(list(state=state,duration=duration,progress=d, warnings=wrns,counters=ro2,rerrors=haveRError,errors=errs,jobname=result[[9]],tracking=result[[8]]));
+  return(list(state=state,duration=duration,progress=d, warnings=wrns,counters=ro2,rerrors=haveRError,errors=errs,jobname=result[[9]],tracking=result[[8]],config=result[[10]]));
 }
+
 
 
 # rhstatus <- function(x){

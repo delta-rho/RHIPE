@@ -18,21 +18,6 @@
 #' @keywords get HDFS directory
 #' @export
 rhget <- function(src, dest){
-	src = rhabsolute.hdfs.path(src)
-  x <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhget",src,path.expand(dest)))
+  src = rhabsolute.hdfs.path(src)
+  rhoptions()$server$rhget(src,path.expand(dest))
 }
-
-# rhget <- function(src,dest,ignore.stderr=T,verbose=F){
-#   ## Copies src to dest
-#   ## If src is a directory and dest exists,
-#   ## src is copied inside dest(i.e a folder inside dest)
-#   ## If not, src's contents is copied to a new folder called dest
-#   ##
-#   ## If source is a file, and dest exists as a dire
-#   ## source is copied inside dest
-#   ## If dest does not exits, it is copied to that file
-#   ## Wildcards allowed
-#   ## OVERWRITES!
-#   doCMD(rhoptions()$cmd['get'],src=src,dest=dest,needout=F,ignore.stderr=ignore.stderr,verbose=verbose)
-# ##   doGet(src,dest,if(is.null(socket)) rhoptions()$socket else socket)
-# }

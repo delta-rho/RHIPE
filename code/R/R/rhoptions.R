@@ -65,7 +65,5 @@ optmerge <- function(la,lb){
 }
 
 rhmropts <- function(){
-  ## List of files,
-  v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhmropts"))
-  v[[1]]
+  rhuz(rhoptions()$server$rhmropts())
 }

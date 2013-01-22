@@ -23,7 +23,8 @@ rhls <- function(folder,recurse=FALSE){
   if( is(folder,"rhmr") || is(folder, "rhwatch"))
     folder <- rhofolder(folder)
   folder <- rhabsolute.hdfs.path(folder)
-  v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhls",folder, if(recurse) 1L else 0L))
+  v <- rhoptions()$server$rhls(folder, if(recurse) 1L else 0L)
+  v <- rhuz(v)
   if(is.null(v)) return(NULL)
                                         #condition nothing in the directory?
   if(length(v) == 1  && length(v[[1]]) == 0){
@@ -37,19 +38,3 @@ rhls <- function(folder,recurse=FALSE){
   unique(f)
 }
 
-# rhls <- function(fold,recurse=FALSE,ignore.stderr=T,verbose=F){
-#   ## List of files,
-#   v <- Rhipe:::doCMD(rhoptions()$cmd['ls'],fold=fold,recur=as.integer(recurse),needoutput=T,ignore.stderr=ignore.stderr,verbose=verbose)
-#   if(is.null(v)) return(NULL)
-#   if(length(v)==0) {
-#     warning(sprintf("Is not a readable directory %s",fold))
-#     return(v)
-#   }
-#   ## k <- strsplit(v,"\n")[[1]]
-#   ## k1 <- do.call("rbind",sapply(v,strsplit,"\t"))
-#   f <- as.data.frame(do.call("rbind",sapply(v,strsplit,"\t")),stringsAsFactors=F)
-#   rownames(f) <- NULL
-#   colnames(f) <- c("permission","owner","group","size","modtime","file")
-#   f$size <- as.numeric(f$size)
-#   unique(f)
-# }
