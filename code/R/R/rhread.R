@@ -112,24 +112,46 @@ makeMessage <- function(b, l, d){
   sprintf("Read %s objects(%s %s) in %s minutes", l, round(b,2), units,round(tt,2))
 }
 
-## rhGenerator <- function(files, type=c("sequence"),blocksize=1000,skip=rhoptions()$file.types.remove.regex,mc=lapply){
-##   if(is(files, "rhwatch"))
-##     files <- rhofolder(files)
-##   files = rhabsolute.hdfs.path(files)
-##   files <- getypes(files,type,skip)
-##   file.index <- 1
-##   L <- length(files)
-##   server <- rhoptions()$server
-##   handle <- server$openSequence(files[file.index])
-##   function(howmany=blocksize){
-##     if(file.index > L) return(NULL)
-##     res <- rhuz(server$readSequence(files[file.index], blocksize))
-##     if(is.null(res))
-##       file.
-    
+#' Iterates Through the Records of Sequence Files
+#'
+#' Can be used to iterate through the records of a Sequence File(or collection thereof)
+#' 
+#' @param files Path to file or directory containing  sequence files.  This can also be the output from rhwatch(provided read=FALSE) or rhmr.
+#' @param chunksize Number of records or bytes to read. Depends on 'type'
+#' @param skip Files to skip while reading the hdfs.  Various installs of Hadoop add additional log
+#'			info to HDFS output from MapReduce.  Attempting to read these files is not what we want to do.
+#'	       To get around this we specify pieces of filenames to grep and remove from the read.
+#'          skip is a vector argument just to have sensible defaults for a number of different systems.
+#'          You can learn which if any files need to be skipped by using rhls on the target directory.
+#' @param type Either 'records' or 'bytes'
+#'
+#' @examples
+#'
+#' \dontrun{
+#'    j <- rhwatch(map=rhmap(rhcollect(r,k)),reduce=0, input=c(36,3),read=FALSE)
+#'    a <- rhIterator(j,chunk=11)
+#'    while( length(b<-a())>0) doSomethingWith(b)
+#' }
+#' @export
 
-
-
-
-
+rhIterator <- function(files, chunksize=1000, type='records',skip=rhoptions()$file.types.remove.regex,mc=lapply){
+  if(is(files, "rhwatch"))
+    files <- rhofolder(files)
+  files = rhabsolute.hdfs.path(files)
+  files <- getypes(files,"sequence",skip)
+  chunksize <- as.integer(chunksize)
+  handle <- .jnew("org/godhuli/rhipe/SequenceFileIterator")
+  handle$init(files, as.integer(chunksize), rhoptions()$server);
+  if(type == 'records'){
+    return(function(chunksize=chunksize){
+      if(handle$hasMoreElements())
+        mc(rhuz(handle$nextElement()),function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
+    })
+  }else{
+    return(function(chunksize=chunksize){
+      if(handle$hasMoreElements())
+        mc(rhuz(handle$nextChunk()),function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
+    })
   }
+}
+## a <- rhIterator( "/user/sguha/tmp/rhipe-temp-810956e1fafd30a76f869f61afa8f3e2",chunk=10)

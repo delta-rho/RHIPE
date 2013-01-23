@@ -2,7 +2,7 @@
 \alias{hdfsReadLines}
 \title{Reads all lines from a text file located on the HDFS}
 \usage{
-  hdfsReadLines(inp)
+  hdfsReadLines(inp, l)
 }
 \arguments{
   \item{inp}{The location of the text file, interolated
