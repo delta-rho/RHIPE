@@ -33,8 +33,8 @@ initPRNG <- function(seed=NULL){
 #' @param inp The location of the text file, interolated based on hdfs.getwd
 #' @keywords HDFS TextFile
 #' @export
-hdfsReadLines <- function(inp){
-  rhoptions()$server$readTextFile(rhabsolute.hdfs.path(inp))
+hdfsReadLines <- function(inp,l){
+  rhoptions()$server$readTextFile(rhabsolute.hdfs.path(inp),as.integer(l))
 }
 
 

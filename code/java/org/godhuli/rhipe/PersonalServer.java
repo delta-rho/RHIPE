@@ -171,46 +171,31 @@ public class PersonalServer {
 	    .build();
     }
 
-    public void sequenceAsBinary(REXP r) throws Exception { // works
-	Configuration cfg = new Configuration();
-	int n = r.getRexpValue(1).getStringValueCount();
-	String[] infile = new String[n];
-	for (int i = 0; i < n; i++) {
-	    infile[i] = r.getRexpValue(1).getStringValue(i).getStrval();
-	}
-	int maxnum = r.getRexpValue(2).getIntValue(0);
-	int bufsz = r.getRexpValue(3).getIntValue(0);
-	// as this rexp is written into
-	DataOutputStream cdo = new DataOutputStream(
-						    new java.io.BufferedOutputStream(_toR, 1024 * 1024));
-	int counter = 0;
-	boolean endd = false;
+    public byte[] readSequence(String file, int numread) throws IOException{
+	SequenceFile.Reader sqr = new SequenceFile.Reader(_filesystem, new Path(file), _configuration);
 	RHBytesWritable k = new RHBytesWritable();
 	RHBytesWritable v = new RHBytesWritable();
-	for (int i = 0; i < infile.length; i++) {
-	    SequenceFile.Reader sqr = new SequenceFile.Reader(FileSystem
-							      .get(cfg), new Path(infile[i]), cfg);
-	    while (true) {
-		boolean gotone = sqr.next((Writable) k, (Writable) v);
-		if (gotone) {
-		    counter++;
-		    k.writeAsInt(cdo);
-		    v.writeAsInt(cdo);
-		    cdo.flush();
-		} else
-		    break;
-		if (maxnum > 0 && counter >= maxnum) {
-		    endd = true;
-		    break;
-		}
-	    }
-	    sqr.close();
-	    if (endd)
-		break;
+	if(numread<0) 
+	    numread = java.lang.Integer.MAX_VALUE;
+	int i = 0;
+	REXP.Builder thevals   = REXP.newBuilder();
+    	thevals.setRclass(REXP.RClass.LIST);
+	while(i < numread){
+	    boolean gotone = sqr.next((Writable) k, (Writable) v);
+	    if(gotone){
+		i++;
+		REXP.Builder a   = REXP.newBuilder();
+		a.setRclass(REXP.RClass.LIST);
+		a.addRexpValue( RObjects.buildRawVector( k.getBytes(), 0, k.getLength()) );
+		a.addRexpValue( RObjects.buildRawVector( v.getBytes(), 0, v.getLength()) );
+		a.build();
+		thevals.addRexpValue(a);
+	    }else break;
 	}
-	cdo.writeInt(0);
-	cdo.flush();
+	sqr.close();
+	return thevals.build().toByteArray();
     }
+
 
     public void rhopensequencefile(REXP r) throws Exception {
 	String name = r.getRexpValue(1).getStringValue(0).getStrval();
@@ -259,7 +244,7 @@ public class PersonalServer {
 	}
     }
 
-    public void clearEntiresFor(String forkey) throws Exception{
+    public void clearEntriesFor(String forkey) throws Exception{
 	ArrayList<String> cachedHandle = mapToValueCacheHandles.get(forkey);
 	ArrayList<ValuePair> cachedValues = mapToValueCacheKeys.get(forkey);
 	mapfileReaderCache.invalidate(cachedHandle);
@@ -275,7 +260,7 @@ public class PersonalServer {
     public void initializeMapFile(String[] pathsForMap, String akey) throws Exception{
 	if(mapfilehash.get(akey)!=null){
 	    LOG.info("Clearing Caches for "+akey);
-	    clearEntiresFor(akey);
+	    clearEntriesFor(akey);
 	}else{
 	    mapToValueCacheKeys.put(akey, new ArrayList<ValuePair>(500));
 	    mapToValueCacheHandles.put(akey, new ArrayList<String>(100));
@@ -361,15 +346,22 @@ public class PersonalServer {
 	    w.close();
 	}
     }
+
     public String[] readTextFile(String inp) throws Exception{
+	return readTextFile(inp,-1);
+    }
+    public String[] readTextFile(String inp,int numlines) throws Exception{
+	if(numlines <0)
+	    numlines = java.lang.Integer.MAX_VALUE;
 	FSDataInputStream in = _filesystem.open(new Path(inp));
 	BufferedReader inb = new BufferedReader(new InputStreamReader(in));
 	ArrayList<String> arl = new ArrayList<String>();
-
-	while(true){
+	int i=0;
+	while(i < numlines){
 	    String s = inb.readLine();
 	    if(s == null) break;
 	    arl.add(s);
+	    i++;
 	}
 	String[] s = new String[arl.size()];
 	s = arl.toArray(s);

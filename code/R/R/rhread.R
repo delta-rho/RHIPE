@@ -6,18 +6,13 @@
 #'   text file to be read on the HDFS. This can also be the output from rhwatch(provided read=FALSE) or rhmr.
 #' @param type Type of file on HDFS.  Must be "sequence", "map", or "text".
 #' @param max Maximum number of key/value pairs to read for map and sequence
-#'   files.  Maximum number of bytes to read for text files.
-#' @param asraw Return key/value pairs as Raw data type (ie not deserialized).
+#'   files.  Maximum number of lines to read for text files.
 #' @param mc Set to lapply by default. User can change this to \code{mclapply} for parallel lapply.
 #' @param skip Files to skip while reading the hdfs.  Various installs of Hadoop add additional log
 #'			info to HDFS output from MapReduce.  Attempting to read these files is not what we want to do 
 #'	        in rhread.  To get around this we specify pieces of filenames to grep and remove from the read.
 #'          skip is a vector argument just to have sensible defaults for a number of different systems.
 #'          You can learn which if any files need to be skipped by using rhls on target directory.
-#' @param size Increment the return list by this amount as reading in data.
-#' @param buffsize Size of byte buffer used to read in data.
-#' @param quiet If FALSE prints additional information about the read to STDOUT.
-#' @param \ldots Additional arguments to hmerge which is used internally for reading text and gzip files.
 #' @return For map and sequence files, a list of key, pairs of up to length
 #'   MAX.  For text files, a matrix of lines, each row a line from the text
 #'   files.
@@ -32,7 +27,7 @@
 #' 
 #' The parameter \code{max} specifies the maximum number of entries to read, by
 #' default all the key,value pairs will be read.  Specifying \code{max} for
-#' text files, limits the number of bytes read and is currently alpha quality.
+#' text files, limits the number of lines read.
 #' 
 #' \code{mc} is by default \code{lapply}. The user can change this to mclapply for faster throughput.
 #' 
@@ -42,59 +37,99 @@
 #'   \code{\link{rhdel}}, \code{\link{rhwrite}}, \code{\link{rhsave}}
 #' @keywords read HDFS file
 #' @export
-rhread <- function(files,type=c("sequence"),max=-1L,skip=rhoptions()$file.types.remove.regex,mc=lapply,asraw=FALSE,size=3000,buffsize=1024*1024,quiet=FALSE,...){
-        if(is(files, "rhwatch")) files <- rhofolder(files)
-	files = rhabsolute.hdfs.path(files)
-	files <- getypes(files,type,skip)
-	max <- as.integer(max)
-	p <- if(type %in% c("text","gzip") ){
-	Rhipe:::hmerge(files, buffsize=as.integer(buffsize),max=max,type=type,...)
-	}else{
-	Rhipe:::send.cmd(rhoptions()$child$handle, list("sequenceAsBinary", files,max,as.integer(rhoptions()$child$bufsize)),
-		                  getresponse=0L,
-		                  continuation = function() Rhipe:::rbstream(rhoptions()$child$handle,size,mc,asraw,quiet))
-	}
-  	p
+rhread <- function(files,type=c("sequence"),max=-1,skip=rhoptions()$file.types.remove.regex,mc=lapply,...){
+  if(is(files, "rhwatch"))
+    files <- rhofolder(files)
+  files = rhabsolute.hdfs.path(files)
+  files <- getypes(files,type,skip)
+  max <- as.integer(max)
+  switch(type,
+         "gzip" = {
+           stop("GZIP not supported")
+         },
+         "text" = {
+           rhread.text(files, max=max)
+         },
+         "sequence" = {
+           rhread.sequence(files, max=max,mc=mc)
+         })
 }
 
-# rhread <- function(files,type="sequence",max=-1,asraw=FALSE,ignore.stderr=T,verbose=F,mc=FALSE,debug=FALSE){
-#   ## browser()
-#   type = match.arg(type,c("sequence","map","text"))
-#   on.exit({
-#     if(!keepfile)
-#       unlink(tf1)
-#   })
-#   keep <- NULL
-#   keepfile=F
-#   files <- switch(type,
-#                   "text"={
-#                     unclass(rhls(files)['file'])$file
-#                     stop("cannot read text files")
-#                   },
-#                   "sequence"={
-#                     unclass(rhls(files)['file'])$file
-#                   },
-#                   "map"={
-#                     uu=unclass(rhls(files,rec=TRUE)['file'])$file
-#                     uu[grep("data$",uu)]
-#                   })
-#   remr <- c(grep("/_logs",files))
-#   if(length(remr)>0)
-#     files <- files[-remr]
-#   tf1<- tempfile(pattern=paste('rhread_',
-#                    paste(sample(letters,4),sep='',collapse='')
-#                    ,sep="",collapse=""),tmpdir="/tmp")
-#   if(!is.null(keep))
-#     {
-#       tf2 <- keep
-#       keepfile=T
-#     }else{
-#       tf2<- tempfile(pattern=paste(sample(letters,8),sep='',collapse=''))
-#     }
-#   v <- Rhipe:::doCMD(rhoptions()$cmd['s2b'], infiles=files,ofile=tf1,ilocal=TRUE,howmany=max,ignore.stderr=ignore.stderr,
-#         verbose=verbose,rhreaddebug = debug)
-#   if(mc) LL=mclapply else LL=lapply
-#   if(!asraw) LL(v,function(r) list(rhuz(r[[1]]),rhuz(r[[2]]))) else v
-# }
-# #hread("/tmp/f")
-# ## ffdata2=hread("/tmp/d/")
+rhread.text <- function(files, max){
+  READER <- function(server,a,b) hdfsReadLines(a,b)
+  READER.PARSE <- function(f) f
+  reader.generic(files,max,READER,READER.PARSE,SIZE=nrow)
+}
+rhread.sequence <- function(files, max, mc){
+  mc <- eval(mc)
+  READER <- function(server,a,b) { server$readSequence(a,b) }
+  READER.PARSE <- function(f) mc(rhuz(f), function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
+  reader.generic(files,max,READER,READER.PARSE,SIZE=length)
+}
+
+reader.generic <- function(files,max,READER,READER.PARSE,SIZE){
+  a1 <- proc.time()['elapsed']
+  cont <- vector('list',length=length(files))
+  server <- rhoptions()$server
+  index <-  1
+  num.to.read <- as.integer(max)
+  L <- length(files)
+  bytes <- 0
+  if(num.to.read>0){
+    while(num.to.read > 0 && index <= L ){
+      f <- READER(server,files[index], num.to.read)
+      bytes <- bytes+SIZE(f)
+      cont[[index]] <- READER.PARSE(f)
+      num.to.read <- num.to.read - SIZE(cont[[index]])
+      index <- index+1L
+    }
+  }else{
+    while(index <= L ){
+      f <- READER(server,files[index], -1L)
+      bytes <- bytes+SIZE(f)
+      cont[[index]] <-READER.PARSE(f)
+      index <- index+1
+    }
+  }
+  v <- unlist(cont,rec=FALSE)
+  a2 <-  proc.time()['elapsed']
+  message(makeMessage(bytes,length(v), a2-a1))
+  v
+}
+
+makeMessage <- function(b, l, d){
+  units <- "KB"
+  if(b< 1024*1024)
+    b <- b/1024
+  else if(b< 1024*1024*1024){
+    units <- "MB"
+    b <- b/(1024*1024)
+  }else {
+    units <- "GB"
+    b <- b/(1024*1024*1024)
+  }
+  tt <- d/60
+  sprintf("Read %s objects(%s %s) in %s minutes", l, round(b,2), units,round(tt,2))
+}
+
+## rhGenerator <- function(files, type=c("sequence"),blocksize=1000,skip=rhoptions()$file.types.remove.regex,mc=lapply){
+##   if(is(files, "rhwatch"))
+##     files <- rhofolder(files)
+##   files = rhabsolute.hdfs.path(files)
+##   files <- getypes(files,type,skip)
+##   file.index <- 1
+##   L <- length(files)
+##   server <- rhoptions()$server
+##   handle <- server$openSequence(files[file.index])
+##   function(howmany=blocksize){
+##     if(file.index > L) return(NULL)
+##     res <- rhuz(server$readSequence(files[file.index], blocksize))
+##     if(is.null(res))
+##       file.
+    
+
+
+
+
+
+  }
