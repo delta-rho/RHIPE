@@ -197,53 +197,6 @@ public class PersonalServer {
     }
 
 
-    public void rhopensequencefile(REXP r) throws Exception {
-	String name = r.getRexpValue(1).getStringValue(0).getStrval();
-	Configuration cfg = new Configuration();
-	SequenceFile.Reader sqr = new SequenceFile.Reader(FileSystem.get(cfg),
-							  new Path(name), cfg);
-	seqhash.put(name, sqr);
-    }
-
-    public void rhgetnextkv(REXP r) throws Exception {
-	String name = r.getRexpValue(1).getStringValue(0).getStrval();
-	int quant = r.getRexpValue(2).getIntValue(0);
-	SequenceFile.Reader sqr = seqhash.get(name);
-	RHBytesWritable k = new RHBytesWritable();
-	RHBytesWritable v = new RHBytesWritable();
-	DataOutputStream cdo = new DataOutputStream(
-						    new java.io.BufferedOutputStream(_toR, 1024 * 1024));
-	if (sqr != null) {
-	    for (int i = 0; i < quant; i++) {
-		boolean gotone = sqr.next((Writable) k, (Writable) v);
-		if (gotone) {
-		    k.writeAsInt(cdo);
-		    v.writeAsInt(cdo);
-		    cdo.flush();
-		} else {
-		    sqr.close();
-		    seqhash.remove(name);
-		    break;
-		}
-	    }
-	}
-	cdo.writeInt(0);
-	cdo.flush();
-    }
-
-    public void rhclosesequencefile(byte[] b) throws Exception {
-	REXP r =  REXP.newBuilder().mergeFrom(b, 0,b.length).build();
-	String name = r.getRexpValue(1).getStringValue(0).getStrval();
-	SequenceFile.Reader sqr = seqhash.get(name);
-	if (sqr != null) {
-	    try {
-		sqr.close();
-		seqhash.remove(name);
-	    } catch (Exception e) {
-	    }
-	}
-    }
-
     public void clearEntriesFor(String forkey) throws Exception{
 	ArrayList<String> cachedHandle = mapToValueCacheHandles.get(forkey);
 	ArrayList<ValuePair> cachedValues = mapToValueCacheKeys.get(forkey);
@@ -268,17 +221,21 @@ public class PersonalServer {
 	mapfilehash.put(akey, pathsForMap);
     }
 
-    public void rhgetkeys2(REXP rexp) throws Exception,IOException
+    public byte[] rhgetkeys2(String key, byte[] bb) throws Exception,IOException
     {
-	REXP rexp0 = rexp.getRexpValue(1);
-	final String key = rexp0.getRexpValue(0).getStringValue(0).getStrval();
-	REXP keys = rexp0.getRexpValue(1);
 	final String[] pathsForMap = mapfilehash.get(key);
+
 	RHBytesWritable v = new RHBytesWritable();
-	DataOutputStream out = _toR;
+	RHBytesWritable k  = new RHBytesWritable();
 	final RHNull anull = new RHNull();
-	for(int i=0; i < keys.getRexpValueCount();i++){
-	    final RHBytesWritable k = new RHBytesWritable(keys.getRexpValue(i).getRawValue().toByteArray());
+
+	REXP.Builder thevals   = REXP.newBuilder();
+    	thevals.setRclass(REXP.RClass.LIST);
+	REXP keys =  REXP.newBuilder().mergeFrom(bb, 0, bb.length).build();
+
+	for(int i=0; i <  keys.getRexpValueCount();i++){
+	    k.set( keys.getRexpValue(i).toByteArray());
+	    
 	    ValuePair vp = new ValuePair(key,k);
 	    v = valueCache.getIfPresent(vp);
 	    if(v==null){
@@ -296,10 +253,13 @@ public class PersonalServer {
 		mapToValueCacheKeys.get(key).add(vp);
 		valueCache.put(vp, v);
 	    }
-	    k.writeAsInt(out); v.writeAsInt(out);
+		REXP.Builder a   = REXP.newBuilder();
+		// a.setRclass(REXP.RClass.LIST);
+		// a.addRexpValue(  );
+		// a.build();
+		thevals.addRexpValue(RObjects.buildRawVector( v.getBytes(), 0, v.getLength()));
 	}
-	out.writeInt(0);
-	out.flush();
+	return thevals.build().toByteArray();
     }
     
     public byte[] cacheStatistics(int which){
@@ -318,34 +278,6 @@ public class PersonalServer {
 	return r.toByteArray();
     }
 
-
-
-    public void binaryAsSequence(REXP r) throws Exception { // works
-	Configuration cfg = new Configuration();
-	String ofolder = r.getRexpValue(1).getStringValue(0).getStrval();
-	int groupsize = r.getRexpValue(2).getIntValue(0);
-	int howmany = r.getRexpValue(3).getIntValue(0);
-	int N = r.getRexpValue(4).getIntValue(0);
-	DataInputStream in = _fromR;
-	int count = 0;
-	// System.out.println("Got"+r);
-	// System.out.println("Waiting for input");
-	for (int i = 0; i < howmany - 1; i++) {
-	    String f = ofolder + "/" + i;
-	    RHWriter w = new RHWriter(f, cfg);
-	    w.doWriteFile(in, groupsize);
-	    count = count + groupsize;
-	    w.close();
-	}
-
-	if (count < N) {
-	    count = N - count;
-	    String f = ofolder + "/" + (howmany - 1);
-	    RHWriter w = new RHWriter(f, cfg);
-	    w.doWriteFile(in, count);
-	    w.close();
-	}
-    }
 
     public String[] readTextFile(String inp) throws Exception{
 	return readTextFile(inp,-1);

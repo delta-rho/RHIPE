@@ -1,3 +1,17 @@
+is.mapfolder <- function(apath){
+  f <- rhls(apath)$file
+  idx <- any(sapply(f,function(r) grepl("index$",r)))
+  dta <- any(sapply(f,function(r) grepl("data$",r)))
+  if(idx && dta) TRUE else FALSE
+}
+dir.contain.mapfolders <- function(dir){
+  paths = rhabsolute.hdfs.path(dir)
+  paths <- rhls(paths)$file
+  paths <- paths[!grepl(rhoptions()$file.types.remove.regex, paths)]
+  all(sapply(paths, is.mapfolder))
+}
+    
+
 #' Initializes the Value and Mapfile caches
 #' @param mbsize is the number of bytes (i.e. key/values) read from a MapFile cached
 #' @param openhandles is the number of file handles cached
@@ -37,19 +51,16 @@ print.mapfile <- function(a,...){
   cat(sprintf("%s is a MapFile with %s index files\n", a$filename, length(a$paths)))
 }
 
-getkey <- function(v,keys,size=3000,mc=lapply){
-   Rhipe:::send.cmd(rhoptions()$child$handle,
-                 list("rhgetkeys2",
-                      list(v$filename, mc(keys, rhsz)))
-                    ,getresponse = 0L, conti = function() {
-                      return(Rhipe:::rbstream(rhoptions()$child$handle,size, 
-                                              mc))})
- }
+getkey <- function(v,keys,mc=lapply){
+  a <- rhuz(rhoptions()$server$rhgetkeys2(v$filename,   .jarray(rhsz(as.list(keys)))))
+  mc(a,rhuz)
+}
+
 #' Single Index into MapFile Object(calls \code{rhgetkey}
 #' @export
 "[[.mapfile" <- function(a,i,...){
-  a <- getkey(a,i,...)
-  if(length(a)==1) a[[1]] else NULL
+  getkey(a,i,...)[[1]]
+  ## if(length(a)>=1) a[[1]] else NULL
 }
 
 #' Array Indexing

@@ -50,6 +50,9 @@ rhread <- function(files,type=c("sequence"),max=-1,skip=rhoptions()$file.types.r
          "text" = {
            rhread.text(files, max=max)
          },
+         "map" = {
+           rhread.sequence(files, max=max,mc=mc)
+         },
          "sequence" = {
            rhread.sequence(files, max=max,mc=mc)
          })
@@ -108,8 +111,14 @@ makeMessage <- function(b, l, d){
     units <- "GB"
     b <- b/(1024*1024*1024)
   }
-  tt <- d/60
-  sprintf("Read %s objects(%s %s) in %s minutes", l, round(b,2), units,round(tt,2))
+  if(d < 60) {
+    tt <- d
+    tu="seconds"
+  } else {
+    tt <- d/60
+    tu="minutes"
+  }
+  sprintf("Read %s objects(%s %s) in %s %s", l, round(b,2), units,round(tt,2),tu)
 }
 
 #' Iterates Through the Records of Sequence Files
@@ -117,7 +126,8 @@ makeMessage <- function(b, l, d){
 #' Can be used to iterate through the records of a Sequence File(or collection thereof)
 #' 
 #' @param files Path to file or directory containing  sequence files.  This can also be the output from rhwatch(provided read=FALSE) or rhmr.
-#' @param chunksize Number of records or bytes to read. Depends on 'type'
+#' @param chunksize Number of records or bytes to read. Depends on 'chunk'
+#' @param type Is it "sequence" or "map'. Ideally should be auto-determined.
 #' @param skip Files to skip while reading the hdfs.  Various installs of Hadoop add additional log
 #'			info to HDFS output from MapReduce.  Attempting to read these files is not what we want to do.
 #'	       To get around this we specify pieces of filenames to grep and remove from the read.
@@ -134,11 +144,11 @@ makeMessage <- function(b, l, d){
 #' }
 #' @export
 
-rhIterator <- function(files, chunksize=1000, type='records',skip=rhoptions()$file.types.remove.regex,mc=lapply){
+rhIterator <- function(files, type="sequence",chunksize=1000, chunk='records',skip=rhoptions()$file.types.remove.regex,mc=lapply){
   if(is(files, "rhwatch"))
     files <- rhofolder(files)
   files = rhabsolute.hdfs.path(files)
-  files <- getypes(files,"sequence",skip)
+  files <- getypes(files,type,skip)
   chunksize <- as.integer(chunksize)
   handle <- .jnew("org/godhuli/rhipe/SequenceFileIterator")
   handle$init(files, as.integer(chunksize), rhoptions()$server);

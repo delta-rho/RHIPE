@@ -17,7 +17,6 @@ Collate:
     'rhdel.R'
     'rhex.R'
     'rhget.R'
-    'rhgetkey.R'
     'rhjoin.R'
     'rhkill.R'
     'rhload.R'
