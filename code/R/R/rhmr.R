@@ -236,6 +236,8 @@ rhmr <- function(...){
   ## lines$mapred.textoutputformat.usekey <-  "TRUE"
   lines$rhipe_reduce_buff_size <- 6000
   lines$rhipe_map_buff_size <- 3000
+  lines$rhipe_map_bytes_read <- 150*1024*1024
+  lines$rhipe_reduce_bytes_read <- 150*1024*1024
   lines$rhipe_job_verbose <- "TRUE"
   lines$rhipe_stream_buffer <- 10*1024
   lines$rhipe.use.hadoop.combiner="FALSE"
@@ -337,7 +339,7 @@ rhmr <- function(...){
   },simplify=T))
   shared.files <- paste(shared.files,collapse=",")
   lines$rhipe_shared <- shared.files
-
+  lines$R_ENABLE_JIT <- 3
 
   lines$rhipe_setup_map  <- rawToChar(serialize(lines$rhipe_setup_map,NULL,ascii=TRUE))
   lines$rhipe_setup_reduce  <- rawToChar(serialize(lines$rhipe_setup_reduce,NULL,ascii=TRUE))
