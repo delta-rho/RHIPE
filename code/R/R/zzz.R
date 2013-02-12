@@ -154,31 +154,36 @@ onload.2 <- function(libname, pkgname){
   ## #############################################################################################
   
   assign("rhipeOptions",opts,envir=.rhipeEnv)
-  initialize()
+  ## initialize()
+  a <- "| Please call rhinit() else RHIPE will not run |"
+  a <- sprintf("%s\n%s\n%s",paste(rep("-",nchar(a)),collapse=""),a,paste(rep("-",nchar(a)),collapse=""))
+  message(a)
 }
 
-initialize <- function(){
+#' Initializes the RHIPE subsystem
+#'
+#' 
+#' @export 
+rhinit <- function(){
   opts <- rhoptions()
   hadoop <- opts$hadoop.env
   library(rJava)
   c1 <- list.files(hadoop["HADOOP_HOME"],pattern="jar$",full=T,rec=TRUE)
   c2 <- hadoop["HADOOP_CONF_DIR"]
-  hbaseJars  <- list.files(Sys.getenv("HBASE_HOME"),pattern="jar$",full.names=TRUE,rec=TRUE)
-  hbaseConf  <- list.files(sprintf("%s/conf",Sys.getenv("HBASE_HOME"),pattern="-site.xml$",full.names=TRUE,rec=TRUE))
-
   .jinit()
-  .jaddClassPath(c(c2,c1,opts$jarloc,opts$mycp,hbaseJars,hbaseConf))
+  .jaddClassPath(c(c2,c1,opts$jarloc,opts$mycp)) #,hbaseJars,hbaseConf))
   message(sprintf("Initializing Rhipe v%s",vvvv))
   server <-  .jnew("org/godhuli/rhipe/PersonalServer")
   dbg <- as.integer(Sys.getenv("RHIPE_DEBUG_LEVEL"))
   tryCatch(server$run(if(is.na(dbg)) 0L else dbg),Exception=function(e) e$printStackTrace())
   rhoptions(server=server,clz=list(fileutils = server$getFU(),filesystem = server$getFS(), config=server$getConf()))
+  server$getConf()$setClassLoader(.jclassLoader())
   rhoptions(mropts = Rhipe:::rhmropts()) 
   message("Initializing mapfile caches")
   rh.init.cache()
 }
 
 #' @export 
-rhinit <- function(...){
-  warning("Defunct. Will disappear soon, no need to call this")
-}
+## rhinit <- function(...){
+##   warning("Defunct. Will disappear soon, no need to call this")
+## }
