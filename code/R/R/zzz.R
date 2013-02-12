@@ -163,8 +163,11 @@ initialize <- function(){
   library(rJava)
   c1 <- list.files(hadoop["HADOOP_HOME"],pattern="jar$",full=T,rec=TRUE)
   c2 <- hadoop["HADOOP_CONF_DIR"]
+  hbaseJars  <- list.files(Sys.getenv("HBASE_HOME"),pattern="jar$",full.names=TRUE,rec=TRUE)
+  hbaseConf  <- list.files(sprintf("%s/conf",Sys.getenv("HBASE_HOME"),pattern="-site.xml$",full.names=TRUE,rec=TRUE))
+
   .jinit()
-  .jaddClassPath(c(c2,c1,opts$jarloc,opts$mycp))
+  .jaddClassPath(c(c2,c1,opts$jarloc,opts$mycp,hbaseJars,hbaseConf))
   message(sprintf("Initializing Rhipe v%s",vvvv))
   server <-  .jnew("org/godhuli/rhipe/PersonalServer")
   dbg <- as.integer(Sys.getenv("RHIPE_DEBUG_LEVEL"))

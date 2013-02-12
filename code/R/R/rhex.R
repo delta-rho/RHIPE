@@ -65,7 +65,9 @@ rhex <- function (conf,async=TRUE,mapred,...)
   ## y. <- paste(rep("-",min(nchar(x.),40)))
   ## message(y.);message(x.);message(y.)
   {
+
     result <- rhoptions()$server$rhex(zonf)
+    
     if(result == 1) result <- 256
     ## cat(sprintf("result:%s\n",result))
   }

@@ -29,11 +29,12 @@ initPRNG <- function(seed=NULL){
   mi
 }
 
-#' Reads all lines from a text file located on the HDFS
+#' Reads all or some lines from a text file located on the HDFS
 #' @param inp The location of the text file, interolated based on hdfs.getwd
+#' @param l the number of lines to read
 #' @keywords HDFS TextFile
 #' @export
-hdfsReadLines <- function(inp,l){
+hdfsReadLines <- function(inp,l=-1L){
   rhoptions()$server$readTextFile(rhabsolute.hdfs.path(inp),as.integer(l))
 }
 

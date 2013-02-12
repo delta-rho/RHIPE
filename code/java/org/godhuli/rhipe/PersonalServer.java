@@ -33,7 +33,7 @@ import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
-
+// import org.xeustechnologies.jcl.JarClassLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.Cache;
 import java.util.concurrent.Callable;
@@ -62,6 +62,7 @@ public class PersonalServer {
     Cache<String, MapFile.Reader> mapfileReaderCache;
     Hashtable<String,ArrayList<ValuePair>> mapToValueCacheKeys =  new Hashtable<String,ArrayList<ValuePair>>();
     Hashtable<String,ArrayList<String>> mapToValueCacheHandles  = new Hashtable<String,ArrayList<String>>();
+    // JarClassLoader jcl;
 
     public PersonalServer(){}
 
@@ -72,6 +73,7 @@ public class PersonalServer {
 	mrhash = new Hashtable<String, MapFile.Reader[]>();
 	mapfilehash = new Hashtable<String, String[]>();
 	fu = new FileUtils(_configuration);
+	// jcl  = new JarClassLoader();
     }
     public FileUtils getFU(){
 	return fu;
@@ -133,6 +135,26 @@ public class PersonalServer {
 	fu.killjob(s);
     }
 
+    // public void addJars(String s){
+    // 	addJars(new String[]{s},null);
+    // }
+    // public void addJars(String[] jars,String folder){
+    // 	if(jars!=null){
+    // 	    for(String s: jars){
+    // 		jcl.add(s);
+    // 	    }
+    // 	}
+    // 	if(folder!=null){
+    // 	    if(!folder.endsWith("/")) folder = folder+"/";
+    // 	    jcl.add(folder);
+    // 	}
+    // }
+    // public void addJars(String[] jars){
+    // 	for(String s: jars){
+    // 	    jcl.add(s);
+    // 	}
+    // }
+
     public int rhex(String zonf) throws Exception {
 	int result = RHMR.fmain(new String[] {zonf});
 	return result;
@@ -171,30 +193,6 @@ public class PersonalServer {
 	    .build();
     }
 
-    public byte[] readSequence(String file, int numread) throws IOException{
-	SequenceFile.Reader sqr = new SequenceFile.Reader(_filesystem, new Path(file), _configuration);
-	RHBytesWritable k = new RHBytesWritable();
-	RHBytesWritable v = new RHBytesWritable();
-	if(numread<0) 
-	    numread = java.lang.Integer.MAX_VALUE;
-	int i = 0;
-	REXP.Builder thevals   = REXP.newBuilder();
-    	thevals.setRclass(REXP.RClass.LIST);
-	while(i < numread){
-	    boolean gotone = sqr.next((Writable) k, (Writable) v);
-	    if(gotone){
-		i++;
-		REXP.Builder a   = REXP.newBuilder();
-		a.setRclass(REXP.RClass.LIST);
-		a.addRexpValue( RObjects.buildRawVector( k.getBytes(), 0, k.getLength()) );
-		a.addRexpValue( RObjects.buildRawVector( v.getBytes(), 0, v.getLength()) );
-		a.build();
-		thevals.addRexpValue(a);
-	    }else break;
-	}
-	sqr.close();
-	return thevals.build().toByteArray();
-    }
 
 
     public void clearEntriesFor(String forkey) throws Exception{
@@ -298,31 +296,6 @@ public class PersonalServer {
 	String[] s = new String[arl.size()];
 	s = arl.toArray(s);
 	return s;
-    }
-
-    public void binaryAsSequence2(REXP r) throws Exception { // works
-	Configuration cfg = new Configuration();
-	String ofolder = r.getRexpValue(1).getStringValue(0).getStrval();
-	int numperfile = r.getRexpValue(2).getIntValue(0);
-	int howmany = r.getRexpValue(3).getIntValue(0);
-	DataInputStream in = _fromR;
-	int count = 0, i=0;
-	String f = ofolder + "/" + i;
-	RHWriter w = new RHWriter(f, cfg);	
-	while(i < howmany){
-	    w.writeAValue(in);
-	    i++;
-	    if( i  % numperfile == 0){
-		count ++;
-		f = ofolder+"/"+count;
-		w.close();
-		if(i < howmany) 
-		    w = new RHWriter(f, cfg);
-	    }
-	}
-	try{
-	    w.close();
-	}catch(Exception e){}
     }
 
 

@@ -75,6 +75,7 @@
 <delete file="${R.dir}/inst/java/${ant.project.name}.jar"/>
 <copy file="${ant.project.name}.jar" todir="${R.dir}/inst/java/"/> 
 <copy file="${lib.dir}/guava-13.0.1.jar" todir="${R.dir}/inst/java/"/> 
+<!-- <copy file="${lib.dir}/jcl-core-2.5-SNAPSHOT.jar" todir="${R.dir}/inst/java/"/>  -->
 
 </target>
 

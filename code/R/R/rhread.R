@@ -37,7 +37,7 @@
 #'   \code{\link{rhdel}}, \code{\link{rhwrite}}, \code{\link{rhsave}}
 #' @keywords read HDFS file
 #' @export
-rhread <- function(files,type=c("sequence"),max=-1,skip=rhoptions()$file.types.remove.regex,mc=lapply,...){
+rhread <- function(files,type=c("sequence"),max=-1L,skip=rhoptions()$file.types.remove.regex,mc=lapply,...){
   if(is(files, "rhwatch"))
     files <- rhofolder(files)
   files = rhabsolute.hdfs.path(files)
@@ -59,46 +59,35 @@ rhread <- function(files,type=c("sequence"),max=-1,skip=rhoptions()$file.types.r
 }
 
 rhread.text <- function(files, max){
-  READER <- function(server,a,b) hdfsReadLines(a,b)
-  READER.PARSE <- function(f) f
-  reader.generic(files,max,READER,READER.PARSE,SIZE=nrow)
-}
-rhread.sequence <- function(files, max, mc){
-  mc <- eval(mc)
-  READER <- function(server,a,b) { server$readSequence(a,b) }
-  READER.PARSE <- function(f) mc(rhuz(f), function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
-  reader.generic(files,max,READER,READER.PARSE,SIZE=length)
+  x <- c()
+  i <- 1
+  ntoread <- if(max>0) as.integer(max) else Inf
+  while(ntoread>0  && i<= length(files)){
+    a <- hdfsReadLines(files[i],if(ntoread==Inf) -1L else ntoread)
+    ntoread <- ntoread - length(a)
+    x <- c(x,a)
+    i <- i+1
+  }
+  return(x)
 }
 
-reader.generic <- function(files,max,READER,READER.PARSE,SIZE){
+rhread.sequence <- function(files, max, mc){
   a1 <- proc.time()['elapsed']
-  cont <- vector('list',length=length(files))
-  server <- rhoptions()$server
-  index <-  1
-  num.to.read <- as.integer(max)
-  L <- length(files)
-  bytes <- 0
-  if(num.to.read>0){
-    while(num.to.read > 0 && index <= L ){
-      f <- READER(server,files[index], num.to.read)
-      bytes <- bytes+SIZE(f)
-      cont[[index]] <- READER.PARSE(f)
-      num.to.read <- num.to.read - SIZE(cont[[index]])
-      index <- index+1L
-    }
-  }else{
-    while(index <= L ){
-      f <- READER(server,files[index], -1L)
-      bytes <- bytes+SIZE(f)
-      cont[[index]] <-READER.PARSE(f)
-      index <- index+1
-    }
+  handle <- .jnew("org/godhuli/rhipe/SequenceFileIterator")
+  j <- list()
+  a <- handle$init(files, as.integer(10*1024*1024), as.integer(max),rhoptions()$server);
+  bread <- 0
+  while(handle$hasMoreElements()){
+    v <-  handle$nextChunk()
+    j[[ length(j) +1 ]] <- mc(rhuz(v), function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
+    bread <- bread + length(v)
   }
-  v <- unlist(cont,rec=FALSE)
+  v <- unlist(j,rec=FALSE)
   a2 <-  proc.time()['elapsed']
-  message(makeMessage(bytes,length(v), a2-a1))
+  message(makeMessage(bread,length(v), a2-a1))
   v
 }
+
 
 makeMessage <- function(b, l, d){
   units <- "KB"

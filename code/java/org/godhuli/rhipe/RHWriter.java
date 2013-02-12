@@ -1,21 +1,23 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// /**
+//  * Licensed to the Apache Software Foundation (ASF) under one
+//  * or more contributor license agreements.  See the NOTICE file
+//  * distributed with this work for additional information
+//  * regarding copyright ownership.  The ASF licenses this file
+//  * to you under the Apache License, Version 2.0 (the
+//  * "License"); you may not use this file except in compliance
+//  * with the License.  You may obtain a copy of the License at
+//  *
+//  *     http://www.apache.org/licenses/LICENSE-2.0
+//  *
+//  * Unless required by applicable law or agreed to in writing, software
+//  * distributed under the License is distributed on an "AS IS" BASIS,
+//  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  * See the License for the specific language governing permissions and
+//  * limitations under the License.
+//  */
 package org.godhuli.rhipe;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.io.DataInputStream;
@@ -44,78 +46,59 @@ import java.util.ArrayList;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.io.WritableUtils;
+import org.godhuli.rhipe.REXPProtos.REXP;
 
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.SequenceFile.Writer;
 
 
 public class RHWriter {
+    protected static final Log LOG = LogFactory.getLog(RHWriter.class
+						       .getName());
+
     private SequenceFile.Writer sqw;
-    private byte[] keys=null;
-    private byte[] values=null;
-    private int num;
-    private RHBytesWritable k,v;
-    private RHBytesWritable NullKey;
-
-    public RHWriter(){
-	sqw = null;
-	k=new RHBytesWritable();
-	v=new RHBytesWritable();
-	NullKey = new RHBytesWritable((new RHNull()).getRawBytes());
-    }
-	    
-    public RHWriter(String name,Configuration cf) throws IOException{
-	k=new RHBytesWritable();
-	v=new RHBytesWritable();
-	NullKey = new RHBytesWritable((new RHNull()).getRawBytes());	
-	set(name,cf);
+    Configuration c;
+    FileSystem f;
+    String dest;
+    int currentfile;
+    int numperfile;
+    int numwritten = 0;
+    final RHBytesWritable anull = new RHBytesWritable( (new RHNull()).getRawBytes());
+    public RHWriter(String output, int numper,PersonalServer s) throws Exception{
+	dest= output;
+	currentfile = 0;
+	numperfile = numper;
+	c = s.getConf();
+	f = s.getFS();
+	makeNewFile();
     }
 
-    public void set(String name,Configuration cf) throws IOException {
-	Path p = new Path(name);
-	FileSystem fs = FileSystem.get(cf);
-	sqw = new SequenceFile.Writer(fs,cf,p, RHBytesWritable.class,
-				      RHBytesWritable.class);
-    }
-    
-    public void setKeyArray(int n,byte[] keyarray,byte[] valarray){
-	this.keys = keyarray;
-	this.values = valarray;
-	this.num = n;
-    }
-
-    public void doWrite() throws IOException{
-	DataInputStream bkis = new DataInputStream(new ByteArrayInputStream(keys));
-	DataInputStream bvis = new DataInputStream(new ByteArrayInputStream(values));
-	for(int i=0;i<num;i++){
-	    k.readFields(bkis);
-	    // System.out.println(k);
-	    v.readFields(bvis);
-	    sqw.append(k,v);
+    public void write(byte[] d) throws Exception{
+	REXP elements =  REXP.newBuilder().mergeFrom(d, 0, d.length).build();
+	RHBytesWritable x = new RHBytesWritable();
+	for(int i=0; i < elements.getRexpValueCount();i++){
+	    x.set(elements.getRexpValue(i).toByteArray());
+	    // LOG.info("Numwritten="+numwritten);
+	    if(numwritten >= numperfile){
+		close();
+		makeNewFile();
+	    }
+	    sqw.append(anull,x);
+	    numwritten++;
 	}
     }
-    
-    public void writeAValue(DataInputStream in) throws IOException {
-	try{
-	    v.readIntFields(in);
-	    sqw.append(NullKey,v);
-	}catch(EOFException e){}
+    public void makeNewFile() throws IOException{
+	currentfile ++;
+	// LOG.info("New File for "+currentfile);
+	sqw = new SequenceFile.Writer(f,c,new Path(dest+"/part_"+currentfile), RHBytesWritable.class, RHBytesWritable.class);
     }
-    public void doWriteFile(DataInputStream in,int count) throws IOException{
-	for(int i=0;i<count;i++){
-	    try{
-		k.readIntFields(in);
-		v.readIntFields(in);
-		sqw.append(k,v);
-	    }catch(EOFException e){}
-	}
-    }
-
     public void close() throws IOException{
-	sqw.close();
+	// LOG.info("Closed file corresponding to "+currentfile);
+	if(sqw!=null) {
+	    sqw.sync();
+	    sqw.close();
+	}
     }
-    public SequenceFile.Writer getSQW(){
-	return sqw;
-    }
+
 }
 
