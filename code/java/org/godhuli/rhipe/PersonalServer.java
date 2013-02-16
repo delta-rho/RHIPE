@@ -64,87 +64,13 @@ public class PersonalServer extends Configured implements Tool {
 
     public PersonalServer(){}
 
-    public static String getPID() throws IOException, InterruptedException {
-	// Taken from
-	// http://www.coderanch.com/t/109334/Linux-UNIX/UNIX-process-ID-java-program
-	Vector<String> commands = new Vector<String>();
-	commands.add("/bin/bash");
-	commands.add("-c");
-	commands.add("echo $PPID");
-	ProcessBuilder pb = new ProcessBuilder(commands);
-	Process pr = pb.start();
-	pr.waitFor();
-	if (pr.exitValue() == 0) {
-	    BufferedReader outReader = new BufferedReader(
-							  new InputStreamReader(pr.getInputStream()));
-	    return outReader.readLine().trim();
-	} else {
-	    throw new IOException("Problem getting PPID");
-	}
-    }
-    
-    public void docrudehack(String temp) throws IOException {
-	FileWriter outFile = new FileWriter(temp);
-	String x = "DONE";
-	outFile.write(x, 0, x.length());
-	outFile.flush();
-	outFile.close();
-    }
-    public void setUserInfo(String ipaddress, String tempfile, String tempfile2,
-			    int bugl) throws InterruptedException, FileNotFoundException,
-					     UnknownHostException, SecurityException, IOException {
+    public void setUserInfo( int bugl) throws InterruptedException {
 	bbuf = new byte[100];
 	this.buglevel = bugl;
 	seqhash = new Hashtable<String, SequenceFile.Reader>();
 	mrhash = new Hashtable<String, MapFile.Reader[]>();
 	mapfilehash = new Hashtable<String, String[]>();
-	REXP.Builder thevals = REXP.newBuilder();
-	thevals.setRclass(REXP.RClass.LOGICAL);
-	thevals.addBooleanValue(REXP.RBOOLEAN.T);
-	yesalive = thevals.build();
-	if (buglevel > 10)
-	    LOG.info("Calling FileUtils");
 	fu = new FileUtils(getConf());
-	if (buglevel > 10)
-	    LOG.info("Got FileUtils object:" + fu);
-		
-	ServerSocket fromRsock, errsock, toRsock;
-	if (buglevel > 10)
-	    LOG.info("Creating listening and writing sockets");
-	fromRsock = new ServerSocket(0, 0, InetAddress.getByName(ipaddress));
-	toRsock = new ServerSocket(0);
-	errsock = new ServerSocket(0);
-	if (buglevel > 10)
-	    LOG.info("Got fromRsock=" + fromRsock + " toRsock=" + toRsock
-		     + " errsock=" + errsock);
-	FileWriter outFile = new FileWriter(tempfile);
-	if (buglevel > 10)
-	    LOG.info("Writing information to file:" + outFile);
-	String x = "fromR toR err PID\n";
-	outFile.write(x, 0, x.length());
-	x = fromRsock.getLocalPort() + " " + toRsock.getLocalPort() + " "
-	    + errsock.getLocalPort() + " " + getPID() + "\n";
-	outFile.write(x, 0, x.length());
-	outFile.flush();
-	outFile.close();
-	docrudehack(tempfile2);
-	if (buglevel > 10)
-	    LOG.info("Finished with crudehack by creating a file called "
-		     + tempfile2);
-	Socket a = fromRsock.accept();
-	_fromR = new DataInputStream(new BufferedInputStream(
-							     a.getInputStream(), 1024));
-	a = toRsock.accept();
-	_toR = new DataOutputStream(new BufferedOutputStream(a
-							     .getOutputStream(), 1024));
-	a = errsock.accept();
-	_err = new DataOutputStream(new BufferedOutputStream(a
-							     .getOutputStream(), 1024));
-
-	if(buglevel > 10)
-	    LOG.info("Initializing Caches");
-	if (buglevel > 10)
-	    LOG.info("Now waiting on all sockets");
     }
 
     public void rhmropts(REXP r) throws Exception {
@@ -416,14 +342,18 @@ public class PersonalServer extends Configured implements Tool {
 			 .makeStringVector("worker_result"));
 	sendMessage(thevals.build());
     }
+    
+    public byte[] send_back(REXP r){
+	REXP.Builder thevals = REXP.newBuilder();
+	thevals.setRclass(REXP.RClass.LIST);
+	thevals.addRexpValue(r);
+	RObjects.addAttr(thevals, "class", RObjects
+			 .makeStringVector("worker_result"));
+	return thevals.build().toByteArray();
+    }
 
     public void initializeCaches(REXP rexp) throws Exception{
 	REXP rexp0 = rexp.getRexpValue(1);
-	// RemovalListener<ValuePair, RHBytesWritable> rl = new RemovalListener<ValuePair, RHBytesWritable>() {
-	//     public void onRemoval(RemovalNotification<ValuePair, RHBytesWritable> removal) throws RuntimeException{
-	// 	    LOG.info("Extterminate key, emptied from cache:"+removal.getKey());
-	//     }
-	// };
 	valueCache = CacheBuilder.newBuilder()
 	    .maximumWeight(rexp0.getRexpValue(0).getIntValue(0)) //max MB in bytes, set to 100MB
 	    .weigher(new Weigher<ValuePair, RHBytesWritable>() {
@@ -431,10 +361,9 @@ public class PersonalServer extends Configured implements Tool {
 	    		return k.getKey().getLength() + g.getLength();
 	    	    }
 	    	})
-	    // .removalListener(rl)
 	    .recordStats()
 	    .build();
-
+	
 	RemovalListener<String, MapFile.Reader> removalListener = new RemovalListener<String, MapFile.Reader>() {
 	    public void onRemoval(RemovalNotification<String, MapFile.Reader> removal) throws RuntimeException{
 		try{
@@ -650,127 +579,16 @@ public class PersonalServer extends Configured implements Tool {
 	send_result("OK");
     }
 
-    public void shutdownJavaServer() throws Exception {
-	//send_alive();  Actually, I will let R ask for send_alive().
-	System.exit(0);
-    }
 
-    public void startme() {
-	while (true) {
-	    try {
-		int size = _fromR.readInt();
-		if (size > bbuf.length) {
-		    bbuf = new byte[size];
-		}
-		if (size < 0)
-		    break;
-		else if (size == 0)
-		    send_alive();
-		else {
-		    _fromR.readFully(bbuf, 0, size);
-		    REXP r = REXP.newBuilder().mergeFrom(bbuf, 0, size).build();
-		    if (r.getRclass() == REXP.RClass.NULLTYPE)
-			send_alive();
-		    // the first element of list is function, the rest are
-		    // arguments
-		    String tag = r.getRexpValue(0).getStringValue(0)
-			.getStrval();
-		    // if (tag.equals("rhmropts"))
-		    // 	rhmropts(r);
-		    // else if (tag.equals("rhls"))
-		    // 	rhls(r);
-		    // else if (tag.equals("rhget"))
-		    // 	rhget(r);
-		    // else if (tag.equals("rhput"))
-		    // 	rhput(r);
-		    // else if (tag.equals("rhdel"))
-		    // 	rhdel(r);
-		    // else if (tag.equals("rhgetkeys"))
-		    // 	rhgetkeys(r);
-		    // else if (tag.equals("binaryAsSequence"))
-		    // 	binaryAsSequence(r);
-		    // else if (tag.equals("sequenceAsBinary"))
-		    // 	sequenceAsBinary(r);
-		    // else if (tag.equals("rhstatus"))
-		    // 	rhstatus(r);
-		    // else if (tag.equals("rhjoin"))
-		    // 	rhjoin(r);
-		    // else if (tag.equals("rhkill"))
-		    // 	rhkill(r);
-		    // else if (tag.equals("rhex"))
-		    // 	rhex(r);
-		    // else if (tag.equals("rhcat"))
-		    // 	rhcat(r);
-		    // else if (tag.equals("rhopensequencefile"))
-		    // 	rhopensequencefile(r);
-		    // else if (tag.equals("rhgetnextkv"))
-		    // 	rhgetnextkv(r);
-		    // else if (tag.equals("initializeCaches"))
-		    // 	initializeCaches(r);
-		    // else if (tag.equals("initializeMapFile"))
-		    // 	initializeMapFile(r);
-		    // else if (tag.equals("rhgetkeys2"))
-		    // 	rhgetkeys2(r);
-		    // else if (tag.equals("rhclosesequencefile"))
-		    // 	rhclosesequencefile(r);
-		    if (tag.equals("shutdownJavaServer"))
-			shutdownJavaServer();
-		    else{
-			Method method = Class.forName("org.godhuli.rhipe.PersonalServer").getMethod(tag, new Class[]{REXP.class});
-			method.invoke(this, r);
-		    }
-
-		    // else if(tag.equals("rhcp")) rhcp(r);
-		    // else if(tag.equals("rhmv")) rhmv(r);
-		    // else if(tag.equals("rhmerge")) rhmerge(r);
-
-		    // else
-		    // 	send_error_message("Could not find method with name: "
-		    // 			   + tag + "\n");
-		}
-	    } catch (EOFException e) {
-		System.exit(0);
-	    } catch (SecurityException e) {
-		send_error_message(e.getCause());
-	    } catch (RuntimeException e) {
-		send_error_message(e);
-	    } catch (IOException e) {
-		send_error_message(e);
-	    } catch(NoSuchMethodException e){
-		send_error_message(e.getCause());
-	    } catch(IllegalAccessException e){
-		send_error_message(e.getCause());
-	    } catch(InvocationTargetException e){
-		send_error_message(e.getCause());
-	    } catch (Exception e) {
-		send_error_message(e);
-	    }
-	}
-    }
-
-    public int run(String[] args) throws Exception {
+    public int run(int buglevel) throws Exception {
 	// Configuration processed by ToolRunner
-	Configuration conf = getConf();
 	_configuration = getConf();
 	_filesystem = FileSystem.get(_configuration);
 	_hp = RHMapFileOutputFormat.getHP();
-	int buglevel = Integer.parseInt(args[3]);
-	setUserInfo(args[0], args[1], args[2],
-		    buglevel);
-	startme();
-
-	// while (true) {
-	//     try {
-	//     } catch (Exception e) {
-	// 	System.err.println(Thread.currentThread().getStackTrace());
-	//     }
-	// }
+	setUserInfo(buglevel);
 	return(0);
     }
 
-    public static void main(String[] args) throws Exception {
-	int res = ToolRunner.run(new Configuration(), new PersonalServer(), args);
-    }
     
     public abstract class DelayedExceptionThrowing {
 	abstract void process(Path p, FileSystem srcFs) throws IOException;

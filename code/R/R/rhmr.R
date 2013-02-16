@@ -161,11 +161,13 @@ rhmr <- function(...){
   }
   if(!is.null(paramaters)){
     if(is.list(paramaters)){
-      nl <- list()
-      for(x in names(aparamaters)) nl[[x]] <- aparamaters[[x]]
-      for(x in names(paramaters)) nl[[x]] <- paramaters[[x]]
-      paramaters <- nl
+      ## get any parameters in 'aparamaters' that aren't already defined in 'paramaters'
+      autoPar <- setdiff(names(aparamaters), names(paramaters))
+      ## append these to 'paramaters'
+      if(length(autoPar) > 0)
+        paramaters <- c(paramaters, aparamaters[autoPar])
     }
+
     if(!is.null(paramaters) && is(paramaters,"character") && tolower( paramaters)=="all")
       paramaters<- getObjects()
     if(!is.null(paramaters) && is(paramaters,"character") && tolower( paramaters)=="auto"){
