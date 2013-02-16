@@ -39,7 +39,6 @@ hdfsReadLines <- function(inp,l=-1L){
 }
 
 
-
 getypes <- function(files,type,skip){
   type = match.arg(type,c("sequence","map","text","gzip","index"))
   files <- switch(type,

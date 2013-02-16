@@ -18,10 +18,12 @@
 #'   \code{\link{rhsave}}, \code{\link{rhget}}
 #' @keywords list HDFS directory
 #' @export
-rhls <- function(folder,recurse=FALSE){
+rhls <- function(folder=NULL,recurse=FALSE){
 	## List of files,
   if( is(folder,"rhmr") || is(folder, "rhwatch"))
     folder <- rhofolder(folder)
+  if(is.null(folder))
+    folder <- hdfs.getwd()
   folder <- rhabsolute.hdfs.path(folder)
   v <- rhoptions()$server$rhls(folder, if(recurse) 1L else 0L)
   v <- rhuz(v)

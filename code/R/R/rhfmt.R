@@ -17,6 +17,7 @@ folder.handler <- function(ifolder){
   if(!is.null(ifolder)) ifolder <- rhofolder(ifolder)
   if(all(sapply(ifolder, function(r) nchar(r)>0)))
     ifolder = rhabsolute.hdfs.path(ifolder)
+  ifolder
 }
 
 lapplyio <- function(args){

@@ -40,10 +40,10 @@ hdfs.setwd = function(path, check.valid.hdfs = TRUE){
 		#Is there a better command that doesn't have the overhead of returning files?
 		x = NULL
 		try({
-			x =  Rhipe:::send.cmd(rhoptions()$child$handle, list("rhls", path, 0L))
+                  x =  rhoptions()$clz$filesystem$exists(.jnew("org/apache/hadoop/fs/Path",path))
 		},silent = TRUE)
-		if(is.null(x)) 
-			stop("Invalid HDFS path.")
-	}
+		if(!x) 
+                  stop("Invalid HDFS path.")
+              }
 	rhoptions(hdfs.working.dir = path)
-}
+      }

@@ -401,7 +401,12 @@ rhmr <- function(...){
     })})),collapse=",")
   else  lines$rhipe_zips=""
 
-
+  ## ####################################
+  ## Fixup Output Path
+  ## ####################################
+  if(is.null(lines$rhipe.fixup.output) || (lines$rhipe.fixup.output==TRUE)){
+    lines$rhipe_output_folder <-  rhabsolute.hdfs.path(lines$rhipe_output_folder)
+  }
     
   lines$param.temp.file <- NULL
   lines <- lapply(lines,as.character);

@@ -9,7 +9,7 @@
 #' @param numfiles number of files to write to
 #' @param chunks an integer specificed to chunk data frames into rows or lists into sublists
 #' @details This code, will chunk a data frame(or matrix) or list into sub objects, defined by chunks
-#' and then written to the HDFS across numfiles files. Thus is chunks is 10, and numfiles is 20, then
+#' and then written to the HDFS across numfiles files. Thus if chunks is 10, and numfiles is 20, then
 #' a data frame is divided into sub data frames of rows 10 each and written across 20 files.
 #' In order to improve the R-Java switch, this is buffered, the buffer size defined by passByte(bytes).
 #' @examples
@@ -23,6 +23,7 @@
 #' @export
 rhwrite <- function(object,file,numfiles=1,chunk=1,passByte=1024*1024*20){
   ## rhdel(file)
+  file <- rhabsolute.hdfs.path(file)
   if(any(class(object) %in% c("data.frame","matrix"))){
     writeGeneric(object, file, numfiles, chunk,passByte,LENGTH=nrow, SLICER=function(o,r) o[r,,drop=FALSE] )
   }else if(any(class(object) %in% "list")){
