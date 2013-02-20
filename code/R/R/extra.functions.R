@@ -21,7 +21,6 @@ initPRNG <- function(seed=NULL){
     }
     RNGkind("default")
     assign(".Random.seed", seed, envir = .GlobalEnv)
-    rhcounter("Seed",paste(.Random.seed,collapse=":"),1)
   }
   e1 <- new.env(parent = .BaseNamespaceEnv)
   assign("iseed",seed,envir=e1)

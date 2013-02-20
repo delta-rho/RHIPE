@@ -8,10 +8,14 @@
 #' @export
 rhJobInfo <- function(job){
   fu <- rhoptions()$clz$fileutils
-  if(class(job)!="jobtoken" && class(job)!="character" ) stop("Must give a jobtoken object(as obtained from rhex)")
-  if(class(job)=="character") id <- job else {
-    job <- job[[1]]
+  if(!is(job,"jobtoken") && !is(job,"character") && !is(job,"rhwatch")) stop("Must give a jobtoken object(as obtained from rhwatch(..read=FALSE))")
+  if(is(job,"character")) id <- job
+  else  if (is(job,"jobtoken")){
     id <- job[['job.id']]
+  }else if (is(job,"rhwatch")){
+    x <- gregexpr("jobid=",job[[1]]$tracking)
+    st <- x[[1]]+attr(x[[1]],"match.length")
+    id <- substring(job[[1]]$tracking, st,1e6L)
   }
   a <- fu$getDetailedInfoForJob(id)
   a <- rhuz(a)
