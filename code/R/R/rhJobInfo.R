@@ -11,6 +11,7 @@ rhJobInfo <- function(job){
   if(!is(job,"jobtoken") && !is(job,"character") && !is(job,"rhwatch")) stop("Must give a jobtoken object(as obtained from rhwatch(..read=FALSE))")
   if(is(job,"character")) id <- job
   else  if (is(job,"jobtoken")){
+    job <- job[[1]]
     id <- job[['job.id']]
   }else if (is(job,"rhwatch")){
     x <- gregexpr("jobid=",job[[1]]$tracking)
