@@ -48,6 +48,7 @@ public class RHMRMapper extends Mapper<WritableComparable,
     
     public void run(Context context) throws IOException, 
 	InterruptedException {
+	long t1= System.nanoTime();
 	helper = new RHMRHelper("Mapper");
 	setup(context);
 	if(whichMapper==1){
@@ -65,6 +66,7 @@ public class RHMRMapper extends Mapper<WritableComparable,
 	}
 	cleanup(context);
 	helper.checkOuterrThreadsThrowable();
+	context.getCounter("rhipe_timing","overall").increment(System.nanoTime()-t1);
     }								  
 	
 		  
