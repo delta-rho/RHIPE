@@ -157,7 +157,7 @@ rhmr <- function(...){
       })
     }
     if(length(ls(seen.vars))>0)
-      warning(sprintf("RHIPE(param='auto'): Following variables were discovered but not found: %s",paste(ls(seen.vars,all.names=TRUE),collapse=",")))
+      warning(sprintf("RHIPE(param='auto'): Following variables were discovered but not found: %s",paste(ls(seen.vars,all.names=TRUE),collapse=",")),immediate. =TRUE)
   }
   
   if(is.null(paramaters) && rhoptions()$copyObjects$auto){
