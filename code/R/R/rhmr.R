@@ -113,30 +113,37 @@ rhmr <- function(...){
     calling.frame <- sys.frame(-2) #since rhwatch calls this
     seen.vars <- new.env()
     getV <- function(mu,cf){
-    omit <- c(ls("package:base", all.names=TRUE),ls("package:stats", all.names=TRUE),ls("package:utils", all.names=TRUE))
-    ## see http://comments.gmane.org/gmane.comp.lang.r.general/284792
-    .getV <- function(mu){
-      x <- findGlobals(mu,merge=FALSE);
-      varns <- setdiff(x$variables, omit)
-      fns <- as.logical(unlist(sapply(varns, function(a) is.function(tryCatch(get(a,cf),error=function(e) NULL )))))
-      xfns <- unique(c(x$functions,varns[fns]))
-      varns <- varns[!fns]
-      list(funs=setdiff(xfns, omit),varns=varns)
-    }
-    res <- .getV(mu)
-    return(unique( unlist(c( res$varns, res$funs
+      omit <- c(ls("package:base", all.names=TRUE),ls("package:stats", all.names=TRUE),ls("package:utils", all.names=TRUE), rhoptions()$copyObjects$exclude)
+      ## see http://comments.gmane.org/gmane.comp.lang.r.general/284792
+      elim <- function(p,cfd){
+        ## if(identical(cfd, .GlobalEnv)) return(p)
+        p[ unlist(sapply(p,function(axs) exists(axs, envir=.GlobalEnv)))]
+      }
+      .getV <- function(mu){
+        x <- findGlobals(mu,merge=FALSE);
+        varns <- setdiff(x$variables, omit)
+        fns <- as.logical(unlist(sapply(varns, function(a) is.function(tryCatch(get(a,cf),error=function(e) NULL )))))
+        xfns <- unique(c(x$functions,varns[fns]))
+        xfns <- xfns[! xfns %in% omit]
+        varns <- varns[!fns]
+        varns <- elim(varns, cf); xfns <- elim(xfns,cf)
+        list(funs=xfns,varns=varns)
+      }
+    
+      res <- .getV(mu)
+      return(unique( unlist(c( res$varns, res$funs
                             ,sapply(res$varns, function(kap) {
                               moz <- tryCatch(get(kap,envir=cf),error=function(e) NULL)
                               if(is(moz,"list")){
                                 sapply(moz, function(af){
                                   if(is(af,"function"))
-                                      getV(af,cf)
+                                      getV(af,environment(af))
                                 })
                               }})
                             ,sapply(res$funs, function(kap) {
                               moz <- tryCatch(get(kap,envir=cf),error=function(e) NULL)
                               if(!is.null(moz))
-                                getV(moz,cf)
+                                getV(moz,environment(moz))
                               else
                                 NULL
                             })))))
@@ -147,8 +154,8 @@ rhmr <- function(...){
       body(sampbody) <- mu
       getV(sampbody,cf=calling.frame)
     })))
+    ## dx <- mux[!mux %in% rhoptions()$copyObjects$exclude ]
     for(x in mux){
-      if(x %in% c("map.keys","map.values",".Random.seed",rhoptions()$copyObjects$exclude)) next
       aparamaters[[x]] <- tryCatch(get(x, envir=calling.frame), error=function(e){
         ## if(!x %in% ls(seen.vars))
         ##   warning(sprintf("RHIPE: [param=auto], During symbol auto detect phase, object %s not found", x))
