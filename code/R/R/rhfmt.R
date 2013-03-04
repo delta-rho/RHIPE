@@ -43,13 +43,13 @@ lapplyio <- function(args){
     })
     lines$rhipe_setup_reduce <- c(lines$rhipe_setup_reduce,expr)
     lines$rhipe_setup_map <- c(lines$rhipe_setup_map,expr)
-    }
     if( !lines$rhipe_reduce_justcollect) {
       ## user left reduce empty ...
       lines$mapred.reduce.tasks <- 0
     }
     lines$rhipe_lapply_lengthofinput <- as.integer(args[1])
     lines
+  }
 }
 
 
