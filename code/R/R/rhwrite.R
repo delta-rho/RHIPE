@@ -28,7 +28,7 @@ rhwrite <- function(object,file,numfiles=1,chunk=1,passByte=1024*1024*20){
     writeGeneric(object, file, numfiles, chunk,passByte,LENGTH=nrow, SLICER=function(o,r) o[r,,drop=FALSE] )
   }else if(any(class(object) %in% "list")){
     writeGeneric(object, file, numfiles, chunk,passByte,LENGTH=length, SLICER=function(o,r) o[r])
-  }
+  }else stop("Invalid Class of object")
 }
 
 writeGeneric <- function(object,file, numfiles, chunks,passByte,LENGTH,SLICER){
