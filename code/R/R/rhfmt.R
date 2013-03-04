@@ -48,6 +48,7 @@ lapplyio <- function(args){
     }
     lines$rhipe_lapply_lengthofinput <- as.integer(args[1])
     lines
+  }
 }
 
 nullo <- function(){
