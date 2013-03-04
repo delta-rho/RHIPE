@@ -22,7 +22,7 @@ folder.handler <- function(ifolder){
 lapplyio <- function(args){
   args <- eval(args)
   function(lines,direction,caller){
-    if(direction!="input") stop("Cannot use N for anything but output")
+    if(direction!="input") stop("Cannot use this for anything but input")
     lines$rhipe_inputformat_class <- 'org.godhuli.rhipe.LApplyInputFormat'
     lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHNumeric'
     lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHNumeric'
@@ -42,7 +42,6 @@ lapplyio <- function(args){
     })
     lines$rhipe_setup_reduce <- c(lines$rhipe_setup_reduce,expr)
     lines$rhipe_setup_map <- c(lines$rhipe_setup_map,expr)
-    }
     if( !lines$rhipe_reduce_justcollect) {
       ## user left reduce empty ...
       lines$mapred.reduce.tasks <- 0
