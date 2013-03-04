@@ -112,30 +112,34 @@ rhmr <- function(...){
     exp <- list( setup$map, setup$reduce, cleanup$map, cleanup$reduce, map,reduce$pre,reduce$post,reduce$reduce)
     calling.frame <- sys.frame(-2) #since rhwatch calls this
     seen.vars <- new.env()
-    getV <- function(mu,cf){
-      omit <- c(ls("package:base", all.names=TRUE),ls("package:stats", all.names=TRUE),ls("package:utils", all.names=TRUE))
-      ## see http://comments.gmane.org/gmane.comp.lang.r.general/284792
-      .getV <- function(mu){
-        x <- findGlobals(mu,merge=FALSE);
-        list(funs=setdiff(x$functions, omit),varns=setdiff(x$variables, omit))
-      }
-      res <- .getV(mu)
-      return(unique( unlist(c( res$varns, res$funs
-                              ,sapply(res$varns, function(kap) {
-                                moz <- tryCatch(get(kap,envir=cf),error=function(e) NULL)
-                                if(is(moz,"list")){
-                                  sapply(moz, function(af){
-                                    if(is(af,"function"))
+  getV <- function(mu,cf){
+    omit <- c(ls("package:base", all.names=TRUE),ls("package:stats", all.names=TRUE),ls("package:utils", all.names=TRUE))
+    ## see http://comments.gmane.org/gmane.comp.lang.r.general/284792
+    .getV <- function(mu){
+      x <- findGlobals(mu,merge=FALSE);
+      varns <- setdiff(x$variables, omit)
+      fns <- sapply(varns, function(a) is.function(tryCatch(get(a,cf),error=function(e) NULL )))
+      xfns <- unique(c(x$functions,varns[fns]))
+      varns <- varns[!fns]
+      list(funs=setdiff(xfns, omit),varns=varns)
+    }
+    res <- .getV(mu)
+    return(unique( unlist(c( res$varns, res$funs
+                            ,sapply(res$varns, function(kap) {
+                              moz <- tryCatch(get(kap,envir=cf),error=function(e) NULL)
+                              if(is(moz,"list")){
+                                sapply(moz, function(af){
+                                  if(is(af,"function"))
                                       getV(af,cf)
                                 })
-                                }})
-                              ,sapply(res$funs, function(kap) {
-                                moz <- tryCatch(get(kap,envir=cf),error=function(e) NULL)
-                                if(!is.null(moz))
-                                  getV(moz,cf)
-                                else
-                                  NULL
-                              })))))
+                              }})
+                            ,sapply(res$funs, function(kap) {
+                              moz <- tryCatch(get(kap,envir=cf),error=function(e) NULL)
+                              if(!is.null(moz))
+                                getV(moz,cf)
+                              else
+                                NULL
+                            })))))
     }
     
     mux <- unique(unlist(lapply(exp, function(mu){

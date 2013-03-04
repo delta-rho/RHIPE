@@ -13,4 +13,5 @@ rhofolder <- function(job){
     return (job[[1]]$rhipe_output_folder)
   if(is(job,"rhwatch"))
     return(job[[2]][[1]]$rhipe_output_folder)
+  stop("Not a valid object, should be rhmr, rhwatch or character")
 }

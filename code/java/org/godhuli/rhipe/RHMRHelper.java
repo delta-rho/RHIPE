@@ -214,9 +214,10 @@ public class RHMRHelper {
     void waitOutputThreads(TaskInputOutputContext<WritableComparable,RHBytesWritable
 			   ,WritableComparable,RHBytesWritable> ctx) {
 	try {
-	    if (outThread_ == null) {
-		startOutputThreads(new DummyContext(ctx)); //will fail
-	    }
+	    // I commented this out, if uncommented, then uncomment the bit for DummyContext
+	    // if (outThread_ == null) {
+	    // 	startOutputThreads(new DummyContext(ctx)); //will fail
+	    // }
 	    int exitVal = sim.waitFor();
 	    if (exitVal != 0) {
 		if (nonZeroExitIsFailure_) {
@@ -253,40 +254,40 @@ public class RHMRHelper {
 	return(extraInfo);
     }
 
-    class DummyContext extends TaskInputOutputContext<WritableComparable,RHBytesWritable,
-			       WritableComparable,RHBytesWritable> {
-	DummyContext(TaskInputOutputContext<WritableComparable,RHBytesWritable,
-		     WritableComparable,RHBytesWritable>ctx){
-	    super(null, null, null, null, null); //wont work
-	}
-	public RHBytesWritable getCurrentKey() throws IOException, InterruptedException {
-	    return null;
-	}
+    // class DummyContext extends TaskInputOutputContext<WritableComparable,RHBytesWritable,
+    // 			       WritableComparable,RHBytesWritable> {
+    // 	DummyContext(TaskInputOutputContext<WritableComparable,RHBytesWritable,
+    // 		     WritableComparable,RHBytesWritable>ctx){
+    // 	    super(null, null, null, null, null); //wont work
+    // 	}
+    // 	public RHBytesWritable getCurrentKey() throws IOException, InterruptedException {
+    // 	    return null;
+    // 	}
 	
-	public RHBytesWritable getCurrentValue() throws IOException, InterruptedException {
-	    return null;
-	}
-	public boolean nextKeyValue() throws IOException, InterruptedException {
-	    return false;
-	}
-	public void write(RHBytesWritable key, RHBytesWritable value
-			  ) throws IOException, InterruptedException {
-	}
-	public void setStatus(String status){}
-	public void progress(){}
-    }
+    // 	public RHBytesWritable getCurrentValue() throws IOException, InterruptedException {
+    // 	    return null;
+    // 	}
+    // 	public boolean nextKeyValue() throws IOException, InterruptedException {
+    // 	    return false;
+    // 	}
+    // 	public void write(RHBytesWritable key, RHBytesWritable value
+    // 			  ) throws IOException, InterruptedException {
+    // 	}
+    // 	public void setStatus(String status){}
+    // 	public void progress(){}
+    // }
 
     public void writeCMD(int s) throws IOException{
-	WritableUtils.writeVInt(clientOut_,s);
-	// clientOut_.writeInt(s);
+    	WritableUtils.writeVInt(clientOut_,s);
+    	// clientOut_.writeInt(s);
     }
 	
     public void write(RHBytesWritable c) throws IOException{
-	c.write(clientOut_);
+    	c.write(clientOut_);
     }
 
     public void write(WritableComparable c) throws IOException{
-	c.write(clientOut_);
+    	c.write(clientOut_);
     }
 
 	
