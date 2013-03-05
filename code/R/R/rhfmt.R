@@ -43,10 +43,6 @@ lapplyio <- function(args){
     })
     lines$rhipe_setup_reduce <- c(lines$rhipe_setup_reduce,expr)
     lines$rhipe_setup_map <- c(lines$rhipe_setup_map,expr)
-    if( !lines$rhipe_reduce_justcollect) {
-      ## user left reduce empty ...
-      lines$mapred.reduce.tasks <- 0
-    }
     lines$rhipe_lapply_lengthofinput <- as.integer(args[1])
     lines
   }
@@ -57,10 +53,11 @@ nullo <- function(){
   function(lines, direction,callers){
     if(direction!="output") stop("Cannot use null for anything but output")
     lines$rhipe_outputformat_class <-'org.apache.hadoop.mapreduce.lib.output.NullOutputFormat'
-    lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-    lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
-    lines$rhipe_map_output_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-    lines$rhipe_map_output_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
+    lines$rhipe_outputformat_keyclass <- 'org.apache.hadoop.io.NullWritable'
+    lines$rhipe_outputformat_valueclass <- 'org.apache.hadoop.io.NullWritablee'
+    lines$rhipe_map_output_keyclass <- 'org.apache.hadoop.io.NullWritable'
+    lines$rhipe_map_output_valueclass <- 'org.apache.hadoop.io.NullWritable'
+    lines$rhipe.use.null <- "TRUE"
     lines
   }
 }

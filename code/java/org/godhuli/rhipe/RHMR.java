@@ -243,54 +243,36 @@ public class RHMR implements Tool {
 			System.out.println(output_folder[i]);
 		// System.exit(0);
 		if (!rhoptions_.get("rhipe_partitioner_class").equals("none")) {
-			RHMRHelper.PARTITION_START = Integer.parseInt(rhoptions_
-					.get("rhipe_partitioner_start")) - 1;
-			RHMRHelper.PARTITION_END = Integer.parseInt(rhoptions_
-					.get("rhipe_partitioner_end")) - 1;
-
-			Class<?> clz3 = config_.getClassByName(rhoptions_
-					.get("rhipe_partitioner_class"));
-			Class<? extends org.apache.hadoop.mapreduce.Partitioner> pc = clz3
-					.asSubclass(org.apache.hadoop.mapreduce.Partitioner.class);
-
-			job_.setPartitionerClass(pc);
-			// String pt = rhoptions_.get("rhipe_partitioner_type");
-			// if(pt.equals("numeric")){
-			// RHMRHelper.PARTITION_TYPE = REXP.RClass.REAL;
-			// }else if(pt.equals("string")){
-			// RHMRHelper.PARTITION_TYPE = REXP.RClass.STRING;
-			// }else if(pt.equals("integer")){
-			// RHMRHelper.PARTITION_TYPE = REXP.RClass.INTEGER;
-			// }else throw new
-			// IOException("Invalid class for the partitioner, must be one  of numeric, string, integer");
+		    RHMRHelper.PARTITION_START = Integer.parseInt(rhoptions_
+								  .get("rhipe_partitioner_start")) - 1;
+		    RHMRHelper.PARTITION_END = Integer.parseInt(rhoptions_
+								.get("rhipe_partitioner_end")) - 1;
+		    Class<?> clz3 = config_.getClassByName(rhoptions_
+							   .get("rhipe_partitioner_class"));
+		    Class<? extends org.apache.hadoop.mapreduce.Partitioner> pc = clz3
+			.asSubclass(org.apache.hadoop.mapreduce.Partitioner.class);
+		    job_.setPartitionerClass(pc);
 		}
-
+		
 		if (!output_folder[0].equals("")) {
 			Path ofp = new Path(output_folder[0]);
 			FileSystem srcFs = FileSystem.get(job_.getConfiguration());
 			srcFs.delete(ofp, true);
-			if (rhoptions_.get("rhipe_outputformat_class").equals(
-					"org.apache.hadoop.mapreduce.lib.output.NullOutputFormat")) {
-				srcFs.mkdirs(ofp);
+			if (rhoptions_.get("rhipe_outputformat_class").equals("org.apache.hadoop.mapreduce.lib.output.NullOutputFormat")) {
+			    srcFs.mkdirs(ofp);
 			}
 			FileOutputFormat.setOutputPath(job_, ofp);
-			job_.setMapOutputKeyClass(Class.forName(rhoptions_
-					.get("rhipe_map_output_keyclass")));
-			job_.setMapOutputValueClass(Class.forName(rhoptions_
-					.get("rhipe_map_output_valueclass")));
-
-			job_.setOutputKeyClass(Class.forName(rhoptions_
-					.get("rhipe_outputformat_keyclass")));
-			job_.setOutputValueClass(Class.forName(rhoptions_
-					.get("rhipe_outputformat_valueclass")));
-
-		} else {
-			job_ .setOutputFormatClass(org.apache.hadoop.mapreduce.lib.output.NullOutputFormat.class);
-			job_.setOutputKeyClass(org.apache.hadoop.io.NullWritable.class);
-			job_.setOutputValueClass(org.apache.hadoop.io.NullWritable.class);
-			job_.setMapOutputKeyClass(org.apache.hadoop.io.NullWritable.class);
-			job_ .setMapOutputValueClass(org.apache.hadoop.io.NullWritable.class);
-		}
+		} 
+		job_.setMapOutputKeyClass(Class.forName(rhoptions_
+							.get("rhipe_map_output_keyclass")));
+		job_.setMapOutputValueClass(Class.forName(rhoptions_
+							  .get("rhipe_map_output_valueclass")));
+		
+		job_.setOutputKeyClass(Class.forName(rhoptions_
+						     .get("rhipe_outputformat_keyclass")));
+		job_.setOutputValueClass(Class.forName(rhoptions_
+						       .get("rhipe_outputformat_valueclass")));
+		
 
 		job_.setMapperClass(RHMRMapper.class);
 		if (uscomb)

@@ -248,8 +248,6 @@ rhmr <- function(...){
         }
   }
 
-  ## lines$rhipe.eol.sequence <- "\r\n"
-  ## lines$mapred.textoutputformat.usekey <-  "TRUE"
   lines$rhipe_reduce_buff_size <- 6000
   lines$rhipe_map_buff_size <- 3000
   lines$rhipe_map_bytes_read <- 150*1024*1024
@@ -261,10 +259,6 @@ rhmr <- function(...){
   lines$mapred.compress.map.output="true"
 
   
-  ##If user does not provide
-  ##a reduce function,set reduce to NULL
-  ##however can be over ridden by
-  ##mared.reduce.tasks
 
   ## ###########################################################
   ## Handle Copy Files
@@ -294,7 +288,7 @@ rhmr <- function(...){
     for(n in filterOut(names(options.mapred))) lines[[n]] = options.mapred[[n]]
 
   if(is.null(reduce)){
-    lines$rhipe_reduce_justcollect <- TRUE
+    lines$rhipe_reduce_justcollect <- "TRUE"
   }
 
   ## ##########################################################
@@ -382,8 +376,6 @@ rhmr <- function(...){
   }
   if(length(jarfiles)>0) {
     lines$rhipe_jarfiles <- paste(path.expand(jarfiles),collapse=",")
-    ## make a temp folder containing jar files
-    ## p <- system(sprintf("mktemp -p %s -d", tempdir()),intern=TRUE)
     p <- Rhipe:::mkdtemp(tempdir())
     invisible(sapply(jarfiles, function(r) rhget(r, p)))
     lines$rhipe_cp_tempdir <- p

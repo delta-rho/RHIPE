@@ -102,14 +102,6 @@ public class RHMRHelper {
 	if(!cfg.get("rhipe_partitioner_class").equals("none")){
 	    RHMRHelper.PARTITION_START = Integer.parseInt(cfg.get("rhipe_partitioner_start"))-1;
 	    RHMRHelper.PARTITION_END = Integer.parseInt(cfg.get("rhipe_partitioner_end"))-1;
-	    // String pt = cfg.get("rhipe_partitioner_type");
-	    // if(pt.equals("numeric")){
-	    // 	RHMRHelper.PARTITION_TYPE = REXP.RClass.REAL;
-	    // }else if(pt.equals("string")){
-	    // 	RHMRHelper.PARTITION_TYPE = REXP.RClass.STRING;
-	    // }else if(pt.equals("integer")){
-	    // 	RHMRHelper.PARTITION_TYPE = REXP.RClass.INTEGER;
-	    // }
 	}
     }
     void setup(Configuration cfg, String argv,boolean doPipe){     
