@@ -19,7 +19,8 @@ rhmr <- function(...){
                   partitioner = NULL,
                   copyFiles   = F,
                   jobname     = "",
-                  parameters  = NULL
+                  parameters  = NULL,
+                  envir = NULL
                   ){
   
   
@@ -110,7 +111,8 @@ rhmr <- function(...){
     empty.exp <- expression()
     require(codetools)
     exp <- list( setup$map, setup$reduce, cleanup$map, cleanup$reduce, map,reduce$pre,reduce$post,reduce$reduce)
-    calling.frame <- sys.frame(-2) #since rhwatch calls this
+    ## calling.frame <- sys.frame(-2) #since rhwatch calls this
+    calling.frame <- envir
     seen.vars <- new.env()
     getV <- function(mu,cf){
       omit <- c(ls("package:base", all.names=TRUE),ls("package:stats", all.names=TRUE),ls("package:utils", all.names=TRUE), rhoptions()$copyObjects$exclude)

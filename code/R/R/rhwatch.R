@@ -300,10 +300,11 @@ rhwatch <- function(map         = NULL,
   ## ##############################
   ## Handle ...
   ## ##############################
+  envir = sys.frame(-1)
   if(is.null(job))
     job <- Rhipe:::.rhmr(map=map, reduce=reduce, combiner=combiner,setup=setup, cleanup=cleanup
                    ,input=input, output=output, orderby=orderby, mapred=mapred, shared=shared,jarfiles=jarfiles
-                   ,zips=zips, partitioner=partitioner, copyFiles=copyFiles, jobname=jobname, parameters=parameters)
+                   ,zips=zips, partitioner=partitioner, copyFiles=copyFiles, jobname=jobname, parameters=parameters,envir=envir)
   else if(is.character(job))
     return(Rhipe:::rhwatch.runner(job=job, mon.sec=mon.sec,readback=readback,...))
   if(!is.null(job$lines$mapred.job.tracker) && job$lines$mapred.job.tracker == TRUE){
