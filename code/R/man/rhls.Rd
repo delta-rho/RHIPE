@@ -2,7 +2,7 @@
 \alias{rhls}
 \title{List Files On HDFS}
 \usage{
-  rhls(folder, recurse = FALSE)
+  rhls(folder = NULL, recurse = FALSE)
 }
 \arguments{
   \item{folder}{Path of directory on HDFS or output from

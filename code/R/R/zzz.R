@@ -18,9 +18,24 @@ onload.2 <- function(libname, pkgname){
   ## ##############################################################################################
   ## JAVA AND HADOOP
   ## #############################################################################################
-  opts$jarloc <- list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="Rhipe.jar$",full=T)
-  opts$mycp <-  list.files(paste(system.file(package="Rhipe"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
-  opts$mycp <- setdiff(opts$mycp, opts$jarloc)
+  opts$jarloc <- list.files(file.path(system.file(package="Rhipe"), "java"), pattern="Rhipe.jar$", full=TRUE)
+  
+  # begin check for cdh4
+  # assumption is that HADOOP_HOME points to client-0.20 where cdh4 mrv1 jars reside
+  # if so, overwrite opts$jarloc with the CDH4 jar
+  hadoop_home <- Sys.getenv("HADOOP_HOME")
+  # alternatively, could make user specify rhoptions(CDH4=TRUE)
+  if(hadoop_home != "") {
+    if(any(grepl("cdh4", list.files(hadoop_home))))
+      opts$jarloc <- list.files(file.path(system.file(package="Rhipe"), "java"), pattern="RhipeCDH4.jar$", full=TRUE)
+  }
+  
+  opts$mycp <-  list.files(file.path(system.file(package="Rhipe"), "java"), pattern="jar$", full=TRUE)
+  
+  # need to exclude all Rhipe jars as they are already taken care of
+  mycp_exclude <- list.files(file.path(system.file(package="Rhipe"), "java"), pattern="Rhipe",full=TRUE)
+  opts$mycp <- setdiff(opts$mycp, mycp_exclude)
+
   if(Sys.getenv("HADOOP")=="" && Sys.getenv("HADOOP_HOME")=="" && Sys.getenv("HADOOP_BIN")=="")
     warning("Rhipe requires HADOOP_HOME or HADOOP or HADOOP_BIN environment variable to be present\n $HADOOP/bin/hadoop or $HADOOP_BIN/hadoop should exist")
   if(Sys.getenv("HADOOP_BIN")==""){
@@ -171,7 +186,8 @@ rhinit <- function(){
   c1 <- list.files(hadoop["HADOOP_HOME"],pattern="jar$",full=T,rec=TRUE)
   c2 <- hadoop["HADOOP_CONF_DIR"]
   .jinit()
-  .jaddClassPath(c(c2,c1,opts$jarloc,opts$mycp)) #,hbaseJars,hbaseConf))
+  # mycp needs to come first as hadoop distros such as cdh4 have an older version jar for guava
+  .jaddClassPath(c(opts$mycp, c2, c1, opts$jarloc)) #,hbaseJars,hbaseConf))
   message(sprintf("Initializing Rhipe v%s",vvvv))
   server <-  .jnew("org/godhuli/rhipe/PersonalServer")
   dbg <- as.integer(Sys.getenv("RHIPE_DEBUG_LEVEL"))

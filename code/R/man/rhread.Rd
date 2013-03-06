@@ -2,7 +2,7 @@
 \alias{rhread}
 \title{Read Key/Value Pairs From The HDFS}
 \usage{
-  rhread(files, type = c("sequence"), max = -1,
+  rhread(files, type = c("sequence"), max = -1L,
     skip = rhoptions()$file.types.remove.regex,
     mc = lapply, ...)
 }
