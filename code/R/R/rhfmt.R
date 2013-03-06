@@ -96,25 +96,6 @@ mapio <- function(folders,interval=1, compression="BLOCK"){
   }
 }
 
-robject <- function(object,chunked=NULL,numperfile=1,elementWriter=NULL){
-  object <- eval(object); chunked <- eval(chunked); numperfile <- eval(numperfile); elementWriter <- eval(elementWriter);
-  function(lines, direction, callers){
-    if(direction=="output") stop("cannot use robject as output")
-    if(!is.null(rhoptions()$HADOOP.TMP.FOLDER)){
-      input <- Rhipe:::mkdHDFSTempFolder(file="rhipe-temp")
-    }else{
-      stop("RHIPE could not find a value for HADOOP.TMP.FOLDER
-            in rhoptions(). Set this: rhoptions(HADOOP.TMP.FOLDER=path)")
-    }
-    a <- system.time(cat(sprintf("RHIPE: Writing your robject to temporary: %s\n (this might take time)\n",input)))
-    cat(sprintf("RHIPE: Writing complete in %s seconds\n",round(a['elapsed'],3)))
-    rhwrite2(object,file=input,chunked=chunked,numperfile=numperfile,elementWriter=elementWriter)
-    I <- rhoptions()$ioformats[["seq"]](input)
-    lines$mapred.reduce.tasks <- 0
-    I(lines,direction, callers)
-  }
-}
-
 sequenceio <- function(folders){
   folders <- eval(folders)
   function(lines,direction,callers){
@@ -191,7 +172,6 @@ handleIOFormats <- function(opts){
                       sequence=sequenceio,
                       map=mapio,
                       N=lapplyio,
-                      robject=robject,
                       null=nullo)
   opts
 }
