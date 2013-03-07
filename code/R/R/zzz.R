@@ -53,7 +53,7 @@ onload.2 <- function(libname, pkgname){
     cat("HADOOP_HOME missing\n")
   if(Sys.getenv("HADOOP_CONF_DIR")=="")
     cat("HADOOP_CONF_DIR missing, you are probably going to have a problem running RHIPE.\nHADOOP_CONF_DIR should be the location of the directory that contains the configuration files\n")
-  opts$hadoop.env <-Sys.getenv(c("HADOOP_HOME","HADOOP_CONF_DIR"))
+  opts$hadoop.env <-Sys.getenv(c("HADOOP_HOME","HADOOP_CONF_DIR","HADOOP_LIBS"))
   ## ##############################################################################################
   ## RhipeMapReduce, runner, and checks
   ## ##############################################################################################
@@ -190,10 +190,14 @@ rhinit <- function(){
   hadoop <- opts$hadoop.env
   library(rJava)
   c1 <- list.files(hadoop["HADOOP_HOME"],pattern="jar$",full=T,rec=TRUE)
+  c15 <- tryCatch(unlist(sapply( strsplit(hadoop["HADOOP_LIBS"],":")[[1]],function(r){
+    list.files(r,pattern="jar$",full=T,rec=TRUE)
+  })),error=function(e) NULL)
+  
   c2 <- hadoop["HADOOP_CONF_DIR"]
   .jinit()
   # mycp needs to come first as hadoop distros such as cdh4 have an older version jar for guava
-  .jaddClassPath(c(opts$mycp, c2, c1, opts$jarloc)) #,hbaseJars,hbaseConf))
+  .jaddClassPath(c(opts$mycp, c2, c15,c1, opts$jarloc)) #,hbaseJars,hbaseConf))
   cat(sprintf("Initializing Rhipe v%s\n",vvvv))
   server <-  .jnew("org/godhuli/rhipe/PersonalServer")
   dbg <- as.integer(Sys.getenv("RHIPE_DEBUG_LEVEL"))
