@@ -3,18 +3,17 @@
   <modelVersion>4.0.0</modelVersion>
   
   <groupId>org.godhuli.rhipe</groupId>
-  <artifactId>rhipe-cdh4</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <artifactId>Rhipe</artifactId>
+  <version>cdh4</version>
   <packaging>jar</packaging>
   <!-- The name should likely match the artifact ID -->
-  <name>rhipe-cdh4</name>
+  <name>Rhipe</name>
   <url>http://maven.apache.org</url>
   
   <properties>
     <hadoop.version>2.0.0-mr1-cdh4.1.3</hadoop.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-       
-       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
   
   <build>
