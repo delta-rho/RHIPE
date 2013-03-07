@@ -25,9 +25,15 @@ onload.2 <- function(libname, pkgname){
   # if so, overwrite opts$jarloc with the CDH4 jar
   hadoop_home <- Sys.getenv("HADOOP_HOME")
   # alternatively, could make user specify rhoptions(CDH4=TRUE)
+  ## Ryan: rhoptions would be too late by now ...
+  ## we would have to refactor so that rhinit does all this
   if(hadoop_home != "") {
-    if(any(grepl("cdh4", list.files(hadoop_home))))
+    if(any(grepl("cdh4", c(list.files(hadoop_home)),tolower(Sys.getenv("RHIPE_WHAT_CDH"))) ,na.rm=TRUE)){
+      cat("Rhipe: Detected CDH4 jar files, using RhipeCDH4.jar\n")
       opts$jarloc <- list.files(file.path(system.file(package="Rhipe"), "java"), pattern="RhipeCDH4.jar$", full=TRUE)
+    }else{
+      cat("Rhipe: Using Rhipe.jar file")
+    }
   }
   
   opts$mycp <-  list.files(file.path(system.file(package="Rhipe"), "java"), pattern="jar$", full=TRUE)
@@ -37,16 +43,16 @@ onload.2 <- function(libname, pkgname){
   opts$mycp <- setdiff(opts$mycp, mycp_exclude)
 
   if(Sys.getenv("HADOOP")=="" && Sys.getenv("HADOOP_HOME")=="" && Sys.getenv("HADOOP_BIN")=="")
-    warning("Rhipe requires HADOOP_HOME or HADOOP or HADOOP_BIN environment variable to be present\n $HADOOP/bin/hadoop or $HADOOP_BIN/hadoop should exist")
+    cat("Rhipe requires HADOOP_HOME or HADOOP or HADOOP_BIN environment variable to be present\n $HADOOP/bin/hadoop or $HADOOP_BIN/hadoop should exist\n")
   if(Sys.getenv("HADOOP_BIN")==""){
-    warning("Rhipe: HADOOP_BIN is missing, using $HADOOP/bin")
+    cat("Rhipe: HADOOP_BIN is missing, using $HADOOP/bin\n")
     Sys.setenv(HADOOP_BIN=sprintf("%s/bin",Sys.getenv("HADOOP")))
   }
 
   if(Sys.getenv("HADOOP_HOME")=="")
-    warning("HADOOP_HOME missing")
+    cat("HADOOP_HOME missing\n")
   if(Sys.getenv("HADOOP_CONF_DIR")=="")
-    warning("HADOOP_CONF_DIR missing, you are probably going to have a problem running RHIPE.\nHADOOP_CONF_DIR should be the location of the directory that contains the configuration files")
+    cat("HADOOP_CONF_DIR missing, you are probably going to have a problem running RHIPE.\nHADOOP_CONF_DIR should be the location of the directory that contains the configuration files\n")
   opts$hadoop.env <-Sys.getenv(c("HADOOP_HOME","HADOOP_CONF_DIR"))
   ## ##############################################################################################
   ## RhipeMapReduce, runner, and checks
@@ -54,7 +60,7 @@ onload.2 <- function(libname, pkgname){
   opts$RhipeMapReduce <- list.files(paste(system.file(package="Rhipe"),"bin",sep=.Platform$file.sep),
                                     pattern="^RhipeMapReduce$",full=T)
   if(is.null(opts$RhipeMapReduce) || length(opts$RhipeMapReduce) != 1){
-    warning("RhipeMapReduce executable not found in package bin folder as expected")
+    cat("RhipeMapReduce executable not found in package bin folder as expected\n")
   }
   ##RhipeMapReduce is the executable, but the simpliest way to run it is via R CMD which sets up environment variables.
   opts$runner <-paste("R","CMD", opts$RhipeMapReduce ,"--slave","--silent","--vanilla") #,"--max-ppsize=100000","--max-nsize=1G")
@@ -102,7 +108,7 @@ onload.2 <- function(libname, pkgname){
   }
   opts$templates$raggregate <-  function(r=NULL,combine=FALSE,dfname='adata'){
     ..r <- substitute(r)
-    ..r <- if( is(..r,"name")) get(as.character(..r)) else r
+    ..r <- if( is(..r,"name")) get(as.character(..r)) else ..r
     def <- if(is.null(..r)) TRUE else FALSE
     r <- if(is.null(..r)) substitute({ adata <- unlist(adata, recursive = FALSE);  rhcollect(reduce.key, adata)}) else ..r
     y <-bquote(expression(
@@ -188,14 +194,14 @@ rhinit <- function(){
   .jinit()
   # mycp needs to come first as hadoop distros such as cdh4 have an older version jar for guava
   .jaddClassPath(c(opts$mycp, c2, c1, opts$jarloc)) #,hbaseJars,hbaseConf))
-  message(sprintf("Initializing Rhipe v%s",vvvv))
+  cat(sprintf("Initializing Rhipe v%s\n",vvvv))
   server <-  .jnew("org/godhuli/rhipe/PersonalServer")
   dbg <- as.integer(Sys.getenv("RHIPE_DEBUG_LEVEL"))
   tryCatch(server$run(if(is.na(dbg)) 0L else dbg),Exception=function(e) e$printStackTrace())
   rhoptions(server=server,clz=list(fileutils = server$getFU(),filesystem = server$getFS(), config=server$getConf()))
   server$getConf()$setClassLoader(.jclassLoader())
   rhoptions(mropts = Rhipe:::rhmropts()) 
-  message("Initializing mapfile caches")
+  cat("Initializing mapfile caches\n")
   rh.init.cache()
 }
 
