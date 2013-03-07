@@ -20,21 +20,7 @@ onload.2 <- function(libname, pkgname){
   ## #############################################################################################
   opts$jarloc <- list.files(file.path(system.file(package="Rhipe"), "java"), pattern="Rhipe.jar$", full=TRUE)
   
-  # begin check for cdh4
-  # assumption is that HADOOP_HOME points to client-0.20 where cdh4 mrv1 jars reside
-  # if so, overwrite opts$jarloc with the CDH4 jar
-  hadoop_home <- Sys.getenv("HADOOP_HOME")
-  # alternatively, could make user specify rhoptions(CDH4=TRUE)
-  ## Ryan: rhoptions would be too late by now ...
-  ## we would have to refactor so that rhinit does all this
-  if(hadoop_home != "") {
-    if(any(grepl("cdh4", c(list.files(hadoop_home)),tolower(Sys.getenv("RHIPE_WHAT_CDH"))) ,na.rm=TRUE)){
-      cat("Rhipe: Detected CDH4 jar files, using RhipeCDH4.jar\n")
-      opts$jarloc <- list.files(file.path(system.file(package="Rhipe"), "java"), pattern="RhipeCDH4.jar$", full=TRUE)
-    }else{
-      cat("Rhipe: Using Rhipe.jar file")
-    }
-  }
+
   
   opts$mycp <-  list.files(file.path(system.file(package="Rhipe"), "java"), pattern="jar$", full=TRUE)
   
@@ -188,6 +174,14 @@ onload.2 <- function(libname, pkgname){
 rhinit <- function(){
   opts <- rhoptions()
   hadoop <- opts$hadoop.env
+  if(hadoop["HADOOP_HOME"] != "") {
+    if(any(c(rhoptions()$useCDH4 ,grepl("cdh4", c(list.files(hadoop['HADOOP_HOME'])))) ,na.rm=TRUE)){
+      cat("Rhipe: Detected CDH4 jar files, using RhipeCDH4.jar\n")
+      opts$jarloc <- list.files(file.path(system.file(package="Rhipe"), "java"), pattern="RhipeCDH4.jar$", full=TRUE)
+    }else{
+      cat("Rhipe: Using Rhipe.jar file\n")
+    }
+  }
   library(rJava)
   c1 <- list.files(hadoop["HADOOP_HOME"],pattern="jar$",full=T,rec=TRUE)
   c15 <- tryCatch(unlist(sapply( strsplit(hadoop["HADOOP_LIBS"],":")[[1]],function(r){
@@ -202,7 +196,7 @@ rhinit <- function(){
   server <-  .jnew("org/godhuli/rhipe/PersonalServer")
   dbg <- as.integer(Sys.getenv("RHIPE_DEBUG_LEVEL"))
   tryCatch(server$run(if(is.na(dbg)) 0L else dbg),Exception=function(e) e$printStackTrace())
-  rhoptions(server=server,clz=list(fileutils = server$getFU(),filesystem = server$getFS(), config=server$getConf()))
+  rhoptions(jarloc=opts$jarloc,server=server,clz=list(fileutils = server$getFU(),filesystem = server$getFS(), config=server$getConf()))
   server$getConf()$setClassLoader(.jclassLoader())
   rhoptions(mropts = Rhipe:::rhmropts()) 
   cat("Initializing mapfile caches\n")
