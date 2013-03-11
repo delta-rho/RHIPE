@@ -59,7 +59,17 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
       message("RHIPE: Using custom handler")
       handler
     }
-    nc <- 0 # initial number of "\b" characters (used when job.status.overprint is TRUE)
+    
+    # nr is initial rows to set the cursor back (used when job.status.overprint is TRUE)
+    nr <- 0
+    orig_width <- getOption("width")
+    width <- as.integer(Sys.getenv("COLUMNS"))
+    if(is.na(width)) {
+      width <- getOption("width")
+    } else {
+      options(width=width)
+    }
+    
     while(TRUE){
       y <- .rhstatus(id,autokill=TRUE,showErrors)
       
@@ -99,18 +109,21 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
 
       waitTxt <- sprintf("Waiting %s seconds", mon.sec)
       
-      allTxt <- c(headerTxt, progressTxt, warningsTxt, countersTxt, waitTxt) 
-      
+      # if overprint, move cursor up (terminal needs to be vt100 compatible)
       if(rhoptions()$job.status.overprint) {
-        bb <- paste(rep("\b", nc), collapse="")
-        cat(bb)
-        txt <- sapply(seq_along(allTxt), function(x) paste(c("| ", allTxt[x], rep(" ", width - (nchar(allTxt[x]) %% width) - 3), "|"), collapse=""))
-        nc <- sum(nchar(txt))
-        cat(txt, sep="")
-        flush.console()        
-      } else {
-        cat(allTxt, sep="\n")
+        if(exists("allTxt")) {
+          nr <- sum(ceiling(nchar(allTxt) / width))
+        }
+        if(nr > 0) {
+          esc <- paste("\033[", nr, "A100\033[", width, "D", sep="")
+          cat(esc)
+        }
       }
+
+      allTxt <- c(headerTxt, progressTxt, warningsTxt, countersTxt, waitTxt) 
+
+      cat(allTxt, sep="\n")
+      flush.console()
       
       Sys.sleep(max(1,as.integer(mon.sec)))
     }
