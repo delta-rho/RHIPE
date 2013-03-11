@@ -317,7 +317,7 @@ rhmr <- function(...){
       lines$rhipe.read.and.delete.ofolder <- TRUE
     }else{
       stop("No output specified,and RHIPE could not find a value for HADOOP.TMP.FOLDER
-            in rhoptions(). Set this: rhoptions(HADOOP.TMP.FOLDER=path)")
+            in rhoptions(). Set this: rhoptions(HADOOP.TMP.FOLDER=path-to-writable-folder)")
     }
   }else{
     lines$rhipe.read.and.delete.ofolder <- FALSE
