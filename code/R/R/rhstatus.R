@@ -37,13 +37,13 @@
 #' @keywords MapReduce job status
 #' @export
 rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
-                     ,handler=NULL){
+                     ,handler=NULL) {
   if(!is(job,"jobtoken") && !is(job,"character") && !is(job,"rhwatch")) stop("Must give a jobtoken object(as obtained from rhwatch(..read=FALSE))")
   if(is(job,"character")) id <- job
-  else  if (is(job,"jobtoken")){
+  else if (is(job,"jobtoken")) {
     job <- job[[1]]
     id <- job[['job.id']]
-  }else if (is(job,"rhwatch")){
+  } else if (is(job,"rhwatch")){
     x <- gregexpr("jobid=",job[[1]]$tracking)
     st <- x[[1]]+attr(x[[1]],"match.length")
     id <- substring(job[[1]]$tracking, st,1e6L)
@@ -52,31 +52,66 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
     result <-rhoptions()$server$rhjoin(id,TRUE)
     mon.sec=1
   }
-  if(mon.sec<=0) {
+  if(mon.sec <= 0) {
     return(Rhipe:::.rhstatus(id,autokill,showErrors))
-  }else{
+  } else {
     handler <- if(is.null(handler)) function(y) TRUE else {
       message("RHIPE: Using custom handler")
       handler
     }
+    nc <- 0 # initial number of "\b" characters (used when job.status.overprint is TRUE)
     while(TRUE){
       y <- .rhstatus(id,autokill=TRUE,showErrors)
-      cat(sprintf("\n[%s] Name:%s Job: %s  State: %s Duration: %s\nURL: %s\n",date(),y$jobname, id,y$state,y$duration,y$tracking))
-      print(y$progress)
-      if(!is.null(y$warnings)){
-        cat("\n--Warnings Present, follows:\n")
-        print(y$warnings)
+      
+      # in case user resizes terminal
+      width <- as.integer(Sys.getenv("COLUMNS"))
+      if(is.na(width))
+        width <- getOption("width") + nchar(getOption("prompt"))
+      
+      # build the entire string first
+      headerTxt <- c(
+        sprintf("[%s] Name:%s Job: %s  State: %s Duration: %s", date(), y$jobname, id, y$state, y$duration),
+        sprintf("URL: %s", y$tracking)
+      )
+      progressTxt <- capture.output(print(y$progress))
+      
+      if(!is.null(y$warnings)) {
+        warningsTxt <- c(
+          "--Warnings Present, follows:",
+          capture.output(print(y$warnings))
+        )
+      } else {
+        warningsTxt <- NULL
       }
-      if(verbose){
-        print(y$counters)
+      
+      if(verbose) {
+        countersTxt <- capture.output(print(y$counters))
+      } else {
+        countersTxt <- NULL
       }
+
       res <- handler(y)
       if(!is.null(res) && !res) {
         warning("RHIPE: Breaking because users handler function said so")
         break
       }
       if(!y$state %in% c("PREP","RUNNING")) break 
-      cat(sprintf("Waiting %s seconds\n", mon.sec))
+
+      waitTxt <- sprintf("Waiting %s seconds", mon.sec)
+      
+      allTxt <- c(headerTxt, progressTxt, warningsTxt, countersTxt, waitTxt) 
+      
+      if(rhoptions()$job.status.overprint) {
+        bb <- paste(rep("\b", nc), collapse="")
+        cat(bb)
+        txt <- sapply(seq_along(allTxt), function(x) paste(c("| ", allTxt[x], rep(" ", width - (nchar(allTxt[x]) %% width) - 3), "|"), collapse=""))
+        nc <- sum(nchar(txt))
+        cat(txt, sep="")
+        flush.console()        
+      } else {
+        cat(allTxt, sep="\n")
+      }
+      
       Sys.sleep(max(1,as.integer(mon.sec)))
     }
     return(y)

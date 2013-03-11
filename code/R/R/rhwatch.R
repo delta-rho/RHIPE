@@ -396,6 +396,18 @@ rhwatch.runner <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
     else
       rhstatus(job,mon.sec=mon.sec,...)
     ofolder <- job$lines$rhipe_output_folder
+
+    # if rhoption write.job.info is TRUE, then write it to _rh_meta
+    if(results$state=="SUCCEEDED" && rhoptions()$write.job.info) {
+      # get job id
+      x <- gregexpr("jobid=",results$tracking)
+      st <- x[[1]]+attr(x[[1]],"match.length")
+      id <- substring(results$tracking, st,1e6L)
+      
+      jobData <- list(results=results, jobConf=job, jobInfo=rhJobInfo(id))
+      rhsave(jobData, file=paste(ofolder, "/_rh_meta/jobData.Rdata", sep=""))
+    }
+    
     if(readback==TRUE && results$state == "SUCCEEDED" && sum(rhls(ofolder)$size)/(1024^2) < rhoptions()$max.read.in.size){
       W <- 'Reduce output records'
       if(!is.null(job$lines$mapred.reduce.tasks) && as.numeric(job$lines$mapred.reduce.tasks)==0) W <- 'Map output records'

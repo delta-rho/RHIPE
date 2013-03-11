@@ -26,9 +26,11 @@
 #'   }
 #' }
 #' @export
-rhsave <- function(...,file){
-  on.exit({unlink(x)})
-  x <- tempfile(pattern='rhipe.save')
-  save(...,file=x)
-  rhput(src=x,dest=file)
-}
+rhsave <- function (..., file, envir=parent.frame()) {
+  on.exit({
+    unlink(x)
+  })
+  x <- tempfile(pattern = "rhipe.save")
+  save(..., file = x, envir=envir)
+  rhput(src = x, dest = file)
+} 
