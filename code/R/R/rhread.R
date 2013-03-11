@@ -140,8 +140,8 @@ rhIterator <- function(files, type="sequence",chunksize=1000, chunk='records',sk
   files <- getypes(files,type,skip)
   chunksize <- as.integer(chunksize)
   handle <- .jnew("org/godhuli/rhipe/SequenceFileIterator")
-  handle$init(files, as.integer(chunksize), rhoptions()$server);
-  if(type == 'records'){
+  handle$init(files, as.integer(chunksize), -1L,rhoptions()$server);
+  if(chunk == 'records'){
     return(function(chunksize=chunksize){
       if(handle$hasMoreElements())
         mc(rhuz(handle$nextElement()),function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
