@@ -114,6 +114,7 @@ rhmr <- function(...){
     ## calling.frame <- sys.frame(-2) #since rhwatch calls this
     calling.frame <- envir
     seen.vars <- new.env()
+    old.vars <- new.env()
     getV <- function(mu,cf){
       omit <- c(ls("package:base", all.names=TRUE),ls("package:stats", all.names=TRUE),ls("package:utils", all.names=TRUE), rhoptions()$copyObjects$exclude)
       ## see http://comments.gmane.org/gmane.comp.lang.r.general/284792
@@ -133,6 +134,7 @@ rhmr <- function(...){
       }
     
       res <- .getV(mu)
+      
       return(unique( unlist(c( res$varns, res$funs
                             ,sapply(res$varns, function(kap) {
                               moz <- tryCatch(get(kap,envir=cf),error=function(e) NULL)
@@ -144,8 +146,12 @@ rhmr <- function(...){
                               }})
                             ,sapply(res$funs, function(kap) {
                               moz <- tryCatch(get(kap,envir=cf),error=function(e) NULL)
-                              if(!is.null(moz))
-                                getV(moz,environment(moz))
+                              if(!is.null(moz)){
+                                if(is.null(old.vars[[kap]])){
+                                  old.vars[[kap]] <- NA
+                                  getV(moz,environment(moz))
+                                }
+                              }
                               else
                                 NULL
                             })))))
@@ -168,7 +174,7 @@ rhmr <- function(...){
     if(length(ls(seen.vars))>0)
       warning(sprintf("RHIPE(param='auto'): Following variables were discovered but not found: %s",paste(ls(seen.vars,all.names=TRUE),collapse=",")),immediate. =TRUE)
   }
-  
+
   if(is.null(paramaters) && rhoptions()$copyObjects$auto){
     paramaters <- aparamaters
   }
