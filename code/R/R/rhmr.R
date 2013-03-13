@@ -317,7 +317,7 @@ rhmr <- function(...){
       lines$rhipe.read.and.delete.ofolder <- TRUE
     }else{
       stop("No output specified,and RHIPE could not find a value for HADOOP.TMP.FOLDER
-            in rhoptions(). Set this: rhoptions(HADOOP.TMP.FOLDER=path-to-writable-folder)")
+            in rhoptions(). Set this: rhoptions(HADOOP.TMP.FOLDER=path)")
     }
   }else{
     lines$rhipe.read.and.delete.ofolder <- FALSE
@@ -488,9 +488,10 @@ mkdHDFSTempFolder <- function(dirprefix=rhabsolute.hdfs.path(rhoptions()$HADOOP.
 
 makeParamTempFile <- function(file,paramaters,aframe){
     oldparam <- paramaters
-    for(i in seq_along(oldparam)){
-      paramaters[[i]] = if(is.name(oldparam[[i]])) get(as.character(oldparam[[i]]),envir=aframe) else oldparam[[i]]
-    }
+    # need to use lapply (setting parameters[[i]] <- NULL removes the element)
+    paramaters <- lapply(seq_along(oldparam), function(i) {
+       if(is.name(oldparam[[i]])) get(as.character(oldparam[[i]]), envir=aframe) else oldparam[[i]]
+    })
     ## where firstchocie == "", use second choice ssd 
     firstchoice <- names(oldparam)
     if(length(firstchoice)==0) firstchoice <- character(length(paramaters))
