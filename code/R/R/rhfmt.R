@@ -101,7 +101,7 @@ sequenceio <- function(folders){
   function(lines,direction,callers){
     if(direction=="input"){
       folders <- Rhipe:::folder.handler(folders)
-      a <- rhls(folders,rec=TRUE)$file
+      folders <- rhls(folders,rec=TRUE)$file
       remr <- c(grep(rhoptions()$file.types.remove.regex,folders))
       if(length(remr)>0)
         folders <- folders[-remr]

@@ -216,7 +216,13 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
         warning("There are failed attempts, call rhstatus with  showErrors=TRUE. Note, some are fatal (e.g R errors) and some are not (e.g node failure)")
   if(haveRError) state <- "FAILED"
   ro <- result[[6]];trim.trailing <- function (x) sub("\\s+$", "", x)
-  ro2 <- lapply(ro, function(r) { s = as.matrix(r); rownames(s) = trim.trailing(rownames(s)); s })
+  ro2 <- lapply(ro, function(r) {
+    s = as.matrix(r);
+    rownames(s) = trim.trailing(rownames(s));
+    if(!is.null(rownames(s)))
+      s = s[order(tolower(rownames(s))),,drop=FALSE];
+    s
+  })
   return(list(state=state,duration=duration,progress=d, warnings=wrns,counters=ro2,rerrors=haveRError,errors=errs,jobname=result[[9]],tracking=result[[8]],config=result[[10]]));
 }
 

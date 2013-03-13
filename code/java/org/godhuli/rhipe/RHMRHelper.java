@@ -115,6 +115,10 @@ public class RHMRHelper {
 	    REXPHelper.setFieldSep(cfg.get("mapred.field.separator"," "));
 	    REXPHelper.setStringQuote(squote);
 
+	    if(cfg.get("rhipe_test_output")!=null && cfg.get("rhipe_test_output").equals("TRUE"))
+		writeErr = true;
+	    else
+		writeErr= false;
 
 	    BUFFER_SIZE = cfg.getInt("rhipe_stream_buffer",10*1024);
 	    joinDelay_ = cfg.getLong("rhipe_joindelay_milli", 0);
@@ -299,12 +303,8 @@ public class RHMRHelper {
 	}
 	boolean readRecord(WritableComparable k, Writable v) {
 	    try{
-		// LOG.info("SAPSI------------ Reading the key");
 		k.readFields(clientIn_);
-		// LOG.info("SAPSI------------- The key is "+k);
-		// LOG.info("SAPSI------------ Reading the value");
 		v.readFields(clientIn_);
-		// LOG.info("SAPSI------------ The valuse is"+v);
 
 	    }catch(IOException e){
 		return(false);
@@ -422,6 +422,18 @@ public class RHMRHelper {
 			    long value = (long)(Double.parseDouble( REXPHelper.toString_(r.getRexpValue(2))));
 			    ctx.getCounter(grcnt, subcnt).increment(value);
 			    break;
+			default:
+			    if(writeErr){
+				BufferedReader d = new BufferedReader(new InputStreamReader(clientErr_));
+				int l=0;
+				while(true){
+				    String line = d.readLine();
+				    if(line == null) break;
+				    System.err.println("RHIPE Runner Output["+l+"]: "+line);
+				    l++;
+				}
+			    }
+			    
 			}
 			long now = System.currentTimeMillis(); 
 			if ( now-lastStderrReport > reporterErrDelay_) {
@@ -524,6 +536,6 @@ public class RHMRHelper {
     volatile DataOutputStream clientOut_;
     volatile DataInputStream clientErr_;
     volatile DataInputStream clientIn_;
-    
+	boolean writeErr;
     protected volatile Throwable outerrThreadsThrowable;
 }
