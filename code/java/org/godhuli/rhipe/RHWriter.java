@@ -91,6 +91,7 @@ public class RHWriter {
 	currentfile ++;
 	// LOG.info("New File for "+currentfile);
 	sqw = new SequenceFile.Writer(f,c,new Path(dest+"/part_"+currentfile), RHBytesWritable.class, RHBytesWritable.class);
+	numwritten = 0;
     }
     public void close() throws IOException{
 	// LOG.info("Closed file corresponding to "+currentfile);
