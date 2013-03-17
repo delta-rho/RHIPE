@@ -1,1 +1,94 @@
-yanger@petrichor.local.231
+##
+## Create A File with all subsets done for you
+##
+map <- expression({
+  lapply(map.values,function(a){
+    arr.delay <- (as.vector(a[,'arrive'])-as.vector(a[,'sarrive']))/60
+    dow <- a[,'wday']
+    hod <- as.POSIXlt(a[,'depart'])$hour
+    x <- data.frame(arr.delay=arr.delay, dow=dow, hod=hod)
+    x <- x[!is.na(x$arr.delay) & !is.na(x$dow) & !is.na(x$hod),]
+    x <- x[x$arr.delay>0,]
+    x <- x[x$dow %in% 0:23 & x$hod %in% 0:23,]
+    if(!is.null(x) && nrow(x)>0){
+      rhcounter("ALL","a",nrow(x))
+      rhcollect(runif(1),x)
+    }
+  })
+})
+z <- rhmr(map=map, ifolder="/airline/blocks/",ofolder="/tmp/x1234.3",inout=c("sequence",'sequence'),mapred=list(mapred.reduce.tasks=3))
+rhex(z)
+inputfile <- "/tmp/x1234.3"
+##############
+## Local means
+##############
+
+map <- expression({
+  x <- do.call("rbind",map.values)
+  y <- split(x,list(x$hod,x$dow))
+  lapply(y,function(r){
+    tot <- sum(r$arr.delay)
+    len <- nrow(r)
+    code <- as.integer(r[1,c("dow","hod")])
+    if(!is.na(code[1])) rhcollect(code,c(len,tot))
+  })})
+reduce <- expression(
+    pre={
+      summ=0
+    },
+    reduce={
+      summ <- summ+apply(do.call("rbind",reduce.values),2,sum)
+    }
+    ,post={ rhcollect(reduce.key, summ)}
+    )
+z <- rhmr(map=map, reduce=reduce, combiner=TRUE, ifolder=inputfile, ofolder="/tmp/tof", inout=c("sequence","sequence")
+     ,mapred=list(rhipe_map_buff_size=5,mapred.max.split.size=67108864))
+rhex(z)
+
+r <- rhread("/tmp/tof")
+cs <- cbind(do.call("rbind",lapply(r,"[[",1))
+      ,do.call("rbind",lapply(r,"[[",2)))
+colnames(cs) <- c("dow","hod","n","ad")
+cs <- as.data.frame(cs)
+cs$adm <- cs$ad/cs$n
+cs <- cs[order(cs$hod,cs$dow),]
+
+aa <- cs[cs$hod==0 & cs$dow==0,]
+sum(aa$ad)/sum(aa$n)
+
+head(cs)
+
+##############
+## TRY rhlm
+##############
+
+rs <- rhlm(arr.delay~dow*hod
+           ,data=inputfile
+           ,transform=function(x){
+             x$dow <- factor(x$dow,levels=0:6)
+             x$hod <- factor(x$hod,levels=0:23)
+             rhcounter("rhlm","dfrows",nrow(x))
+             x
+           },mapred=list(rhipe_map_buff_size=10,mapred.max.split.size=67108864),debug=1)
+
+
+
+
+z=rhmr(map=map, ifolder="/tmp/x1234",ofolder="/tmp/macv",inout=c("sequence","sequence"),
+  mapred=list(rhipe_map_buff_size=3,mapred.reduce.tasks=0))
+xpx <- 0;xpy <- 0;count <- 0
+for(i in rhls("/tmp/macv")$file){
+  print(i)
+  p <- rhread(i)
+  for(o in p){
+    key <- o[[1]]
+    value <- o[[2]]
+    count <- count+1
+    print(count)
+    if(key==0L)
+      xpx <- xpx+ value
+    else
+      xpy <- xpy+value
+  }
+}
+betahat <- solve(xpx) %*% xpy
