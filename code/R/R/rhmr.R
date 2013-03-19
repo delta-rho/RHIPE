@@ -116,7 +116,7 @@ rhmr <- function(...){
     seen.vars <- new.env()
     old.vars <- new.env()
     getV <- function(mu,cf){
-      omit <- c(ls("package:base", all.names=TRUE),ls("package:stats", all.names=TRUE),ls("package:utils", all.names=TRUE), rhoptions()$copyObjects$exclude)
+      omit <- c(ls("package:methods"),ls("package:base", all.names=TRUE),ls("package:stats", all.names=TRUE),ls("package:utils", all.names=TRUE), rhoptions()$copyObjects$exclude)
       ## see http://comments.gmane.org/gmane.comp.lang.r.general/284792
       elim <- function(p,cfd){
         ## if(identical(cfd, .GlobalEnv)) return(p)
