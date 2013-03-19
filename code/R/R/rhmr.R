@@ -116,7 +116,7 @@ rhmr <- function(...){
     seen.vars <- new.env()
     old.vars <- new.env()
     getV <- function(mu,cf){
-      omit <- c(ls("package:methods"),ls("package:base", all.names=TRUE),ls("package:stats", all.names=TRUE),ls("package:utils", all.names=TRUE), rhoptions()$copyObjects$exclude)
+      omit <- makeOmits() 
       ## see http://comments.gmane.org/gmane.comp.lang.r.general/284792
       elim <- function(p,cfd){
         ## if(identical(cfd, .GlobalEnv)) return(p)
@@ -124,10 +124,10 @@ rhmr <- function(...){
       }
       .getV <- function(mu){
         x <- findGlobals(mu,merge=FALSE);
-        varns <- setdiff(x$variables, omit)
+        varns <-  x$variables[ !sapply(x$variables,exists, where= omit,USE.NAMES=FALSE) ]
         fns <- as.logical(unlist(sapply(varns, function(a) is.function(tryCatch(get(a,cf),error=function(e) NULL )))))
         xfns <- unique(c(x$functions,varns[fns]))
-        xfns <- xfns[! xfns %in% omit]
+        xfns <- xfns[! sapply(xfns,exists, where=omit,USE.NAMES=FALSE) ]
         varns <- varns[!fns]
         varns <- elim(varns, cf); xfns <- elim(xfns,cf)
         list(funs=xfns,varns=varns)
@@ -537,3 +537,15 @@ getObjects <- function(maxsize=if(is.null(rhoptions()$copyObjects)) 100*1024*102
     }
     varcol
   }
+
+makeOmits <- function(){
+  userProvided <- rhoptions()$copyObjects$exclude
+  m <- new.env()
+  ### installed.packages()[,"Package"]
+  sapply(as.character(.packages()), function(r){
+    sapply(tryCatch(ls(sprintf("package:%s",r),all.names=TRUE),error=function(e) NULL),function(s) assign(s,NA, m))
+  })
+  sapply(as.character(userProvided),function(s)  assign(s,TRUE, m))
+  m
+}
+  
