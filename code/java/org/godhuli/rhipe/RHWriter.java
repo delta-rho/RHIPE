@@ -73,20 +73,34 @@ public class RHWriter {
 	makeNewFile();
     }
 
-    public void write(byte[] d) throws Exception{
-	REXP elements =  REXP.newBuilder().mergeFrom(d, 0, d.length).build();
-	RHBytesWritable x = new RHBytesWritable();
-	for(int i=0; i < elements.getRexpValueCount();i++){
-	    x.set(elements.getRexpValue(i).toByteArray());
-	    // LOG.info("Numwritten="+numwritten);
-	    if(numwritten >= numperfile){
-		close();
-		makeNewFile();
+    public void write(byte[] d,boolean b) throws Exception{
+	try{
+	    REXP elements =  REXP.newBuilder().mergeFrom(d, 0, d.length).build();
+	    RHBytesWritable x = new RHBytesWritable();
+	    RHBytesWritable y = new RHBytesWritable();
+	    for(int i=0; i < elements.getRexpValueCount();i++){
+		REXP ie= elements.getRexpValue(i);
+		// LOG.info("Numwritten="+numwritten);
+		if(numwritten >= numperfile){
+		    close();
+		    makeNewFile();
+		}
+		if(b){
+		    x.set(ie.toByteArray());
+		    sqw.append(anull,x);
+		}else{
+		    REXP ie2 = ie.getRexpValue(0);
+		    x.set(ie2.getRexpValue(0).toByteArray());
+		    y.set(ie2.getRexpValue(1).toByteArray());
+		    sqw.append(x,y);
+		}
+		numwritten++;
 	    }
-	    sqw.append(anull,x);
-	    numwritten++;
+	} catch(IOException e){
+	    sqw.close();
 	}
     }
+
     public void makeNewFile() throws IOException{
 	currentfile ++;
 	// LOG.info("New File for "+currentfile);

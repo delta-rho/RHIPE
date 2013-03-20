@@ -2,7 +2,8 @@
 \alias{rhmap}
 \title{Macro to Wrap Boilerplate Around RHIPE Map code}
 \usage{
-  rhmap(co1 = NULL, before = NULL, after = NULL)
+  rhmap(co1 = NULL, before = NULL, after = NULL,
+    .fnformals = NULL)
 }
 \arguments{
   \item{expr}{Any R expression, that operates on current

@@ -9,18 +9,43 @@
 #' @keywords MapReduce Map
 #' @export
 rhmap <- 
-function(co1=NULL,before=NULL,after=NULL){
-  co <- substitute(co1); before=substitute(before);after=substitute(after)
+function(co1=NULL,before=NULL,after=NULL,.fnformals=NULL){
+  ## 
+  if(!is.null(.fnformals)) co <- co1 else co <- substitute(co1);
+  before=substitute(before);after=substitute(after)
+  mu <-function(.index, k,r){}
+  body(mu) <- co
+  if(!is.null(.fnformals)){
+    ## browser()
+    xx <- formals(mu)
+    names(xx) <- append(names(xx)[1], names(.fnformals))
+    formals(mu) <- xx
+  }
   j <- as.expression(bquote({
     .(BE)
-    result <- mapply(function(.index,k,r){
-      .(CO)
-      },seq_along(map.values),map.keys,map.values,SIMPLIFY=FALSE)
+    result <- mapply(.(F),seq_along(map.values),map.keys,map.values,SIMPLIFY=FALSE)
     .(AF)
-  },list(CO=co,BE=before,AF=after)))
+  },list(F=mu,BE=before,AF=after)))
   environment(j) <- .BaseNamespaceEnv
   class(j) <- c(class(j),"rhmr-map")
   j
 }
+
+
+## rhmap <- 
+## function(co1=NULL,before=NULL,after=NULL){
+##   co <- substitute(co1); before=substitute(before);after=substitute(after)
+##   j <- as.expression(bquote({
+##     .(BE)
+##     result <- mapply(function(.index,k,r){
+##       .(CO)
+##       },seq_along(map.values),map.keys,map.values,SIMPLIFY=FALSE)
+##     .(AF)
+##   },list(CO=co,BE=before,AF=after)))
+##   environment(j) <- .BaseNamespaceEnv
+##   class(j) <- c(class(j),"rhmr-map")
+##   j
+## }
+
 
 

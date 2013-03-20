@@ -21,17 +21,17 @@
 #' }
 #' @keywords write HDFS
 #' @export
-rhwrite <- function(object,file,numfiles=1,chunk=1,passByte=1024*1024*20){
+rhwrite <- function(object,file,numfiles=1,chunk=1,passByte=1024*1024*20,style='classic'){
   ## rhdel(file)
   file <- rhabsolute.hdfs.path(file)
   if(any(class(object) %in% c("data.frame","matrix"))){
-    writeGeneric(object, file, numfiles, chunk,passByte,LENGTH=nrow, SLICER=function(o,r) o[r,,drop=FALSE] )
+    writeGeneric(object, file, numfiles, chunk,passByte,LENGTH=nrow, SLICER=function(o,r) o[r,,drop=FALSE] ,style!='classic' )
   }else if(any(class(object) %in% "list")){
-    writeGeneric(object, file, numfiles, chunk,passByte,LENGTH=length, SLICER=function(o,r) o[r])
+    writeGeneric(object, file, numfiles, chunk,passByte,LENGTH=length, SLICER=function(o,r) o[r],style!='classic')
   }else stop("Invalid Class of object")
 }
 
-writeGeneric <- function(object,file, numfiles, chunks,passByte,LENGTH,SLICER){
+writeGeneric <- function(object,file, numfiles, chunks,passByte,LENGTH,SLICER,style){
   ss <- unique(c(seq(1,LENGTH(object),by=chunks),LENGTH(object)+1))
   numperfile <- as.integer((length(ss)-1)/numfiles)
   cont <- list();byt <- 0;tot <- 0
@@ -46,7 +46,7 @@ writeGeneric <- function(object,file, numfiles, chunks,passByte,LENGTH,SLICER){
     byt <- byt+object.size(chunk)
     tot <- tot+object.size(chunk)
     if(byt>= passByte){
-      fh$write(.jbyte(rhsz(cont)))
+      fh$write(.jbyte(rhsz(cont)),style)
       cont <- list()
       byt <- 0
       message(sprintf("Wrote %s,%s chunks, and %s elements (%s%%  complete)",aP(tot),i,numelems,round(100*numelems/LENGTH(object),2)))
@@ -54,7 +54,7 @@ writeGeneric <- function(object,file, numfiles, chunks,passByte,LENGTH,SLICER){
   }
 
   if(length(cont)>0){
-    fh$write(.jbyte(rhsz(cont)))
+    fh$write(.jbyte(rhsz(cont)),style)
     message(sprintf("Wrote %s,%s chunks, and %s elements (%s%% complete)",aP(tot),i,numelems,round(100*numelems/LENGTH(object),2)))
   }
   fh$close()

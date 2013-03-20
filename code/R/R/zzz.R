@@ -54,9 +54,7 @@ onload.2 <- function(libname, pkgname){
   ## ##############################################################################################
   ## OTHER DEFAULTS
   ## ##############################################################################################
-  opts$job.status.overprint <- FALSE
-  opts$write.job.info <- FALSE
-  opts$file.types.remove.regex     ="(/_rh_meta|/_SUCCESS|/_LOG|/_log|rhipe_debug|rhipe_merged_index_db)"
+  opts$file.types.remove.regex     ="(/_SUCCESS|/_LOG|/_log|rhipe_debug|rhipe_merged_index_db)"
   opts$max.read.in.size <- 200*1024*1024 ## 100MB
   opts$reduce.output.records.warn <- 200*1000
   opts$rhmr.max.records.to.read.in <- NA
@@ -191,10 +189,8 @@ rhinit <- function(){
   })),error=function(e) NULL)
   
   c2 <- hadoop["HADOOP_CONF_DIR"]
-  # -Xrs keeps R from exiting on ctrl-C
   .jinit(parameters=c(getOption("java.parameters"), "-Xrs"))
-
-  # mycp needs to come first as hadoop distros such as cdh4 have an older version jar for guava
+  ## mycp needs to come first as hadoop distros such as cdh4 have an older version jar for guava
   .jaddClassPath(c(opts$mycp, c2, c15,c1, opts$jarloc)) #,hbaseJars,hbaseConf))
   cat(sprintf("Initializing Rhipe v%s\n",vvvv))
   server <-  .jnew("org/godhuli/rhipe/PersonalServer")
