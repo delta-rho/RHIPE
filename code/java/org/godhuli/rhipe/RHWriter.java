@@ -89,7 +89,6 @@ public class RHWriter {
 		    x.set(ie.toByteArray());
 		    sqw.append(anull,x);
 		}else{
-		    System.out.println(ie.getRexpValueCount());
 		    REXP ie2 = ie.getRexpValue(0);
 		    x.set(ie2.getRexpValue(0).toByteArray());
 		    y.set(ie2.getRexpValue(1).toByteArray());
