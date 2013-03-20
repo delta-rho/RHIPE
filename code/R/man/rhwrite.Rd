@@ -3,7 +3,7 @@
 \title{Write R data to the HDFS}
 \usage{
   rhwrite(object, file, numfiles = 1, chunk = 1,
-    passByte = 1024 * 1024 * 20)
+    passByte = 1024 * 1024 * 20, style = "classic")
 }
 \arguments{
   \item{object}{An object whose elements are written}

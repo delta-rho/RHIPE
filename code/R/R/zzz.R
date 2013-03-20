@@ -189,8 +189,8 @@ rhinit <- function(){
   })),error=function(e) NULL)
   
   c2 <- hadoop["HADOOP_CONF_DIR"]
-  .jinit()
-  # mycp needs to come first as hadoop distros such as cdh4 have an older version jar for guava
+  .jinit(parameters=c(getOption("java.parameters"), "-Xrs"))
+  ## mycp needs to come first as hadoop distros such as cdh4 have an older version jar for guava
   .jaddClassPath(c(opts$mycp, c2, c15,c1, opts$jarloc)) #,hbaseJars,hbaseConf))
   cat(sprintf("Initializing Rhipe v%s\n",vvvv))
   server <-  .jnew("org/godhuli/rhipe/PersonalServer")
