@@ -5,8 +5,7 @@
 #' 
 #' @param map \code{map} is an R expression (created using the R command
 #'   \code{expression}) that is evaluated by RHIPE during the map stage. For
-#'   each task, RHIPE will call this expression multiple times (see details). Can
-#'  also be a function of two arguments corresponding to key and value
+#'   each task, RHIPE will call this expression multiple times (see details). 
 #' @param reduce \code{reduce} is an R expression (created using the R command
 #'   \code{expression}) that is evaluated by RHIPE during the reduce stage, or
 #'   it is a vector of expressions with names pre, reduce, and post.  For
