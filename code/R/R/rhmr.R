@@ -31,7 +31,9 @@ rhmr <- function(...){
   lines <- list();
   is.Expression <- function(r) is.expression(r) || class(r)=="{"
 
-  
+  if(is.function(map)){
+    map <- convertFunctionToExpression(map)
+  }
   if(!is.Expression(map))
     stop("'map' must be an expression")
   lines$rhipe_reduce_justcollect <- "FALSE"
