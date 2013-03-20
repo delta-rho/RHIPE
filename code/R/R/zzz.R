@@ -54,7 +54,9 @@ onload.2 <- function(libname, pkgname){
   ## ##############################################################################################
   ## OTHER DEFAULTS
   ## ##############################################################################################
-  opts$file.types.remove.regex     ="(/_SUCCESS|/_LOG|/_log|rhipe_debug|rhipe_merged_index_db)"
+  opts$job.status.overprint <- FALSE
+  opts$write.job.info <- FALSE
+  opts$file.types.remove.regex     ="(/_rh_meta|/_SUCCESS|/_LOG|/_log|rhipe_debug|rhipe_merged_index_db)"
   opts$max.read.in.size <- 200*1024*1024 ## 100MB
   opts$reduce.output.records.warn <- 200*1000
   opts$rhmr.max.records.to.read.in <- NA
