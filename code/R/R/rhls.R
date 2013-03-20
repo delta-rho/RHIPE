@@ -34,7 +34,7 @@ rhls <- function(folder=NULL,recurse=FALSE){
   } else {
     f <- as.data.frame(do.call("rbind",sapply(v,strsplit,"\t")),stringsAsFactors=F)
   }
-  ## rownames(f) <- NULL
+  rownames(f) <- NULL
   colnames(f) <- c("permission","owner","group","size","modtime","file")
   f$size <- as.numeric(f$size)
   unique(f)
