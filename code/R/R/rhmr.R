@@ -127,10 +127,10 @@ rhmr <- function(...){
       }
       .getV <- function(mu){
         x <- findGlobals(mu,merge=FALSE);
-        varns <-  x$variables[ !sapply(x$variables,exists, where= omit,USE.NAMES=FALSE) ]
+        varns <-  x$variables[ !sapply(x$variables,exists, where= omit,inherits=FALSE,USE.NAMES=FALSE) ]
         fns <- as.logical(unlist(sapply(varns, function(a) is.function(tryCatch(get(a,cf),error=function(e) NULL )))))
         xfns <- unique(c(x$functions,varns[fns]))
-        xfns <- xfns[! sapply(xfns,exists, where=omit,USE.NAMES=FALSE) ]
+        xfns <- xfns[! sapply(xfns,exists, where=omit,inherits=FALSE,USE.NAMES=FALSE) ]
         varns <- varns[!fns]
         varns <- elim(varns, cf); xfns <- elim(xfns,cf)
         list(funs=xfns,varns=varns)
@@ -551,4 +551,3 @@ makeOmits <- function(){
   sapply(as.character(userProvided),function(s)  assign(s,TRUE, m))
   m
 }
-  
