@@ -324,7 +324,7 @@ rhwatch <- function(map         = NULL,
     j=m[[1]][[3]] ##the mapply
     jj <- j[[3]][[2]] ## the function passed to mapply
     l <- list()
-    l$replace <-  jj[[3]][[2]] ## body of jj
+    l$replace <-  jj[[3]][[2]] ## body of jj when rhmap is fixed it's body(jj)
     l$before=m[[1]][[2]]
     l$after=m[[1]][[4]]
     FIX <- function(x) if(is.null(x)) NULL else x
