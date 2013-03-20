@@ -29,12 +29,12 @@ rhls <- function(folder=NULL,recurse=FALSE){
   v <- rhuz(v)
   if(is.null(v)) return(NULL)
                                         #condition nothing in the directory?
-  if(length(v) == 1  && length(v[[1]]) == 0){
-    f = as.data.frame(matrix(0,0,6))
+  if(length(v) == 0){
+    f = as.data.frame(matrix(NA,0,6))
   } else {
     f <- as.data.frame(do.call("rbind",sapply(v,strsplit,"\t")),stringsAsFactors=F)
   }
-  rownames(f) <- NULL
+  ## rownames(f) <- NULL
   colnames(f) <- c("permission","owner","group","size","modtime","file")
   f$size <- as.numeric(f$size)
   unique(f)
