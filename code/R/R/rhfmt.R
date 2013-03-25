@@ -17,6 +17,7 @@ folder.handler <- function(ifolder){
   if(!is.null(ifolder)) ifolder <- rhofolder(ifolder)
   if(all(sapply(ifolder, function(r) nchar(r)>0)))
     ifolder = rhabsolute.hdfs.path(ifolder)
+  ifolder
 }
 
 lapplyio <- function(args){
@@ -42,23 +43,21 @@ lapplyio <- function(args){
     })
     lines$rhipe_setup_reduce <- c(lines$rhipe_setup_reduce,expr)
     lines$rhipe_setup_map <- c(lines$rhipe_setup_map,expr)
-    if( !lines$rhipe_reduce_justcollect) {
-      ## user left reduce empty ...
-      lines$mapred.reduce.tasks <- 0
-    }
     lines$rhipe_lapply_lengthofinput <- as.integer(args[1])
     lines
   }
 }
 
+
 nullo <- function(){
   function(lines, direction,callers){
     if(direction!="output") stop("Cannot use null for anything but output")
     lines$rhipe_outputformat_class <-'org.apache.hadoop.mapreduce.lib.output.NullOutputFormat'
-    lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-    lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
-    lines$rhipe_map_output_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-    lines$rhipe_map_output_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
+    lines$rhipe_outputformat_keyclass <- 'org.apache.hadoop.io.NullWritable'
+    lines$rhipe_outputformat_valueclass <- 'org.apache.hadoop.io.NullWritablee'
+    lines$rhipe_map_output_keyclass <- 'org.apache.hadoop.io.NullWritable'
+    lines$rhipe_map_output_valueclass <- 'org.apache.hadoop.io.NullWritable'
+    lines$rhipe.use.null <- "TRUE"
     lines
   }
 }
@@ -97,31 +96,12 @@ mapio <- function(folders,interval=1, compression="BLOCK"){
   }
 }
 
-robject <- function(object,chunked=NULL,numperfile=1,elementWriter=NULL){
-  object <- eval(object); chunked <- eval(chunked); numperfile <- eval(numperfile); elementWriter <- eval(elementWriter);
-  function(lines, direction, callers){
-    if(direction=="output") stop("cannot use robject as output")
-    if(!is.null(rhoptions()$HADOOP.TMP.FOLDER)){
-      input <- Rhipe:::mkdHDFSTempFolder(file="rhipe-temp")
-    }else{
-      stop("RHIPE could not find a value for HADOOP.TMP.FOLDER
-            in rhoptions(). Set this: rhoptions(HADOOP.TMP.FOLDER=path)")
-    }
-    a <- system.time(cat(sprintf("RHIPE: Writing your robject to temporary: %s\n (this might take time)\n",input)))
-    cat(sprintf("RHIPE: Writing complete in %s seconds\n",round(a['elapsed'],3)))
-    rhwrite2(object,file=input,chunked=chunked,numperfile=numperfile,elementWriter=elementWriter)
-    I <- rhoptions()$ioformats[["seq"]](input)
-    lines$mapred.reduce.tasks <- 0
-    I(lines,direction, callers)
-  }
-}
-
 sequenceio <- function(folders){
   folders <- eval(folders)
   function(lines,direction,callers){
     if(direction=="input"){
       folders <- Rhipe:::folder.handler(folders)
-      a <- rhls(folders,rec=TRUE)$file
+      folders <- rhls(folders,rec=TRUE)$file
       remr <- c(grep(rhoptions()$file.types.remove.regex,folders))
       if(length(remr)>0)
         folders <- folders[-remr]
@@ -192,7 +172,6 @@ handleIOFormats <- function(opts){
                       sequence=sequenceio,
                       map=mapio,
                       N=lapplyio,
-                      robject=robject,
                       null=nullo)
   opts
 }

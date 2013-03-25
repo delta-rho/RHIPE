@@ -21,7 +21,6 @@ initPRNG <- function(seed=NULL){
     }
     RNGkind("default")
     assign(".Random.seed", seed, envir = .GlobalEnv)
-    rhcounter("Seed",paste(.Random.seed,collapse=":"),1)
   }
   e1 <- new.env(parent = .BaseNamespaceEnv)
   assign("iseed",seed,envir=e1)
@@ -29,8 +28,45 @@ initPRNG <- function(seed=NULL){
   mi
 }
 
-  
+#' Reads all or some lines from a text file located on the HDFS
+#' @param inp The location of the text file, interolated based on hdfs.getwd
+#' @param l the number of lines to read
+#' @keywords HDFS TextFile
+#' @export
+hdfsReadLines <- function(inp,l=-1L){
+  rhoptions()$server$readTextFile(rhabsolute.hdfs.path(inp),as.integer(l))
+}
 
+
+getypes <- function(files,type,skip){
+  type = match.arg(type,c("sequence","map","text","gzip","index"))
+  files <- switch(type,
+                  "text"={
+                    unclass(rhls(files)['file'])$file
+                  },
+                  "gzip"={
+                    uu=unclass(rhls(files)['file'])$file
+                    uu[grep("gz$",uu)]
+                  },
+                  "sequence"={
+                    unclass(rhls(files)['file'])$file
+                  },
+                  "map"={
+                    uu=unclass(rhls(files,rec=TRUE)['file'])$file
+                    uu[grep("data$",uu)]
+                  },
+                  "index"={
+                    uu=unclass(rhls(files,rec=TRUE)['file'])$file
+                    uu[grep("data$",uu)]
+                  }
+                  )
+  for(s in skip){
+    remr <- c(grep(s,files))
+    if(length(remr)>0)
+      files <- files[-remr]
+  }
+  return(files)
+}
 
 
 

@@ -38,15 +38,18 @@
 #' @export
 rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
                      ,handler=NULL){
-  if(class(job)!="jobtoken" && class(job)!="character" ) stop("Must give a jobtoken object(as obtained from rhex)")
-  if(class(job)=="character") id <- job else {
+  if(!is(job,"jobtoken") && !is(job,"character") && !is(job,"rhwatch")) stop("Must give a jobtoken object(as obtained from rhwatch(..read=FALSE))")
+  if(is(job,"character")) id <- job
+  else  if (is(job,"jobtoken")){
     job <- job[[1]]
     id <- job[['job.id']]
+  }else if (is(job,"rhwatch")){
+    x <- gregexpr("jobid=",job[[1]]$tracking)
+    st <- x[[1]]+attr(x[[1]],"match.length")
+    id <- substring(job[[1]]$tracking, st,1e6L)
   }
   if(mon.sec==Inf){
-    result <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhjoin", list(id,
-                                                                             needoutput=as.character(TRUE),
-                                                                             joinwordy = as.character(as.logical(TRUE)))))[[1]]
+    result <-rhoptions()$server$rhjoin(id,TRUE)
     mon.sec=1
   }
   if(mon.sec<=0) {
@@ -58,7 +61,7 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
     }
     while(TRUE){
       y <- .rhstatus(id,autokill=TRUE,showErrors)
-      cat(sprintf("\n[%s] Name:%s Job: %s, State: %s, Duration: %s\nURL: %s\n",date(),y$jobname, id,y$state,y$duration,y$tracking))
+      cat(sprintf("\n[%s] Name:%s Job: %s  State: %s Duration: %s\nURL: %s\n",date(),y$jobname, id,y$state,y$duration,y$tracking))
       print(y$progress)
       if(!is.null(y$warnings)){
         cat("\n--Warnings Present, follows:\n")
@@ -81,7 +84,8 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
 }
 
 .rhstatus <- function(id,autokill=FALSE,showErrors=FALSE){
-  result <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhstatus", list(id, as.integer(showErrors))))[[1]]
+  result <-  rhoptions()$server$rhstatus(as.character(id), as.logical(showErrors))
+  result <-  rhuz(result)
   d <- data.frame("pct"=result[[3]],"numtasks"=c(result[[4]][1],result[[5]][[1]]),
                   "pending"=c(result[[4]][2],result[[5]][[2]]),
                   "running" = c(result[[4]][3],result[[5]][[3]]),
@@ -164,9 +168,16 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
         warning("There are failed attempts, call rhstatus with  showErrors=TRUE. Note, some are fatal (e.g R errors) and some are not (e.g node failure)")
   if(haveRError) state <- "FAILED"
   ro <- result[[6]];trim.trailing <- function (x) sub("\\s+$", "", x)
-  ro2 <- lapply(ro, function(r) { s = as.matrix(r); rownames(s) = trim.trailing(rownames(s)); s })
-  return(list(state=state,duration=duration,progress=d, warnings=wrns,counters=ro2,rerrors=haveRError,errors=errs,jobname=result[[9]],tracking=result[[8]]));
+  ro2 <- lapply(ro, function(r) {
+    s = as.matrix(r);
+    rownames(s) = trim.trailing(rownames(s));
+    if(!is.null(rownames(s)))
+      s = s[order(tolower(rownames(s))),,drop=FALSE];
+    s
+  })
+  return(list(state=state,duration=duration,progress=d, warnings=wrns,counters=ro2,rerrors=haveRError,errors=errs,jobname=result[[9]],tracking=result[[8]],config=result[[10]]));
 }
+
 
 
 # rhstatus <- function(x){

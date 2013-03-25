@@ -5,7 +5,7 @@
 #' 
 #' @param map \code{map} is an R expression (created using the R command
 #'   \code{expression}) that is evaluated by RHIPE during the map stage. For
-#'   each task, RHIPE will call this expression multiple times (see details).
+#'   each task, RHIPE will call this expression multiple times (see details). 
 #' @param reduce \code{reduce} is an R expression (created using the R command
 #'   \code{expression}) that is evaluated by RHIPE during the reduce stage, or
 #'   it is a vector of expressions with names pre, reduce, and post.  For
@@ -300,10 +300,11 @@ rhwatch <- function(map         = NULL,
   ## ##############################
   ## Handle ...
   ## ##############################
+  envir = sys.frame(-1)
   if(is.null(job))
     job <- Rhipe:::.rhmr(map=map, reduce=reduce, combiner=combiner,setup=setup, cleanup=cleanup
                    ,input=input, output=output, orderby=orderby, mapred=mapred, shared=shared,jarfiles=jarfiles
-                   ,zips=zips, partitioner=partitioner, copyFiles=copyFiles, jobname=jobname, parameters=parameters)
+                   ,zips=zips, partitioner=partitioner, copyFiles=copyFiles, jobname=jobname, parameters=parameters,envir=envir)
   else if(is.character(job))
     return(Rhipe:::rhwatch.runner(job=job, mon.sec=mon.sec,readback=readback,...))
   if(!is.null(job$lines$mapred.job.tracker) && job$lines$mapred.job.tracker == TRUE){
@@ -322,7 +323,7 @@ rhwatch <- function(map         = NULL,
     j=m[[1]][[3]] ##the mapply
     jj <- j[[3]][[2]] ## the function passed to mapply
     l <- list()
-    l$replace <-  jj[[3]][[2]] ## body of jj
+    l$replace <-  jj[[3]][[2]] ## body of jj when rhmap is fixed it's body(jj)
     l$before=m[[1]][[2]]
     l$after=m[[1]][[4]]
     FIX <- function(x) if(is.null(x)) NULL else x

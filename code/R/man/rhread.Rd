@@ -4,8 +4,7 @@
 \usage{
   rhread(files, type = c("sequence"), max = -1L,
     skip = rhoptions()$file.types.remove.regex,
-    mc = lapply, asraw = FALSE, size = 3000,
-    buffsize = 1024 * 1024, quiet = FALSE, ...)
+    mc = lapply, ...)
 }
 \arguments{
   \item{files}{Path to file or directory containing map,
@@ -17,11 +16,8 @@
   "map", or "text".}
 
   \item{max}{Maximum number of key/value pairs to read for
-  map and sequence files.  Maximum number of bytes to read
+  map and sequence files.  Maximum number of lines to read
   for text files.}
-
-  \item{asraw}{Return key/value pairs as Raw data type (ie
-  not deserialized).}
 
   \item{mc}{Set to lapply by default. User can change this
   to \code{mclapply} for parallel lapply.}
@@ -35,18 +31,6 @@
   sensible defaults for a number of different systems.  You
   can learn which if any files need to be skipped by using
   rhls on target directory.}
-
-  \item{size}{Increment the return list by this amount as
-  reading in data.}
-
-  \item{buffsize}{Size of byte buffer used to read in
-  data.}
-
-  \item{quiet}{If FALSE prints additional information about
-  the read to STDOUT.}
-
-  \item{\ldots}{Additional arguments to hmerge which is
-  used internally for reading text and gzip files.}
 }
 \value{
   For map and sequence files, a list of key, pairs of up to
@@ -72,7 +56,7 @@
   The parameter \code{max} specifies the maximum number of
   entries to read, by default all the key,value pairs will
   be read.  Specifying \code{max} for text files, limits
-  the number of bytes read and is currently alpha quality.
+  the number of lines read.
 
   \code{mc} is by default \code{lapply}. The user can
   change this to mclapply for faster throughput.

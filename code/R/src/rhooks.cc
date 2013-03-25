@@ -56,7 +56,7 @@ SEXP unserializeUsingPB(SEXP robj) {
 	//     rexp_container->Clear();
 	CodedInputStream cds(RAW(robj), LENGTH(robj));
 	// rexp_container->ParseFromArray(RAW(robj),LENGTH(robj));
-	cds.SetTotalBytesLimit(256 * 1024 * 1024, 256 * 1024 * 1024);
+	cds.SetTotalBytesLimit(2*1024 * 1024 * 1024-50, 1.5*1024 * 1024 * 1024);
 	rexp_container->ParseFromCodedStream(&cds);
 	PROTECT(ans = rexpToSexp(*rexp_container));
 	UNPROTECT(1);

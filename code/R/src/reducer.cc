@@ -13,7 +13,7 @@ const int reducer_run(void){
   int32_t redbuf_cnt=0,REDBUFFER=0;
   SEXP key;
   SEXP prekey0,prekey,reduce0,reduce,postkey0,postkey,vvector;
-    
+  unsigned int REDBUFFER_MAXBYTES;
   char * redbustr;
 
   if ((redbustr=getenv("rhipe_reduce_buff_size"))){
@@ -22,6 +22,9 @@ const int reducer_run(void){
   else{
     REDBUFFER = 100;
   }
+  if ((redbustr=getenv("rhipe_reduce_bytes_read")))
+    REDBUFFER_MAXBYTES= (unsigned int)strtol(redbustr,NULL,10);
+
   PROTECT(prekey0=rexpress(REDUCEPREKEY));
   PROTECT(prekey=Rf_lang2(Rf_install("eval"),prekey0));
 
@@ -36,7 +39,7 @@ const int reducer_run(void){
   Rf_defineVar(Rf_install("reduce.values"),vvector,R_GlobalEnv);
 
   int err,Rerr;
-
+  unsigned int bytes_read = 0;
 
   for(;;){
     type=readVInt64FromFileDescriptor(CMMNC->BSTDIN);
@@ -70,6 +73,7 @@ const int reducer_run(void){
       }
       break;
     case EVAL_REDUCE_THEKEY:
+      bytes_read = 0;
       type = readVInt64FromFileDescriptor(CMMNC->BSTDIN); //read in size of key
       PROTECT(key = readFromHadoop(type,&err));
       Rf_defineVar(Rf_install("reduce.key"),key,R_GlobalEnv);
@@ -84,11 +88,12 @@ const int reducer_run(void){
     case EVAL_REDUCE_POSTKEY:
       if(redbuf_cnt >0){
 	if(redbuf_cnt < REDBUFFER){
+	  // Need to copy to avoid having a reduce.values of length N
+	  // yet only n(<N) filled and thus remaining are nulls
 	  SEXP t1;
 	  PROTECT(t1 = Rf_allocVector(VECSXP,redbuf_cnt));	  
 	  for(int i=0;i<redbuf_cnt;i++){
-	    // SET_VECTOR_ELT(t1,i, Rf_duplicate(VECTOR_ELT(vvector,i))); //added a duplicate
-	    SET_VECTOR_ELT(t1,i, (VECTOR_ELT(vvector,i))); //added a duplicate
+	    SET_VECTOR_ELT(t1,i, (VECTOR_ELT(vvector,i)));
 	  }
 	  Rf_setVar(Rf_install("reduce.values"),t1,R_GlobalEnv);
 
@@ -103,13 +108,38 @@ const int reducer_run(void){
       fflush(NULL);
       break;
     default:
+      // We need to read another element for reduce.values
+      // However, since reduce is vectorized
+      // We call reduce$post on reduce.values of length rhipe_reduce_buff_size
+      // OR if the bytes read is just greater than REDBUFFER_MAXBYTES
       if(redbuf_cnt == REDBUFFER){
+	// Case 1. The reduce.values has reached the critical length
+	// for evaluation
 	Rf_setVar(Rf_install("reduce.values"),vvector,R_GlobalEnv);
 	WRAP_R_EVAL(reduce,NULL, &Rerr);
 	redbuf_cnt=0;
+	bytes_read = 0;
+      }else if( bytes_read >= REDBUFFER_MAXBYTES ){
+	//Case 2. The size of reduce.values as reached the critical cut off
+	//however, the number of elements (initialized to REDBUFFER)
+	//could well be greater than the actual number read.
+	//in that case, reduce the length
+	if(redbuf_cnt < REDBUFFER){
+	  SEXP t1;
+	  PROTECT(t1 = Rf_allocVector(VECSXP,redbuf_cnt));	  
+	  for(int i=0;i<redbuf_cnt;i++){
+	    SET_VECTOR_ELT(t1,i, (VECTOR_ELT(vvector,i)));
+	  }
+	  Rf_setVar(Rf_install("reduce.values"),t1,R_GlobalEnv);
+	  WRAP_R_EVAL(reduce,NULL, &Rerr);
+	  UNPROTECT(1);
+	  redbuf_cnt=0;
+	  bytes_read = 0;
+	}
       }
       SEXP v;
       PROTECT(v= readFromHadoop(type,&err));
+      bytes_read += type;
       if(err) {
 	UNPROTECT(8);
 	return(10);

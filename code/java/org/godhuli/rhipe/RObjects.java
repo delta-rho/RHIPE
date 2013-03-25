@@ -1,6 +1,7 @@
 package org.godhuli.rhipe;
 import org.godhuli.rhipe.REXPProtos.REXP;
 import org.godhuli.rhipe.REXPProtos.REXP.RClass;
+import com.google.protobuf.ByteString;
 import java.util.Vector;
 
 public class RObjects {
@@ -35,6 +36,9 @@ public class RObjects {
 	}
 	return(cvalues);
     }
+    public static REXP.Builder buildDoubleVector(double b){
+	return buildDoubleVector(new double[]{b});
+    }
     public static REXP.Builder buildDoubleVector(double[] b){
 	REXP.Builder cvalues = REXP.newBuilder();
 	cvalues.setRclass(REXP.RClass.REAL);
@@ -43,6 +47,16 @@ public class RObjects {
 	}
 	return(cvalues);
     }
+    public static REXP.Builder buildRawVector(byte[] b){
+	return buildRawVector(b,0,b.length);
+    }
+    public static REXP.Builder buildRawVector(byte[] b,int a, int c){
+	REXP.Builder cvalues = REXP.newBuilder();
+	cvalues.setRclass(REXP.RClass.RAW);
+	cvalues.setRawValue(ByteString.copyFrom(b,a,c));
+	return(cvalues);
+    }
+
     public static REXP.Builder buildIntVector(int[] b){
 	REXP.Builder cvalues = REXP.newBuilder();
 	cvalues.setRclass(REXP.RClass.INTEGER);

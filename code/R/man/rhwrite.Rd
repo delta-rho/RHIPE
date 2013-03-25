@@ -2,59 +2,39 @@
 \alias{rhwrite}
 \title{Write R data to the HDFS}
 \usage{
-  rhwrite(lo, dest, N = NULL)
+  rhwrite(object, file, numfiles = 1, chunk = 1,
+    passByte = 1024 * 1024 * 20, style = "classic")
 }
 \arguments{
-  \item{lo}{List of R objects to place on the HDFS or a
-  data frame/matrix.}
+  \item{object}{An object whose elements are written}
 
-  \item{dest}{Path to destination directory on the HDFS.}
+  \item{file}{where to write(it is overwritten)}
 
-  \item{N}{See Details.}
-}
-\value{
-  NULL
+  \item{numfiles}{number of files to write to}
+
+  \item{chunks}{an integer specificed to chunk data frames
+  into rows or lists into sublists}
 }
 \description{
-  Takes a list of objects, found in \code{lo} and writes
-  them to the folder pointed to by \code{dest} which will
-  be located on the HDFS.
+  Takes a list of objects, found in \code{object} and
+  writes them to the folder pointed to by \code{file} which
+  will be located on the HDFS.
 }
 \details{
-  The file \code{dest} will be in a format interpretable by
-  RHIPE, i.e it can be used as input to a MapReduce job.
-  The values of the list of are written as key-value pairs
-  in a SequenceFileFormat format. \code{N} specifies the
-  number of files to write the values to. For example, if
-  \code{N} is 1, the entire list \code{list} will be
-  written to one file in the folder \code{dest}.
-  Computations across small files do not parallelize well
-  on Hadoop. If the file is small, it will be treated as
-  one split and the user does not gain any (hoped for)
-  parallelization. Distinct files are treated as distinct
-  splits. It is better to split objects across a number of
-  files. If the list consists of a million objects, it is
-  prudent to split them across a few files. Thus if $N$ is
-  10 and \code{list} contains 1,000,000 values, each of the
-  10 files (located in the directory \code{dest}) will
-  contain 100,000 values.
-
-  Since the list only contains values, the keys are the
-  indices of the value in the list, stored as strings. Thus
-  when used as a source for a MapReduce job, the variable
-  \code{map.keys} will contain numbers in the range $[1,
-  length(list)]$. The variable \code{map.values} will
-  contain elements of \code{list}. If \code{lo} is a data
-  frame/matrix, it will converted into a list of pairs,
-  each pair a list of the i'th row.
+  This code, will chunk a data frame(or matrix) or list
+  into sub objects, defined by chunks and then written to
+  the HDFS across numfiles files. Thus if chunks is 10, and
+  numfiles is 20, then a data frame is divided into sub
+  data frames of rows 10 each and written across 20 files.
+  In order to improve the R-Java switch, this is buffered,
+  the buffer size defined by passByte(bytes).
 }
-\author{
-  Saptarshi Guha
+\examples{
+\dontrun{
+ O=data.frame(x=1:100,y=1:100)
+rhwrite(O,file="/user/sguha/x1", chunk=10,numperfile=3)
+writes the above as sub data frames of 10 rows each. Each sub data frame is written to a distinct file.
 }
-\seealso{
-  \code{\link{rhget}}, \code{\link{rhput}},
-  \code{\link{rhdel}}, \code{\link{rhread}},
-  \code{\link{rhwrite}}, \code{\link{rhsave}}
 }
 \keyword{HDFS}
 \keyword{write}

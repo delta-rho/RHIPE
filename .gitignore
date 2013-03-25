@@ -3,6 +3,7 @@ togit.sh
 code/java/build
 */.DS_Store
 *.o
+*.so
 ._*
 *.class
 19RHIPE

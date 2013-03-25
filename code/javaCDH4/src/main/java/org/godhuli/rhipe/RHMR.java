@@ -29,9 +29,11 @@ import java.io.DataOutput;
 import java.io.DataInput;
 import java.io.EOFException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Enumeration;
 import java.util.Calendar;
+import java.util.List;
 import java.net.URI;
 
 import java.text.SimpleDateFormat;
@@ -340,7 +342,14 @@ public class RHMR implements Tool {
 
 	public static REXP buildListFromCounters(
 			org.apache.hadoop.mapreduce.Counters counters, double tt) {
-		String[] groupnames = counters.getGroupNames().toArray(new String[] {});
+//		String[] groupnames = counters.getGroupNames().toArray(new String[] {});
+		List<String> list = new ArrayList<String>();
+		for(String groupName:  counters.getGroupNames()){
+			list.add(groupName);
+		}
+		String[] groupnames = new String[list.size()];
+		groupnames = list.toArray(groupnames);
+		
 		String[] groupdispname = new String[groupnames.length + 1];
 		Vector<REXP> cn = new Vector<REXP>();
 		for (int i = 0; i < groupnames.length; i++) {

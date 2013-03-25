@@ -1,7 +1,7 @@
 Package: Rhipe
 Type: Package
 Title: R and Hadoop Integrated Programming Environment
-Version: 0.72.1
+Version: 0.73
 Date: 2012-08-16
 Author: Saptarshi Guha <saptarshi.guha@gmail.com>
 Maintainer: Jeremiah Rounds  <roundsjeremiah@gmail.com>
@@ -13,18 +13,14 @@ Depends:
     methods
 Packaged: Fri Mar  6 17:02:01 2012; jrounds
 Collate:
-    'dohelp.R'
     'rhcp.R'
     'rhdel.R'
     'rhex.R'
     'rhget.R'
-    'rhgetkey.R'
-    'rhinit.R'
     'rhjoin.R'
     'rhkill.R'
     'rhload.R'
     'rhls.R'
-    'rhmerge.R'
     'rhmv.R'
     'rhoptions.R'
     'rhput.R'
@@ -36,7 +32,6 @@ Collate:
     'rhwrite.R'
     'dfs.R'
     'rhmr.R'
-    'server.R'
     'zzz.R'
     'extra.functions.R'
     'rhwatch.R'
@@ -50,3 +45,5 @@ Collate:
     'rhmap.R'
     'rhfmt.R'
     'mapfile.functions.R'
+    'rhJobInfo.R'
+    'rhmkdir.R'

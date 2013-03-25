@@ -12,23 +12,6 @@ rhreadBin <- function(file,maxnum=-1, readbuf=0,mc=lapply,verb=FALSE){
   mc(x,function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
 }
 
-#test!
-## rhrename <- function(src,dest,delete=T,ignore.stderr=T,verbose=F){
-##   Rhipe:::doCMD(rhoptions()$cmd['rename'],infiles=src,ofile=dest,ignore.stderr=T,verbose=F)
-##   if(delete) rhdel(src)
-## }
-
-##returns the data files in a directory of map files (the index files can't be sent to ##a mapreduce), which can be used for mapreduce jobs as the ifolder param
-## rhmap.sqs <- function(x){
-##   v=rhls(x)
-##   sapply(v$file,function(r){
-##     sprintf("%s/data",r)
-##   },USE.NAMES=F)}
-
-
-rhmerge <- function(inr,ou){
-  system(paste(paste(Sys.getenv("HADOOP_BIN"),"hadoop",sep=.Platform$file.sep,collapse=""),"dfs","-cat",inr,">", ou,collapse=" "))
-}
 
 print.rhversion <- function(x,...){
   al <- paste(sapply(seq_along(attr(x,"notes")),function(y) sprintf("%s. %s",y,attr(x,"notes")[y])),collapse="\n")
@@ -40,11 +23,6 @@ print.rhversion <- function(x,...){
   invisible(y)
 }
 
-rhmv <- function(ifile, ofile) {
-  system(command=paste(paste(Sys.getenv("HADOOP_BIN"),  "hadoop",
-sep=.Platform$file.sep), "fs", "-mv", ifile, ofile, sep=" "))
-
-}
 
 ############################################################################
 ### from old rhmr.R
@@ -67,22 +45,4 @@ print.jobtoken <- function(s,verbose=1,...){
   }
 }
 
-
-## rhsubset <- function(ifolder,ofolder,subs,inout=c('text','text'),local=T){
-##   if(!is.function(subs)) stop('subs must be a function')
-##   setup <- list(map=parse(text=paste("userFUN...=",paste(deparse(subs),collapse="\n"))),
-##                 reduce=expression())
-
-##   m <- expression({
-##     for(x1 in 1:length(map.values)){
-##       y <- userFUN...(map.keys[[x1]],map.values[[x1]])
-##       if(!is.null(y))
-##         rhcollect(map.keys[[x1]],y)
-##   }})
-##   mpr <- list(mapred.textoutputformat.separator=" ")
-##   if(local) mpr$mapred.job.tracker <- 'local'
-##   z <- rhmr(map=m,ifolder=ifolder,ofolder=ofolder,inout=inout,setup=setup,mapred=mpr)
-##   rhex(z)
-## }
-## rhsubset("/tmp/small","/tmp/s",msub)
 

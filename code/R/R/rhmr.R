@@ -19,7 +19,8 @@ rhmr <- function(...){
                   partitioner = NULL,
                   copyFiles   = F,
                   jobname     = "",
-                  parameters  = NULL
+                  parameters  = NULL,
+                  envir = NULL
                   ){
   
   
@@ -30,6 +31,9 @@ rhmr <- function(...){
   lines <- list();
   is.Expression <- function(r) is.expression(r) || class(r)=="{"
 
+  if(is.function(map)){
+    map <- rhmap(body(map), .fnformals=formals(map))
+  }
   
   if(!is.Expression(map))
     stop("'map' must be an expression")
@@ -110,33 +114,47 @@ rhmr <- function(...){
     empty.exp <- expression()
     require(codetools)
     exp <- list( setup$map, setup$reduce, cleanup$map, cleanup$reduce, map,reduce$pre,reduce$post,reduce$reduce)
-    calling.frame <- sys.frame(-2) #since rhwatch calls this
+    ## calling.frame <- sys.frame(-2) #since rhwatch calls this
+    calling.frame <- envir
     seen.vars <- new.env()
-  getV <- function(mu,cf){
-    omit <- c(ls("package:base", all.names=TRUE),ls("package:stats", all.names=TRUE),ls("package:utils", all.names=TRUE))
-    ## see http://comments.gmane.org/gmane.comp.lang.r.general/284792
-    .getV <- function(mu){
-      x <- findGlobals(mu,merge=FALSE);
-      varns <- setdiff(x$variables, omit)
-      fns <- sapply(varns, function(a) is.function(tryCatch(get(a,cf),error=function(e) NULL )))
-      xfns <- unique(c(x$functions,varns[fns]))
-      varns <- varns[!fns]
-      list(funs=setdiff(xfns, omit),varns=varns)
-    }
-    res <- .getV(mu)
-    return(unique( unlist(c( res$varns, res$funs
+    old.vars <- new.env()
+    getV <- function(mu,cf){
+      omit <- makeOmits() 
+      ## see http://comments.gmane.org/gmane.comp.lang.r.general/284792
+      elim <- function(p,cfd){
+        ## if(identical(cfd, .GlobalEnv)) return(p)
+        p[ unlist(sapply(p,function(axs) exists(axs, envir=.GlobalEnv)))]
+      }
+      .getV <- function(mu){
+        x <- findGlobals(mu,merge=FALSE);
+        varns <-  x$variables[ !sapply(x$variables,exists, where= omit,inherits=FALSE,USE.NAMES=FALSE) ]
+        fns <- as.logical(unlist(sapply(varns, function(a) is.function(tryCatch(get(a,cf),error=function(e) NULL )))))
+        xfns <- unique(c(x$functions,varns[fns]))
+        xfns <- xfns[! sapply(xfns,exists, where=omit,inherits=FALSE,USE.NAMES=FALSE) ]
+        varns <- varns[!fns]
+        varns <- elim(varns, cf); xfns <- elim(xfns,cf)
+        list(funs=xfns,varns=varns)
+      }
+    
+      res <- .getV(mu)
+      
+      return(unique( unlist(c( res$varns, res$funs
                             ,sapply(res$varns, function(kap) {
                               moz <- tryCatch(get(kap,envir=cf),error=function(e) NULL)
                               if(is(moz,"list")){
                                 sapply(moz, function(af){
                                   if(is(af,"function"))
-                                      getV(af,cf)
+                                      getV(af,environment(af))
                                 })
                               }})
                             ,sapply(res$funs, function(kap) {
                               moz <- tryCatch(get(kap,envir=cf),error=function(e) NULL)
-                              if(!is.null(moz))
-                                getV(moz,cf)
+                              if(!is.null(moz)){
+                                if(is.null(old.vars[[kap]])){
+                                  old.vars[[kap]] <- NA
+                                  getV(moz,environment(moz))
+                                }
+                              }
                               else
                                 NULL
                             })))))
@@ -147,8 +165,8 @@ rhmr <- function(...){
       body(sampbody) <- mu
       getV(sampbody,cf=calling.frame)
     })))
+    ## dx <- mux[!mux %in% rhoptions()$copyObjects$exclude ]
     for(x in mux){
-      if(x %in% c("map.keys","map.values",".Random.seed",rhoptions()$copyObjects$exclude)) next
       aparamaters[[x]] <- tryCatch(get(x, envir=calling.frame), error=function(e){
         ## if(!x %in% ls(seen.vars))
         ##   warning(sprintf("RHIPE: [param=auto], During symbol auto detect phase, object %s not found", x))
@@ -159,11 +177,12 @@ rhmr <- function(...){
     if(length(ls(seen.vars))>0)
       warning(sprintf("RHIPE(param='auto'): Following variables were discovered but not found: %s",paste(ls(seen.vars,all.names=TRUE),collapse=",")),immediate. =TRUE)
   }
-  
+
   if(is.null(paramaters) && rhoptions()$copyObjects$auto){
     paramaters <- aparamaters
   }
   if(!is.null(paramaters)){
+
     if(is.list(paramaters)){
       ## get any parameters in 'aparamaters' that aren't already defined in 'paramaters'
       autoPar <- setdiff(names(aparamaters), names(paramaters))
@@ -171,7 +190,7 @@ rhmr <- function(...){
       if(length(autoPar) > 0)
         paramaters <- c(paramaters, aparamaters[autoPar])
     }
-
+    
     if(!is.null(paramaters) && is(paramaters,"character") && tolower( paramaters)=="all")
       paramaters<- getObjects()
     if(!is.null(paramaters) && is(paramaters,"character") && tolower( paramaters)=="auto"){
@@ -238,10 +257,10 @@ rhmr <- function(...){
         }
   }
 
-  ## lines$rhipe.eol.sequence <- "\r\n"
-  ## lines$mapred.textoutputformat.usekey <-  "TRUE"
   lines$rhipe_reduce_buff_size <- 6000
   lines$rhipe_map_buff_size <- 3000
+  lines$rhipe_map_bytes_read <- 150*1024*1024
+  lines$rhipe_reduce_bytes_read <- 150*1024*1024
   lines$rhipe_job_verbose <- "TRUE"
   lines$rhipe_stream_buffer <- 10*1024
   lines$rhipe.use.hadoop.combiner="FALSE"
@@ -249,10 +268,6 @@ rhmr <- function(...){
   lines$mapred.compress.map.output="true"
 
   
-  ##If user does not provide
-  ##a reduce function,set reduce to NULL
-  ##however can be over ridden by
-  ##mared.reduce.tasks
 
   ## ###########################################################
   ## Handle Copy Files
@@ -282,7 +297,7 @@ rhmr <- function(...){
     for(n in filterOut(names(options.mapred))) lines[[n]] = options.mapred[[n]]
 
   if(is.null(reduce)){
-    lines$rhipe_reduce_justcollect <- TRUE
+    lines$rhipe_reduce_justcollect <- "TRUE"
   }
 
   ## ##########################################################
@@ -343,7 +358,7 @@ rhmr <- function(...){
   },simplify=T))
   shared.files <- paste(shared.files,collapse=",")
   lines$rhipe_shared <- shared.files
-
+  lines$R_ENABLE_JIT <- 3
 
   lines$rhipe_setup_map  <- rawToChar(serialize(lines$rhipe_setup_map,NULL,ascii=TRUE))
   lines$rhipe_setup_reduce  <- rawToChar(serialize(lines$rhipe_setup_reduce,NULL,ascii=TRUE))
@@ -370,8 +385,6 @@ rhmr <- function(...){
   }
   if(length(jarfiles)>0) {
     lines$rhipe_jarfiles <- paste(path.expand(jarfiles),collapse=",")
-    ## make a temp folder containing jar files
-    ## p <- system(sprintf("mktemp -p %s -d", tempdir()),intern=TRUE)
     p <- Rhipe:::mkdtemp(tempdir())
     invisible(sapply(jarfiles, function(r) rhget(r, p)))
     lines$rhipe_cp_tempdir <- p
@@ -402,7 +415,12 @@ rhmr <- function(...){
     })})),collapse=",")
   else  lines$rhipe_zips=""
 
-
+  ## ####################################
+  ## Fixup Output Path
+  ## ####################################
+  if(is.null(lines$rhipe.fixup.output) || (lines$rhipe.fixup.output==TRUE)){
+    lines$rhipe_output_folder <-  rhabsolute.hdfs.path(lines$rhipe_output_folder)
+  }
     
   lines$param.temp.file <- NULL
   lines <- lapply(lines,as.character);
@@ -479,9 +497,10 @@ mkdHDFSTempFolder <- function(dirprefix=rhabsolute.hdfs.path(rhoptions()$HADOOP.
 
 makeParamTempFile <- function(file,paramaters,aframe){
     oldparam <- paramaters
-    for(i in seq_along(oldparam)){
-      paramaters[[i]] = if(is.name(oldparam[[i]])) get(as.character(oldparam[[i]]),envir=aframe) else oldparam[[i]]
-    }
+    # need to use lapply (setting parameters[[i]] <- NULL removes the element)
+    paramaters <- lapply(seq_along(oldparam), function(i) {
+       if(is.name(oldparam[[i]])) get(as.character(oldparam[[i]]), envir=aframe) else oldparam[[i]]
+    })
     ## where firstchocie == "", use second choice ssd 
     firstchoice <- names(oldparam)
     if(length(firstchoice)==0) firstchoice <- character(length(paramaters))
@@ -521,3 +540,14 @@ getObjects <- function(maxsize=if(is.null(rhoptions()$copyObjects)) 100*1024*102
     }
     varcol
   }
+
+makeOmits <- function(){
+  userProvided <- rhoptions()$copyObjects$exclude
+  m <- new.env()
+  ### installed.packages()[,"Package"]
+  sapply(as.character(.packages()), function(r){
+    sapply(tryCatch(ls(sprintf("package:%s",r),all.names=TRUE),error=function(e) NULL),function(s) assign(s,NA, m))
+  })
+  sapply(as.character(userProvided),function(s)  assign(s,TRUE, m))
+  m
+}

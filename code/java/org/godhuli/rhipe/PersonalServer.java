@@ -15,6 +15,7 @@ import java.lang.SecurityException;
 import java.lang.reflect.Method;
 
 import org.apache.hadoop.fs.FileUtil;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -32,7 +33,7 @@ import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
-
+// import org.xeustechnologies.jcl.JarClassLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.Cache;
 import java.util.concurrent.Callable;
@@ -42,7 +43,7 @@ import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 import com.google.common.cache.CacheStats;
 
-public class PersonalServer extends Configured implements Tool {
+public class PersonalServer {
     protected static final Log LOG = LogFactory.getLog(PersonalServer.class
 						       .getName());
     Configuration _configuration;
@@ -61,286 +62,106 @@ public class PersonalServer extends Configured implements Tool {
     Cache<String, MapFile.Reader> mapfileReaderCache;
     Hashtable<String,ArrayList<ValuePair>> mapToValueCacheKeys =  new Hashtable<String,ArrayList<ValuePair>>();
     Hashtable<String,ArrayList<String>> mapToValueCacheHandles  = new Hashtable<String,ArrayList<String>>();
+    // JarClassLoader jcl;
 
     public PersonalServer(){}
 
-    public void setUserInfo( int bugl) throws InterruptedException {
+    public void setUserInfo( int bugl) throws InterruptedException,IOException {
 	bbuf = new byte[100];
 	this.buglevel = bugl;
 	seqhash = new Hashtable<String, SequenceFile.Reader>();
 	mrhash = new Hashtable<String, MapFile.Reader[]>();
 	mapfilehash = new Hashtable<String, String[]>();
-	fu = new FileUtils(getConf());
+	fu = new FileUtils(_configuration);
+	// jcl  = new JarClassLoader();
     }
-
-    public void rhmropts(REXP r) throws Exception {
+    public FileUtils getFU(){
+	return fu;
+    }
+    public FileSystem getFS(){
+	return _filesystem;
+    }
+    public Configuration getConf(){
+	return _configuration;
+    }
+    public byte[] rhmropts() throws Exception {
 	REXP b = fu.mapredopts();
-	send_result(b);
+        return b.toByteArray();
     }
 
-    public void rhcat(REXP r) throws Exception {
-	final int buff = r.getRexpValue(2).getIntValue(0);
-	final int mx = r.getRexpValue(3).getIntValue(0);
-	final int whattype = r.getRexpValue(4).getIntValue(0);
-	for (int i = 0; i < r.getRexpValue(1).getStringValueCount(); i++) {
-	    Path srcPattern = new Path(r.getRexpValue(1).getStringValue(i)
-				       .getStrval());
-	    new DelayedExceptionThrowing() {
-		void process(Path p, FileSystem srcFs) throws IOException {
-		    if (srcFs.getFileStatus(p).isDir()) {
-			throw new IOException("Source must be a file.");
-		    }
-		    // System.err.println("INPUT="+p);
-		    InputStream ins = srcFs.open(p);
-		    if (whattype == 1) {
-			ins = new java.util.zip.GZIPInputStream(ins);
-		    }
-		    printToStdout(ins, buff, mx);
-		}
-	    }
-		.globAndProcess(srcPattern, srcPattern.getFileSystem(fu
-								     .getConf()));
-	}
-	_toR.writeInt(-1);
-	_toR.flush();
+    public byte[] rhls(String p, int a) throws Exception {
+	return rhls(new String[]{p}, a);
     }
-
-    private void printToStdout(InputStream in, int buffsize, int mx)
-	throws IOException {
-	try {
-	    byte buf[] = new byte[buffsize];
-	    int bytesRead = in.read(buf);
-	    int totalread = bytesRead;
-	    while (bytesRead >= 0) {
-		// System.err.println("Wrote "+bytesRead);
-		_toR.writeInt(bytesRead);
-		_toR.write(buf, 0, bytesRead);
-		_toR.flush();
-		if (mx > -1 && totalread >= mx)
-		    break;
-		bytesRead = in.read(buf);
-		totalread += bytesRead;
-	    }
-	} finally {
-	    in.close();
-	}
-    }
-
-
-
-    public void rhls(REXP r) throws Exception {
-	String[] result0 = fu.ls(r.getRexpValue(1) // This is a string vector
-				 , r.getRexpValue(2).getIntValue(0));
+    public byte[] rhls(String[] p, int a) throws Exception {
+	String[] result0 = fu.ls(p, a);
 	REXP b = RObjects.makeStringVector(result0);
-	send_result(b);
-
+	return b.toByteArray();
     }
 
-    public void rhdel(REXP r) throws Exception {
-	for (int i = 0; i < r.getRexpValue(1).getStringValueCount(); i++) {
-	    String s = r.getRexpValue(1).getStringValue(i).getStrval();
+	
+    public void rhdel(String folder) throws Exception {
+	rhdel(new String[] {folder});
+    }
+    public void rhdel(String[] folder) throws Exception {
+	for (String s: folder){
 	    fu.delete(s, true);
 	}
-	send_result("OK");
     }
 
-    public void rhget(REXP r) throws Exception {
-	String src = r.getRexpValue(1).getStringValue(0).getStrval();
-	String dest = r.getRexpValue(2).getStringValue(0).getStrval();
+    public void rhget(String src, String dest) throws Exception {
 	System.err.println("Copying " + src + " to " + dest);
 	fu.copyMain(src, dest);
-	send_result("OK");
     }
 
-    
-    public void rhput(REXP r) throws Exception {
-	String[] locals = new String[r.getRexpValue(1).getStringValueCount()];
-	for (int i = 0; i < locals.length; i++)
-	    locals[i] = r.getRexpValue(1).getStringValue(i).getStrval();
-	String dest2 = r.getRexpValue(2).getStringValue(0).getStrval();
-	REXP.RBOOLEAN overwrite_ = r.getRexpValue(3).getBooleanValue(0);
-	boolean overwrite;
-	if (overwrite_ == REXP.RBOOLEAN.F)
-	    overwrite = false;
-	else if (overwrite_ == REXP.RBOOLEAN.T)
-	    overwrite = true;
-	else
-	    overwrite = false;
+    public void rhput(String local,String dest2, boolean overwrite) throws Exception {
+	rhput(new String[] {local}, dest2, overwrite);
+    }
+    public void rhput(String[] locals,String dest2, boolean overwrite) throws Exception {
 	fu.copyFromLocalFile(locals, dest2, overwrite);
-	send_result("OK");
     }
 
-    public void sequenceAsBinary(REXP r) throws Exception { // works
-	Configuration cfg = new Configuration();
-	int n = r.getRexpValue(1).getStringValueCount();
-	String[] infile = new String[n];
-	for (int i = 0; i < n; i++) {
-	    infile[i] = r.getRexpValue(1).getStringValue(i).getStrval();
-	}
-	int maxnum = r.getRexpValue(2).getIntValue(0);
-	int bufsz = r.getRexpValue(3).getIntValue(0);
-	// as this rexp is written into
-	DataOutputStream cdo = new DataOutputStream(
-						    new java.io.BufferedOutputStream(_toR, 1024 * 1024));
-	int counter = 0;
-	boolean endd = false;
-	RHBytesWritable k = new RHBytesWritable();
-	RHBytesWritable v = new RHBytesWritable();
-	for (int i = 0; i < infile.length; i++) {
-	    SequenceFile.Reader sqr = new SequenceFile.Reader(FileSystem
-							      .get(cfg), new Path(infile[i]), cfg);
-	    while (true) {
-		boolean gotone = sqr.next((Writable) k, (Writable) v);
-		if (gotone) {
-		    counter++;
-		    k.writeAsInt(cdo);
-		    v.writeAsInt(cdo);
-		    cdo.flush();
-		} else
-		    break;
-		if (maxnum > 0 && counter >= maxnum) {
-		    endd = true;
-		    break;
-		}
-	    }
-	    sqr.close();
-	    if (endd)
-		break;
-	}
-	cdo.writeInt(0);
-	cdo.flush();
+
+    public byte[] rhstatus(String s,boolean b) throws Exception {
+	REXP result = fu.getstatus(s,b);
+	return result.toByteArray();
     }
 
-    public void rhopensequencefile(REXP r) throws Exception {
-	// System.out.println("----Called-----");
-	String name = r.getRexpValue(1).getStringValue(0).getStrval();
-	Configuration cfg = new Configuration();
-	SequenceFile.Reader sqr = new SequenceFile.Reader(FileSystem.get(cfg),
-							  new Path(name), cfg);
-	seqhash.put(name, sqr);
-	send_result("OK");
+    public byte[] rhjoin(String a, boolean b) throws Exception {
+	REXP result = fu.joinjob(a,b);
+	return result.toByteArray();
     }
 
-    public void rhgetnextkv(REXP r) throws Exception {
-	String name = r.getRexpValue(1).getStringValue(0).getStrval();
-	int quant = r.getRexpValue(2).getIntValue(0);
-	SequenceFile.Reader sqr = seqhash.get(name);
-	RHBytesWritable k = new RHBytesWritable();
-	RHBytesWritable v = new RHBytesWritable();
-	DataOutputStream cdo = new DataOutputStream(
-						    new java.io.BufferedOutputStream(_toR, 1024 * 1024));
-	if (sqr != null) {
-	    for (int i = 0; i < quant; i++) {
-		boolean gotone = sqr.next((Writable) k, (Writable) v);
-		if (gotone) {
-		    k.writeAsInt(cdo);
-		    v.writeAsInt(cdo);
-		    cdo.flush();
-		} else {
-		    sqr.close();
-		    seqhash.remove(name);
-		    break;
-		}
-	    }
-	}
-	cdo.writeInt(0);
-	cdo.flush();
+    public void rhkill(String s) throws Exception {
+	fu.killjob(s);
     }
 
-    public void rhclosesequencefile(REXP r) throws Exception {
-	String name = r.getRexpValue(1).getStringValue(0).getStrval();
-	SequenceFile.Reader sqr = seqhash.get(name);
-	if (sqr != null) {
-	    try {
-		sqr.close();
-		seqhash.remove(name);
-	    } catch (Exception e) {
-	    }
-	}
-	send_result("OK");
-    }
+    // public void addJars(String s){
+    // 	addJars(new String[]{s},null);
+    // }
+    // public void addJars(String[] jars,String folder){
+    // 	if(jars!=null){
+    // 	    for(String s: jars){
+    // 		jcl.add(s);
+    // 	    }
+    // 	}
+    // 	if(folder!=null){
+    // 	    if(!folder.endsWith("/")) folder = folder+"/";
+    // 	    jcl.add(folder);
+    // 	}
+    // }
+    // public void addJars(String[] jars){
+    // 	for(String s: jars){
+    // 	    jcl.add(s);
+    // 	}
+    // }
 
-    public void rhstatus(REXP r) throws Exception {
-	REXP jid = r.getRexpValue(1);
-	REXP result = fu.getstatus(jid);
-	send_result(result);
+    public int rhex(String zonf) throws Exception {
+	int result = RHMR.fmain(new String[] {zonf});
+	return result;
     }
-
-    public void rhjoin(REXP r) throws Exception {
-	REXP result = fu.joinjob(r.getRexpValue(1));
-	send_result(result);
-    }
-
-    public void rhkill(REXP r) throws Exception {
-	REXP jid = r.getRexpValue(1);
-	fu.killjob(jid);
-	send_result("OK");
-    }
-    public void send_alive() throws Exception {
-	try {
-
-	    _toR.writeByte(1);
-	    _toR.flush();
-	} catch (IOException e) {
-	    System.err.println("RHIPE: Could not tell R it is alive");
-	    System.exit(1);
-	}
-    }
-
-    public void send_error_message(Throwable e) {
-	ByteArrayOutputStream bs = new ByteArrayOutputStream();
-	e.printStackTrace(new PrintStream(bs));
-	String s = bs.toString();
-	send_error_message(s);
-    }
-
-    public void send_error_message(String s) {
-	REXP clattr = RObjects.makeStringVector("worker_error");
-	REXP r = RObjects
-	    .addAttr(RObjects.buildStringVector(new String[] { s }),
-		     "class", clattr).build();
-	System.err.println(s);
-	sendMessage(r, true);
-    }
-
-    public void sendMessage(REXP r) {
-	sendMessage(r, false);
-    }
-
-    public void sendMessage(REXP r, boolean bb) {
-	try {
-	    byte[] b = r.toByteArray();
-	    DataOutputStream dos = _toR;
-	    // if(bb) dos = _err;
-	    if (bb)
-		dos.writeInt(-b.length);
-	    else
-		dos.writeInt(b.length);
-	    dos.write(b, 0, b.length);
-	    dos.flush();
-	} catch (IOException e) {
-	    System.err
-		.println("RHIPE: Could not send data back to R master, sending to standard error");
-	    System.err.println(r);
-	    System.exit(1);
-	}
-    }
-
-    public void send_result(String s) {
-	REXP r = RObjects.makeStringVector(s);
-	send_result(r);
-    }
-
-    public void send_result(REXP r) {
-	// we create a list of class "worker_result"
-	// it is a list of element given by s
-	// all results are class worker_result and are a list
-	REXP.Builder thevals = REXP.newBuilder();
-	thevals.setRclass(REXP.RClass.LIST);
-	thevals.addRexpValue(r);
-	RObjects.addAttr(thevals, "class", RObjects
-			 .makeStringVector("worker_result"));
-	sendMessage(thevals.build());
+    public int rhex(String[] zonf) throws Exception {
+	int result = RHMR.fmain(zonf);
+	return result;
     }
     
     public byte[] send_back(REXP r){
@@ -352,10 +173,9 @@ public class PersonalServer extends Configured implements Tool {
 	return thevals.build().toByteArray();
     }
 
-    public void initializeCaches(REXP rexp) throws Exception{
-	REXP rexp0 = rexp.getRexpValue(1);
+    public void initializeCaches(int a, int b) throws Exception{
 	valueCache = CacheBuilder.newBuilder()
-	    .maximumWeight(rexp0.getRexpValue(0).getIntValue(0)) //max MB in bytes, set to 100MB
+	    .maximumWeight(a) //max MB in bytes, set to 100MB
 	    .weigher(new Weigher<ValuePair, RHBytesWritable>() {
 	    	    public int weigh(ValuePair k, RHBytesWritable g) {
 	    		return k.getKey().getLength() + g.getLength();
@@ -376,15 +196,15 @@ public class PersonalServer extends Configured implements Tool {
 	    }
 	};
 	mapfileReaderCache = CacheBuilder.newBuilder()
-	    .maximumSize(rexp0.getRexpValue(0).getIntValue(1))
+	    .maximumSize(b)
 	    .removalListener(removalListener)
 	    .recordStats()
 	    .build();
-	
-	send_result("OK");
     }
 
-    public void clearEntiresFor(String forkey) throws Exception{
+
+
+    public void clearEntriesFor(String forkey) throws Exception{
 	ArrayList<String> cachedHandle = mapToValueCacheHandles.get(forkey);
 	ArrayList<ValuePair> cachedValues = mapToValueCacheKeys.get(forkey);
 	mapfileReaderCache.invalidate(cachedHandle);
@@ -392,36 +212,37 @@ public class PersonalServer extends Configured implements Tool {
 	cachedHandle.clear();
 	cachedValues.clear();
     }
-    public void initializeMapFile(REXP rexp) throws Exception{
-	REXP rexp0 = rexp.getRexpValue(1);
-	REXP paths = rexp0.getRexpValue(0); // paths to read from
-	String akey = rexp0.getRexpValue(1).getStringValue(0).getStrval();
-	String[] pathsForMap = new String[ paths.getStringValueCount() ];
-	for (int i = 0; i < pathsForMap.length; i++) {
-	    pathsForMap[i] = paths.getStringValue(i).getStrval();
-	}
+
+
+    public void initializeMapFile(String pathsForMap, String akey) throws Exception{
+	initializeMapFile(new String[] {pathsForMap}, akey);
+    }
+    public void initializeMapFile(String[] pathsForMap, String akey) throws Exception{
 	if(mapfilehash.get(akey)!=null){
 	    LOG.info("Clearing Caches for "+akey);
-	    clearEntiresFor(akey);
+	    clearEntriesFor(akey);
 	}else{
 	    mapToValueCacheKeys.put(akey, new ArrayList<ValuePair>(500));
 	    mapToValueCacheHandles.put(akey, new ArrayList<String>(100));
 	}
 	mapfilehash.put(akey, pathsForMap);
-	send_result("OK");
     }
 
-    public void rhgetkeys2(REXP rexp) throws Exception,IOException
+    public byte[] rhgetkeys2(String key, byte[] bb) throws Exception,IOException
     {
-	REXP rexp0 = rexp.getRexpValue(1);
-	final String key = rexp0.getRexpValue(0).getStringValue(0).getStrval();
-	REXP keys = rexp0.getRexpValue(1);
 	final String[] pathsForMap = mapfilehash.get(key);
+
 	RHBytesWritable v = new RHBytesWritable();
-	DataOutputStream out = _toR;
+	RHBytesWritable k  = new RHBytesWritable();
 	final RHNull anull = new RHNull();
-	for(int i=0; i < keys.getRexpValueCount();i++){
-	    final RHBytesWritable k = new RHBytesWritable(keys.getRexpValue(i).getRawValue().toByteArray());
+
+	REXP.Builder thevals   = REXP.newBuilder();
+    	thevals.setRclass(REXP.RClass.LIST);
+	REXP keys =  REXP.newBuilder().mergeFrom(bb, 0, bb.length).build();
+
+	for(int i=0; i <  keys.getRexpValueCount();i++){
+	    k.set( keys.getRexpValue(i).toByteArray());
+	    
 	    ValuePair vp = new ValuePair(key,k);
 	    v = valueCache.getIfPresent(vp);
 	    if(v==null){
@@ -439,15 +260,16 @@ public class PersonalServer extends Configured implements Tool {
 		mapToValueCacheKeys.get(key).add(vp);
 		valueCache.put(vp, v);
 	    }
-	    k.writeAsInt(out); v.writeAsInt(out);
+		REXP.Builder a   = REXP.newBuilder();
+		// a.setRclass(REXP.RClass.LIST);
+		// a.addRexpValue(  );
+		// a.build();
+		thevals.addRexpValue(RObjects.buildRawVector( v.getBytes(), 0, v.getLength()));
 	}
-	out.writeInt(0);
-	out.flush();
+	return thevals.build().toByteArray();
     }
     
-    public void cacheStatistics(REXP rexp){
-	REXP rexp0 = rexp.getRexpValue(1);
-	int which = rexp0.getRexpValue(0).getIntValue(0);
+    public byte[] cacheStatistics(int which){
 	CacheStats c = null;
 	if(which == 0)
 	    c = mapfileReaderCache.stats();
@@ -460,129 +282,34 @@ public class PersonalServer extends Configured implements Tool {
 		(double)c.loadSuccessCount(),(double)c.missCount(),(double)c.missRate(),
 		(double)c.requestCount(),((double)c.totalLoadTime())*1e-6
 	    }).build();
-	send_result(r);
-    }
-    public void rhgetkeys(REXP rexp00) throws Exception {
-	REXP rexp0 = rexp00.getRexpValue(1);
-	REXP keys = rexp0.getRexpValue(0); // keys
-	REXP paths = rexp0.getRexpValue(1); // paths to read from
-	String tempdest = rexp0.getRexpValue(2).getStringValue(0).getStrval(); // tempdest
-	REXP.RBOOLEAN b = rexp0.getRexpValue(3).getBooleanValue(0); // as
-
-	// sequence
-	// or binary
-	Configuration c = fu.getConf();
-	DataOutputStream out = _toR;
-	String akey = rexp0.getRexpValue(4).getStringValue(0).getStrval(); // tempdest
-	String[] pnames = new String[paths.getStringValueCount()];
-	for (int i = 0; i < pnames.length; i++) {
-	    pnames[i] = paths.getStringValue(i).getStrval();
-	}
-	MapFile.Reader[] mr  = mrhash.get(akey);
-	if(mr == null){
-	    // LOG.info("Did not find in hashtable");
-	    mr = RHMapFileOutputFormat.getReaders(pnames, c);
-	    mrhash.put(akey, mr);
-	}
-	
-	int numkeys = keys.getRexpValueCount();
-	RHBytesWritable k = new RHBytesWritable();
-	RHBytesWritable v = new RHBytesWritable();
-	boolean closeOut = false;
-	if (b == REXP.RBOOLEAN.F) { // binary style
-	    if (out == null) {
-		closeOut = true;
-		out = new DataOutputStream(new FileOutputStream(tempdest));
-	    }
-	    for (int i = 0; i < numkeys; i++) {
-		k.set(keys.getRexpValue(i).getRawValue().toByteArray());
-		RHMapFileOutputFormat.getEntry(mr, k, v);
-		k.writeAsInt(out);
-		v.writeAsInt(out);
-	    }
-	    if (closeOut)
-		out.close();
-	    else {
-		out.writeInt(0);
-		out.flush();
-	    }
-	} else {// these will be written out as a sequence file
-	    RHWriter rw = new RHWriter(tempdest, fu.getConf());
-	    SequenceFile.Writer w = rw.getSQW();
-	    for (int i = 0; i < numkeys; i++) {
-		k.set(keys.getRexpValue(i).getRawValue().toByteArray());
-		RHMapFileOutputFormat.getEntry(mr, k, v);
-		w.append(k, v);
-	    }
-	    rw.close();
-	}
+	return r.toByteArray();
     }
 
 
-    public void rhex(REXP rexp0) throws Exception {
-	String[] zonf = new String[] { rexp0.getRexpValue(1).getStringValue(0)
-				       .getStrval() };
-	int result = RHMR.fmain(zonf);
-	send_result("" + result);
+    public String[] readTextFile(String inp) throws Exception{
+	return readTextFile(inp,-1);
     }
-
-    public void binaryAsSequence(REXP r) throws Exception { // works
-	Configuration cfg = new Configuration();
-	String ofolder = r.getRexpValue(1).getStringValue(0).getStrval();
-	int groupsize = r.getRexpValue(2).getIntValue(0);
-	int howmany = r.getRexpValue(3).getIntValue(0);
-	int N = r.getRexpValue(4).getIntValue(0);
-	DataInputStream in = _fromR;
-	int count = 0;
-	// System.out.println("Got"+r);
-	// System.out.println("Waiting for input");
-	for (int i = 0; i < howmany - 1; i++) {
-	    String f = ofolder + "/" + i;
-	    RHWriter w = new RHWriter(f, cfg);
-	    w.doWriteFile(in, groupsize);
-	    count = count + groupsize;
-	    w.close();
-	}
-
-	if (count < N) {
-	    count = N - count;
-	    String f = ofolder + "/" + (howmany - 1);
-	    RHWriter w = new RHWriter(f, cfg);
-	    w.doWriteFile(in, count);
-	    w.close();
-	}
-	send_result("OK");
-    }
-    public void binaryAsSequence2(REXP r) throws Exception { // works
-	Configuration cfg = new Configuration();
-	String ofolder = r.getRexpValue(1).getStringValue(0).getStrval();
-	int numperfile = r.getRexpValue(2).getIntValue(0);
-	int howmany = r.getRexpValue(3).getIntValue(0);
-	DataInputStream in = _fromR;
-	int count = 0, i=0;
-	String f = ofolder + "/" + i;
-	RHWriter w = new RHWriter(f, cfg);	
-	while(i < howmany){
-	    w.writeAValue(in);
+    public String[] readTextFile(String inp,int numlines) throws Exception{
+	if(numlines <0)
+	    numlines = java.lang.Integer.MAX_VALUE;
+	FSDataInputStream in = _filesystem.open(new Path(inp));
+	BufferedReader inb = new BufferedReader(new InputStreamReader(in));
+	ArrayList<String> arl = new ArrayList<String>();
+	int i=0;
+	while(i < numlines){
+	    String s = inb.readLine();
+	    if(s == null) break;
+	    arl.add(s);
 	    i++;
-	    if( i  % numperfile == 0){
-		count ++;
-		f = ofolder+"/"+count;
-		w.close();
-		if(i < howmany) 
-		    w = new RHWriter(f, cfg);
-	    }
 	}
-	try{
-	    w.close();
-	}catch(Exception e){}
-	send_result("OK");
+	String[] s = new String[arl.size()];
+	s = arl.toArray(s);
+	return s;
     }
 
 
     public int run(int buglevel) throws Exception {
-	// Configuration processed by ToolRunner
-	_configuration = getConf();
+	_configuration = new Configuration();
 	_filesystem = FileSystem.get(_configuration);
 	_hp = RHMapFileOutputFormat.getHP();
 	setUserInfo(buglevel);

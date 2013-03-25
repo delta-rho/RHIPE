@@ -6,18 +6,13 @@
 #'   text file to be read on the HDFS. This can also be the output from rhwatch(provided read=FALSE) or rhmr.
 #' @param type Type of file on HDFS.  Must be "sequence", "map", or "text".
 #' @param max Maximum number of key/value pairs to read for map and sequence
-#'   files.  Maximum number of bytes to read for text files.
-#' @param asraw Return key/value pairs as Raw data type (ie not deserialized).
+#'   files.  Maximum number of lines to read for text files.
 #' @param mc Set to lapply by default. User can change this to \code{mclapply} for parallel lapply.
 #' @param skip Files to skip while reading the hdfs.  Various installs of Hadoop add additional log
 #'			info to HDFS output from MapReduce.  Attempting to read these files is not what we want to do 
 #'	        in rhread.  To get around this we specify pieces of filenames to grep and remove from the read.
 #'          skip is a vector argument just to have sensible defaults for a number of different systems.
 #'          You can learn which if any files need to be skipped by using rhls on target directory.
-#' @param size Increment the return list by this amount as reading in data.
-#' @param buffsize Size of byte buffer used to read in data.
-#' @param quiet If FALSE prints additional information about the read to STDOUT.
-#' @param \ldots Additional arguments to hmerge which is used internally for reading text and gzip files.
 #' @return For map and sequence files, a list of key, pairs of up to length
 #'   MAX.  For text files, a matrix of lines, each row a line from the text
 #'   files.
@@ -32,7 +27,7 @@
 #' 
 #' The parameter \code{max} specifies the maximum number of entries to read, by
 #' default all the key,value pairs will be read.  Specifying \code{max} for
-#' text files, limits the number of bytes read and is currently alpha quality.
+#' text files, limits the number of lines read.
 #' 
 #' \code{mc} is by default \code{lapply}. The user can change this to mclapply for faster throughput.
 #' 
@@ -42,59 +37,120 @@
 #'   \code{\link{rhdel}}, \code{\link{rhwrite}}, \code{\link{rhsave}}
 #' @keywords read HDFS file
 #' @export
-rhread <- function(files,type=c("sequence"),max=-1L,skip=rhoptions()$file.types.remove.regex,mc=lapply,asraw=FALSE,size=3000,buffsize=1024*1024,quiet=FALSE,...){
-        if(is(files, "rhwatch")) files <- rhofolder(files)
-	files = rhabsolute.hdfs.path(files)
-	files <- getypes(files,type,skip)
-	max <- as.integer(max)
-	p <- if(type %in% c("text","gzip") ){
-	Rhipe:::hmerge(files, buffsize=as.integer(buffsize),max=max,type=type,...)
-	}else{
-	Rhipe:::send.cmd(rhoptions()$child$handle, list("sequenceAsBinary", files,max,as.integer(rhoptions()$child$bufsize)),
-		                  getresponse=0L,
-		                  continuation = function() Rhipe:::rbstream(rhoptions()$child$handle,size,mc,asraw,quiet))
-	}
-  	p
+rhread <- function(files,type=c("sequence"),max=-1L,skip=rhoptions()$file.types.remove.regex,mc=lapply,...){
+  if(is(files, "rhwatch"))
+    files <- rhofolder(files)
+  files = rhabsolute.hdfs.path(files)
+  files <- getypes(files,type,skip)
+  max <- as.integer(max)
+  switch(type,
+         "gzip" = {
+           stop("GZIP not supported")
+         },
+         "text" = {
+           rhread.text(files, max=max)
+         },
+         "map" = {
+           rhread.sequence(files, max=max,mc=mc)
+         },
+         "sequence" = {
+           rhread.sequence(files, max=max,mc=mc)
+         })
 }
 
-# rhread <- function(files,type="sequence",max=-1,asraw=FALSE,ignore.stderr=T,verbose=F,mc=FALSE,debug=FALSE){
-#   ## browser()
-#   type = match.arg(type,c("sequence","map","text"))
-#   on.exit({
-#     if(!keepfile)
-#       unlink(tf1)
-#   })
-#   keep <- NULL
-#   keepfile=F
-#   files <- switch(type,
-#                   "text"={
-#                     unclass(rhls(files)['file'])$file
-#                     stop("cannot read text files")
-#                   },
-#                   "sequence"={
-#                     unclass(rhls(files)['file'])$file
-#                   },
-#                   "map"={
-#                     uu=unclass(rhls(files,rec=TRUE)['file'])$file
-#                     uu[grep("data$",uu)]
-#                   })
-#   remr <- c(grep("/_logs",files))
-#   if(length(remr)>0)
-#     files <- files[-remr]
-#   tf1<- tempfile(pattern=paste('rhread_',
-#                    paste(sample(letters,4),sep='',collapse='')
-#                    ,sep="",collapse=""),tmpdir="/tmp")
-#   if(!is.null(keep))
-#     {
-#       tf2 <- keep
-#       keepfile=T
-#     }else{
-#       tf2<- tempfile(pattern=paste(sample(letters,8),sep='',collapse=''))
-#     }
-#   v <- Rhipe:::doCMD(rhoptions()$cmd['s2b'], infiles=files,ofile=tf1,ilocal=TRUE,howmany=max,ignore.stderr=ignore.stderr,
-#         verbose=verbose,rhreaddebug = debug)
-#   if(mc) LL=mclapply else LL=lapply
-#   if(!asraw) LL(v,function(r) list(rhuz(r[[1]]),rhuz(r[[2]]))) else v
-# }
-# #hread("/tmp/f")
-# ## ffdata2=hread("/tmp/d/")
+rhread.text <- function(files, max){
+  x <- c()
+  i <- 1
+  ntoread <- if(max>0) as.integer(max) else Inf
+  while(ntoread>0  && i<= length(files)){
+    a <- hdfsReadLines(files[i],if(ntoread==Inf) -1L else ntoread)
+    ntoread <- ntoread - length(a)
+    x <- c(x,a)
+    i <- i+1
+  }
+  return(x)
+}
+
+rhread.sequence <- function(files, max, mc){
+  a1 <- proc.time()['elapsed']
+  handle <- .jnew("org/godhuli/rhipe/SequenceFileIterator")
+  j <- list()
+  a <- handle$init(files, as.integer(10*1024*1024), as.integer(max),rhoptions()$server);
+  bread <- 0
+  while(handle$hasMoreElements()){
+    v <-  handle$nextChunk()
+    j[[ length(j) +1 ]] <- mc(rhuz(v), function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
+    bread <- bread + length(v)
+  }
+  v <- unlist(j,rec=FALSE)
+  a2 <-  proc.time()['elapsed']
+  message(makeMessage(bread,length(v), a2-a1))
+  v
+}
+
+
+makeMessage <- function(b, l, d){
+  units <- "KB"
+  if(b< 1024*1024)
+    b <- b/1024
+  else if(b< 1024*1024*1024){
+    units <- "MB"
+    b <- b/(1024*1024)
+  }else {
+    units <- "GB"
+    b <- b/(1024*1024*1024)
+  }
+  if(d < 60) {
+    tt <- d
+    tu="seconds"
+  } else {
+    tt <- d/60
+    tu="minutes"
+  }
+  sprintf("Read %s objects(%s %s) in %s %s", l, round(b,2), units,round(tt,2),tu)
+}
+
+#' Iterates Through the Records of Sequence Files
+#'
+#' Can be used to iterate through the records of a Sequence File(or collection thereof)
+#' 
+#' @param files Path to file or directory containing  sequence files.  This can also be the output from rhwatch(provided read=FALSE) or rhmr.
+#' @param chunksize Number of records or bytes to read. Depends on 'chunk'
+#' @param type Is it "sequence" or "map'. Ideally should be auto-determined.
+#' @param skip Files to skip while reading the hdfs.  Various installs of Hadoop add additional log
+#'			info to HDFS output from MapReduce.  Attempting to read these files is not what we want to do.
+#'	       To get around this we specify pieces of filenames to grep and remove from the read.
+#'          skip is a vector argument just to have sensible defaults for a number of different systems.
+#'          You can learn which if any files need to be skipped by using rhls on the target directory.
+#' @param type Either 'records' or 'bytes'
+#'
+#' @examples
+#'
+#' \dontrun{
+#'    j <- rhwatch(map=rhmap(rhcollect(r,k)),reduce=0, input=c(36,3),read=FALSE)
+#'    a <- rhIterator(j,chunk=11)
+#'    while( length(b<-a())>0) doSomethingWith(b)
+#' }
+#' @export
+
+rhIterator <- function(files, type="sequence",chunksize=1000, chunk='records',skip=rhoptions()$file.types.remove.regex,mc=lapply){
+  if(is(files, "rhwatch"))
+    files <- rhofolder(files)
+  files = rhabsolute.hdfs.path(files)
+  files <- getypes(files,type,skip)
+  chunksize <- as.integer(chunksize)
+  handle <- .jnew("org/godhuli/rhipe/SequenceFileIterator")
+  handle$init(files, as.integer(chunksize), -1L,rhoptions()$server);
+  if(chunk == 'records'){
+    return(function(chunksize=chunksize){
+      if(handle$hasMoreElements())
+        mc(rhuz(handle$nextElement()),function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
+    })
+  }else{
+    return(function(chunksize=chunksize){
+      if(handle$hasMoreElements())
+        mc(rhuz(handle$nextChunk()),function(r) list(rhuz(r[[1]]),rhuz(r[[2]])))
+    })
+  }
+}
+## a <- rhIterator( "/user/sguha/tmp/rhipe-temp-810956e1fafd30a76f869f61afa8f3e2",chunk=10)

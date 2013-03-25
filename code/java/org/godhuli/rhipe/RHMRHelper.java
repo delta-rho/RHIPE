@@ -102,14 +102,6 @@ public class RHMRHelper {
 	if(!cfg.get("rhipe_partitioner_class").equals("none")){
 	    RHMRHelper.PARTITION_START = Integer.parseInt(cfg.get("rhipe_partitioner_start"))-1;
 	    RHMRHelper.PARTITION_END = Integer.parseInt(cfg.get("rhipe_partitioner_end"))-1;
-	    // String pt = cfg.get("rhipe_partitioner_type");
-	    // if(pt.equals("numeric")){
-	    // 	RHMRHelper.PARTITION_TYPE = REXP.RClass.REAL;
-	    // }else if(pt.equals("string")){
-	    // 	RHMRHelper.PARTITION_TYPE = REXP.RClass.STRING;
-	    // }else if(pt.equals("integer")){
-	    // 	RHMRHelper.PARTITION_TYPE = REXP.RClass.INTEGER;
-	    // }
 	}
     }
     void setup(Configuration cfg, String argv,boolean doPipe){     
@@ -123,6 +115,10 @@ public class RHMRHelper {
 	    REXPHelper.setFieldSep(cfg.get("mapred.field.separator"," "));
 	    REXPHelper.setStringQuote(squote);
 
+	    if(cfg.get("rhipe_test_output")!=null && cfg.get("rhipe_test_output").equals("TRUE"))
+		writeErr = true;
+	    else
+		writeErr= false;
 
 	    BUFFER_SIZE = cfg.getInt("rhipe_stream_buffer",10*1024);
 	    joinDelay_ = cfg.getLong("rhipe_joindelay_milli", 0);
@@ -214,9 +210,10 @@ public class RHMRHelper {
     void waitOutputThreads(TaskInputOutputContext<WritableComparable,RHBytesWritable
 			   ,WritableComparable,RHBytesWritable> ctx) {
 	try {
-	    if (outThread_ == null) {
-		startOutputThreads(new DummyContext(ctx)); //will fail
-	    }
+	    // I commented this out, if uncommented, then uncomment the bit for DummyContext
+	    // if (outThread_ == null) {
+	    // 	startOutputThreads(new DummyContext(ctx)); //will fail
+	    // }
 	    int exitVal = sim.waitFor();
 	    if (exitVal != 0) {
 		if (nonZeroExitIsFailure_) {
@@ -253,40 +250,40 @@ public class RHMRHelper {
 	return(extraInfo);
     }
 
-    class DummyContext extends TaskInputOutputContext<WritableComparable,RHBytesWritable,
-			       WritableComparable,RHBytesWritable> {
-	DummyContext(TaskInputOutputContext<WritableComparable,RHBytesWritable,
-		     WritableComparable,RHBytesWritable>ctx){
-	    super(null, null, null, null, null); //wont work
-	}
-	public RHBytesWritable getCurrentKey() throws IOException, InterruptedException {
-	    return null;
-	}
+    // class DummyContext extends TaskInputOutputContext<WritableComparable,RHBytesWritable,
+    // 			       WritableComparable,RHBytesWritable> {
+    // 	DummyContext(TaskInputOutputContext<WritableComparable,RHBytesWritable,
+    // 		     WritableComparable,RHBytesWritable>ctx){
+    // 	    super(null, null, null, null, null); //wont work
+    // 	}
+    // 	public RHBytesWritable getCurrentKey() throws IOException, InterruptedException {
+    // 	    return null;
+    // 	}
 	
-	public RHBytesWritable getCurrentValue() throws IOException, InterruptedException {
-	    return null;
-	}
-	public boolean nextKeyValue() throws IOException, InterruptedException {
-	    return false;
-	}
-	public void write(RHBytesWritable key, RHBytesWritable value
-			  ) throws IOException, InterruptedException {
-	}
-	public void setStatus(String status){}
-	public void progress(){}
-    }
+    // 	public RHBytesWritable getCurrentValue() throws IOException, InterruptedException {
+    // 	    return null;
+    // 	}
+    // 	public boolean nextKeyValue() throws IOException, InterruptedException {
+    // 	    return false;
+    // 	}
+    // 	public void write(RHBytesWritable key, RHBytesWritable value
+    // 			  ) throws IOException, InterruptedException {
+    // 	}
+    // 	public void setStatus(String status){}
+    // 	public void progress(){}
+    // }
 
     public void writeCMD(int s) throws IOException{
-	WritableUtils.writeVInt(clientOut_,s);
-	// clientOut_.writeInt(s);
+    	WritableUtils.writeVInt(clientOut_,s);
+    	// clientOut_.writeInt(s);
     }
 	
     public void write(RHBytesWritable c) throws IOException{
-	c.write(clientOut_);
+    	c.write(clientOut_);
     }
 
     public void write(WritableComparable c) throws IOException{
-	c.write(clientOut_);
+    	c.write(clientOut_);
     }
 
 	
@@ -306,12 +303,8 @@ public class RHMRHelper {
 	}
 	boolean readRecord(WritableComparable k, Writable v) {
 	    try{
-		// LOG.info("SAPSI------------ Reading the key");
 		k.readFields(clientIn_);
-		// LOG.info("SAPSI------------- The key is "+k);
-		// LOG.info("SAPSI------------ Reading the value");
 		v.readFields(clientIn_);
-		// LOG.info("SAPSI------------ The valuse is"+v);
 
 	    }catch(IOException e){
 		return(false);
@@ -429,6 +422,18 @@ public class RHMRHelper {
 			    long value = (long)(Double.parseDouble( REXPHelper.toString_(r.getRexpValue(2))));
 			    ctx.getCounter(grcnt, subcnt).increment(value);
 			    break;
+			default:
+			    if(writeErr){
+				BufferedReader d = new BufferedReader(new InputStreamReader(clientErr_));
+				int l=0;
+				while(true){
+				    String line = d.readLine();
+				    if(line == null) break;
+				    System.err.println("RHIPE Runner Output["+l+"]: "+line);
+				    l++;
+				}
+			    }
+			    
 			}
 			long now = System.currentTimeMillis(); 
 			if ( now-lastStderrReport > reporterErrDelay_) {
@@ -531,6 +536,6 @@ public class RHMRHelper {
     volatile DataOutputStream clientOut_;
     volatile DataInputStream clientErr_;
     volatile DataInputStream clientIn_;
-    
+	boolean writeErr;
     protected volatile Throwable outerrThreadsThrowable;
 }

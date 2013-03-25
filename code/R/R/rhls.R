@@ -18,16 +18,19 @@
 #'   \code{\link{rhsave}}, \code{\link{rhget}}
 #' @keywords list HDFS directory
 #' @export
-rhls <- function(folder,recurse=FALSE){
+rhls <- function(folder=NULL,recurse=FALSE){
 	## List of files,
   if( is(folder,"rhmr") || is(folder, "rhwatch"))
     folder <- rhofolder(folder)
+  if(is.null(folder))
+    folder <- hdfs.getwd()
   folder <- rhabsolute.hdfs.path(folder)
-  v <- Rhipe:::send.cmd(rhoptions()$child$handle,list("rhls",folder, if(recurse) 1L else 0L))
+  v <- rhoptions()$server$rhls(folder, if(recurse) 1L else 0L)
+  v <- rhuz(v)
   if(is.null(v)) return(NULL)
                                         #condition nothing in the directory?
-  if(length(v) == 1  && length(v[[1]]) == 0){
-    f = as.data.frame(matrix(0,0,6))
+  if(length(v) == 0){
+    f = as.data.frame(matrix(NA,0,6))
   } else {
     f <- as.data.frame(do.call("rbind",sapply(v,strsplit,"\t")),stringsAsFactors=F)
   }
@@ -37,19 +40,3 @@ rhls <- function(folder,recurse=FALSE){
   unique(f)
 }
 
-# rhls <- function(fold,recurse=FALSE,ignore.stderr=T,verbose=F){
-#   ## List of files,
-#   v <- Rhipe:::doCMD(rhoptions()$cmd['ls'],fold=fold,recur=as.integer(recurse),needoutput=T,ignore.stderr=ignore.stderr,verbose=verbose)
-#   if(is.null(v)) return(NULL)
-#   if(length(v)==0) {
-#     warning(sprintf("Is not a readable directory %s",fold))
-#     return(v)
-#   }
-#   ## k <- strsplit(v,"\n")[[1]]
-#   ## k1 <- do.call("rbind",sapply(v,strsplit,"\t"))
-#   f <- as.data.frame(do.call("rbind",sapply(v,strsplit,"\t")),stringsAsFactors=F)
-#   rownames(f) <- NULL
-#   colnames(f) <- c("permission","owner","group","size","modtime","file")
-#   f$size <- as.numeric(f$size)
-#   unique(f)
-# }
