@@ -34,7 +34,13 @@
 
 
 rhmap <- 
-function(co1=NULL,before=NULL,after=NULL){
+  function(co1=NULL,before=NULL,after=NULL){
+    ## repl <- function(code){
+    ##   ..r <- substitute(code)
+    ##   r <- if (is(..r, "name")) 
+    ##     get(as.character(..r))
+    ##   else ..r
+    ## }
   co <- substitute(co1); before=substitute(before);after=substitute(after)
   j <- as.expression(bquote({
     .(BE)
