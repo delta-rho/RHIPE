@@ -46,7 +46,8 @@
        debuglevel="lines,vars,source">
 <compilerarg line="${javac.args.warnings}"/>
 </javac>
-<!--      <unjar dest="${classes.dir}" src="${lib.dir}/protobuf-java-2.2.0.jar"/> -->
+
+<!-- <unjar dest="${classes.dir}" src="${lib.dir}/protobuf-java-2.2.0.jar"/> -->
 
 <unjar dest="${classes.dir}">
 <!-- <fileset dir="."> -->
