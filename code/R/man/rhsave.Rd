@@ -2,13 +2,15 @@
 \alias{rhsave}
 \title{Save .RData to HDFS}
 \usage{
-  rhsave(..., file)
+  rhsave(..., file, envir = parent.frame())
 }
 \arguments{
   \item{\ldots}{additional parameters for \code{rhsave}}
 
   \item{file}{Absolute path to file on HDFS.  Creates the
-  file or overwrites it.}
+  file or overwrites}
+
+  \item{environment}{to search for objects to be saved it.}
 }
 \value{
   NULL
