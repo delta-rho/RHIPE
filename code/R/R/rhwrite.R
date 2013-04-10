@@ -23,8 +23,10 @@
 #' @export
 rhwrite <- function(object,file,numfiles=1,chunk=1,passByte=1024*1024*20,style='classic'){
   ## rhdel(file)
-  if( !(style=="classic" && inherits(object,"list") && length(object)>=1 && length(object[[1]])==2)){
-    stop("You requested 'classic' write, for that one must provide a list each element of which is a list of length 2")
+  if(style=="classic") {
+     if(!(inherits(object,"list") && length(object)>=1 && length(object[[1]])==2)){
+       stop("You requested 'classic' write, for that one must provide a list each element of which is a list of length 2")
+     }
   }
   
   file <- rhabsolute.hdfs.path(file)
