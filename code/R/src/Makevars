@@ -62,9 +62,10 @@ md5.o: md5.c
 serverbridge.o: serverbridge.cc
 	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
 app:  rexp.pb.o  message.o fileio.o signal.o display.o reducer.o mapper.o mapreduce.o main.o 
-	$(CXX) ${MYCXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB} $^ -o ../inst/bin/RhipeMapReduce
+	$(CXX)  $^ -o ../inst/bin/RhipeMapReduce ${MYCXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB}
+	chmod 755 ../inst/bin/RhipeMapReduce
 rhipe: rexp.pb.o message.o serverbridge.o fileio.o rhooks.o md5.o
-	$(SHLIB_CXXLD) ${SHLIB_CXXLDFLAGS} ${MYCXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB} $^ -o Rhipe.so
+	$(SHLIB_CXXLD) $^ -o Rhipe.so  ${SHLIB_CXXLDFLAGS} ${MYCXXFLAGS} ${PKG_LIBS} ${RINC} ${RLIB}
 
 
 

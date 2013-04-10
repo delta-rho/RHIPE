@@ -163,6 +163,15 @@ public class PersonalServer {
 	int result = RHMR.fmain(zonf);
 	return result;
     }
+    
+    public byte[] send_back(REXP r){
+	REXP.Builder thevals = REXP.newBuilder();
+	thevals.setRclass(REXP.RClass.LIST);
+	thevals.addRexpValue(r);
+	RObjects.addAttr(thevals, "class", RObjects
+			 .makeStringVector("worker_result"));
+	return thevals.build().toByteArray();
+    }
 
     public void initializeCaches(int a, int b) throws Exception{
 	valueCache = CacheBuilder.newBuilder()
