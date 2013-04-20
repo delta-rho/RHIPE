@@ -148,7 +148,6 @@ public class RHMRHelper {
 		    outputFolder = new Path(cfg.get("rhipe_output_folder")+"/"+subp);		
 		    thisfs.mkdirs(outputFolder);
 		    copyExcludeRegex = cfg.get("rhipe_copy_excludes");
-		    System.out.println("Reex="+copyExcludeRegex);
 		}
 	    }
 	    if(!doPipe_) return;
