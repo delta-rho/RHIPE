@@ -2,7 +2,7 @@
 \alias{rhsave}
 \title{Save .RData to HDFS}
 \usage{
-  rhsave(..., file)
+  rhsave(..., file, envir = parent.frame())
 }
 \arguments{
   \item{\ldots}{additional parameters for \code{rhsave}}

@@ -46,3 +46,4 @@ Collate:
     'rhfmt.R'
     'mapfile.functions.R'
     'rhJobInfo.R'
+    'rhmkdir.R'

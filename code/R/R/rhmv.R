@@ -1,4 +1,3 @@
-
 #' Move files (or folders) on the HDFS (delete original)
 #'
 #' Copies the file (or folder) \code{src} on the HDFS to the destination
@@ -14,9 +13,5 @@
 #' @keywords copy HDFS file
 #' @export
 rhmv <- function(ifile, ofile) {
-  ifile = rhabsolute.hdfs.path(rhofolder(ifile))
-  ofile = rhabsolute.hdfs.path(ofile)
-  system(command=paste(paste(Sys.getenv("HADOOP_BIN"), "hadoop",
-           sep=.Platform$file.sep), "fs", "-cp", ifile, ofile, sep=" "))
-  rhdel(ifile)
+  rhcp(ifile, ofile,delete=TRUE)
 }

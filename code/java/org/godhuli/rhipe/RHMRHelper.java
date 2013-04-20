@@ -138,11 +138,20 @@ public class RHMRHelper {
 	    }
 	    keyclass = _kc.asSubclass( RHBytesWritable.class );
 
-
-	    if(cfg.get("rhipe_output_folder")!=null)
-		outputFolder = new Path(cfg.get("rhipe_output_folder"));
-	    if(!doPipe_) return;
 	    copyFile=cfg.get("rhipe_copy_file").equals("TRUE")? true: false;
+
+	    if(cfg.get("rhipe_output_folder")!=null){
+		String subp = "_outputs";
+		if(cfg.get("rhipe_copyfile_folder")!=null)
+		    subp = cfg.get("rhipe_copyfile_folder");
+		if(copyFile){
+		    outputFolder = new Path(cfg.get("rhipe_output_folder")+"/"+subp);		
+		    thisfs.mkdirs(outputFolder);
+		    copyExcludeRegex = cfg.get("rhipe_copy_excludes");
+		    System.out.println("Reex="+copyExcludeRegex);
+		}
+	    }
+	    if(!doPipe_) return;
 	    String[] argvSplit = argv.split(" ");
 	    String prog = argvSplit[0];
 	    Environment childEnv = (Environment) env().clone();
@@ -495,7 +504,8 @@ public class RHMRHelper {
 	    File dirf = new File(dirfrom);
 	    ArrayList<Path> lop = new ArrayList<Path>();
 	    for(File ff :  dirf.listFiles()){
-		if( ff.isFile() && ff.length()>0)
+		//Ignore things to be copied
+		if( ((ff.isFile() && ff.length()>0) || ff.isDirectory()) && !ff.toString().matches(copyExcludeRegex)) 
 		    lop.add(new Path(ff.toString()));
 	    }
 	    if (lop.size()>0) thisfs.copyFromLocalFile(false,true,lop.toArray(new Path[]{}), outputFolder);
@@ -529,6 +539,7 @@ public class RHMRHelper {
     boolean nonZeroExitIsFailure_;
     FileSystem thisfs;
     Path outputFolder;
+    String copyExcludeRegex;
     Process sim;
     Class<? extends RHBytesWritable> keyclass;
     public MROutputThread outThread_;

@@ -2,7 +2,7 @@
 \alias{rhcp}
 \title{Copy files (or folders) on the HDFS}
 \usage{
-  rhcp(ifile, ofile)
+  rhcp(ifile, ofile, delete = FALSE)
 }
 \arguments{
   \item{ifile}{Absolute path to be copied on the HDFS or

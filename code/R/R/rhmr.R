@@ -17,7 +17,7 @@ rhmr <- function(...){
                   jarfiles    = c(),
                   zips        = c(),
                   partitioner = NULL,
-                  copyFiles   = F,
+                  copyFiles   = FALSE,
                   jobname     = "",
                   parameters  = NULL,
                   envir = NULL
@@ -368,7 +368,10 @@ rhmr <- function(...){
   ## #############################################################################################
   ##  HANDLE MAPRED EXTRA PARAMS
   ## #############################################################################################
-
+  if(copyFiles == TRUE){
+    lines$rhipe_copy_excludes <- rhoptions()$rhipe_copy_excludes
+    lines$rhipe_copyfile_folder <- rhoptions()$rhipe_copyfile_folder
+  }
   for(n in names(mapred)) lines[[n]] <- mapred[[n]]
   
   
