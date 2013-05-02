@@ -15,7 +15,10 @@
   \item{map}{\code{map} is an R expression (created using
   the R command \code{expression}) that is evaluated by
   RHIPE during the map stage. For each task, RHIPE will
-  call this expression multiple times (see details).}
+  call this expression multiple times (see details). This
+  can also be a function of two arguments,the key and the
+  value. Using an expression provides one more opportunity
+  for vector operations.}
 
   \item{reduce}{\code{reduce} is an R expression (created
   using the R command \code{expression}) that is evaluated

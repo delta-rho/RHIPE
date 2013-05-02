@@ -4,7 +4,7 @@
 \usage{
   rhread(files, type = c("sequence"), max = -1L,
     skip = rhoptions()$file.types.remove.regex,
-    mc = lapply, ...)
+    mc = lapply, textual = FALSE, ...)
 }
 \arguments{
   \item{files}{Path to file or directory containing map,
@@ -21,6 +21,9 @@
 
   \item{mc}{Set to lapply by default. User can change this
   to \code{mclapply} for parallel lapply.}
+
+  \item{textual}{if the keys and values are hadoop Text
+  objects}
 
   \item{skip}{Files to skip while reading the hdfs.
   Various installs of Hadoop add additional log info to

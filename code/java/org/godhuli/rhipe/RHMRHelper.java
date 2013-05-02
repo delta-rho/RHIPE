@@ -136,7 +136,7 @@ public class RHMRHelper {
 	    }else{
 		_kc = Class.forName( cfg.get("rhipe_outputformat_keyclass"));
 	    }
-	    keyclass = _kc.asSubclass( RHBytesWritable.class );
+	    keyclass = _kc.asSubclass( WritableComparable.class );
 
 	    copyFile=cfg.get("rhipe_copy_file").equals("TRUE")? true: false;
 
@@ -497,16 +497,27 @@ public class RHMRHelper {
 	if(max<v.length) sb.append(" ... ");
 	return sb.toString();
     }
-    
+
+    private void _walk( String path,ArrayList<Path> a,String ex) {
+        File root = new File( path );
+        File[] list = root.listFiles();
+        for ( File f : list ) {
+	    if(f.toString().matches(ex)) continue;
+            if ( f.isDirectory() && f.listFiles().length>0 ) {
+                _walk( f.getAbsolutePath(),a,ex);
+		// // for(File x: f.listFiles())
+		// a.add(new Path(f.toString()));
+            }
+            else {
+                if(f.length()>0)
+		    a.add(new Path(f.toString()));
+            }
+        }
+    }
     public void copyFiles(String dirfrom) throws IOException{
 	if(copyFile){
-	    File dirf = new File(dirfrom);
 	    ArrayList<Path> lop = new ArrayList<Path>();
-	    for(File ff :  dirf.listFiles()){
-		//Ignore things to be copied
-		if( ((ff.isFile() && ff.length()>0) || ff.isDirectory()) && !ff.toString().matches(copyExcludeRegex)) 
-		    lop.add(new Path(ff.toString()));
-	    }
+	    _walk(dirfrom,lop,copyExcludeRegex);
 	    if (lop.size()>0) thisfs.copyFromLocalFile(false,true,lop.toArray(new Path[]{}), outputFolder);
 	}
     }
@@ -540,7 +551,7 @@ public class RHMRHelper {
     Path outputFolder;
     String copyExcludeRegex;
     Process sim;
-    Class<? extends RHBytesWritable> keyclass;
+    Class<? extends WritableComparable> keyclass;
     public MROutputThread outThread_;
     public MRErrorThread errThread_;
     volatile DataOutputStream clientOut_;

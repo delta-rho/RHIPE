@@ -5,7 +5,7 @@
   rhIterator(files, type = "sequence", chunksize = 1000,
     chunk = "records",
     skip = rhoptions()$file.types.remove.regex,
-    mc = lapply)
+    mc = lapply, textual = FALSE)
 }
 \arguments{
   \item{files}{Path to file or directory containing
@@ -29,6 +29,9 @@
   on the target directory.}
 
   \item{type}{Either 'records' or 'bytes'}
+
+  \item{textual}{if the keys and values are hadoop Text
+  objects}
 }
 \description{
   Can be used to iterate through the records of a Sequence

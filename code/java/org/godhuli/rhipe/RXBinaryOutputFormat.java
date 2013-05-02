@@ -58,7 +58,6 @@ public class RXBinaryOutputFormat extends FileOutputFormat<RHBytesWritable, RHBy
 	    value.writeAsInt(out);
 	    out.sync();
         }
-
         public void close(TaskAttemptContext context) throws IOException { 
           out.close();
         }
@@ -66,35 +65,3 @@ public class RXBinaryOutputFormat extends FileOutputFormat<RHBytesWritable, RHBy
   }
 }
 
-
-// public class RXBinaryOutputFormat extends FileOutputFormat<RHBytesWritable, RHBytesWritable> {
-
-//   public RecordWriter<RHBytesWritable, RHBytesWritable>
-//          getRecordWriter(TaskAttemptContext context
-//                          ) throws IOException, InterruptedException {
-//     Configuration conf = context.getConfiguration();
-    
-//     // get the path of the temporary output file 
-//     Path file = getDefaultWorkFile(context, "");
-//     FileSystem fs = file.getFileSystem(conf);
-//     final  FSDataOutputStream out = fs.create(file, false);
-
-//     return new RecordWriter<RHBytesWritable, RHBytesWritable>() {
-
-//         public void write(RHBytesWritable key, RHBytesWritable value)
-//           throws IOException {
-// 	    int kl,vl;
-// 	    byte[] kb,vb;
-// 	    kl = key.getLength(); vl = value.getLength();
-// 	    kb = key.get(); vb=value.get();
-// 	    out.writeInt(kl);out.write(kb,0,kl);
-// 	    out.writeInt(vl);out.write(vb,0,vl);
-// 	    out.sync();
-//         }
-
-//         public void close(TaskAttemptContext context) throws IOException { 
-//           out.close();
-//         }
-//       };
-//   }
-// }

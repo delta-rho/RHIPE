@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.apache.hadoop.fs.Path;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.io.Text;
 
 public class SequenceFileIterator  {
     protected static final Log LOG = LogFactory.getLog(SequenceFileIterator.class
@@ -17,12 +18,14 @@ public class SequenceFileIterator  {
     int current;
     int chunk;
     RHBytesWritable k,v;
+    Text kt,vt;
     SequenceFile.Reader sqr;
     boolean notcomplete;
     FileSystem fs;
     Configuration cfg;
      int mnum;
     int numreadtill=0;
+    boolean textual;
     public SequenceFileIterator(){}
     public void init(String filenames, int chunksize, int maxn, PersonalServer s)
 	 throws IOException
@@ -42,6 +45,12 @@ public class SequenceFileIterator  {
 	sqr = new SequenceFile.Reader(fs, new Path(files[current]), cfg);
 	k = new RHBytesWritable();
 	v = new RHBytesWritable();
+	kt = new Text();
+	vt = new Text();
+
+    }
+    public void setTextual(boolean a){
+	textual=a;
     }
     public boolean hasMoreElements(){
 	return notcomplete && (mnum <0 || numreadtill < mnum);
@@ -51,13 +60,25 @@ public class SequenceFileIterator  {
     	thevals.setRclass(REXP.RClass.LIST);
 	boolean gotone = false;
 	for(int i=0;i< chunk && (mnum<0 || numreadtill < mnum);i++){
-	    gotone = sqr.next((Writable) k, (Writable) v);
+	    if(textual){
+		gotone = sqr.next((Writable)kt,(Writable)vt);
+	    } else{
+		gotone = sqr.next((Writable) k, (Writable) v);
+	    }
+
 	    if(gotone){
 		numreadtill++;
 		REXP.Builder a   = REXP.newBuilder();
 		a.setRclass(REXP.RClass.LIST);
-		a.addRexpValue( RObjects.buildRawVector( k.getBytes(), 0, k.getLength()) );
-		a.addRexpValue( RObjects.buildRawVector( v.getBytes(), 0, v.getLength()) );
+		if(textual){
+		    byte[] a0 = RObjects.makeStringVector(Text.decode(kt.getBytes(), 0, kt.getLength())).toByteArray();
+		    byte[] a1 = RObjects.makeStringVector(Text.decode(vt.getBytes(), 0, vt.getLength())).toByteArray();
+		    a.addRexpValue( RObjects.buildRawVector( a0 ));
+		    a.addRexpValue( RObjects.buildRawVector( a1 ));
+		}else{
+		    a.addRexpValue( RObjects.buildRawVector( k.getBytes(), 0, k.getLength()) );
+		    a.addRexpValue( RObjects.buildRawVector( v.getBytes(), 0, v.getLength()) );
+		}
 		a.build();
 		thevals.addRexpValue(a);
 	    }else {
@@ -81,15 +102,29 @@ public class SequenceFileIterator  {
     	thevals.setRclass(REXP.RClass.LIST);
 	boolean gotone = false;
 	int bread = 0;
+	int TKL = 0;
 	while(true){
-	    gotone = sqr.next((Writable) k, (Writable) v);
+	    if(textual){
+		gotone = sqr.next((Writable)kt,(Writable)vt);
+		TKL = kt.getLength()+vt.getLength();
+	    } else{
+		gotone = sqr.next((Writable) k, (Writable) v);
+		TKL = k.getLength()+v.getLength();
+	    }
 	    if(gotone){
 		numreadtill++;
-		bread+= k.getLength()+v.getLength();
+		bread+= TKL;
 		REXP.Builder a   = REXP.newBuilder();
 		a.setRclass(REXP.RClass.LIST);
-		a.addRexpValue( RObjects.buildRawVector( k.getBytes(), 0, k.getLength()) );
-		a.addRexpValue( RObjects.buildRawVector( v.getBytes(), 0, v.getLength()) );
+		if(textual){
+		    byte[] a0 = RObjects.makeStringVector(Text.decode(kt.getBytes(), 0, kt.getLength())).toByteArray();
+		    byte[] a1 = RObjects.makeStringVector(Text.decode(vt.getBytes(), 0, vt.getLength())).toByteArray();
+		    a.addRexpValue( RObjects.buildRawVector( a0 ));
+		    a.addRexpValue( RObjects.buildRawVector( a1 ));
+		}else{
+		    a.addRexpValue( RObjects.buildRawVector( k.getBytes(), 0, k.getLength()) );
+		    a.addRexpValue( RObjects.buildRawVector( v.getBytes(), 0, v.getLength()) );
+		}
 		a.build();
 		thevals.addRexpValue(a);
 	    }else {

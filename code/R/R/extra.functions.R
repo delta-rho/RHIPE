@@ -70,3 +70,13 @@ getypes <- function(files,type,skip){
 
 
 
+## When a function is passed,use this to convert into expression appropiately
+rhmap2 <- function (J) 
+{
+  j <- expression({
+    result <- mapply(rhipe_inner_runner,map.keys, map.values, SIMPLIFY = FALSE)
+  })
+  environment(j) <- .BaseNamespaceEnv
+  class(j) <- c(class(j), "rhmr-map2")
+  j
+}

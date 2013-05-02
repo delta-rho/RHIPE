@@ -34,14 +34,12 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 public class RXSQTextAndTextIF
   extends SequenceFileInputFormat {
 
-  public RXSQTextAndTextIF() {
-    super();
-  }
+    public RXSQTextAndTextIF() {
+	super();
+    }
 
     public RecordReader createRecordReader(InputSplit split,TaskAttemptContext context) throws IOException {
-
-    context.setStatus(split.toString());
-    
-    return new SequenceFileAsRHTextRecordReader();
-  }
+	context.setStatus(split.toString());
+	return new SequenceFileAsRHTextRecordReader();
+    }
 }

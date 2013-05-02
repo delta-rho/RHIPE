@@ -23,7 +23,11 @@ public class RObjects {
     }
 
     public static REXP makeStringVector(String s){
-	return makeStringVector(new String[]{s});
+	REXP.Builder returnvalue   = REXP.newBuilder();
+	returnvalue.setRclass(REXP.RClass.STRING);
+	REXPProtos.STRING.Builder content=REXPProtos.STRING.newBuilder();
+	content.setStrval(s);
+	return returnvalue.addStringValue(content.build()).build();
     }
     public static REXP.Builder buildBooleanVector(boolean[] b){
 	REXP.Builder cvalues = REXP.newBuilder();

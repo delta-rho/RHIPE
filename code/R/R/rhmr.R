@@ -32,9 +32,9 @@ rhmr <- function(...){
   is.Expression <- function(r) is.expression(r) || class(r)=="{"
 
   if(is.function(map)){
-    map <- rhmap(body(map), .fnformals=formals(map))
+    assign('rhipe_inner_runner',eval(map),pos=envir,inherits=TRUE)
+    map <- rhmap2()
   }
-  
   if(!is.Expression(map))
     stop("'map' must be an expression")
   lines$rhipe_reduce_justcollect <- "FALSE"
@@ -114,7 +114,6 @@ rhmr <- function(...){
     empty.exp <- expression()
     require(codetools)
     exp <- list( setup$map, setup$reduce, cleanup$map, cleanup$reduce, map,reduce$pre,reduce$post,reduce$reduce)
-    ## calling.frame <- sys.frame(-2) #since rhwatch calls this
     calling.frame <- envir
     seen.vars <- new.env()
     old.vars <- new.env()
@@ -137,7 +136,6 @@ rhmr <- function(...){
       }
     
       res <- .getV(mu)
-      
       return(unique( unlist(c( res$varns, res$funs
                             ,sapply(res$varns, function(kap) {
                               moz <- tryCatch(get(kap,envir=cf),error=function(e) NULL)
@@ -147,7 +145,7 @@ rhmr <- function(...){
                                       getV(af,environment(af))
                                 })
                               }})
-                            ,sapply(res$funs, function(kap) {
+                              ,sapply(res$funs, function(kap) {
                               moz <- tryCatch(get(kap,envir=cf),error=function(e) NULL)
                               if(!is.null(moz)){
                                 if(is.null(old.vars[[kap]])){

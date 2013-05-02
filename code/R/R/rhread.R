@@ -8,6 +8,7 @@
 #' @param max Maximum number of key/value pairs to read for map and sequence
 #'   files.  Maximum number of lines to read for text files.
 #' @param mc Set to lapply by default. User can change this to \code{mclapply} for parallel lapply.
+#' @param textual if the keys and values are hadoop Text objects
 #' @param skip Files to skip while reading the hdfs.  Various installs of Hadoop add additional log
 #'			info to HDFS output from MapReduce.  Attempting to read these files is not what we want to do 
 #'	        in rhread.  To get around this we specify pieces of filenames to grep and remove from the read.
@@ -37,7 +38,7 @@
 #'   \code{\link{rhdel}}, \code{\link{rhwrite}}, \code{\link{rhsave}}
 #' @keywords read HDFS file
 #' @export
-rhread <- function(files,type=c("sequence"),max=-1L,skip=rhoptions()$file.types.remove.regex,mc=lapply,...){
+rhread <- function(files,type=c("sequence"),max=-1L,skip=rhoptions()$file.types.remove.regex,mc=lapply,textual=FALSE,...){
   if(is(files, "rhwatch"))
     files <- rhofolder(files)
   files = rhabsolute.hdfs.path(files)
@@ -51,10 +52,10 @@ rhread <- function(files,type=c("sequence"),max=-1L,skip=rhoptions()$file.types.
            rhread.text(files, max=max)
          },
          "map" = {
-           rhread.sequence(files, max=max,mc=mc)
+           rhread.sequence(files, max=max,mc=mc,textual=textual)
          },
          "sequence" = {
-           rhread.sequence(files, max=max,mc=mc)
+           rhread.sequence(files, max=max,mc=mc,textual=textual)
          })
 }
 
@@ -71,11 +72,12 @@ rhread.text <- function(files, max){
   return(x)
 }
 
-rhread.sequence <- function(files, max, mc){
+rhread.sequence <- function(files, max, mc,textual=FALSE){
   a1 <- proc.time()['elapsed']
   handle <- .jnew("org/godhuli/rhipe/SequenceFileIterator")
   j <- list()
   a <- handle$init(files, as.integer(10*1024*1024), as.integer(max),rhoptions()$server);
+  handle$setTextual(as.logical(textual))
   bread <- 0
   while(handle$hasMoreElements()){
     v <-  handle$nextChunk()
@@ -123,7 +125,7 @@ makeMessage <- function(b, l, d){
 #'          skip is a vector argument just to have sensible defaults for a number of different systems.
 #'          You can learn which if any files need to be skipped by using rhls on the target directory.
 #' @param type Either 'records' or 'bytes'
-#'
+#' @param textual if the keys and values are hadoop Text objects
 #' @examples
 #'
 #' \dontrun{
@@ -133,7 +135,7 @@ makeMessage <- function(b, l, d){
 #' }
 #' @export
 
-rhIterator <- function(files, type="sequence",chunksize=1000, chunk='records',skip=rhoptions()$file.types.remove.regex,mc=lapply){
+rhIterator <- function(files, type="sequence",chunksize=1000, chunk='records',skip=rhoptions()$file.types.remove.regex,mc=lapply,textual=FALSE){
   if(is(files, "rhwatch"))
     files <- rhofolder(files)
   files = rhabsolute.hdfs.path(files)
@@ -141,6 +143,7 @@ rhIterator <- function(files, type="sequence",chunksize=1000, chunk='records',sk
   chunksize <- as.integer(chunksize)
   handle <- .jnew("org/godhuli/rhipe/SequenceFileIterator")
   handle$init(files, as.integer(chunksize), -1L,rhoptions()$server);
+  a$setTextual(as.logical(textual))
   if(chunk == 'records'){
     return(function(chunksize=chunksize){
       if(handle$hasMoreElements())

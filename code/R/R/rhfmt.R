@@ -96,8 +96,9 @@ mapio <- function(folders,interval=1, compression="BLOCK"){
   }
 }
 
-sequenceio <- function(folders){
+sequenceio <- function(folders,recordsAsText=FALSE){
   folders <- eval(folders)
+  recordsAsText <- eval(recordsAsText)
   function(lines,direction,callers){
     if(direction=="input"){
       folders <- Rhipe:::folder.handler(folders)
@@ -106,15 +107,25 @@ sequenceio <- function(folders){
       if(length(remr)>0)
         folders <- folders[-remr]
       lines$rhipe_input_folder <- paste(folders,collapse=",")
-      lines$rhipe_inputformat_class <- 'org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat'
+      if(recordsAsText)
+        lines$rhipe_inputformat_class <- "org.godhuli.rhipe.RXSQTextAndTextIF"
+      else
+        lines$rhipe_inputformat_class <- 'org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat'
       lines$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
       lines$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
     }else{ ##output
       folders <- Rhipe:::folder.handler(folders)
       lines$rhipe_output_folder <- paste(folders,collapse=",")
-      lines$rhipe_outputformat_class <- 'org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat'
-      lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
-      lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
+      if(recordsAsText){
+        lines$rhipe_string_quote <- ""
+        lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
+        lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
+        lines$rhipe_outputformat_class <- "org.godhuli.rhipe.RHSequenceAsTextOutputFormat"
+      } else{
+        lines$rhipe_outputformat_class <- 'org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat'
+        lines$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
+        lines$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
+      }
     }
     lines
   }

@@ -286,6 +286,7 @@ public class RHMR implements Tool {
 		FileOutputStream out = new FileOutputStream(configfile);
 		DataOutputStream fout = new DataOutputStream(out);
 		String[] arl = new String[4];
+		// LOG.info("RUNNING ASYNC NOW");
 		arl[0] = job_.getTrackingURL().toString();
 		arl[1] = job_.getJobName().toString();
 		// System.out.println(job_.getJobID()); // returns null ??
@@ -304,11 +305,12 @@ public class RHMR implements Tool {
 	}
 
 	public int submitAndMonitorJob(String configfile) throws Exception {
-		int k = 0;
-		job_.submit();
-		if (rhoptions_.get("rhipe_job_async").equals("TRUE")) {
-			return (runasync(configfile));
-		}
+	    int k = 0;
+	    // LOG.info("submitting job");
+	    job_.submit();
+	    if (rhoptions_.get("rhipe_job_async").equals("TRUE")) {
+		return (runasync(configfile));
+	    }
 		LOG.info("Tracking URL ----> " + job_.getTrackingURL());
 		boolean verb = rhoptions_.get("rhipe_job_verbose").equals("TRUE") ? true
 				: false;

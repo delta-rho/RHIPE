@@ -5,7 +5,8 @@
 #' 
 #' @param map \code{map} is an R expression (created using the R command
 #'   \code{expression}) that is evaluated by RHIPE during the map stage. For
-#'   each task, RHIPE will call this expression multiple times (see details). 
+#'   each task, RHIPE will call this expression multiple times (see details).
+#' This can also be a function of two arguments,the key and the value. Using an expression provides one more opportunity for vector operations.
 #' @param reduce \code{reduce} is an R expression (created using the R command
 #'   \code{expression}) that is evaluated by RHIPE during the reduce stage, or
 #'   it is a vector of expressions with names pre, reduce, and post.  For
@@ -315,27 +316,37 @@ rhwatch <- function(map         = NULL,
     return(z)
   }
   if(!is.null(debug)){
-
-    if(! "rhmr-map" %in% class(m <- unserialize(charToRaw(job[[1]]$rhipe_map))))
+    m <- unserialize(charToRaw(job[[1]]$rhipe_map))
+    if(!(is(m,"rhmr-map") || is(m, "rhmr-map2")))
       stop("RHIPE: for debugging purposes, must use a map expression returned  by ewrap")
      
     ##Replace the map expression
-    j=m[[1]][[3]] ##the mapply
-    jj <- j[[3]][[2]] ## the function passed to mapply
-    l <- list()
-    l$replace <-  jj[[3]][[2]] ## body of jj when rhmap is fixed it's body(jj)
-    l$before=m[[1]][[2]]
-    l$after=m[[1]][[4]]
-    FIX <- function(x) if(is.null(x)) NULL else x
-    newm <- as.expression(bquote({
-      .(BEFORE)
-      result <- mapply(function(.index,k,r) {
-        tryCatch(.(REPLACE),error=function(e) {rhipe.trap(e,k,r);NULL}  )  },seq_along(map.values),map.keys,map.values,SIMPLIFY=FALSE)
-      .(AFTER)
-    },list(BEFORE=FIX(l$before),AFTER=FIX(l$after),REPLACE=FIX(l$replace))))
-    environment(newm) <- .BaseNamespaceEnv
-    job[[1]]$rhipe_map <- rawToChar(serialize(newm,NULL,ascii=TRUE))
-
+    if(is(m, "rhmr-map")){
+      j=m[[1]][[3]] ##the mapply
+      jj <- j[[3]][[2]] ## the function passed to mapply
+      l <- list()
+      l$replace <-  jj[[3]][[2]] ## body of jj when rhmap is fixed it's body(jj)
+      l$before=m[[1]][[2]]
+      l$after=m[[1]][[4]]
+      FIX <- function(x) if(is.null(x)) NULL else x
+      newm <- as.expression(bquote({
+        .(BEFORE)
+        result <- mapply(function(.index,k,r) {
+          tryCatch(.(REPLACE),error=function(e) {rhipe.trap(e,k,r);NULL}  )  },seq_along(map.values),map.keys,map.values,SIMPLIFY=FALSE)
+        .(AFTER)
+      },list(BEFORE=FIX(l$before),AFTER=FIX(l$after),REPLACE=FIX(l$replace))))
+      environment(newm) <- .BaseNamespaceEnv
+      job[[1]]$rhipe_map <- rawToChar(serialize(newm,NULL,ascii=TRUE))
+    }else if(is(m, "rhmr-map2")){
+      jj <- m[[1]][[2]][[3]][[2]] ## the function passed to mapply
+      newm <- expression({
+        result <- mapply(function(k,r) {
+          tryCatch(rhipe_inner_runner(k,r),error=function(e) {rhipe.trap(e,k,r);NULL}  )  },map.keys,map.values,SIMPLIFY=FALSE)
+      })
+      environment(newm) <- .BaseNamespaceEnv
+      job[[1]]$rhipe_map <- rawToChar(serialize(newm,NULL,ascii=TRUE))
+    }
+  
     ## Has the user given one?
     if(is.list(debug) && is.null(debug$map))
       stop("debug should be list with a sublist named 'map'")
@@ -378,8 +389,9 @@ rhwatch <- function(map         = NULL,
       job[[1]]$rhipe_cleanup_map<- rawToChar(serialize(c(cleanupmap,cleanup),NULL,ascii=TRUE))
     }
     environment(handler) <- .BaseNamespaceEnv
-    
     job[[1]]$rhipe_copy_file <- 'TRUE' ##logic for local runner is wrong here
+    job[[1]]$rhipe_copy_excludes <- rhoptions()$rhipe_copy_excludes
+    job[[1]]$rhipe_copyfile_folder <- rhoptions()$rhipe_copyfile_folder
   }
   if(noeval) return(job)
   z <- Rhipe:::rhwatch.runner(job=job, mon.sec=mon.sec,readback=readback,...)
@@ -414,10 +426,15 @@ rhwatch.runner <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
       num.records <- as.numeric(results$counters$'Map-Reduce Framework'[W,])
       if (num.records > rhoptions()$reduce.output.records.warn)
         warning(sprintf("Number of output records is %s which is greater than rhoptions()$reduce.output.records.warn\n. Consider running a mapreduce to make this smaller, since reading so many key-value pairs is slow in R", num.records))
+      oclass <- job$lines$rhipe_outputformat_class
+      textual <- FALSE; type="sequence"
+      if(grepl("RHSequenceAsTextOutputFormat",oclass)) { textual <- TRUE}
+      if(grepl("RXTextOutputFormat",oclass)) { type = 'text'}
+      
       if(!is.na(rhoptions()$rhmr.max.records.to.read.in))
-        return( rhread(ofolder,max=rhoptions()$rhmr.max.records.to.read.in) )
+        return( rhread(ofolder,max=rhoptions()$rhmr.max.records.to.read.in,type=type, textual=textual) )
       else
-        return( rhread(ofolder) )
+        return( rhread(ofolder,type=type, textual=textual) )
     }
     if(results$state %in% c("FAILED","KILLED"))
       {

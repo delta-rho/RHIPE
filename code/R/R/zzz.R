@@ -127,6 +127,7 @@ onload.2 <- function(libname, pkgname){
   opts$debug <- list()
   opts$debug$map <- list()
   opts$debug$map$collect <- list(setup= expression({
+
     rhAccumulateError <- local({
       maxm <- tryCatch(rh.max.errors,error=function(e) 20)
       x <- function(maximum.errors=maxm){
@@ -145,7 +146,8 @@ onload.2 <- function(libname, pkgname){
   }), cleanup =  expression({
     rhipe.errors=rhAccumulateError(ret=TRUE)
     if(length(rhipe.errors)>0){
-      save(rhipe.errors,file=sprintf("./tmp/rhipe_debug_%s",Sys.getenv("mapred.task.id")))
+      dir.create("./tmp/_debug", showWarnings = FALSE)
+      save(rhipe.errors,file=sprintf("./tmp/_debug/rhipe_debug_%s",Sys.getenv("mapred.task.id")))
       rhcounter("@R_DebugFile","saved.files",1)
     }
   }), handler=function(e,k,r){
