@@ -188,7 +188,7 @@ hbase <- function(table, colspec=NULL, rows=NULL,caching=3L, cacheBlocks=TRUE,au
   autoReduceDetect <- eval(autoReduceDetect)
   caching <- eval(caching);zooinfo <- eval(zooinfo)
   hbaseJars  <- list.files(Sys.getenv("HBASE_HOME"),pattern="jar$",full.names=TRUE,rec=TRUE)
-  hbaseConf  <- list.files(sprintf("%s/conf",Sys.getenv("HBASE_HOME"),pattern="-site.xml$",full.names=TRUE,rec=TRUE))
+  hbaseConf  <- list.files(Sys.getenv("HBASE_CONF_DIR"),pattern="-site.xml$",full.names=TRUE,rec=TRUE)
   .jaddClassPath(c(hbaseJars,hbaseConf))
   function(mapred,direction, callers){
     if(direction=="output"){
