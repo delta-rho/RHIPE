@@ -7,7 +7,7 @@
 #' @details the function returned must take 3 arguments 'lines',direction(input or output), call signature
 #' see \code{rhoptions()$ioformats} for examples on how to write your own.
 #' @export
-rhfmt <- function(...,type){
+rhfmt <- function(type,...){
   if(!type %in% names(rhoptions()$ioformats))
     stop(sprintf("%s type is not present",type))
   rhoptions()$ioformats[[type]](...)
@@ -175,6 +175,71 @@ textio <- function(folders,nline=NULL,writeKey=TRUE, field.sep=" ",kv.sep="\t",e
     lines
   }
 }
+hbase <- function(table, colspec=NULL, rows=NULL,caching=3L, cacheBlocks=TRUE,autoReduceDetect=FALSE,valueTypes='raw',
+                         zooinfo=NULL, jars){
+  makeRaw <- function(a){
+    if(is.null(a)) return(NULL)
+    a <- if(is.character(a)) charToRaw(a)
+    if(!is.raw(a)) stop("rows must be raw")
+    J("org.apache.commons.codec.binary.Base64")$encodeBase64String(.jbyte( a  ))
+  }
+  valueTypes <- eval(valueTypes)
+  table <- eval(table); colspec <- eval(colspec);rows <- eval(rows);cacheBlocks <- eval(cacheBlocks)
+  autoReduceDetect <- eval(autoReduceDetect)
+  caching <- eval(caching);zooinfo <- eval(zooinfo)
+  hbaseJars  <- list.files(Sys.getenv("HBASE_HOME"),pattern="jar$",full.names=TRUE,rec=TRUE)
+  hbaseConf  <- list.files(sprintf("%s/conf",Sys.getenv("HBASE_HOME"),pattern="-site.xml$",full.names=TRUE,rec=TRUE))
+  .jaddClassPath(c(hbaseJars,hbaseConf))
+  function(mapred,direction, callers){
+    if(direction=="output"){
+      if(is.null(table)) stop("Please provide a pre-made table")
+      if(autoReduceDetect){
+        hb <-  rb.init()
+        tba <- rb.table.connect(hb,table) 
+        mapred$mapred.reduce.tasks <- min(mapred$mapred.reduce.tasks,tba$table$getRegionsInfo()$size(),na.rm=TRUE)
+      }
+      mapred$hbase.mapred.outputtable <- as.character(table[1])
+      mapred$zookeeper.znode.parent <- zooinfo$zookeeper.znode.parent
+      mapred$hbase.zookeeper.quorum <- zooinfo$hbase.zookeeper.quorum
+      mapred$rhipe_outputformat_class         = 'org.godhuli.rhipe.hbase.RHTableOutputFormat'
+      mapred$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
+      mapred$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
+      mapred$rhipe_map_output_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
+      mapred$rhipe_map_output_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
+      mapred$jarfiles <- jars
+      mapred
+    }else{
+      if(is.null(table)) stop("Please provide table type e.g. crash_reports or telemetry")
+      mapred$rhipe.hbase.tablename <- as.character(table[1])
+      mapred$rhipe.hbase.colspec <- paste(colspec,collapse=",")
+      if(!is.null(rows)){
+        mapred$rhipe.hbase.rowlim.start <- makeRaw(rows[[1]])
+        mapred$rhipe.hbase.rowlim.end   <- makeRaw(rows[[2]])
+      }
+      mapred$rhipe.hbase.mozilla.cacheblocks <- sprintf("%s:%s",as.integer(caching),as.integer(cacheBlocks))
+      mapred$zookeeper.znode.parent <- zooinfo$zookeeper.znode.parent
+      mapred$hbase.zookeeper.quorum <- zooinfo$hbase.zookeeper.quorum
+      mapred$rhipe.hbase.value.type <- valueTypes
+      message(sprintf("Using %s table", table))
+      if(!table %in% c("telemetry","crash_reports")){
+        mapred$rhipe_inputformat_class         = 'org.godhuli.rhipe.hbase.RHHBaseGeneral'
+      }else{
+        if(table=="crash_reports"){
+          mapred$rhipe.hbase.dateformat <- "yyMMdd"
+        }else if(table =="telemetry"){
+          mapred$rhipe.hbase.dateformat <- "yyyyMMdd"
+        }
+        mapred$rhipe.hbase.mozilla.prefix <- if (table=="telemetry") "byteprefix"  else "hexprefix"
+        mapred$rhipe_inputformat_class <- 'org.godhuli.rhipe.hbase.RHCrashReportTableInputFormat'
+      }
+      ## mapred$hbase.client.scanner.caching <- 100L
+      mapred$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
+      mapred$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.hbase.RHResult'
+      mapred$jarfiles <- jars
+      mapred
+    }
+  }
+}
 
 handleIOFormats <- function(opts){
   opts$ioformats <- list(
@@ -183,7 +248,9 @@ handleIOFormats <- function(opts){
                       sequence=sequenceio,
                       map=mapio,
                       N=lapplyio,
-                      null=nullo)
+                      null=nullo,
+                      hbase= hbase
+                      )
   opts
 }
 

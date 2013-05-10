@@ -66,7 +66,10 @@ rhex <- function (conf,async=TRUE,mapred,...)
   ## message(y.);message(x.);message(y.)
   {
 
-    result <- rhoptions()$server$rhex(zonf)
+    result <- tryCatch(rhoptions()$server$rhex(zonf),error=function(e){
+      e$printStackTrace();
+      stop(e);
+    })
     
     if(result == 1) result <- 256
     ## cat(sprintf("result:%s\n",result))
