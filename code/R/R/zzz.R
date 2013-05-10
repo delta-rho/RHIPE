@@ -39,7 +39,6 @@ onload.2 <- function(libname, pkgname){
     cat("HADOOP_HOME missing\n")
   if(Sys.getenv("HADOOP_CONF_DIR")=="")
     cat("HADOOP_CONF_DIR missing, you are probably going to have a problem running RHIPE.\nHADOOP_CONF_DIR should be the location of the directory that contains the configuration files\n")
-  opts$hadoop.env <-Sys.getenv(c("HADOOP_HOME","HADOOP_CONF_DIR","HADOOP_LIBS"))
   ## ##############################################################################################
   ## RhipeMapReduce, runner, and checks
   ## ##############################################################################################
@@ -179,7 +178,8 @@ onload.2 <- function(libname, pkgname){
 #' @export 
 rhinit <- function(){
   opts <- rhoptions()
-  hadoop <- opts$hadoop.env
+  hadoop <- Sys.getenv(c("HADOOP_HOME","HADOOP_CONF_DIR","HADOOP_LIBS"))
+
   if(hadoop["HADOOP_HOME"] != "") {
     if(any(c(grepl("(yes|true)",tolower(Sys.getenv("RHIPE_USE_CDH4"))),grepl("cdh4", c(list.files(hadoop['HADOOP_HOME'])))) ,na.rm=TRUE)){
       cat("Rhipe: Detected CDH4 jar files, using RhipeCDH4.jar\n")
@@ -204,7 +204,7 @@ rhinit <- function(){
   tryCatch(server$run(if(is.na(dbg)) 0L else dbg),Exception=function(e) e$printStackTrace())
   rhoptions(jarloc=opts$jarloc,server=server,clz=list(fileutils = server$getFU(),filesystem = server$getFS(), config=server$getConf()))
   server$getConf()$setClassLoader(.jclassLoader())
-  rhoptions(mropts = Rhipe:::rhmropts()) 
+  rhoptions(mropts = Rhipe:::rhmropts(),hadoop.env=hadoop) 
   cat("Initializing mapfile caches\n")
   rh.init.cache()
 }
