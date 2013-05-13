@@ -96,6 +96,14 @@ public class RHMR implements Tool {
 		res = ToolRunner.run(r.getConfig(), r, args);
 		return (res);
 	}
+    public static int fmain(String[] args,Configuration c) throws Exception {
+		int res;
+		RHMR r = new RHMR();
+		r.setConfig(c);
+		res = ToolRunner.run(r.getConfig(), r, args);
+		return (res);
+	}
+
 
 	public void doTest() {
 		int i;
@@ -168,7 +176,7 @@ public class RHMR implements Tool {
 				// System.err.println("Adding "+ p +" to classpath");
 				if (p.length() > 1)
 					DistributedCache
-							.addArchiveToClassPath(new Path(p), config_);
+					    .addArchiveToClassPath(new Path(p), config_); //,FileSystem.get(config_));
 			}
 		}
 		String[] zips = config_.get("rhipe_zips").split(",");

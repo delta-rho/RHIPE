@@ -176,7 +176,7 @@ textio <- function(folders,nline=NULL,writeKey=TRUE, field.sep=" ",kv.sep="\t",e
   }
 }
 hbase <- function(table, colspec=NULL, rows=NULL,caching=3L, cacheBlocks=TRUE,autoReduceDetect=FALSE,valueTypes='raw',
-                         zooinfo=NULL, jars){
+                  zooinfo=NULL, classpaths=NULL, jars){
   makeRaw <- function(a){
     if(is.null(a)) return(NULL)
     a <- if(is.character(a)) charToRaw(a)
@@ -188,9 +188,14 @@ hbase <- function(table, colspec=NULL, rows=NULL,caching=3L, cacheBlocks=TRUE,au
   autoReduceDetect <- eval(autoReduceDetect)
   caching <- eval(caching);zooinfo <- eval(zooinfo)
   hbaseJars  <- list.files(Sys.getenv("HBASE_HOME"),pattern="jar$",full.names=TRUE,rec=TRUE)
-  ## hbaseConf  <- list.files(Sys.getenv("HBASE_CONF_DIR"),pattern="-site.xml$",full.names=TRUE,rec=TRUE)
   hbaseConf <- Sys.getenv("HBASE_CONF_DIR")
-  .jaddClassPath(c(hbaseJars,hbaseConf))
+  if(is.null(classpaths))
+    .jaddClassPath(c(hbaseConf,hbaseJars))
+  else
+    .jaddClassPath(classpaths)
+  classes <- rhoptions()$clz
+  classes$config <- J("org/apache/hadoop/hbase/HBaseConfiguration")$create(classes$config)
+  rhoptions(clz = classes)
   function(mapred,direction, callers){
     if(direction=="output"){
       if(is.null(table)) stop("Please provide a pre-made table")
@@ -200,8 +205,10 @@ hbase <- function(table, colspec=NULL, rows=NULL,caching=3L, cacheBlocks=TRUE,au
         mapred$mapred.reduce.tasks <- min(mapred$mapred.reduce.tasks,tba$table$getRegionsInfo()$size(),na.rm=TRUE)
       }
       mapred$hbase.mapred.outputtable <- as.character(table[1])
-      mapred$zookeeper.znode.parent <- zooinfo$zookeeper.znode.parent
-      mapred$hbase.zookeeper.quorum <- zooinfo$hbase.zookeeper.quorum
+      if(!is.null(zooinfo)){
+        mapred$zookeeper.znode.parent <- zooinfo$zookeeper.znode.parent
+        mapred$hbase.zookeeper.quorum <- zooinfo$hbase.zookeeper.quorum
+      }
       mapred$rhipe_outputformat_class         = 'org.godhuli.rhipe.hbase.RHTableOutputFormat'
       mapred$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
       mapred$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
@@ -218,8 +225,10 @@ hbase <- function(table, colspec=NULL, rows=NULL,caching=3L, cacheBlocks=TRUE,au
         mapred$rhipe.hbase.rowlim.end   <- makeRaw(rows[[2]])
       }
       mapred$rhipe.hbase.mozilla.cacheblocks <- sprintf("%s:%s",as.integer(caching),as.integer(cacheBlocks))
-      mapred$zookeeper.znode.parent <- zooinfo$zookeeper.znode.parent
-      mapred$hbase.zookeeper.quorum <- zooinfo$hbase.zookeeper.quorum
+      if(!is.null(zooinfo)){
+        mapred$zookeeper.znode.parent <- zooinfo$zookeeper.znode.parent
+        mapred$hbase.zookeeper.quorum <- zooinfo$hbase.zookeeper.quorum
+      }
       mapred$rhipe.hbase.value.type <- valueTypes
       message(sprintf("Using %s table", table))
       if(!table %in% c("telemetry","crash_reports")){

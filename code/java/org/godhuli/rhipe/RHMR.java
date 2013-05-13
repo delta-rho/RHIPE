@@ -94,6 +94,13 @@ public class RHMR implements Tool {
 		res = ToolRunner.run(r.getConfig(), r, args);
 		return (res);
 	}
+    public static int fmain(String[] args,Configuration c) throws Exception {
+		int res;
+		RHMR r = new RHMR();
+		r.setConfig(c);
+		res = ToolRunner.run(r.getConfig(), r, args);
+		return (res);
+	}
 
 	public void doTest() {
 		int i;
@@ -153,20 +160,21 @@ public class RHMR implements Tool {
 			// System.out.println(key+"==="+value);
 		}
 		REXPHelper.setFieldSep(config_.get("mapred.field.separator", " "));
-
+		// Shared is on the HDFS
 		String[] shared = config_.get("rhipe_shared").split(",");
 		if (shared != null) {
 			for (String p : shared)
 				if (p.length() > 1)
-					DistributedCache.addCacheFile(new URI(p), config_);
+				    DistributedCache.addCacheFile(new URI(p), config_);
 		}
+		// JARS are also on the HDFS
 		String[] jarfiles = config_.get("rhipe_jarfiles").split(",");
 		if (jarfiles != null) {
 			for (String p : jarfiles) {
 				// System.err.println("Adding "+ p +" to classpath");
 				if (p.length() > 1)
 					DistributedCache
-							.addArchiveToClassPath(new Path(p), config_);
+					    .addArchiveToClassPath(new Path(p), config_) ; //FileSystem.get(config_));
 			}
 		}
 		String[] zips = config_.get("rhipe_zips").split(",");
@@ -211,7 +219,7 @@ public class RHMR implements Tool {
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
 		String jname = rhoptions_.get("rhipe_jobname");
 		boolean uscomb = false;
-
+		job_.setUserClassesTakesPrecedence(true);
 		if (jname.equals(""))
 			job_.setJobName(sdf.format(cal.getTime()));
 		else
@@ -278,6 +286,7 @@ public class RHMR implements Tool {
 		if (uscomb)
 			job_.setCombinerClass(RHMRReducer.class);
 		job_.setReducerClass(RHMRReducer.class);
+
 		// System.out.println("Conf done");
 
 	}

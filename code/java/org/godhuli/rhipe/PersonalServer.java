@@ -84,6 +84,9 @@ public class PersonalServer {
     public Configuration getConf(){
 	return _configuration;
     }
+    public void setConf(Configuration c){
+	_configuration = c;
+    }
     public byte[] rhmropts() throws Exception {
 	REXP b = fu.mapredopts();
         return b.toByteArray();
@@ -154,11 +157,16 @@ public class PersonalServer {
     // 	    jcl.add(s);
     // 	}
     // }
-
+	
     public int rhex(String zonf) throws Exception {
 	int result = RHMR.fmain(new String[] {zonf});
 	return result;
     }
+    public int rhex(String zonf,Configuration c) throws Exception {
+	int result = RHMR.fmain(new String[] {zonf},c);
+	return result;
+    }
+
     public int rhex(String[] zonf) throws Exception {
 	int result = RHMR.fmain(zonf);
 	return result;

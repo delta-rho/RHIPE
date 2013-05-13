@@ -65,8 +65,8 @@ rhex <- function (conf,async=TRUE,mapred,...)
   ## y. <- paste(rep("-",min(nchar(x.),40)))
   ## message(y.);message(x.);message(y.)
   {
-
-    result <- tryCatch(rhoptions()$server$rhex(zonf),error=function(e){
+    
+    result <- tryCatch(rhoptions()$server$rhex(zonf,rhoptions()$server$getConf()),error=function(e){
       e$printStackTrace();
       stop(e);
     })
