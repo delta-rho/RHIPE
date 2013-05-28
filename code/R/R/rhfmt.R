@@ -208,7 +208,10 @@ hbase <- function(table, colspec=NULL, rows=NULL,caching=3L, cacheBlocks=TRUE,au
       if(!is.null(zooinfo)){
         mapred$zookeeper.znode.parent <- zooinfo$zookeeper.znode.parent
         mapred$hbase.zookeeper.quorum <- zooinfo$hbase.zookeeper.quorum
-      }
+      }else{
+         mapred$hbase.zookeeper.quorum <- rhoptions()$clz$config$get("hbase.zookeeper.quorum")
+         mapred$zookeeper.znode.parent <- rhoptions()$clz$config$get("zookeeper.znode.parent")
+       }
       mapred$rhipe_outputformat_class         = 'org.godhuli.rhipe.hbase.RHTableOutputFormat'
       mapred$rhipe_outputformat_keyclass <- 'org.godhuli.rhipe.RHBytesWritable'
       mapred$rhipe_outputformat_valueclass <- 'org.godhuli.rhipe.RHBytesWritable'
@@ -228,7 +231,10 @@ hbase <- function(table, colspec=NULL, rows=NULL,caching=3L, cacheBlocks=TRUE,au
       if(!is.null(zooinfo)){
         mapred$zookeeper.znode.parent <- zooinfo$zookeeper.znode.parent
         mapred$hbase.zookeeper.quorum <- zooinfo$hbase.zookeeper.quorum
-      }
+      }else{
+         mapred$hbase.zookeeper.quorum <- rhoptions()$clz$config$get("hbase.zookeeper.quorum")
+         mapred$zookeeper.znode.parent <- rhoptions()$clz$config$get("zookeeper.znode.parent")
+       } 
       mapred$rhipe.hbase.value.type <- valueTypes
       message(sprintf("Using %s table", table))
       if(!table %in% c("telemetry","crash_reports")){

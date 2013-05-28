@@ -181,8 +181,9 @@ rhinit <- function(){
   hadoop <- Sys.getenv(c("HADOOP_HOME","HADOOP_CONF_DIR","HADOOP_LIBS"))
 
   if(hadoop["HADOOP_HOME"] != "") {
+    ## print(any(c(grepl("(yes|true)",tolower(Sys.getenv("RHIPE_USE_CDH4"))),grepl("cdh4", c(list.files(hadoop['HADOOP_HOME'])))) ,na.rm=TRUE))
     if(any(c(grepl("(yes|true)",tolower(Sys.getenv("RHIPE_USE_CDH4"))),grepl("cdh4", c(list.files(hadoop['HADOOP_HOME'])))) ,na.rm=TRUE)){
-      cat("Rhipe: Detected CDH4 jar files, using RhipeCDH4.jar\n")
+      cat("Rhipe: Using RhipeCDH4.jar\n")
       opts$jarloc <- list.files(file.path(system.file(package="Rhipe"), "java"), pattern="RhipeCDH4.jar$", full=TRUE)
     }else{
       cat("Rhipe: Using Rhipe.jar file\n")
