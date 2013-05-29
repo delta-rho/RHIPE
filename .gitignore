@@ -14,3 +14,4 @@ code/ec2/bin/hadoop-ec2-env.sh
 code/java/Rhipe.jar
 code/Rhipe.Rcheck
 .DS_Store
+code/java/build.num
