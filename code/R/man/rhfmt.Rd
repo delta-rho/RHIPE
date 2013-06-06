@@ -2,7 +2,7 @@
 \alias{rhfmt}
 \title{A function that returns a function to specify input/output formats}
 \usage{
-  rhfmt(..., type)
+  rhfmt(type, ...)
 }
 \arguments{
   \item{...}{arguments passed to the function}

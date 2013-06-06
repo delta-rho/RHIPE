@@ -2,7 +2,7 @@
 \alias{rhls}
 \title{List Files On HDFS}
 \usage{
-  rhls(folder = NULL, recurse = FALSE)
+  rhls(folder = NULL, recurse = FALSE, nice = "h")
 }
 \arguments{
   \item{folder}{Path of directory on HDFS or output from
@@ -10,6 +10,9 @@
 
   \item{recurse}{If TRUE list all files and directories in
   sub-directories.}
+
+  \item{nice}{One of "g","m","b" or "h" (gigabytes,
+  megabytes, bytes, human readable)}
 }
 \value{
   vector of file and directory names
