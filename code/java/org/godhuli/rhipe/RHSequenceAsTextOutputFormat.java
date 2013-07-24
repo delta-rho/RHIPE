@@ -99,7 +99,7 @@ public class RHSequenceAsTextOutputFormat extends FileOutputFormat<RHBytesWritab
 	return new ElementWriter(out,squote);
     }
     public static CompressionType getOutputCompressionType(JobContext job) {
-	String val = job.getConfiguration().get("mapred.output.compression.type", CompressionType.RECORD.toString());
+	String val = job.getConfiguration().get("mapred.output.compression.type", CompressionType.BLOCK.toString());
 	return CompressionType.valueOf(val);
     }
     public static void setOutputCompressionType(Job job, CompressionType style) {

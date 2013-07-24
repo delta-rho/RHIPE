@@ -49,6 +49,9 @@ public class SequenceFileIterator  {
 	vt = new Text();
 
     }
+    public static SequenceFile.Reader openAFile(FileSystem fs,String p, Configuration c) throws IOException{
+	return new SequenceFile.Reader(fs, new Path(p), c);
+    }
     public void setTextual(boolean a){
 	textual=a;
     }

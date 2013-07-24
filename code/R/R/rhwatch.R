@@ -436,7 +436,7 @@ rhwatch.runner <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
       else
         return( rhread(ofolder,type=type, textual=textual) )
     }
-    if(results$state %in% c("FAILED","KILLED"))
+    if(grepl("(FAILED|KILLED)",results$state))
       {
         if(is.null(debug) || (!is.null(debug) && debug!='collect')){
           warning(sprintf("Job failure, deleting output: %s:", ofolder))

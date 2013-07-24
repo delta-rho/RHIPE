@@ -37,7 +37,7 @@
 #' @keywords MapReduce job status
 #' @export
 rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
-                     ,handler=NULL) {
+                     ,handler=rhoptions()$statusHandler) {
   if(!is(job,"jobtoken") && !is(job,"character") && !is(job,"rhwatch")) stop("Must give a jobtoken object(as obtained from rhwatch(..read=FALSE))")
   if(is(job,"character")) id <- job
   else if (is(job,"jobtoken")) {
@@ -99,12 +99,12 @@ rhstatus <- function(job,mon.sec=5,autokill=TRUE,showErrors=TRUE,verbose=FALSE
       } else {
         countersTxt <- NULL
       }
-
       res <- handler(y)
       if(!is.null(res) && !res) {
-        warning("RHIPE: Breaking because users handler function said so")
-        break
+        ## warning("RHIPE: Breaking because users handler function said so")
+        y$state <- sprintf("%s:UserKill", y$state)
       }
+
       if(!y$state %in% c("PREP","RUNNING")) break 
 
       waitTxt <- sprintf("Waiting %s seconds", mon.sec)

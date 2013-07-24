@@ -25,19 +25,22 @@ public class RHPartitionerNumeric extends Partitioner<RHBytesWritable,RHBytesWri
 
     public int getPartition(RHBytesWritable key, RHBytesWritable value,
 			    int numReduceTasks) {
-	int hashcode = 0;
-	double hash2 = 0;
+	int hashCode = 1;
+	// taken from http://alias-i.com/lingpipe/docs/api/com/aliasi/matrix/Vector.html#hashCode%28%29
+	// double hash2 = 0;
 	// this is a crude and almost uses paritioning scheme.
 	try{
 	    REXP r = key.getParsed();
 	    for(int i=RHMRHelper.PARTITION_START;i<=RHMRHelper.PARTITION_END;i++){
-		hash2 = 10*hash2+r.getRealValue(i);
+		long v = Double.doubleToLongBits(r.getRealValue(i));
+		int valHash = (int) (v^(v>>>32));
+		hashCode = 31*hashCode + valHash;
 	    }
-	    hashcode = ((int)Double.doubleToLongBits(hash2));
+	    // hashcode = ((int)Double.doubleToLongBits(hash2));
 	}catch(com.google.protobuf.InvalidProtocolBufferException e){
 	    System.err.println(e);
 	}
-	return (hashcode & Integer.MAX_VALUE) % numReduceTasks;
+	return (hashCode & Integer.MAX_VALUE) % numReduceTasks;
     }
   // protected int hashCode(byte[] b, int currentHash) {
   //   for (int i = 0; i < b.length; i++) {
