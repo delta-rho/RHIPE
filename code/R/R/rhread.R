@@ -143,7 +143,9 @@ rhIterator <- function(files, type="sequence",chunksize=1000, chunk='records',sk
   chunksize <- as.integer(chunksize)
   handle <- .jnew("org/godhuli/rhipe/SequenceFileIterator")
   handle$init(files, as.integer(chunksize), -1L,rhoptions()$server);
-  a$setTextual(as.logical(textual))
+
+  # a$setTextual(as.logical(textual))
+
   if(chunk == 'records'){
     return(function(chunksize=chunksize){
       if(handle$hasMoreElements())
