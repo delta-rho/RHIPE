@@ -3,7 +3,8 @@
 \title{Report Status Of A MapReduce Job}
 \usage{
   rhstatus(job, mon.sec = 5, autokill = TRUE,
-    showErrors = TRUE, verbose = FALSE, handler = NULL)
+    showErrors = TRUE, verbose = FALSE,
+    handler = rhoptions()$statusHandler)
 }
 \arguments{
   \item{job}{The parameter \code{job} can either be a

@@ -10,7 +10,7 @@
 #' @keywords mkdir HDFS file
 #' @export
 rhmkdir <- function(path,permissions){
-  src = rhabsolute.hdfs.path(path)
+  path <- rhabsolute.hdfs.path(path)
   fs <- rhoptions()$clz$filesystem
   path <- .jnew("org/apache/hadoop/fs/Path",path)
   if(missing(permissions))
@@ -22,3 +22,4 @@ rhmkdir <- function(path,permissions){
     fs$mkdirs(path, .jnew("org/apache/hadoop/fs/permission/FsPermission"
                           ,permissions))
 }
+
