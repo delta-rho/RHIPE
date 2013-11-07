@@ -408,7 +408,7 @@ rhwatch.runner <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
     else
       rhstatus(job,mon.sec=mon.sec,...)
     ofolder <- job$lines$rhipe_output_folder
-
+    
     # if rhoption write.job.info is TRUE, then write it to _rh_meta
     if(results$state=="SUCCEEDED" && rhoptions()$write.job.info) {
       # get job id

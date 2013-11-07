@@ -48,7 +48,13 @@ onload.2 <- function(libname, pkgname){
     cat("RhipeMapReduce executable not found in package bin folder as expected\n")
   }
   ##RhipeMapReduce is the executable, but the simpliest way to run it is via R CMD which sets up environment variables.
-  opts$runner <-paste("R","CMD", opts$RhipeMapReduce ,"--slave","--silent","--vanilla") #,"--max-ppsize=100000","--max-nsize=1G")
+  runner_env <- Sys.getenv("RHIPE_RUNNER")
+  if(runner_env != "") {
+     opts$runner <- runner_env
+  } else {
+     opts$runner <-paste("R","CMD", opts$RhipeMapReduce ,"--slave","--silent","--vanilla") #,"--max-ppsize=100000","--max-nsize=1G")     
+  }
+
 	
   ## ##############################################################################################
   ## OTHER DEFAULTS
