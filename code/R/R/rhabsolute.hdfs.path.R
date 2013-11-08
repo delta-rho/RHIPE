@@ -12,14 +12,14 @@
 #' @return Absolute HDFS path corresponding to relative path in the input.  If input is a vector or list returns a vector or list of paths.  Class of elements of return are always character even if NA.
 #' @author Jeremiah Rounds
 #' @export
-rhabsolute.hdfs.path = function(paths){
+rhabsolute.hdfs.path = function(paths) {
 	inpaths = as.character(unlist(paths))
 	ret = list()
 	wd = hdfs.getwd()
 	for(i in seq_along(inpaths)){
 		p = inpaths[i]
 		if(is.na(p) || length(p) == 0 || nchar(p) == 0
-                   || grepl("^(hdfs://)",p)){
+                   || grepl("^(hdfs://)", p) || grepl("^(file://)", p)) {
 			#I had treated the degenerate case as an error in previous code.
 			ret[[i]] = p
 			next
@@ -33,7 +33,7 @@ rhabsolute.hdfs.path = function(paths){
 		#already absolute?
 		if(lead.char == "/"){
 			retp = p
-		}else{
+		} else {
 			#this is considered relative..
 			if(nchar(wd) == 1){
 				retp = paste(wd,p,sep="")
