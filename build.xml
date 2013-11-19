@@ -16,11 +16,16 @@
     <available file="${maven.tmp.dir}/${maven.archive.name}.version" property="maven.available" />
 
     <target name="build" depends="_mvn-install">
-        <copy todir="${r.inst}" overwrite="true">
-            <fileset dir="java/target">
-                <include name="**/*.jar"/>
-            </fileset>
+        <mkdir dir="${r.inst}/java"/>
+        <copy tofile="${r.inst}/java/RhipeCDH4.jar">
+            <file file="java/target/Rhipe-cdh4-jar-with-dependencies.jar"/>
         </copy>
+        <!--<copy todir="${r.inst}/java" overwrite="true">-->
+
+            <!--<fileset dir="java/target">-->
+                <!--<include name="**/*.jar"/>-->
+            <!--</fileset>-->
+        <!--</copy>-->
         <exec executable="R">
             <arg value="CMD"/>
             <arg value="BUILD"/>
@@ -42,7 +47,7 @@
 
     <target name="_mvn-install" depends="_prepare-maven">
         <mvn:mvn mavenhome="${maven.tmp.home}" pom="java/pom.xml" fork="true" failonerror="true">
-            <arg value="install" />
+            <arg value="assembly:assembly" />
             <arg value="-DskipTests=true" />
             <arg value="-Dcargo.maven.skip=true" />
         </mvn:mvn>
