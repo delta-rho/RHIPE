@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Canopy-Setup" default="build" basedir="." xmlns:mvn="antlib:org.apache.maven.artifact.ant">
+
+    <property name="maven.dl.dir" value="conf/maven" />
+    <property name="maven.tmp.dir" value="${maven.dl.dir}/mvn-tmp" />
+    <property name="maven.archive.name" value="apache-maven-3.0.5" />
+    <property name="maven.archive.zip" value="${maven.archive.name}-bin.zip" />
+    <property name="maven.tmp.home" value="${maven.tmp.dir}/${maven.archive.name}" />
+    <property name="r.inst" value="R/inst"/>
+
+    <path id="maven-ant-tasks.classpath" path="conf/maven/maven-ant-tasks-2.1.3.jar" />
+    <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+             uri="antlib:org.apache.maven.artifact.ant"
+             classpathref="maven-ant-tasks.classpath" />
+
+    <available file="${maven.tmp.dir}/${maven.archive.name}.version" property="maven.available" />
+
+    <target name="build" depends="_mvn-install">
+        <copy todir="${r.inst}" overwrite="true">
+            <fileset dir="java/target">
+                <include name="**/*.jar"/>
+            </fileset>
+        </copy>
+        <exec executable="R">
+            <arg value="CMD"/>
+            <arg value="BUILD"/>
+            <arg value="R"/>
+        </exec>
+    </target>
+
+    <target name="clean" description="cleanup build artifacts">
+        <mvn:mvn mavenhome="${maven.tmp.home}" pom="java/pom.xml" fork="true" failonerror="true">
+            <arg value="clean" />
+        </mvn:mvn>
+        <delete>
+            <fileset dir="${r.inst}" includes="*.jar"/>
+        </delete>
+        <delete>
+            <fileset dir="${basedir}" includes="*.tar.gz"/>
+        </delete>
+    </target>
+
+    <target name="_mvn-install" depends="_prepare-maven">
+        <mvn:mvn mavenhome="${maven.tmp.home}" pom="java/pom.xml" fork="true" failonerror="true">
+            <arg value="install" />
+            <arg value="-DskipTests=true" />
+            <arg value="-Dcargo.maven.skip=true" />
+        </mvn:mvn>
+    </target>
+
+    <target name="_prepare-maven" unless="maven.available">
+        <delete dir="${maven.tmp.dir}" failonerror="false" />
+        <unzip dest="${maven.tmp.dir}" src="${maven.dl.dir}/${maven.archive.zip}" />
+        <touch file="${maven.tmp.dir}/${maven.archive.name}.version" />
+    </target>
+
+</project>
