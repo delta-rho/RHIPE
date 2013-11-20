@@ -1,31 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Canopy-Setup" default="build" basedir="." xmlns:mvn="antlib:org.apache.maven.artifact.ant">
 
-    <property name="maven.dl.dir" value="conf/maven" />
-    <property name="maven.tmp.dir" value="${maven.dl.dir}/mvn-tmp" />
-    <property name="maven.archive.name" value="apache-maven-3.0.5" />
-    <property name="maven.archive.zip" value="${maven.archive.name}-bin.zip" />
-    <property name="maven.tmp.home" value="${maven.tmp.dir}/${maven.archive.name}" />
-    <property name="r.inst" value="R/inst"/>
+    <property name="rhipe-version" value="0.73.1-6"/>
+    <property name="guava-version" value="13.0.1"/>
+    <property name="maven.dl.dir" value="conf/maven"/>
+    <property name="maven.tmp.dir" value="${maven.dl.dir}/mvn-tmp"/>
+    <property name="maven.archive.name" value="apache-maven-3.0.5"/>
+    <property name="maven.archive.zip" value="${maven.archive.name}-bin.zip"/>
+    <property name="maven.tmp.home" value="${maven.tmp.dir}/${maven.archive.name}"/>
 
-    <path id="maven-ant-tasks.classpath" path="conf/maven/maven-ant-tasks-2.1.3.jar" />
+    <property name="r.inst" value="R/inst"/>
+    <property name="conf" value="conf"/>
+    <property name="java" value="java"/>
+    <property name="java.build" value="${java}/target"/>
+
+    <path id="maven-ant-tasks.classpath" path="conf/maven/maven-ant-tasks-2.1.3.jar"/>
+
     <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
              uri="antlib:org.apache.maven.artifact.ant"
-             classpathref="maven-ant-tasks.classpath" />
+             classpathref="maven-ant-tasks.classpath"/>
 
-    <available file="${maven.tmp.dir}/${maven.archive.name}.version" property="maven.available" />
+    <available file="${maven.tmp.dir}/${maven.archive.name}.version" property="maven.available"/>
 
-    <target name="build" depends="_mvn-install">
+    <target name="init">
         <mkdir dir="${r.inst}/java"/>
-        <copy tofile="${r.inst}/java/RhipeCDH4.jar">
-            <file file="java/target/Rhipe-cdh4-jar-with-dependencies.jar"/>
-        </copy>
-        <!--<copy todir="${r.inst}/java" overwrite="true">-->
+    </target>
 
-            <!--<fileset dir="java/target">-->
-                <!--<include name="**/*.jar"/>-->
-            <!--</fileset>-->
-        <!--</copy>-->
+    <target name="build_cdh3" depends="build"/>
+
+    <target name="build" depends="init">
+        <antcall target="_mvn-install">
+            <param name="profile" value="cdh3"/>
+        </antcall>
+        <copy tofile="${r.inst}/java/Rhipe.jar">
+            <file file="${java.build}/rhipe-${rhipe-version}-jar-with-dependencies.jar"/>
+        </copy>
+        <antcall target="r_build"/>
+    </target>
+
+    <target name="build_cdh4" depends="init">
+        <antcall target="_mvn-install">
+            <param name="profile" value="cdh4"/>
+        </antcall>
+        <copy tofile="${r.inst}/java/RhipeCDH4.jar">
+            <file file="${java.build}/rhipe-${rhipe-version}-jar-with-dependencies.jar"/>
+        </copy>
+        <antcall target="r_build"/>
+    </target>
+
+    <target name="r_build">
         <exec executable="R">
             <arg value="CMD"/>
             <arg value="BUILD"/>
@@ -33,12 +56,9 @@
         </exec>
     </target>
 
-    <target name="clean" description="cleanup build artifacts">
-        <mvn:mvn mavenhome="${maven.tmp.home}" pom="java/pom.xml" fork="true" failonerror="true">
-            <arg value="clean" />
-        </mvn:mvn>
+    <target name="clean" description="cleanup build artifacts" depends="maven.clean">
         <delete>
-            <fileset dir="${r.inst}" includes="*.jar"/>
+            <fileset dir="${r.inst}" includes="**/*.jar"/>
         </delete>
         <delete>
             <fileset dir="${basedir}" includes="*.tar.gz"/>
@@ -47,16 +67,23 @@
 
     <target name="_mvn-install" depends="_prepare-maven">
         <mvn:mvn mavenhome="${maven.tmp.home}" pom="java/pom.xml" fork="true" failonerror="true">
-            <arg value="assembly:assembly" />
-            <arg value="-DskipTests=true" />
-            <arg value="-Dcargo.maven.skip=true" />
+            <arg value="assembly:assembly"/>
+            <arg value="-DskipTests=true"/>
+            <arg value="-Dcargo.maven.skip=true"/>
+            <arg value="-P${profile}"/>
         </mvn:mvn>
     </target>
 
     <target name="_prepare-maven" unless="maven.available">
-        <delete dir="${maven.tmp.dir}" failonerror="false" />
-        <unzip dest="${maven.tmp.dir}" src="${maven.dl.dir}/${maven.archive.zip}" />
-        <touch file="${maven.tmp.dir}/${maven.archive.name}.version" />
+        <delete dir="${maven.tmp.dir}" failonerror="false"/>
+        <unzip dest="${maven.tmp.dir}" src="${maven.dl.dir}/${maven.archive.zip}"/>
+        <touch file="${maven.tmp.dir}/${maven.archive.name}.version"/>
+    </target>
+
+    <target name="maven.clean">
+        <mvn:mvn mavenhome="${maven.tmp.home}" pom="java/pom.xml" fork="true" failonerror="true">
+            <arg value="clean"/>
+        </mvn:mvn>
     </target>
 
 </project>
