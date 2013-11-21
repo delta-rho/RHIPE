@@ -18,28 +18,26 @@
 
 package org.godhuli.rhipe;
 
-import java.io.IOException;
-
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.RecordReader;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+
+import java.io.IOException;
 
 
 /**
- * This class is similar to SequenceFileInputFormat, except it generates SequenceFileAsTextRecordReader 
- * which converts the input keys and values to their String forms by calling toString() method. 
+ * This class is similar to SequenceFileInputFormat, except it generates SequenceFileAsTextRecordReader
+ * which converts the input keys and values to their String forms by calling toString() method.
  */
-public class RXSQTextAndTextIF
-  extends SequenceFileInputFormat {
+public class RXSQTextAndTextIF extends SequenceFileInputFormat {
 
     public RXSQTextAndTextIF() {
-	super();
+        super();
     }
 
-    public RecordReader createRecordReader(InputSplit split,TaskAttemptContext context) throws IOException {
-	context.setStatus(split.toString());
-	return new SequenceFileAsRHTextRecordReader();
+    public RecordReader createRecordReader(InputSplit split, TaskAttemptContext context) throws IOException {
+        context.setStatus(split.toString());
+        return new SequenceFileAsRHTextRecordReader();
     }
 }

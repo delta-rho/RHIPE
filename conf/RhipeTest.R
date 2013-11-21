@@ -3,6 +3,7 @@ rhinit()
 
 # set your "working directory" on HDFS to be /user/perk387
 hdfs.setwd("/user/perk387")
+#hdfs.setwd("/tmp")
 #rhoptions(runner = "sh /share/apps/rhipe/rhRunner.sh")
 
 # create a dummy set of data

@@ -17,49 +17,58 @@
  */
 
 package org.godhuli.rhipe;
+
+import com.google.common.base.Objects;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.google.common.base.Objects;
 
 public class ValuePair {
     String path = null;
     RHBytesWritable key = null;
-    protected static final Log LOG = LogFactory.getLog(PersonalServer.class
-						       .getName());
+    protected static final Log LOG = LogFactory.getLog(PersonalServer.class.getName());
 
-    public ValuePair(){
+    public ValuePair() {
     }
-    public ValuePair(String s, RHBytesWritable r){
-	path=s;
-	key=r;
+
+    public ValuePair(String s, RHBytesWritable r) {
+        path = s;
+        key = r;
     }
-    public void setKey(RHBytesWritable k){
-	key = k;
+
+    public void setKey(RHBytesWritable k) {
+        key = k;
     }
-    public void setPath(String s){
-	path = s;
+
+    public void setPath(String s) {
+        path = s;
     }
-    RHBytesWritable getKey(){
-	return key;
+
+    RHBytesWritable getKey() {
+        return key;
     }
-    String getPath(){
-	return path;
+
+    String getPath() {
+        return path;
     }
-    public int hashCode(){
-	int hash;
-    	// int hash = 1;
-    	// hash = hash * 31 + key.hashCode();
-    	// hash = hash * 31 + path.hashCode();
-	hash = Objects.hashCode(key,path);
-	return(hash);
+
+    public int hashCode() {
+        int hash;
+        // int hash = 1;
+        // hash = hash * 31 + key.hashCode();
+        // hash = hash * 31 + path.hashCode();
+        hash = Objects.hashCode(key, path);
+        return (hash);
     }
-    public boolean equals(Object o){
-	if (!(o instanceof ValuePair))
-	    return false;
-	ValuePair oo = (ValuePair)o;
-	return path.equals(oo.getPath()) && key.equals(oo.getKey());
+
+    public boolean equals(Object o) {
+        if (!(o instanceof ValuePair)) {
+            return false;
+        }
+        ValuePair oo = (ValuePair) o;
+        return path.equals(oo.getPath()) && key.equals(oo.getKey());
     }
-    public String toString(){
-	return "path:"+path+" key:"+key;
+
+    public String toString() {
+        return "path:" + path + " key:" + key;
     }
 }

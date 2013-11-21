@@ -24,19 +24,19 @@ public class RHTypes {
     public static final int EVAL_SETUP_MAP = -1;
     public static final int EVAL_CLEANUP_MAP = -2;
 
-    public static final int EVAL_SETUP_REDUCE   = -1; 
-    public static final int EVAL_REDUCE_PREKEY  = -2;
+    public static final int EVAL_SETUP_REDUCE = -1;
+    public static final int EVAL_REDUCE_PREKEY = -2;
     public static final int EVAL_REDUCE_POSTKEY = -3;
-    public static final int EVAL_REDUCE_THEKEY  = -4;
+    public static final int EVAL_REDUCE_THEKEY = -4;
     public static final int EVAL_CLEANUP_REDUCE = -5;
     public static final int EVAL_FLUSH = -10;
 
     // Reading on STDERR
 
-    public static final byte ERROR_MSG = (byte)0x00;
-    public static final byte PRINT_MSG = (byte)0x01;
-    public static final byte SET_STATUS = (byte)0x02;
-    public static final byte SET_COUNTER = (byte)0x03;
+    public static final byte ERROR_MSG = (byte) 0x00;
+    public static final byte PRINT_MSG = (byte) 0x01;
+    public static final byte SET_STATUS = (byte) 0x02;
+    public static final byte SET_COUNTER = (byte) 0x03;
 
 
 }

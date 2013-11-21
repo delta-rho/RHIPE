@@ -18,76 +18,68 @@
 
 package org.godhuli.rhipe;
 
-import java.io.IOException;
-
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileRecordReader;
+
+import java.io.IOException;
 
 /**
  * This class converts the input keys and values to their String forms by
  * calling toString() method. This class to SequenceFileAsTextInputFormat
  * class is as LineRecordReader class to TextInputFormat class.
  */
-public class SequenceFileAsRHTextRecordReader
-  extends RecordReader<RHText, RHText> {
-  
-  private final SequenceFileRecordReader<WritableComparable<?>, Writable>
-    sequenceFileRecordReader;
+public class SequenceFileAsRHTextRecordReader extends RecordReader<RHText, RHText> {
 
-  private RHText key;
-  private RHText value;
+    private final SequenceFileRecordReader<WritableComparable<?>, Writable> sequenceFileRecordReader;
 
-  public SequenceFileAsRHTextRecordReader()
-    throws IOException {
-    sequenceFileRecordReader =
-      new SequenceFileRecordReader<WritableComparable<?>, Writable>();
-  }
+    private RHText key;
+    private RHText value;
 
-  public void initialize(InputSplit split, TaskAttemptContext context)
-      throws IOException, InterruptedException {
-    sequenceFileRecordReader.initialize(split, context);
-  }
-
-  @Override
-  public RHText getCurrentKey() 
-      throws IOException, InterruptedException {
-    return key;
-  }
-  
-  @Override
-  public RHText getCurrentValue() 
-      throws IOException, InterruptedException {
-    return value;
-  }
-  
-  /** Read key/value pair in a line. */
-  public synchronized boolean nextKeyValue() 
-      throws IOException, InterruptedException {
-    if (!sequenceFileRecordReader.nextKeyValue()) {
-      return false;
+    public SequenceFileAsRHTextRecordReader() throws IOException {
+        sequenceFileRecordReader = new SequenceFileRecordReader<WritableComparable<?>, Writable>();
     }
-    if (key == null) {
-      key = new RHText(); 
+
+    public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
+        sequenceFileRecordReader.initialize(split, context);
     }
-    if (value == null) {
-      value = new RHText(); 
+
+    @Override
+    public RHText getCurrentKey() throws IOException, InterruptedException {
+        return key;
     }
-    key.setAndFinis(sequenceFileRecordReader.getCurrentKey().toString());
-    value.setAndFinis(sequenceFileRecordReader.getCurrentValue().toString());
-    return true;
-  }
-  
-  public float getProgress() throws IOException,  InterruptedException {
-    return sequenceFileRecordReader.getProgress();
-  }
-  
-  public synchronized void close() throws IOException {
-    sequenceFileRecordReader.close();
-  }
+
+    @Override
+    public RHText getCurrentValue() throws IOException, InterruptedException {
+        return value;
+    }
+
+    /**
+     * Read key/value pair in a line.
+     */
+    public synchronized boolean nextKeyValue() throws IOException, InterruptedException {
+        if (!sequenceFileRecordReader.nextKeyValue()) {
+            return false;
+        }
+        if (key == null) {
+            key = new RHText();
+        }
+        if (value == null) {
+            value = new RHText();
+        }
+        key.setAndFinis(sequenceFileRecordReader.getCurrentKey().toString());
+        value.setAndFinis(sequenceFileRecordReader.getCurrentValue().toString());
+        return true;
+    }
+
+    public float getProgress() throws IOException, InterruptedException {
+        return sequenceFileRecordReader.getProgress();
+    }
+
+    public synchronized void close() throws IOException {
+        sequenceFileRecordReader.close();
+    }
 }

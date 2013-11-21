@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Canopy-Setup" default="build" basedir="." xmlns:mvn="antlib:org.apache.maven.artifact.ant">
 
-    <property name="rhipe-version" value="0.73.1-6"/>
-    <property name="guava-version" value="13.0.1"/>
+    <property name="rhipe.version" value="0.73.1-6"/>
+    <property name="guava.version" value="13.0.1"/>
+    <property name="maven.project.name" value="rhipe-java"/>
     <property name="maven.dl.dir" value="conf/maven"/>
     <property name="maven.tmp.dir" value="${maven.dl.dir}/mvn-tmp"/>
     <property name="maven.archive.name" value="apache-maven-3.0.5"/>
@@ -26,29 +27,32 @@
         <mkdir dir="${r.inst}/java"/>
     </target>
 
-    <target name="build_cdh3" depends="build"/>
 
     <target name="build" depends="init">
         <antcall target="_mvn-install">
             <param name="profile" value="cdh3"/>
         </antcall>
         <copy tofile="${r.inst}/java/Rhipe.jar">
-            <file file="${java.build}/rhipe-${rhipe-version}-jar-with-dependencies.jar"/>
+            <file file="${java.build}/${maven.project.name}-${rhipe.version}-jar-with-dependencies.jar"/>
         </copy>
-        <antcall target="r_build"/>
+        <antcall target="r-build"/>
     </target>
 
-    <target name="build_cdh4" depends="init">
+    <target name="build-cdh3" depends="build"/>
+
+    <target name="build-cdh4" depends="init">
         <antcall target="_mvn-install">
             <param name="profile" value="cdh4"/>
         </antcall>
         <copy tofile="${r.inst}/java/RhipeCDH4.jar">
-            <file file="${java.build}/rhipe-${rhipe-version}-jar-with-dependencies.jar"/>
+            <file file="${java.build}/${maven.project.name}-${rhipe.version}-jar-with-dependencies.jar"/>
         </copy>
-        <antcall target="r_build"/>
+        <antcall target="r-build"/>
     </target>
 
-    <target name="r_build">
+    <target name="r-install-test" depends="r-install,r-test"/>
+
+    <target name="r-build">
         <exec executable="R">
             <arg value="CMD"/>
             <arg value="BUILD"/>
@@ -56,7 +60,24 @@
         </exec>
     </target>
 
-    <target name="clean" description="cleanup build artifacts" depends="maven.clean">
+    <target name="r-install">
+        <exec executable="R">
+            <arg value="CMD"/>
+            <arg value="INSTALL"/>
+            <arg value="Rhipe_${rhipe.version}.tar.gz"/>
+        </exec>
+    </target>
+
+    <target name="r-test">
+        <exec executable="R"  failonerror="true" failifexecutionfails="true">
+            <arg value="CMD"/>
+            <arg value="BATCH"/>
+            <arg value="${conf}/RhipeTest.R"/>
+        </exec>
+        <echo message="success"/>
+    </target>
+
+    <target name="clean" description="cleanup build artifacts" depends="maven-clean">
         <delete>
             <fileset dir="${r.inst}" includes="**/*.jar"/>
         </delete>
@@ -80,7 +101,7 @@
         <touch file="${maven.tmp.dir}/${maven.archive.name}.version"/>
     </target>
 
-    <target name="maven.clean">
+    <target name="maven-clean">
         <mvn:mvn mavenhome="${maven.tmp.home}" pom="java/pom.xml" fork="true" failonerror="true">
             <arg value="clean"/>
         </mvn:mvn>

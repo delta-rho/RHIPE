@@ -18,28 +18,16 @@
 
 package org.godhuli.rhipe;
 
-import java.io.*;
-import org.apache.hadoop.fs.*;
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.compress.*;
-import org.apache.hadoop.mapred.*;
-import java.util.List;
 import org.apache.hadoop.conf.Configuration;
-
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
-import java.io.IOException;
-import org.apache.hadoop.io.compress.CompressionCodec;
-import org.apache.hadoop.io.compress.CompressionCodecFactory;
-import org.apache.hadoop.mapreduce.InputFormat;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+
+import java.io.IOException;
+import java.util.List;
 
 
 /////////////////////////////////////////////////////////////
@@ -47,28 +35,25 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 // Useful for simulations, as opposed to reading to hadoop //
 /////////////////////////////////////////////////////////////
 
-public class RNLineInputFormat extends 
-				   FileInputFormat<RHNumeric, RHText>
-{
+public class RNLineInputFormat extends FileInputFormat<RHNumeric, RHText> {
     // To change split length
     // Adjust mapreduce.input.lineinputformat.linespermap
     private static org.apache.hadoop.mapreduce.lib.input.NLineInputFormat _nlf;
-    public RNLineInputFormat(){
-	_nlf = new org.apache.hadoop.mapreduce.lib.input.NLineInputFormat();
-    }
-    public RecordReader<RHNumeric, RHText> createRecordReader
-	(InputSplit genericSplit, TaskAttemptContext context) 
-	throws IOException {
-	context.setStatus(genericSplit.toString());
-	return new RXLineRecordReader();
+
+    public RNLineInputFormat() {
+        _nlf = new org.apache.hadoop.mapreduce.lib.input.NLineInputFormat();
     }
 
-    public List<InputSplit> getSplits(JobContext job)
-	throws IOException {
-	return _nlf.getSplits(job);
+    public RecordReader<RHNumeric, RHText> createRecordReader(InputSplit genericSplit, TaskAttemptContext context) throws IOException {
+        context.setStatus(genericSplit.toString());
+        return new RXLineRecordReader();
     }
-    public static List<org.apache.hadoop.mapreduce.lib.input.FileSplit>
-	getSplitsForFile(FileStatus status, Configuration conf, int numLinesPerSplit) throws IOException {
-	return _nlf.getSplitsForFile(status, conf, numLinesPerSplit);
+
+    public List<InputSplit> getSplits(JobContext job) throws IOException {
+        return _nlf.getSplits(job);
+    }
+
+    public static List<org.apache.hadoop.mapreduce.lib.input.FileSplit> getSplitsForFile(FileStatus status, Configuration conf, int numLinesPerSplit) throws IOException {
+        return _nlf.getSplitsForFile(status, conf, numLinesPerSplit);
     }
 }
