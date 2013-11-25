@@ -22,16 +22,16 @@ import org.godhuli.rhipe.REXPProtos.REXP;
 
 public class RHPartitionerNumeric extends Partitioner<RHBytesWritable, RHBytesWritable> {
 
-    public int getPartition(RHBytesWritable key, RHBytesWritable value, int numReduceTasks) {
+    public int getPartition(final RHBytesWritable key, final RHBytesWritable value, final int numReduceTasks) {
         int hashCode = 1;
         // taken from http://alias-i.com/lingpipe/docs/api/com/aliasi/matrix/Vector.html#hashCode%28%29
         // double hash2 = 0;
         // this is a crude and almost uses paritioning scheme.
         try {
-            REXP r = key.getParsed();
+            final REXP r = key.getParsed();
             for (int i = RHMRHelper.PARTITION_START; i <= RHMRHelper.PARTITION_END; i++) {
-                long v = Double.doubleToLongBits(r.getRealValue(i));
-                int valHash = (int) (v ^ (v >>> 32));
+                final long v = Double.doubleToLongBits(r.getRealValue(i));
+                final int valHash = (int) (v ^ (v >>> 32));
                 hashCode = 31 * hashCode + valHash;
             }
             // hashcode = ((int)Double.doubleToLongBits(hash2));

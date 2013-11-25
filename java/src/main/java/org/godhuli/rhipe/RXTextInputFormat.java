@@ -31,12 +31,12 @@ import java.io.IOException;
 
 
 public class RXTextInputFormat extends FileInputFormat<RHNumeric, RHText> {
-    protected boolean isSplitable(JobContext context, Path file) {
-        CompressionCodec codec = new CompressionCodecFactory(context.getConfiguration()).getCodec(file);
+    protected boolean isSplitable(final JobContext context, final Path file) {
+        final CompressionCodec codec = new CompressionCodecFactory(context.getConfiguration()).getCodec(file);
         return codec == null;
     }
 
-    public RecordReader<RHNumeric, RHText> createRecordReader(InputSplit split, TaskAttemptContext context) throws IOException {
+    public RecordReader<RHNumeric, RHText> createRecordReader(final InputSplit split, final TaskAttemptContext context) throws IOException {
         context.setStatus(split.toString());
         return new RXLineRecordReader();
     }

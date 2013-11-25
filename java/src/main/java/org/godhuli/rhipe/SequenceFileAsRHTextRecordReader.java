@@ -43,7 +43,7 @@ public class SequenceFileAsRHTextRecordReader extends RecordReader<RHText, RHTex
         sequenceFileRecordReader = new SequenceFileRecordReader<WritableComparable<?>, Writable>();
     }
 
-    public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
+    public void initialize(final InputSplit split, final TaskAttemptContext context) throws IOException, InterruptedException {
         sequenceFileRecordReader.initialize(split, context);
     }
 

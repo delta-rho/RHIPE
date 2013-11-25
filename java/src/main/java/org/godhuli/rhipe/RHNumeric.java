@@ -11,10 +11,10 @@ public class RHNumeric extends RHBytesWritable {
     private double dl;
     // private REXP rexp0 = null;
 
-    private static REXP template;
+    private static final REXP template;
 
-    {
-        REXP.Builder templatebuild = REXP.newBuilder();
+    static {
+        final REXP.Builder templatebuild = REXP.newBuilder();
         templatebuild.setRclass(REXP.RClass.REAL);
         template = templatebuild.build();
     }
@@ -23,7 +23,7 @@ public class RHNumeric extends RHBytesWritable {
         super();
     }
 
-    public RHNumeric(long l) {
+    public RHNumeric(final long l) {
         super();
         this.l = l;
         this.dl = (double) l;
@@ -33,34 +33,34 @@ public class RHNumeric extends RHBytesWritable {
         return (l);
     }
 
-    public void set(long l) {
+    public void set(final long l) {
         this.l = l;
         this.dl = (double) l;
     }
 
     public void finis() {
-        REXP.Builder b = REXP.newBuilder(template);
+        final REXP.Builder b = REXP.newBuilder(template);
         b.addRealValue((double) l);
-        REXP rexp0 = b.build();
+        final REXP rexp0 = b.build();
         super.set(rexp0.toByteArray());
     }
 
-    public void setAndFinis(long l) {
+    public void setAndFinis(final long l) {
         this.l = l;
         this.dl = (double) l;
-        REXP.Builder b = REXP.newBuilder(template);
+        final REXP.Builder b = REXP.newBuilder(template);
         b.addRealValue((double) l);
-        REXP rexp0 = b.build();
+        final REXP rexp0 = b.build();
         super.set(rexp0.toByteArray());
     }
 
-    public void readFields(DataInput in) throws IOException {
+    public void readFields(final DataInput in) throws IOException {
         // System.out.println("READREAD");
         super.readFields(in);
         // System.out.println(toString());
         // if(this.rexp0 == null){
         try {
-            REXP rexp0 = getParsed();
+            final REXP rexp0 = getParsed();
             // System.out.println(rexp0);
             this.dl = rexp0.getRealValue(0);
             // System.out.println("OBJ="+this+" READFIELD DL="+this.dl);
@@ -94,11 +94,11 @@ public class RHNumeric extends RHBytesWritable {
     // 	return "NUMERIC="+this.l;
     // }
 
-    public boolean equals(Object other) {
+    public boolean equals(final Object other) {
         if (!(other instanceof RHNumeric)) {
             return false;
         }
-        RHNumeric that = (RHNumeric) other;
+        final RHNumeric that = (RHNumeric) other;
         return this.dl == that.dl;
     }
 
@@ -112,9 +112,10 @@ public class RHNumeric extends RHBytesWritable {
             super(RHNumeric.class);
         }
 
-        public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+        public int compare(final byte[] b1, final int s1, final int l1, final byte[] b2, final int s2, final int l2) {
             // return comparator.compare(b1, s1, l1, b2, s2, l2);
-            int off1 = decodeVIntSize(b1[s1]), off2 = decodeVIntSize(b2[s2]);
+            final int off1 = decodeVIntSize(b1[s1]);
+            final int off2 = decodeVIntSize(b2[s2]);
             REXP tir = null, thr = null;
             double thisValue, thatValue;
             thisValue = thatValue = 0;
@@ -125,8 +126,9 @@ public class RHNumeric extends RHBytesWritable {
             catch (com.google.protobuf.InvalidProtocolBufferException e) {
                 throw new RuntimeException("RHIPE Numeric Comparator:" + e);
             }
-            int til = tir.getRealValueCount(), thl = thr.getRealValueCount();
-            int minl = til < thl ? til : thl;
+            final int til = tir.getRealValueCount();
+            final int thl = thr.getRealValueCount();
+            final int minl = til < thl ? til : thl;
             for (int i = 0; i < minl; i++) {
                 thisValue = tir.getRealValue(i);
                 thatValue = thr.getRealValue(i);

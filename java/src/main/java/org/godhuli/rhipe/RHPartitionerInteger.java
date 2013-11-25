@@ -22,11 +22,11 @@ import org.godhuli.rhipe.REXPProtos.REXP;
 
 public class RHPartitionerInteger extends Partitioner<RHBytesWritable, RHBytesWritable> {
 
-    public int getPartition(RHBytesWritable key, RHBytesWritable value, int numReduceTasks) {
+    public int getPartition(final RHBytesWritable key, final RHBytesWritable value, final int numReduceTasks) {
         int hashcode = 0;
         // this is a crude and almost uses paritioning scheme.
         try {
-            REXP r = key.getParsed();
+            final REXP r = key.getParsed();
             for (int i = RHMRHelper.PARTITION_START; i <= RHMRHelper.PARTITION_END; i++) {
                 hashcode = 10 * hashcode + r.getIntValue(i);
             }
@@ -35,7 +35,7 @@ public class RHPartitionerInteger extends Partitioner<RHBytesWritable, RHBytesWr
         catch (com.google.protobuf.InvalidProtocolBufferException e) {
             System.err.println(e);
         }
-        int a = (hashcode & Integer.MAX_VALUE) % numReduceTasks;
+        final int a = (hashcode & Integer.MAX_VALUE) % numReduceTasks;
         return (a);
     }
     // protected int hashCode(byte[] b, int currentHash) {

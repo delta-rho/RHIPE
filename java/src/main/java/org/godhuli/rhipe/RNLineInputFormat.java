@@ -44,16 +44,16 @@ public class RNLineInputFormat extends FileInputFormat<RHNumeric, RHText> {
         _nlf = new org.apache.hadoop.mapreduce.lib.input.NLineInputFormat();
     }
 
-    public RecordReader<RHNumeric, RHText> createRecordReader(InputSplit genericSplit, TaskAttemptContext context) throws IOException {
+    public RecordReader<RHNumeric, RHText> createRecordReader(final InputSplit genericSplit, final TaskAttemptContext context) throws IOException {
         context.setStatus(genericSplit.toString());
         return new RXLineRecordReader();
     }
 
-    public List<InputSplit> getSplits(JobContext job) throws IOException {
+    public List<InputSplit> getSplits(final JobContext job) throws IOException {
         return _nlf.getSplits(job);
     }
 
-    public static List<org.apache.hadoop.mapreduce.lib.input.FileSplit> getSplitsForFile(FileStatus status, Configuration conf, int numLinesPerSplit) throws IOException {
+    public static List<org.apache.hadoop.mapreduce.lib.input.FileSplit> getSplitsForFile(final FileStatus status, final Configuration conf, final int numLinesPerSplit) throws IOException {
         return _nlf.getSplitsForFile(status, conf, numLinesPerSplit);
     }
 }

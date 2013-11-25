@@ -10,11 +10,11 @@ import java.io.IOException;
 public class RHText extends RHBytesWritable {
 
 
-    private Text textcontainer;
-    private static REXP template;
+    private final Text textcontainer;
+    private static final REXP template;
 
-    {
-        REXP.Builder templatebuild = REXP.newBuilder();
+    static {
+        final REXP.Builder templatebuild = REXP.newBuilder();
         templatebuild.setRclass(REXP.RClass.STRING);
         template = templatebuild.build();
     }
@@ -24,25 +24,25 @@ public class RHText extends RHBytesWritable {
         textcontainer = new Text();
     }
 
-    public RHText(String x) {
+    public RHText(final String x) {
         this();
         set(x);
     }
 
-    public RHText(Text x) {
+    public RHText(final Text x) {
         this(x.toString());
     }
 
-    public void set(String x) {
+    public void set(final String x) {
         textcontainer.set(x);
     }
 
-    public void setAndFinis(String x) {
+    public void setAndFinis(final String x) {
         textcontainer.set(x);
         finis();
     }
 
-    public void set(Text x) {
+    public void set(final Text x) {
         set(x.toString());
     }
 
@@ -51,21 +51,21 @@ public class RHText extends RHBytesWritable {
     }
 
     protected void finis() {
-        REXPProtos.STRING.Builder srb = REXPProtos.STRING.newBuilder();
+        final REXPProtos.STRING.Builder srb = REXPProtos.STRING.newBuilder();
         srb.setStrval(textcontainer.toString());
 
-        REXP.Builder b = REXP.newBuilder(template);
+        final REXP.Builder b = REXP.newBuilder(template);
         b.addStringValue(srb.build());
-        REXP rexp0 = b.build();
+        final REXP rexp0 = b.build();
         super.set(rexp0.toByteArray());
     }
 
 
-    public void readFields(DataInput in) throws IOException {
+    public void readFields(final DataInput in) throws IOException {
 
         super.readFields(in);
         try {
-            REXP rexp0 = getParsed();
+            final REXP rexp0 = getParsed();
             textcontainer.set(rexp0.getStringValue(0).getStrval());
         }
         catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -78,9 +78,10 @@ public class RHText extends RHBytesWritable {
             super(RHText.class);
         }
 
-        public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+        public int compare(final byte[] b1, final int s1, final int l1, final byte[] b2, final int s2, final int l2) {
             // return comparator.compare(b1, s1, l1, b2, s2, l2);
-            int off1 = decodeVIntSize(b1[s1]), off2 = decodeVIntSize(b2[s2]);
+            final int off1 = decodeVIntSize(b1[s1]);
+            final int off2 = decodeVIntSize(b2[s2]);
             REXP tir = null, thr = null;
             byte[] thisValue, thatValue;
             thisValue = thatValue = null;
@@ -94,12 +95,13 @@ public class RHText extends RHBytesWritable {
             catch (com.google.protobuf.InvalidProtocolBufferException e) {
                 throw new RuntimeException("RHIPE String Comparator:" + e);
             }
-            int til = tir.getStringValueCount(), thl = thr.getStringValueCount();
-            int minl = til < thl ? til : thl;
+            final int til = tir.getStringValueCount();
+            final int thl = thr.getStringValueCount();
+            final int minl = til < thl ? til : thl;
             for (int i = 0; i < minl; i++) {
                 thisValue = tir.getStringValue(i).getStrval().getBytes();
                 thatValue = thr.getStringValue(i).getStrval().getBytes();
-                int a = compareBytes(thisValue, 0, thisValue.length, thatValue, 0, thatValue.length);
+                final int a = compareBytes(thisValue, 0, thisValue.length, thatValue, 0, thatValue.length);
                 if (a != 0) {
                     return (a);
                 }

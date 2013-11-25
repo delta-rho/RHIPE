@@ -23,15 +23,15 @@ public class REXPHelper {
     public static String fsep = " ";
     public static String squote = "\"";
 
-    public static void setFieldSep(String s) {
+    public static void setFieldSep(final String s) {
         fsep = s;
     }
 
-    public static void setStringQuote(String s) {
+    public static void setStringQuote(final String s) {
         squote = s;
     }
 
-    public static String debugString(byte[] b) {
+    public static String debugString(final byte[] b) {
         REXP r = null;
         try {
             r = REXP.parseFrom(b);
@@ -42,7 +42,7 @@ public class REXPHelper {
         return (r.toString());
     }
 
-    public static String toString(byte[] b, int off, int len) {
+    public static String toString(final byte[] b, final int off, final int len) {
         REXP r = null;
         try {
 
@@ -51,18 +51,18 @@ public class REXPHelper {
         catch (com.google.protobuf.InvalidProtocolBufferException e) {
             return (null);
         }
-        String s = toString_(r);
+        final String s = toString_(r);
         return (s);
     }
 
-    public static String toString_(REXP r) {
-        REXP.RClass clz = r.getRclass();
+    public static String toString_(final REXP r) {
+        final REXP.RClass clz = r.getRclass();
         switch (clz) {
             case STRING: {
-                StringBuilder sb = new StringBuilder();
-                int length = r.getStringValueCount();
+                final StringBuilder sb = new StringBuilder();
+                final int length = r.getStringValueCount();
                 for (int i = 0; i < length - 1; i++) {
-                    org.godhuli.rhipe.REXPProtos.STRING si = r.getStringValue(i);
+                    final org.godhuli.rhipe.REXPProtos.STRING si = r.getStringValue(i);
                     if (si.getIsNA()) {
                         sb.append("NA");
                     }
@@ -73,7 +73,7 @@ public class REXPHelper {
                     }
                     sb.append(fsep);
                 }
-                org.godhuli.rhipe.REXPProtos.STRING si = r.getStringValue(length - 1);
+                final org.godhuli.rhipe.REXPProtos.STRING si = r.getStringValue(length - 1);
                 if (si.getIsNA()) {
                     sb.append("NA");
                 }
@@ -85,8 +85,8 @@ public class REXPHelper {
                 return (sb.toString());
             }
             case REAL: {
-                StringBuilder sb = new StringBuilder();
-                int length = r.getRealValueCount();
+                final StringBuilder sb = new StringBuilder();
+                final int length = r.getRealValueCount();
                 for (int i = 0; i < length - 1; i++) {
                     sb.append(r.getRealValue(i));
                     sb.append(fsep);
@@ -95,8 +95,8 @@ public class REXPHelper {
                 return (sb.toString());
             }
             case INTEGER: {
-                StringBuilder sb = new StringBuilder();
-                int length = r.getIntValueCount();
+                final StringBuilder sb = new StringBuilder();
+                final int length = r.getIntValueCount();
                 for (int i = 0; i < length - 1; i++) {
                     sb.append(r.getIntValue(i));
                     sb.append(fsep);
@@ -105,10 +105,10 @@ public class REXPHelper {
                 return (sb.toString());
             }
             case LOGICAL: {
-                StringBuilder sb = new StringBuilder();
-                int length = r.getBooleanValueCount();
+                final StringBuilder sb = new StringBuilder();
+                final int length = r.getBooleanValueCount();
                 for (int i = 0; i < length - 1; i++) {
-                    REXP.RBOOLEAN rb = r.getBooleanValue(i);
+                    final REXP.RBOOLEAN rb = r.getBooleanValue(i);
                     if (rb == REXP.RBOOLEAN.T) {
                         sb.append("TRUE");
                     }
@@ -120,7 +120,7 @@ public class REXPHelper {
                     }
                     sb.append(fsep);
                 }
-                REXP.RBOOLEAN rb = r.getBooleanValue(length - 1);
+                final REXP.RBOOLEAN rb = r.getBooleanValue(length - 1);
                 if (rb == REXP.RBOOLEAN.T) {
                     sb.append("TRUE");
                 }
@@ -133,9 +133,9 @@ public class REXPHelper {
                 return (sb.toString());
             }
             case RAW: {
-                StringBuilder sb = new StringBuilder();
-                byte[] rawvals = r.getRawValue().toByteArray();
-                int length = rawvals.length;
+                final StringBuilder sb = new StringBuilder();
+                final byte[] rawvals = r.getRawValue().toByteArray();
+                final int length = rawvals.length;
                 for (int i = 0; i < length - 1; i++) {
                     sb.append("0x");
                     sb.append(rawvals[i]);
@@ -146,16 +146,16 @@ public class REXPHelper {
                 return (sb.toString());
             }
             case COMPLEX: {
-                StringBuilder sb = new StringBuilder();
-                int length = r.getComplexValueCount();
+                final StringBuilder sb = new StringBuilder();
+                final int length = r.getComplexValueCount();
                 for (int i = 0; i < length - 1; i++) {
-                    org.godhuli.rhipe.REXPProtos.CMPLX ci = r.getComplexValue(i);
+                    final org.godhuli.rhipe.REXPProtos.CMPLX ci = r.getComplexValue(i);
                     sb.append(ci.getReal());
                     sb.append(ci.getImag());
                     sb.append("i");
                     sb.append(fsep);
                 }
-                org.godhuli.rhipe.REXPProtos.CMPLX ci = r.getComplexValue(length - 1);
+                final org.godhuli.rhipe.REXPProtos.CMPLX ci = r.getComplexValue(length - 1);
                 sb.append(ci.getReal());
                 sb.append("+");
                 sb.append(ci.getImag());
@@ -164,8 +164,8 @@ public class REXPHelper {
                 return (sb.toString());
             }
             case LIST: {
-                StringBuilder sb = new StringBuilder();
-                int length = r.getRexpValueCount();
+                final StringBuilder sb = new StringBuilder();
+                final int length = r.getRexpValueCount();
                 for (int i = 0; i < length - 1; i++) {
                     sb.append(toString_(r.getRexpValue(i)));
                     sb.append(fsep);

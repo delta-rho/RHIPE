@@ -32,15 +32,15 @@ public class RHWriter {
     protected static final Log LOG = LogFactory.getLog(RHWriter.class.getName());
 
     private SequenceFile.Writer sqw;
-    Configuration c;
-    FileSystem f;
-    String dest;
+    final Configuration c;
+    final FileSystem f;
+    final String dest;
     int currentfile;
-    int numperfile;
+    final int numperfile;
     int numwritten = 0;
     final RHBytesWritable anull = new RHBytesWritable((new RHNull()).getRawBytes());
 
-    public RHWriter(String output, int numper, PersonalServer s) throws Exception {
+    public RHWriter(final String output, final int numper, final PersonalServer s) throws Exception {
         dest = output;
         currentfile = 0;
         numperfile = numper;
@@ -49,13 +49,13 @@ public class RHWriter {
         makeNewFile();
     }
 
-    public void write(byte[] d, boolean b) throws Exception {
+    public void write(final byte[] d, final boolean b) throws Exception {
         try {
-            REXP elements = REXP.newBuilder().mergeFrom(d, 0, d.length).build();
-            RHBytesWritable x = new RHBytesWritable();
-            RHBytesWritable y = new RHBytesWritable();
+            final REXP elements = REXP.newBuilder().mergeFrom(d, 0, d.length).build();
+            final RHBytesWritable x = new RHBytesWritable();
+            final RHBytesWritable y = new RHBytesWritable();
             for (int i = 0; i < elements.getRexpValueCount(); i++) {
-                REXP ie = elements.getRexpValue(i);
+                final REXP ie = elements.getRexpValue(i);
                 // LOG.info("Numwritten="+numwritten);
                 if (numwritten >= numperfile) {
                     close();
@@ -66,7 +66,7 @@ public class RHWriter {
                     sqw.append(anull, x);
                 }
                 else {
-                    REXP ie2 = ie.getRexpValue(0);
+                    final REXP ie2 = ie.getRexpValue(0);
                     x.set(ie2.getRexpValue(0).toByteArray());
                     y.set(ie2.getRexpValue(1).toByteArray());
                     sqw.append(x, y);

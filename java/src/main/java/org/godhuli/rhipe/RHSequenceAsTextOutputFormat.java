@@ -40,29 +40,30 @@ import java.io.IOException;
  */
 public class RHSequenceAsTextOutputFormat extends FileOutputFormat<RHBytesWritable, RHBytesWritable> {
     class ElementWriter extends RecordWriter<RHBytesWritable, RHBytesWritable> {
-        Text a, b;
-        SequenceFile.Writer o;
+        final Text a;
+        final Text b;
+        final SequenceFile.Writer o;
 
-        public ElementWriter(SequenceFile.Writer out, String sq) {
+        public ElementWriter(final SequenceFile.Writer out, final String sq) {
             a = new Text();
             b = new Text();
             o = out;
             REXPHelper.setStringQuote(sq);
         }
 
-        public void write(RHBytesWritable key, RHBytesWritable value) throws IOException {
+        public void write(final RHBytesWritable key, final RHBytesWritable value) throws IOException {
             a.set(key.toString());
             b.set(value.toString());
             o.append(a, b);
         }
 
-        public void close(TaskAttemptContext context) throws IOException {
+        public void close(final TaskAttemptContext context) throws IOException {
             o.close();
         }
     }
 
-    public RecordWriter<RHBytesWritable, RHBytesWritable> getRecordWriter(TaskAttemptContext context) throws IOException, InterruptedException {
-        Configuration conf = context.getConfiguration();
+    public RecordWriter<RHBytesWritable, RHBytesWritable> getRecordWriter(final TaskAttemptContext context) throws IOException, InterruptedException {
+        final Configuration conf = context.getConfiguration();
         CompressionCodec codec = null;
         CompressionType compressionType = CompressionType.NONE;
         String squote = conf.get("rhipe_string_quote");
@@ -71,21 +72,21 @@ public class RHSequenceAsTextOutputFormat extends FileOutputFormat<RHBytesWritab
         }
         if (getCompressOutput(context)) {
             compressionType = getOutputCompressionType(context);
-            Class<?> codecClass = getOutputCompressorClass(context, DefaultCodec.class);
+            final Class<?> codecClass = getOutputCompressorClass(context, DefaultCodec.class);
             codec = (CompressionCodec) ReflectionUtils.newInstance(codecClass, conf);
         }
-        Path file = getDefaultWorkFile(context, "");
-        FileSystem fs = file.getFileSystem(conf);
+        final Path file = getDefaultWorkFile(context, "");
+        final FileSystem fs = file.getFileSystem(conf);
         final SequenceFile.Writer out = SequenceFile.createWriter(fs, conf, file, org.apache.hadoop.io.Text.class, org.apache.hadoop.io.Text.class, compressionType, codec, context);
         return new ElementWriter(out, squote);
     }
 
-    public static CompressionType getOutputCompressionType(JobContext job) {
-        String val = job.getConfiguration().get("mapred.output.compression.type", CompressionType.BLOCK.toString());
+    public static CompressionType getOutputCompressionType(final JobContext job) {
+        final String val = job.getConfiguration().get("mapred.output.compression.type", CompressionType.BLOCK.toString());
         return CompressionType.valueOf(val);
     }
 
-    public static void setOutputCompressionType(Job job, CompressionType style) {
+    public static void setOutputCompressionType(final Job job, final CompressionType style) {
         setCompressOutput(job, true);
         job.getConfiguration().set("mapred.output.compression.type", style.toString());
     }

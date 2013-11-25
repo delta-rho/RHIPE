@@ -61,12 +61,12 @@ public class RHMR implements Tool {
     public static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
     final static Log LOG = LogFactory.getLog(RHMR.class);
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         int res;
         try {
             // (new RHMR()).doTest();
             // System.exit(0);
-            RHMR r = new RHMR();
+            final RHMR r = new RHMR();
             r.setConfig(new Configuration());
             res = ToolRunner.run(r.getConfig(), r, args);
         }
@@ -77,19 +77,19 @@ public class RHMR implements Tool {
         System.exit(res);
     }
 
-    public static int fmain(String[] args) throws Exception {
-        int res;
+    public static int fmain(final String[] args) throws Exception {
+        final int res;
         // (new RHMR()).doTest();
         // System.exit(0);
-        RHMR r = new RHMR();
+        final RHMR r = new RHMR();
         r.setConfig(new Configuration());
         res = ToolRunner.run(r.getConfig(), r, args);
         return (res);
     }
 
-    public static int fmain(String[] args, Configuration c) throws Exception {
-        int res;
-        RHMR r = new RHMR();
+    public static int fmain(final String[] args, final Configuration c) throws Exception {
+        final int res;
+        final RHMR r = new RHMR();
         r.setConfig(c);
         res = ToolRunner.run(r.getConfig(), r, args);
         return (res);
@@ -100,7 +100,6 @@ public class RHMR implements Tool {
         for (i = 0; i < 1; i++) {
             System.out.println("I=" + i);
         }
-        ;
         System.out.println("Last I=" + i);
     }
 
@@ -108,11 +107,11 @@ public class RHMR implements Tool {
         return config_;
     }
 
-    public void setConfig(Configuration c) {
+    public void setConfig(final Configuration c) {
         config_ = c;
     }
 
-    public void setConf(Configuration c) {
+    public void setConf(final Configuration c) {
     }
 
     protected void init() {
@@ -138,7 +137,7 @@ public class RHMR implements Tool {
         return config_;
     }
 
-    public int run(String[] args) throws Exception {
+    public int run(final String[] args) throws Exception {
         this.argv_ = args;
         init();
         submitAndMonitorJob(argv_[0]);
@@ -146,36 +145,36 @@ public class RHMR implements Tool {
     }
 
     public void setConf() throws IOException, URISyntaxException {
-        Enumeration keys = rhoptions_.keys();
+        final Enumeration keys = rhoptions_.keys();
         while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
-            String value = (String) rhoptions_.get(key);
+            final String key = (String) keys.nextElement();
+            final String value = rhoptions_.get(key);
             config_.set(key, value);
             // System.out.println(key+"==="+value);
         }
         REXPHelper.setFieldSep(config_.get("mapred.field.separator", " "));
         // Shared is on the HDFS
-        String[] shared = config_.get("rhipe_shared").split(",");
+        final String[] shared = config_.get("rhipe_shared").split(",");
         if (shared != null) {
-            for (String p : shared) {
+            for (final String p : shared) {
                 if (p.length() > 1) {
                     DistributedCache.addCacheFile(new URI(p), config_);
                 }
             }
         }
         // JARS are also on the HDFS
-        String[] jarfiles = config_.get("rhipe_jarfiles").split(",");
+        final String[] jarfiles = config_.get("rhipe_jarfiles").split(",");
         if (jarfiles != null) {
-            for (String p : jarfiles) {
+            for (final String p : jarfiles) {
                 // System.err.println("Adding "+ p +" to classpath");
                 if (p.length() > 1) {
                     DistributedCache.addArchiveToClassPath(new Path(p), config_); //FileSystem.get(config_));
                 }
             }
         }
-        String[] zips = config_.get("rhipe_zips").split(",");
+        final String[] zips = config_.get("rhipe_zips").split(",");
         if (zips != null) {
-            for (String p : zips) {
+            for (final String p : zips) {
                 // System.err.println("Adding zip "+ p +" to cache");
                 if (p.length() > 1) {
                     DistributedCache.addCacheArchive(new URI(p), config_);
@@ -191,8 +190,8 @@ public class RHMR implements Tool {
         // }
 
         if (!rhoptions_.get("rhipe_classpaths").equals("")) {
-            String[] cps = rhoptions_.get("rhipe_classpaths").split(",");
-            URL[] us = new URL[cps.length];
+            final String[] cps = rhoptions_.get("rhipe_classpaths").split(",");
+            final URL[] us = new URL[cps.length];
             for (int i = 0; i < cps.length; i++) {
                 try {
                     us[i] = (new File(cps[i])).toURI().toURL();
@@ -209,9 +208,9 @@ public class RHMR implements Tool {
     }
 
     public void setJob() throws ClassNotFoundException, IOException, URISyntaxException {
-        Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
-        String jname = rhoptions_.get("rhipe_jobname");
+        final Calendar cal = Calendar.getInstance();
+        final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+        final String jname = rhoptions_.get("rhipe_jobname");
         boolean uscomb = false;
         job_.setUserClassesTakesPrecedence(true);
         if (jname.equals("")) {
@@ -222,12 +221,12 @@ public class RHMR implements Tool {
         }
         job_.setJarByClass(RHMR.class);
         // System.err.println(rhoptions_.get("rhipe_outputformat_class"));
-        Class<?> clz = config_.getClassByName(rhoptions_.get("rhipe_outputformat_class"));
-        Class<? extends OutputFormat> ofc = clz.asSubclass(OutputFormat.class);
+        final Class<?> clz = config_.getClassByName(rhoptions_.get("rhipe_outputformat_class"));
+        final Class<? extends OutputFormat> ofc = clz.asSubclass(OutputFormat.class);
         job_.setOutputFormatClass(ofc);
 
-        Class<?> clz2 = config_.getClassByName(rhoptions_.get("rhipe_inputformat_class"));
-        Class<? extends InputFormat> ifc = clz2.asSubclass(InputFormat.class);
+        final Class<?> clz2 = config_.getClassByName(rhoptions_.get("rhipe_inputformat_class"));
+        final Class<? extends InputFormat> ifc = clz2.asSubclass(InputFormat.class);
         job_.setInputFormatClass(ifc);
 
         if (!rhoptions_.get("rhipe_input_folder").equals("")) {
@@ -240,7 +239,7 @@ public class RHMR implements Tool {
         if (rhoptions_.get("rhipe.use.hadoop.combiner").equals("TRUE")) {
             uscomb = true;
         }
-        String[] output_folder = rhoptions_.get("rhipe_output_folder").split(",");
+        final String[] output_folder = rhoptions_.get("rhipe_output_folder").split(",");
         for (int i = 0; i < output_folder.length; i++) {
             System.out.println(output_folder[i]);
         }
@@ -248,14 +247,14 @@ public class RHMR implements Tool {
         if (!rhoptions_.get("rhipe_partitioner_class").equals("none")) {
             RHMRHelper.PARTITION_START = Integer.parseInt(rhoptions_.get("rhipe_partitioner_start")) - 1;
             RHMRHelper.PARTITION_END = Integer.parseInt(rhoptions_.get("rhipe_partitioner_end")) - 1;
-            Class<?> clz3 = config_.getClassByName(rhoptions_.get("rhipe_partitioner_class"));
-            Class<? extends org.apache.hadoop.mapreduce.Partitioner> pc = clz3.asSubclass(org.apache.hadoop.mapreduce.Partitioner.class);
+            final Class<?> clz3 = config_.getClassByName(rhoptions_.get("rhipe_partitioner_class"));
+            final Class<? extends org.apache.hadoop.mapreduce.Partitioner> pc = clz3.asSubclass(org.apache.hadoop.mapreduce.Partitioner.class);
             job_.setPartitionerClass(pc);
         }
 
         if (!output_folder[0].equals("")) {
-            Path ofp = new Path(output_folder[0]);
-            FileSystem srcFs = FileSystem.get(job_.getConfiguration());
+            final Path ofp = new Path(output_folder[0]);
+            final FileSystem srcFs = FileSystem.get(job_.getConfiguration());
             srcFs.delete(ofp, true);
             if (rhoptions_.get("rhipe_outputformat_class").equals("org.apache.hadoop.mapreduce.lib.output.NullOutputFormat")) {
                 srcFs.mkdirs(ofp);
@@ -279,29 +278,29 @@ public class RHMR implements Tool {
 
     }
 
-    public int runasync(String configfile) throws Exception {
-        FileOutputStream out = new FileOutputStream(configfile);
-        DataOutputStream fout = new DataOutputStream(out);
-        String[] arl = new String[4];
+    public int runasync(final String configfile) throws Exception {
+        final FileOutputStream out = new FileOutputStream(configfile);
+        final DataOutputStream fout = new DataOutputStream(out);
+        final String[] arl = new String[4];
         // LOG.info("RUNNING ASYNC NOW");
-        arl[0] = job_.getTrackingURL().toString();
-        arl[1] = job_.getJobName().toString();
+        arl[0] = job_.getTrackingURL();
+        arl[1] = job_.getJobName();
         // System.out.println(job_.getJobID()); // returns null ??
         arl[2] = arl[0].split("=")[1]; // job_.getJobID().toString();
         arl[3] = RHMR.now();
-        REXP b = RObjects.makeStringVector(arl);
-        RHBytesWritable rb = new RHBytesWritable(b.toByteArray());
+        final REXP b = RObjects.makeStringVector(arl);
+        final RHBytesWritable rb = new RHBytesWritable(b.toByteArray());
         rb.writeAsInt(fout);
         return (0);
     }
 
     public static String now() {
-        Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+        final Calendar cal = Calendar.getInstance();
+        final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
         return sdf.format(cal.getTime());
     }
 
-    public int submitAndMonitorJob(String configfile) throws Exception {
+    public int submitAndMonitorJob(final String configfile) throws Exception {
         int k = 0;
         // LOG.info("submitting job");
         job_.submit();
@@ -309,22 +308,22 @@ public class RHMR implements Tool {
             return (runasync(configfile));
         }
         LOG.info("Tracking URL ----> " + job_.getTrackingURL());
-        boolean verb = rhoptions_.get("rhipe_job_verbose").equals("TRUE") ? true : false;
-        long now = System.currentTimeMillis();
-        boolean result = job_.waitForCompletion(verb);
-        double tt = (System.currentTimeMillis() - now) / 1000.0;
+        final boolean verb = rhoptions_.get("rhipe_job_verbose").equals("TRUE");
+        final long now = System.currentTimeMillis();
+        final boolean result = job_.waitForCompletion(verb);
+        final double tt = (System.currentTimeMillis() - now) / 1000.0;
         // We will overwrite the input configfile
-        FileOutputStream out = new FileOutputStream(configfile);
-        DataOutputStream fout = new DataOutputStream(out);
+        final FileOutputStream out = new FileOutputStream(configfile);
+        final DataOutputStream fout = new DataOutputStream(out);
         try {
             if (!result) {
                 k = -1;
             }
             else {
                 k = 0;
-                org.apache.hadoop.mapreduce.Counters counter = job_.getCounters();
-                REXP r = RHMR.buildListFromCounters(counter, tt);
-                RHBytesWritable rb = new RHBytesWritable(r.toByteArray());
+                final org.apache.hadoop.mapreduce.Counters counter = job_.getCounters();
+                final REXP r = RHMR.buildListFromCounters(counter, tt);
+                final RHBytesWritable rb = new RHBytesWritable(r.toByteArray());
                 rb.writeAsInt(fout);
             }
         }
@@ -338,45 +337,46 @@ public class RHMR implements Tool {
         return k;
     }
 
-    public static REXP buildListFromCounters(org.apache.hadoop.mapreduce.Counters counters, double tt) {
+    public static REXP buildListFromCounters(final org.apache.hadoop.mapreduce.Counters counters, final double tt) {
         //		String[] groupnames = counters.getGroupNames().toArray(new String[] {});
-        List<String> list = new ArrayList<String>();
-        for (String groupName : counters.getGroupNames()) {
+        final List<String> list = new ArrayList<String>();
+        for (final String groupName : counters.getGroupNames()) {
             list.add(groupName);
         }
         String[] groupnames = new String[list.size()];
         groupnames = list.toArray(groupnames);
 
-        String[] groupdispname = new String[groupnames.length + 1];
-        Vector<REXP> cn = new Vector<REXP>();
+        final String[] groupdispname = new String[groupnames.length + 1];
+        final Vector<REXP> cn = new Vector<REXP>();
         for (int i = 0; i < groupnames.length; i++) {
-            org.apache.hadoop.mapreduce.CounterGroup cgroup = counters.getGroup(groupnames[i]);
+            final org.apache.hadoop.mapreduce.CounterGroup cgroup = counters.getGroup(groupnames[i]);
             groupdispname[i] = cgroup.getDisplayName();
-            REXP.Builder cvalues = REXP.newBuilder();
-            Vector<String> cnames = new Vector<String>();
+            final REXP.Builder cvalues = REXP.newBuilder();
+            final Vector<String> cnames = new Vector<String>();
             cvalues.setRclass(REXP.RClass.REAL);
-            for (org.apache.hadoop.mapreduce.Counter counter : cgroup) {
+            for (final org.apache.hadoop.mapreduce.Counter counter : cgroup) {
                 cvalues.addRealValue((double) counter.getValue());
                 cnames.add(counter.getDisplayName());
             }
             cvalues.addAttrName("names");
-            cvalues.addAttrValue(RObjects.makeStringVector(cnames.toArray(new String[]{})));
+            cvalues.addAttrValue(RObjects.makeStringVector(cnames.toArray(new String[cnames.size()])));
             cn.add(cvalues.build());
         }
         groupdispname[groupnames.length] = "job_time";
-        REXP.Builder cvalues = REXP.newBuilder();
+        final REXP.Builder cvalues = REXP.newBuilder();
         cvalues.setRclass(REXP.RClass.REAL);
         cvalues.addRealValue(tt);
         cn.add(cvalues.build());
         return (RObjects.makeList(groupdispname, cn));
     }
 
-    public void readParametersFromR(String configfile) throws IOException {
-        FileInputStream in = new FileInputStream(configfile);
-        DataInputStream fin = new DataInputStream(in);
+    public void readParametersFromR(final String configfile) throws IOException {
+        final FileInputStream in = new FileInputStream(configfile);
+        final DataInputStream fin = new DataInputStream(in);
         byte[] d;
         String key, value;
-        int n0 = fin.readInt(), n;
+        final int n0 = fin.readInt();
+        int n;
         for (int i = 0; i < n0; i++) {
             // R Writes Null Terminated Strings(when I dont use char2Raw)
             try {
@@ -397,10 +397,10 @@ public class RHMR implements Tool {
         }
         fin.close();
         if (debug_) {
-            Enumeration keys = rhoptions_.keys();
+            final Enumeration keys = rhoptions_.keys();
             while (keys.hasMoreElements()) {
-                String key0 = (String) keys.nextElement();
-                String value0 = (String) rhoptions_.get(key0);
+                final String key0 = (String) keys.nextElement();
+                final String value0 = rhoptions_.get(key0);
                 System.out.println(key0 + "=" + value0);
             }
         }

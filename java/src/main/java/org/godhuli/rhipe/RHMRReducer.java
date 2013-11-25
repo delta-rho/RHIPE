@@ -38,7 +38,7 @@ public class RHMRReducer extends Reducer<WritableComparable, RHBytesWritable, Wr
 
     WritableComparable wck = null;
 
-    String getPipeCommand(Configuration cfg) {
+    String getPipeCommand(final Configuration cfg) {
         String str = System.getenv("RHIPECOMMAND");
         if (str == null) {
             str = cfg.get("rhipe_command");
@@ -50,15 +50,15 @@ public class RHMRReducer extends Reducer<WritableComparable, RHBytesWritable, Wr
 
     }
 
-    boolean getDoPipe(Configuration cfg) {
-        String argv = getPipeCommand(cfg);
+    boolean getDoPipe(final Configuration cfg) {
+        final String argv = getPipeCommand(cfg);
         doPipe_ = getPipeCommand(cfg) != null && cfg.getInt("mapred.reduce.tasks", 0) != 0;
         return (!justCollect);
     }
 
-    public void run(Context context) throws IOException, InterruptedException {
+    public void run(final Context context) throws IOException, InterruptedException {
         helper = new RHMRHelper("Reduce");
-        justCollect = context.getConfiguration().get("rhipe_reduce_justcollect").equals("TRUE") ? true : false;
+        justCollect = context.getConfiguration().get("rhipe_reduce_justcollect").equals("TRUE");
 
         if (!justCollect) {
             setup(context);
@@ -93,8 +93,8 @@ public class RHMRReducer extends Reducer<WritableComparable, RHBytesWritable, Wr
         }
     }
 
-    public void setup(Context ctx) {
-        Configuration cfg = ctx.getConfiguration();
+    public void setup(final Context ctx) {
+        final Configuration cfg = ctx.getConfiguration();
         cfg.set("RHIPEWHAT", "1");
         helper.setup(cfg, getPipeCommand(cfg), getDoPipe(cfg));
         isAMap = cfg.getBoolean("mapred.task.is.map", true);
@@ -110,12 +110,12 @@ public class RHMRReducer extends Reducer<WritableComparable, RHBytesWritable, Wr
         }
     }
 
-    public void pipereduce(WritableComparable key, Iterable<RHBytesWritable> values, Context ctx) throws IOException, InterruptedException {
+    public void pipereduce(final WritableComparable key, final Iterable<RHBytesWritable> values, final Context ctx) throws IOException, InterruptedException {
         try {
             helper.writeCMD(RHTypes.EVAL_REDUCE_THEKEY);
             helper.write(key);
             helper.writeCMD(RHTypes.EVAL_REDUCE_PREKEY);
-            for (RHBytesWritable val : values) {
+            for (final RHBytesWritable val : values) {
                 helper.checkOuterrThreadsThrowable();
                 helper.write(val);
             }
@@ -129,27 +129,26 @@ public class RHMRReducer extends Reducer<WritableComparable, RHBytesWritable, Wr
             catch (IllegalThreadStateException e) {
                 extraInfo = "subprocess still running\n";
             }
-            ;
             helper.mapRedFinished(ctx);
             throw new IOException(extraInfo + "::" + io.getMessage());
         }
     }
 
 
-    public void simplereduce(WritableComparable key, Iterable<RHBytesWritable> values, Context ctx) throws IOException, InterruptedException {
+    public void simplereduce(final WritableComparable key, final Iterable<RHBytesWritable> values, final Context ctx) throws IOException, InterruptedException {
         // wck = keyclass.cast(key);
         // System.out.println("Class of key = "+wck.getClass().getName());
         // RHBytesWritable awb = RHBytesWritable.getClass().cast(key);
         // System.out.println("Class of key = "+awb.getClass().getName());
 
         try {
-            for (RHBytesWritable val : values) {
+            for (final RHBytesWritable val : values) {
                 ctx.write(key, val);
             }
 
         }
         catch (IOException io) {
-            String extraInfo = "";
+            final String extraInfo = "";
             // try {
             //     extraInfo = helper.getSimExitInfo();
             // } catch (IllegalThreadStateException e) {
@@ -161,7 +160,7 @@ public class RHMRReducer extends Reducer<WritableComparable, RHBytesWritable, Wr
     }
 
 
-    public void cleanup(Context ctx) {
+    public void cleanup(final Context ctx) {
         try {
             if (!justCollect) {
                 if (!isAMap) {

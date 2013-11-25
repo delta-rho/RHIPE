@@ -40,17 +40,16 @@ public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable, RHByte
         private byte[] newLine = "\r\n".getBytes();
         private static byte[] keyvaluesep = " ".getBytes();
         private static final String utf8 = "UTF-8";
-        private boolean useKey;
-        protected DataOutputStream out;
+        private final boolean useKey;
+        protected final DataOutputStream out;
 
 
-        public RXTextRecordWriter(DataOutputStream out, String keyValueSeparator, String fieldSep, String squote, boolean useKey, String newline) {
+        public RXTextRecordWriter(final DataOutputStream out, final String keyValueSeparator, final String fieldSep, final String squote, final boolean useKey, final String newline) {
             this.out = out;
             this.useKey = useKey;
             this.newLine = newline.getBytes();
             try {
                 keyvaluesep = keyValueSeparator.getBytes(utf8);
-                ;
                 REXPHelper.setFieldSep(fieldSep);
                 REXPHelper.setStringQuote(squote);
             }
@@ -60,7 +59,7 @@ public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable, RHByte
 
         }
 
-        public synchronized void write(RHBytesWritable key, RHBytesWritable value) throws IOException {
+        public synchronized void write(final RHBytesWritable key, final RHBytesWritable value) throws IOException {
             if (useKey) {
                 out.write(key.toString().getBytes(utf8));
                 out.write(keyvaluesep);
@@ -73,7 +72,7 @@ public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable, RHByte
         }
 
 
-        public synchronized void close(TaskAttemptContext context) throws IOException {
+        public synchronized void close(final TaskAttemptContext context) throws IOException {
             out.close();
         }
 
@@ -81,13 +80,13 @@ public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable, RHByte
     }
 
 
-    public RecordWriter<RHBytesWritable, RHBytesWritable> getRecordWriter(TaskAttemptContext job) throws IOException, InterruptedException {
-        Configuration conf = job.getConfiguration();
-        boolean isCompressed = getCompressOutput(job);
-        String keyValueSeparator = conf.get("mapred.textoutputformat.separator", "\t");
-        String fieldSeparator = conf.get("mapred.field.separator", " ");
-        boolean usekey = conf.get("mapred.textoutputformat.usekey").equals("TRUE") ? true : false;
-        String newline = conf.get("rhipe.eol.sequence");
+    public RecordWriter<RHBytesWritable, RHBytesWritable> getRecordWriter(final TaskAttemptContext job) throws IOException, InterruptedException {
+        final Configuration conf = job.getConfiguration();
+        final boolean isCompressed = getCompressOutput(job);
+        final String keyValueSeparator = conf.get("mapred.textoutputformat.separator", "\t");
+        final String fieldSeparator = conf.get("mapred.field.separator", " ");
+        final boolean usekey = conf.get("mapred.textoutputformat.usekey").equals("TRUE");
+        final String newline = conf.get("rhipe.eol.sequence");
         String squote = conf.get("rhipe_string_quote");
         if (squote == null) {
             squote = "";
@@ -95,18 +94,18 @@ public class RXTextOutputFormat extends FileOutputFormat<RHBytesWritable, RHByte
         CompressionCodec codec = null;
         String extension = "";
         if (isCompressed) {
-            Class<? extends CompressionCodec> codecClass = getOutputCompressorClass(job, GzipCodec.class);
-            codec = (CompressionCodec) ReflectionUtils.newInstance(codecClass, conf);
+            final Class<? extends CompressionCodec> codecClass = getOutputCompressorClass(job, GzipCodec.class);
+            codec = ReflectionUtils.newInstance(codecClass, conf);
             extension = codec.getDefaultExtension();
         }
-        Path file = getDefaultWorkFile(job, extension);
-        FileSystem fs = file.getFileSystem(conf);
+        final Path file = getDefaultWorkFile(job, extension);
+        final FileSystem fs = file.getFileSystem(conf);
         if (!isCompressed) {
-            FSDataOutputStream fileOut = fs.create(file, false);
+            final FSDataOutputStream fileOut = fs.create(file, false);
             return new RXTextRecordWriter(fileOut, keyValueSeparator, fieldSeparator, squote, usekey, newline);
         }
         else {
-            FSDataOutputStream fileOut = fs.create(file, false);
+            final FSDataOutputStream fileOut = fs.create(file, false);
             return new RXTextRecordWriter(new DataOutputStream(codec.createOutputStream(fileOut)), keyValueSeparator, fieldSeparator, squote, usekey, newline);
         }
 

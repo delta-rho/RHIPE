@@ -34,7 +34,6 @@ import java.io.IOException;
 
 
 public class RXLineRecordReader extends RecordReader<RHNumeric, RHText> {
-    private CompressionCodecFactory compressionCodecs = null;
     private long start;
     private long pos;
     private long end;
@@ -42,21 +41,21 @@ public class RXLineRecordReader extends RecordReader<RHNumeric, RHText> {
     private int maxLineLength;
     private RHNumeric key = null;
     private RHText value = null;
-    private int linecounter = 0;
+    private final int linecounter = 0;
 
-    public void initialize(InputSplit genericSplit, TaskAttemptContext context) throws IOException {
-        FileSplit split = (FileSplit) genericSplit;
-        Configuration job = context.getConfiguration();
+    public void initialize(final InputSplit genericSplit, final TaskAttemptContext context) throws IOException {
+        final FileSplit split = (FileSplit) genericSplit;
+        final Configuration job = context.getConfiguration();
         this.maxLineLength = job.getInt("mapred.linerecordreader.maxlength", Integer.MAX_VALUE);
         start = split.getStart();
         end = start + split.getLength();
         final Path file = split.getPath();
-        compressionCodecs = new CompressionCodecFactory(job);
+        final CompressionCodecFactory compressionCodecs = new CompressionCodecFactory(job);
         final CompressionCodec codec = compressionCodecs.getCodec(file);
 
         // open the file and seek to the start of the split
-        FileSystem fs = file.getFileSystem(job);
-        FSDataInputStream fileIn = fs.open(split.getPath());
+        final FileSystem fs = file.getFileSystem(job);
+        final FSDataInputStream fileIn = fs.open(split.getPath());
         boolean skipFirstLine = false;
         if (codec != null) {
             in = new LineReader(codec.createInputStream(fileIn), job);

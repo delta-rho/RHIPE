@@ -22,13 +22,13 @@ import org.godhuli.rhipe.REXPProtos.REXP;
 
 public class RHPartitionerText extends Partitioner<RHBytesWritable, RHBytesWritable> {
 
-    public int getPartition(RHBytesWritable key, RHBytesWritable value, int numReduceTasks) {
+    public int getPartition(final RHBytesWritable key, final RHBytesWritable value, final int numReduceTasks) {
         int hashcode = 0;
         try {
-            REXP r = key.getParsed();
+            final REXP r = key.getParsed();
             for (int i = RHMRHelper.PARTITION_START; i <= RHMRHelper.PARTITION_END; i++) {
                 // System.err.print( r.getStringValue(i).getStrval());
-                byte[] a = r.getStringValue(i).getStrval().getBytes();
+                final byte[] a = r.getStringValue(i).getStrval().getBytes();
                 hashcode = hashCode(a, hashcode);
                 // System.err.println(" hashcode="+hashcode);
             }
@@ -39,7 +39,7 @@ public class RHPartitionerText extends Partitioner<RHBytesWritable, RHBytesWrita
         return (hashcode & Integer.MAX_VALUE) % numReduceTasks;
     }
 
-    protected int hashCode(byte[] b, int currentHash) {
+    protected int hashCode(final byte[] b, int currentHash) {
         for (int i = 0; i < b.length; i++) {
             currentHash = 31 * currentHash + b[i];
         }

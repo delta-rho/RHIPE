@@ -38,7 +38,7 @@ public class RHBytesWritable implements WritableComparable<RHBytesWritable> {
         this(EMPTY_BYTES);
     }
 
-    public RHBytesWritable(byte[] bytes) {
+    public RHBytesWritable(final byte[] bytes) {
         this(bytes, bytes.length);
     }
 
@@ -56,12 +56,12 @@ public class RHBytesWritable implements WritableComparable<RHBytesWritable> {
     }
 
     public byte[] getActualBytes() {
-        byte[] b = new byte[getLength()];
+        final byte[] b = new byte[getLength()];
         System.arraycopy(bytes, 0, b, 0, getLength());
         return b;
     }
 
-    public void setSize(int size) {
+    public void setSize(final int size) {
         if (size > getCapacity()) {
             setCapacity(size * 3 / 2);
         }
@@ -72,9 +72,9 @@ public class RHBytesWritable implements WritableComparable<RHBytesWritable> {
         return bytes.length;
     }
 
-    public void setCapacity(int new_cap) {
+    public void setCapacity(final int new_cap) {
         if (new_cap != getCapacity()) {
-            byte[] new_data = new byte[new_cap];
+            final byte[] new_data = new byte[new_cap];
             if (new_cap < size) {
                 size = new_cap;
             }
@@ -89,11 +89,11 @@ public class RHBytesWritable implements WritableComparable<RHBytesWritable> {
         set(b, 0, b.length);
     }
 
-    public void set(RHBytesWritable newData) {
+    public void set(final RHBytesWritable newData) {
         set(newData.bytes, 0, newData.size);
     }
 
-    public void set(byte[] newData, int offset, int length) {
+    public void set(final byte[] newData, final int offset, final int length) {
         setSize(0);
         setSize(length);
         System.arraycopy(newData, offset, bytes, 0, size);
@@ -131,35 +131,36 @@ public class RHBytesWritable implements WritableComparable<RHBytesWritable> {
         return WritableComparator.hashBytes(bytes, size);
     }
 
-    public boolean equals(Object other) {
+    public boolean equals(final Object other) {
         if (!(other instanceof RHBytesWritable)) {
             return false;
         }
-        RHBytesWritable that = (RHBytesWritable) other;
+        final RHBytesWritable that = (RHBytesWritable) other;
         if (this.getLength() != that.getLength()) {
             return false;
         }
         return this.compareTo(that) == 0;
     }
 
-    public int compareTo(byte[] other, int off, int len) {
+    public int compareTo(final byte[] other, final int off, final int len) {
         return WritableComparator.compareBytes(this.bytes, 0, this.size, other, off, len);
     }
 
-    public int compareTo(RHBytesWritable that) {
+    public int compareTo(final RHBytesWritable that) {
         return WritableComparator.compareBytes(this.bytes, 0, this.size, that.bytes, 0, that.size);
     }
 
     public static class Comparator extends WritableComparator {
-        private BytesWritable.Comparator comparator = new BytesWritable.Comparator();
+        private final BytesWritable.Comparator comparator = new BytesWritable.Comparator();
 
         public Comparator() {
             super(RHBytesWritable.class);
         }
 
-        public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+        public int compare(final byte[] b1, final int s1, final int l1, final byte[] b2, final int s2, final int l2) {
             // return comparator.compare(b1, s1, l1, b2, s2, l2);
-            int off1 = decodeVIntSize(b1[s1]), off2 = decodeVIntSize(b2[s2]);
+            final int off1 = decodeVIntSize(b1[s1]);
+            final int off2 = decodeVIntSize(b2[s2]);
             //TEMPCHANGE
             return compareBytes(b1, s1 + off1, l1 - off1, b2, s2 + off2, l2 - off2); //why this serialized form?
         }
@@ -176,7 +177,7 @@ public class RHBytesWritable implements WritableComparable<RHBytesWritable> {
 
     //DISPLAY
     public String toByteString() {
-        StringBuffer sb = new StringBuffer(3 * this.size);
+        final StringBuilder sb = new StringBuilder(3 * this.size);
         for (int idx = 0; idx < this.size; idx++) {
             if (idx != 0) {
                 sb.append(" 0x");
@@ -184,7 +185,7 @@ public class RHBytesWritable implements WritableComparable<RHBytesWritable> {
             else {
                 sb.append("0x");
             }
-            String num = Integer.toHexString(0xff & bytes[idx]);
+            final String num = Integer.toHexString(0xff & bytes[idx]);
             if (num.length() < 2) {
                 sb.append('0');
             }
@@ -197,21 +198,20 @@ public class RHBytesWritable implements WritableComparable<RHBytesWritable> {
         return REXPHelper.toString(bytes, 0, size);
     }
 
-    public static String bytesPretty(byte[] b) {
+    public static String bytesPretty(final byte[] b) {
         return RHBytesWritable.bytesPretty(b, 0, b.length);
     }
 
-    public static String bytesPretty(byte[] b, int offset, int length) {
-        int sz = length;
-        StringBuffer sb = new StringBuffer(3 * sz);
-        for (int idx = 0; idx < sz; idx++) {
+    public static String bytesPretty(final byte[] b, final int offset, final int length) {
+        final StringBuffer sb = new StringBuffer(3 * length);
+        for (int idx = 0; idx < length; idx++) {
             if (idx != 0) {
                 sb.append(" 0x");
             }
             else {
                 sb.append("0x");
             }
-            String num = Integer.toHexString(0xff & b[offset + idx]);
+            final String num = Integer.toHexString(0xff & b[offset + idx]);
             if (num.length() < 2) {
                 sb.append('0');
             }
@@ -220,12 +220,12 @@ public class RHBytesWritable implements WritableComparable<RHBytesWritable> {
         return sb.toString();
     }
 
-    public static boolean isNegativeVInt(byte value) {
+    public static boolean isNegativeVInt(final byte value) {
         return value < -120 || (value >= -112 && value < 0);
     }
 
     // UTILITY
-    public static int decodeVIntSize(byte value) {
+    public static int decodeVIntSize(final byte value) {
         if (value >= -112) {
             return 1;
         }
@@ -237,14 +237,14 @@ public class RHBytesWritable implements WritableComparable<RHBytesWritable> {
 
 
     public static int readVInt(final DataInput stream) throws IOException {
-        byte firstByte = stream.readByte();
-        int len = decodeVIntSize(firstByte);
+        final byte firstByte = stream.readByte();
+        final int len = decodeVIntSize(firstByte);
         if (len == 1) {
             return firstByte;
         }
         long i = 0;
         for (int idx = 0; idx < len - 1; idx++) {
-            byte b = stream.readByte();
+            final byte b = stream.readByte();
             i = i << 8;
             i = i | (b & 0xFF);
         }

@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -50,32 +49,30 @@ public class RHMRHelper {
     protected static final Log LOG = LogFactory.getLog(RHMRHelper.class.getName());
     public boolean copyFile;
     static private Environment env_;
-    private String callID;
+    private final String callID;
     private String hostname;
-    private RHMRMapper mapper;
+    private final RHMRMapper mapper;
     protected static int PARTITION_START = 0, PARTITION_END = 0;
     protected static REXP.RClass PARTITION_TYPE = REXP.RClass.REAL;
 
-    public RHMRHelper(String fromWHo, RHMRMapper m) {
+    public RHMRHelper(final String fromWHo, final RHMRMapper m) {
         callID = fromWHo;
         mapper = m;
     }
 
-    public RHMRHelper(String fromWHo) {
+    public RHMRHelper(final String fromWHo) {
         callID = fromWHo;
         mapper = null;
     }
 
-    void addEnvironment(Properties env, String nameVals) {
+    void addEnvironment(final Properties env, final String nameVals) {
         if (nameVals == null) {
             return;
         }
-        String[] nv = nameVals.split(" ");
+        final String[] nv = nameVals.split(" ");
         for (int i = 0; i < nv.length; i++) {
-            String[] pair = nv[i].split("=", 2);
-            if (pair.length != 2) {
-            }
-            else {
+            final String[] pair = nv[i].split("=", 2);
+            if (pair.length == 2) {
                 env.put(pair[0], pair[1]);
             }
         }
@@ -92,11 +89,10 @@ public class RHMRHelper {
         return exitVal;
     }
 
-    void addJobConfToEnvironment(Configuration conf, Properties env) {
-        Iterator it = conf.iterator();
-        while (it.hasNext()) {
-            Map.Entry en = (Map.Entry) it.next();
-            String name = (String) en.getKey();
+    void addJobConfToEnvironment(final Configuration conf, final Properties env) {
+        for (final Object aConf : conf) {
+            final Map.Entry en = (Map.Entry) aConf;
+            final String name = (String) en.getKey();
             if (name.equals("mapred.input.dir") || name.equals("rhipe_input_folder")) {
                 continue;
             }
@@ -111,14 +107,14 @@ public class RHMRHelper {
         }
     }
 
-    void doPartitionRelatedSetup(Configuration cfg) {
+    void doPartitionRelatedSetup(final Configuration cfg) {
         if (!cfg.get("rhipe_partitioner_class").equals("none")) {
             RHMRHelper.PARTITION_START = Integer.parseInt(cfg.get("rhipe_partitioner_start")) - 1;
             RHMRHelper.PARTITION_END = Integer.parseInt(cfg.get("rhipe_partitioner_end")) - 1;
         }
     }
 
-    void setup(Configuration cfg, String argv, boolean doPipe) {
+    void setup(final Configuration cfg, final String argv, final boolean doPipe) {
         try {
             // 	    InetAddress addr = InetAddress.getLocalHost();
             // 	    hostname = addr.getHostName();
@@ -131,12 +127,7 @@ public class RHMRHelper {
             REXPHelper.setFieldSep(cfg.get("mapred.field.separator", " "));
             REXPHelper.setStringQuote(squote);
 
-            if (cfg.get("rhipe_test_output") != null && cfg.get("rhipe_test_output").equals("TRUE")) {
-                writeErr = true;
-            }
-            else {
-                writeErr = false;
-            }
+            writeErr = cfg.get("rhipe_test_output") != null && cfg.get("rhipe_test_output").equals("TRUE");
 
             BUFFER_SIZE = cfg.getInt("rhipe_stream_buffer", 10 * 1024);
             joinDelay_ = cfg.getLong("rhipe_joindelay_milli", 0);
@@ -159,7 +150,7 @@ public class RHMRHelper {
             }
             keyclass = _kc.asSubclass(WritableComparable.class);
 
-            copyFile = cfg.get("rhipe_copy_file").equals("TRUE") ? true : false;
+            copyFile = cfg.get("rhipe_copy_file").equals("TRUE");
 
             if (cfg.get("rhipe_output_folder") != null) {
                 String subp = "_outputs";
@@ -175,14 +166,14 @@ public class RHMRHelper {
             if (!doPipe_) {
                 return;
             }
-            String[] argvSplit = argv.split(" ");
-            String prog = argvSplit[0];
-            Environment childEnv = (Environment) env().clone();
+            final String[] argvSplit = argv.split(" ");
+            final String prog = argvSplit[0];
+            final Environment childEnv = (Environment) env().clone();
             cfg.set("io_sort_mb", cfg.get("io.sort.mb"));
             addJobConfToEnvironment(cfg, childEnv);
             childEnv.put("TMPDIR", System.getProperty("java.io.tmpdir"));
             // Start the process
-            ProcessBuilder builder = new ProcessBuilder(argvSplit);
+            final ProcessBuilder builder = new ProcessBuilder(argvSplit);
             builder.environment().putAll(childEnv.toMap());
             sim = builder.start();
             clientOut_ = new DataOutputStream(new BufferedOutputStream(sim.getOutputStream(), BUFFER_SIZE));
@@ -201,7 +192,7 @@ public class RHMRHelper {
     }
 
 
-    void startOutputThreads(TaskInputOutputContext<WritableComparable, RHBytesWritable, WritableComparable, RHBytesWritable> ctx) {
+    void startOutputThreads(final TaskInputOutputContext<WritableComparable, RHBytesWritable, WritableComparable, RHBytesWritable> ctx) {
         outThread_ = new MROutputThread(ctx, true);
         outThread_.start();
         errThread_.setContext(ctx);
@@ -209,7 +200,7 @@ public class RHMRHelper {
     }
 
 
-    public void mapRedFinished(TaskInputOutputContext<WritableComparable, RHBytesWritable, WritableComparable, RHBytesWritable> ctx) {
+    public void mapRedFinished(final TaskInputOutputContext<WritableComparable, RHBytesWritable, WritableComparable, RHBytesWritable> ctx) {
         try {
             if (!doPipe_) {
                 return;
@@ -221,6 +212,7 @@ public class RHMRHelper {
                 }
             }
             catch (IOException io) {
+                //ignore
             }
 
             waitOutputThreads(ctx);
@@ -235,13 +227,13 @@ public class RHMRHelper {
     }
 
 
-    void waitOutputThreads(TaskInputOutputContext<WritableComparable, RHBytesWritable, WritableComparable, RHBytesWritable> ctx) {
+    void waitOutputThreads(final TaskInputOutputContext<WritableComparable, RHBytesWritable, WritableComparable, RHBytesWritable> ctx) {
         try {
             // I commented this out, if uncommented, then uncomment the bit for DummyContext
             // if (outThread_ == null) {
             // 	startOutputThreads(new DummyContext(ctx)); //will fail
             // }
-            int exitVal = sim.waitFor();
+            final int exitVal = sim.waitFor();
             if (exitVal != 0) {
                 if (nonZeroExitIsFailure_) {
                     ctx.getCounter("R_ERRORS", "subprocess failed with code: " + exitVal).increment(1);
@@ -258,6 +250,7 @@ public class RHMRHelper {
             }
         }
         catch (InterruptedException e) {
+            //ignore
         }
     }
 
@@ -270,14 +263,13 @@ public class RHMRHelper {
 
     public String getSimExitInfo() throws IllegalThreadStateException {
         String extraInfo = "";
-        int exitVal = sim.exitValue();
+        final int exitVal = sim.exitValue();
         if (exitVal == 0) {
             extraInfo = "subprocess exited successfully\n";
         }
         else {
             extraInfo = "subprocess exited with error code " + exitVal + "\n";
         }
-        ;
         return (extraInfo);
     }
 
@@ -304,16 +296,16 @@ public class RHMRHelper {
     // 	public void progress(){}
     // }
 
-    public void writeCMD(int s) throws IOException {
+    public void writeCMD(final int s) throws IOException {
         WritableUtils.writeVInt(clientOut_, s);
         // clientOut_.writeInt(s);
     }
 
-    public void write(RHBytesWritable c) throws IOException {
+    public void write(final RHBytesWritable c) throws IOException {
         c.write(clientOut_);
     }
 
-    public void write(WritableComparable c) throws IOException {
+    public void write(final WritableComparable c) throws IOException {
         c.write(clientOut_);
     }
 
@@ -325,12 +317,12 @@ public class RHMRHelper {
 
         long lastStdoutReport = 0;
 
-        MROutputThread(TaskInputOutputContext<WritableComparable, RHBytesWritable, WritableComparable, RHBytesWritable> ctx, boolean isD) {
+        MROutputThread(final TaskInputOutputContext<WritableComparable, RHBytesWritable, WritableComparable, RHBytesWritable> ctx, final boolean isD) {
             setDaemon(isD);
             this.ctx = ctx;
         }
 
-        boolean readRecord(WritableComparable k, Writable v) {
+        boolean readRecord(final WritableComparable k, final Writable v) {
             try {
                 k.readFields(clientIn_);
                 v.readFields(clientIn_);
@@ -345,7 +337,7 @@ public class RHMRHelper {
         public void run() {
             // Writable key
             // RHBytesWritable key = new RHBytesWritable();
-            RHBytesWritable value = new RHBytesWritable();
+            final RHBytesWritable value = new RHBytesWritable();
             WritableComparable key = null;
             try {
                 key = keyclass.newInstance();
@@ -365,7 +357,7 @@ public class RHMRHelper {
 
                     ctx.write(key, value);
                     numRecWritten_++;
-                    long now = System.currentTimeMillis();
+                    final long now = System.currentTimeMillis();
                     if (now - lastStdoutReport > reporterOutDelay_) {
                         lastStdoutReport = now;
                         ctx.setStatus("R/W merrily moving along: W=" + numRecWritten_ + " ");
@@ -406,7 +398,7 @@ public class RHMRHelper {
             setDaemon(true);
         }
 
-        public void setContext(TaskInputOutputContext ctx) {
+        public void setContext(final TaskInputOutputContext ctx) {
             this.ctx = ctx;
         }
 
@@ -416,29 +408,29 @@ public class RHMRHelper {
                     int ln;
                     byte[] k;
                     while (true) {
-                        int cmd = clientErr_.readByte();
+                        final int cmd = clientErr_.readByte();
                         switch (cmd) {
                             case RHTypes.ERROR_MSG:
                                 ln = clientErr_.readInt();
                                 k = new byte[ln];
                                 clientErr_.readFully(k, 0, ln);
-                                String errmsg = new String(k);
+                                final String errmsg = new String(k);
                                 // mapper.setreadcomplete(true);
                                 ctx.getCounter("R_ERRORS", errmsg).increment(1);
-                                int y = errmsg.length();
+                                final int y = errmsg.length();
                                 throw new RuntimeException(errmsg);
                             case RHTypes.PRINT_MSG:
                                 ln = clientErr_.readInt();
                                 k = new byte[ln];
                                 clientErr_.readFully(k, 0, ln);
-                                String pmsg = new String(k);
+                                final String pmsg = new String(k);
                                 LOG.info(pmsg);
                                 break;
                             case RHTypes.SET_STATUS:
                                 ln = clientErr_.readInt();
                                 k = new byte[ln];
                                 clientErr_.readFully(k, 0, ln);
-                                String status = new String(k);
+                                final String status = new String(k);
                                 ctx.setStatus(status);
                                 break;
                             // case RHTypes.SET_COUNTER:
@@ -454,18 +446,18 @@ public class RHMRHelper {
                                 ln = RHBytesWritable.readVInt(clientErr_);
                                 k = new byte[ln];
                                 clientErr_.readFully(k, 0, ln);
-                                REXP r = REXP.parseFrom(k);
-                                String grcnt = REXPHelper.toString_(r.getRexpValue(0));
-                                String subcnt = REXPHelper.toString_(r.getRexpValue(1));
-                                long value = (long) (Double.parseDouble(REXPHelper.toString_(r.getRexpValue(2))));
+                                final REXP r = REXP.parseFrom(k);
+                                final String grcnt = REXPHelper.toString_(r.getRexpValue(0));
+                                final String subcnt = REXPHelper.toString_(r.getRexpValue(1));
+                                final long value = (long) (Double.parseDouble(REXPHelper.toString_(r.getRexpValue(2))));
                                 ctx.getCounter(grcnt, subcnt).increment(value);
                                 break;
                             default:
                                 if (writeErr) {
-                                    BufferedReader d = new BufferedReader(new InputStreamReader(clientErr_));
+                                    final BufferedReader d = new BufferedReader(new InputStreamReader(clientErr_));
                                     int l = 0;
                                     while (true) {
-                                        String line = d.readLine();
+                                        final String line = d.readLine();
                                         if (line == null) {
                                             break;
                                         }
@@ -475,7 +467,7 @@ public class RHMRHelper {
                                 }
 
                         }
-                        long now = System.currentTimeMillis();
+                        final long now = System.currentTimeMillis();
                         if (now - lastStderrReport > reporterErrDelay_) {
                             lastStderrReport = now;
                             if (ctx != null) {
@@ -522,13 +514,13 @@ public class RHMRHelper {
         return env_;
     }
 
-    static String asHex(byte[] v, int max) {
-        StringBuffer sb = new StringBuffer(3 * v.length);
+    static String asHex(final byte[] v, final int max) {
+        final StringBuilder sb = new StringBuilder(3 * v.length);
         for (int idx = 0; idx < Math.min(max, v.length); idx++) {
             if (idx != 0) {
                 sb.append(' ');
             }
-            String num = Integer.toHexString(v[idx]);
+            final String num = Integer.toHexString(v[idx]);
             if (num.length() < 2) {
                 sb.append('0');
             }
@@ -540,42 +532,44 @@ public class RHMRHelper {
         return sb.toString();
     }
 
-    private void _walk(String path, ArrayList<Path> a, String ex) {
-        File root = new File(path);
-        File[] list = root.listFiles();
-        for (File f : list) {
-            if (f.toString().matches(ex)) {
-                continue;
-            }
-            if (f.isDirectory() && f.listFiles().length > 0) {
-                _walk(f.getAbsolutePath(), a, ex);
-                // // for(File x: f.listFiles())
-                // a.add(new Path(f.toString()));
-            }
-            else {
-                if (f.length() > 0) {
-                    a.add(new Path(f.toString()));
+    private void _walk(final String path, final ArrayList<Path> a, final String ex) {
+        final File root = new File(path);
+        final File[] list = root.listFiles();
+        if (list != null) {
+            for (final File f : list) {
+                if (f.toString().matches(ex)) {
+                    continue;
+                }
+                if (f.isDirectory() && f.listFiles().length > 0) {
+                    _walk(f.getAbsolutePath(), a, ex);
+                    // // for(File x: f.listFiles())
+                    // a.add(new Path(f.toString()));
+                }
+                else {
+                    if (f.length() > 0) {
+                        a.add(new Path(f.toString()));
+                    }
                 }
             }
         }
     }
 
-    public void copyFiles(String dirfrom) throws IOException {
+    public void copyFiles(final String dirfrom) throws IOException {
         if (copyFile) {
-            ArrayList<Path> lop = new ArrayList<Path>();
+            final ArrayList<Path> lop = new ArrayList<Path>();
             _walk(dirfrom, lop, copyExcludeRegex);
             if (lop.size() > 0) {
-                thisfs.copyFromLocalFile(false, true, lop.toArray(new Path[]{}), outputFolder);
+                thisfs.copyFromLocalFile(false, true, lop.toArray(new Path[lop.size()]), outputFolder);
             }
         }
     }
 
-    public static void invoke(String aClass, String aMethod, Class[] params, Object[] args) {
+    public static void invoke(final String aClass, final String aMethod, final Class[] params, final Object[] args) {
         try {
-            Class c = Class.forName(aClass);
-            Method m = c.getDeclaredMethod(aMethod, params);
-            Object i = c.newInstance();
-            Object r = m.invoke(i, args);
+            final Class c = Class.forName(aClass);
+            final Method m = c.getDeclaredMethod(aMethod, params);
+            final Object i = c.newInstance();
+            final Object r = m.invoke(i, args);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -586,8 +580,8 @@ public class RHMRHelper {
     long startTime_;
     long numRecWritten_ = 0;
     boolean copyFile_;
-    long reporterOutDelay_ = 10 * 1000L;
-    long reporterErrDelay_ = 10 * 1000L;
+    final long reporterOutDelay_ = 10 * 1000L;
+    final long reporterErrDelay_ = 10 * 1000L;
     long joinDelay_;
 
     boolean doPipe_;

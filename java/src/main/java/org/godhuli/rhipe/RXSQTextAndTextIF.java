@@ -36,7 +36,7 @@ public class RXSQTextAndTextIF extends SequenceFileInputFormat {
         super();
     }
 
-    public RecordReader createRecordReader(InputSplit split, TaskAttemptContext context) throws IOException {
+    public RecordReader createRecordReader(final InputSplit split, final TaskAttemptContext context) throws IOException {
         context.setStatus(split.toString());
         return new SequenceFileAsRHTextRecordReader();
     }

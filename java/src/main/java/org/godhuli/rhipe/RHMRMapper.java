@@ -30,7 +30,7 @@ public class RHMRMapper extends Mapper<WritableComparable, RHBytesWritable, Writ
     int whichMapper = 1; // 1 is usekeys and values, 0 is just values
     boolean copyFile = false;
 
-    String getPipeCommand(Configuration cfg) {
+    String getPipeCommand(final Configuration cfg) {
         String str = System.getenv("RHIPECOMMAND");
         if (str == null) {
             str = cfg.get("rhipe_command");
@@ -45,8 +45,8 @@ public class RHMRMapper extends Mapper<WritableComparable, RHBytesWritable, Writ
         return true;
     }
 
-    public void run(Context context) throws IOException, InterruptedException {
-        long t1 = System.currentTimeMillis();
+    public void run(final Context context) throws IOException, InterruptedException {
+        final long t1 = System.currentTimeMillis();
         helper = new RHMRHelper("Mapper");
         setup(context);
         if (whichMapper == 1) {
@@ -69,21 +69,22 @@ public class RHMRMapper extends Mapper<WritableComparable, RHBytesWritable, Writ
     }
 
 
-    public void setup(Context context) {
-        Configuration cfg = context.getConfiguration();
+    public void setup(final Context context) {
+        final Configuration cfg = context.getConfiguration();
 
         // Test External Jar File is Present!
         // RHMRHelper.invoke("org.godhuli.rhipe.HBase.TestCase","showMessage",new Class[]{String.class}, new Object[]{new String("Foo")});
         try {
-            String mif = ((FileSplit) context.getInputSplit()).getPath().toString();
+            final String mif = ((FileSplit) context.getInputSplit()).getPath().toString();
             cfg.set("mapred.input.file", mif);
         }
         catch (java.lang.ClassCastException e) {
+            //ignore
         }
         cfg.set("RHIPEWHAT", "0");
         System.out.println("mapred.input.file == " + cfg.get("mapred.input.file"));
         helper.setup(cfg, getPipeCommand(cfg), getDoPipe());
-        copyFile = cfg.get("rhipe_copy_file").equals("TRUE") ? true : false;
+        copyFile = cfg.get("rhipe_copy_file").equals("TRUE");
         whichMapper = cfg.getInt("rhipe_send_keys_to_map", 1);
         helper.startOutputThreads(context);
 
@@ -99,7 +100,7 @@ public class RHMRMapper extends Mapper<WritableComparable, RHBytesWritable, Writ
     }
 
 
-    public void map(WritableComparable key, RHBytesWritable value, Context ctx) throws IOException, InterruptedException {
+    public void map(final WritableComparable key, final RHBytesWritable value, final Context ctx) throws IOException, InterruptedException {
         helper.checkOuterrThreadsThrowable();
         try {
             helper.write(key);
@@ -113,7 +114,7 @@ public class RHMRMapper extends Mapper<WritableComparable, RHBytesWritable, Writ
         }
     }
 
-    public void map_no_keys(RHBytesWritable value, Context ctx) throws IOException, InterruptedException {
+    public void map_no_keys(final RHBytesWritable value, final Context ctx) throws IOException, InterruptedException {
         helper.checkOuterrThreadsThrowable();
         try {
             helper.write(value);
@@ -126,7 +127,7 @@ public class RHMRMapper extends Mapper<WritableComparable, RHBytesWritable, Writ
         }
     }
 
-    public void cleanup(Context ctx) {
+    public void cleanup(final Context ctx) {
         try {
             helper.writeCMD(RHTypes.EVAL_CLEANUP_MAP);
             helper.writeCMD(RHTypes.EVAL_FLUSH);

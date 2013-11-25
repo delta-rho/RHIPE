@@ -7,7 +7,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
 import org.godhuli.rhipe.REXPProtos.REXP;
 
 import java.io.IOException;
@@ -31,11 +30,11 @@ public class SequenceFileIterator {
     public SequenceFileIterator() {
     }
 
-    public void init(String filenames, int chunksize, int maxn, PersonalServer s) throws IOException {
+    public void init(final String filenames, final int chunksize, final int maxn, final PersonalServer s) throws IOException {
         init(new String[]{filenames}, chunksize, maxn, s);
     }
 
-    public void init(String[] filenames, int chunksize, int maxn, PersonalServer s) throws IOException {
+    public void init(final String[] filenames, final int chunksize, final int maxn, final PersonalServer s) throws IOException {
         files = filenames;
         chunk = chunksize;
         current = 0;
@@ -51,11 +50,11 @@ public class SequenceFileIterator {
 
     }
 
-    public static SequenceFile.Reader openAFile(FileSystem fs, String p, Configuration c) throws IOException {
+    public static SequenceFile.Reader openAFile(final FileSystem fs, final String p, final Configuration c) throws IOException {
         return new SequenceFile.Reader(fs, new Path(p), c);
     }
 
-    public void setTextual(boolean a) {
+    public void setTextual(final boolean a) {
         textual = a;
     }
 
@@ -64,24 +63,24 @@ public class SequenceFileIterator {
     }
 
     public byte[] nextElement() throws Exception {
-        REXP.Builder thevals = REXP.newBuilder();
+        final REXP.Builder thevals = REXP.newBuilder();
         thevals.setRclass(REXP.RClass.LIST);
         boolean gotone = false;
         for (int i = 0; i < chunk && (mnum < 0 || numreadtill < mnum); i++) {
             if (textual) {
-                gotone = sqr.next((Writable) kt, (Writable) vt);
+                gotone = sqr.next(kt, vt);
             }
             else {
-                gotone = sqr.next((Writable) k, (Writable) v);
+                gotone = sqr.next(k, v);
             }
 
             if (gotone) {
                 numreadtill++;
-                REXP.Builder a = REXP.newBuilder();
+                final REXP.Builder a = REXP.newBuilder();
                 a.setRclass(REXP.RClass.LIST);
                 if (textual) {
-                    byte[] a0 = RObjects.makeStringVector(Text.decode(kt.getBytes(), 0, kt.getLength())).toByteArray();
-                    byte[] a1 = RObjects.makeStringVector(Text.decode(vt.getBytes(), 0, vt.getLength())).toByteArray();
+                    final byte[] a0 = RObjects.makeStringVector(Text.decode(kt.getBytes(), 0, kt.getLength())).toByteArray();
+                    final byte[] a1 = RObjects.makeStringVector(Text.decode(vt.getBytes(), 0, vt.getLength())).toByteArray();
                     a.addRexpValue(RObjects.buildRawVector(a0));
                     a.addRexpValue(RObjects.buildRawVector(a1));
                 }
@@ -110,28 +109,28 @@ public class SequenceFileIterator {
     }
 
     public byte[] nextChunk() throws Exception {
-        REXP.Builder thevals = REXP.newBuilder();
+        final REXP.Builder thevals = REXP.newBuilder();
         thevals.setRclass(REXP.RClass.LIST);
         boolean gotone = false;
         int bread = 0;
         int TKL = 0;
         while (true) {
             if (textual) {
-                gotone = sqr.next((Writable) kt, (Writable) vt);
+                gotone = sqr.next(kt, vt);
                 TKL = kt.getLength() + vt.getLength();
             }
             else {
-                gotone = sqr.next((Writable) k, (Writable) v);
+                gotone = sqr.next(k, v);
                 TKL = k.getLength() + v.getLength();
             }
             if (gotone) {
                 numreadtill++;
                 bread += TKL;
-                REXP.Builder a = REXP.newBuilder();
+                final REXP.Builder a = REXP.newBuilder();
                 a.setRclass(REXP.RClass.LIST);
                 if (textual) {
-                    byte[] a0 = RObjects.makeStringVector(Text.decode(kt.getBytes(), 0, kt.getLength())).toByteArray();
-                    byte[] a1 = RObjects.makeStringVector(Text.decode(vt.getBytes(), 0, vt.getLength())).toByteArray();
+                    final byte[] a0 = RObjects.makeStringVector(Text.decode(kt.getBytes(), 0, kt.getLength())).toByteArray();
+                    final byte[] a1 = RObjects.makeStringVector(Text.decode(vt.getBytes(), 0, vt.getLength())).toByteArray();
                     a.addRexpValue(RObjects.buildRawVector(a0));
                     a.addRexpValue(RObjects.buildRawVector(a1));
                 }

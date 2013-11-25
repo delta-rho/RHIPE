@@ -31,21 +31,21 @@ import java.io.IOException;
 
 public class RXBinaryOutputFormat extends FileOutputFormat<RHBytesWritable, RHBytesWritable> {
 
-    public RecordWriter<RHBytesWritable, RHBytesWritable> getRecordWriter(TaskAttemptContext context) throws IOException, InterruptedException {
-        Configuration conf = context.getConfiguration();
-        Path file = getDefaultWorkFile(context, "");
-        FileSystem fs = file.getFileSystem(conf);
+    public RecordWriter<RHBytesWritable, RHBytesWritable> getRecordWriter(final TaskAttemptContext context) throws IOException, InterruptedException {
+        final Configuration conf = context.getConfiguration();
+        final Path file = getDefaultWorkFile(context, "");
+        final FileSystem fs = file.getFileSystem(conf);
         final FSDataOutputStream out = fs.create(file, false);
         return new RecordWriter<RHBytesWritable, RHBytesWritable>() {
             int counter = 0;
 
-            public void write(RHBytesWritable key, RHBytesWritable value) throws IOException {
+            public void write(final RHBytesWritable key, final RHBytesWritable value) throws IOException {
                 key.writeAsInt(out);
                 value.writeAsInt(out);
                 out.sync();
             }
 
-            public void close(TaskAttemptContext context) throws IOException {
+            public void close(final TaskAttemptContext context) throws IOException {
                 out.close();
             }
         };

@@ -16,12 +16,12 @@ public class S2B {
         private int counter;
         private boolean head;
 
-        public void setup(Context context) {
+        public void setup(final Context context) {
             counter = context.getConfiguration().getInt("rhipe_maxnum", -1);
-            head = (counter < 0) ? false : true;
+            head = (counter >= 0);
         }
 
-        public void map(RHBytesWritable key, RHBytesWritable value, Context context) throws IOException, InterruptedException {
+        public void map(final RHBytesWritable key, final RHBytesWritable value, final Context context) throws IOException, InterruptedException {
             if (head) {
                 if (counter > 0) {
                     context.write(key, value);
@@ -34,15 +34,15 @@ public class S2B {
         }
     }
 
-    public static boolean runme(String[] ipath, String opath, boolean local, int maxnum) throws Exception {
-        Configuration conf = new Configuration();
+    public static boolean runme(final String[] ipath, final String opath, final boolean local, final int maxnum) throws Exception {
+        final Configuration conf = new Configuration();
         if (local) {
             conf.set("mapred.job.tracker", "local");
         }
         conf.set("mapred.job.reuse.jvm.num.tasks", "-1");
         conf.setInt("rhipe_maxnum", maxnum);
 
-        Job job = new Job(conf, "Sequence To Binary");
+        final Job job = new Job(conf, "Sequence To Binary");
         job.setJarByClass(S2B.class);
         job.setMapperClass(IDMapper.class);
         job.setOutputKeyClass(RHBytesWritable.class);
@@ -55,7 +55,7 @@ public class S2B {
         job.setOutputFormatClass(RXBinaryOutputFormat.class);
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.submit();
-        boolean result = job.waitForCompletion(true) ? true : false;
+        final boolean result = job.waitForCompletion(true);
         return (result);
     }
 }

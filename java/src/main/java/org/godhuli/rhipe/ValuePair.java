@@ -30,16 +30,16 @@ public class ValuePair {
     public ValuePair() {
     }
 
-    public ValuePair(String s, RHBytesWritable r) {
+    public ValuePair(final String s, final RHBytesWritable r) {
         path = s;
         key = r;
     }
 
-    public void setKey(RHBytesWritable k) {
+    public void setKey(final RHBytesWritable k) {
         key = k;
     }
 
-    public void setPath(String s) {
+    public void setPath(final String s) {
         path = s;
     }
 
@@ -52,7 +52,7 @@ public class ValuePair {
     }
 
     public int hashCode() {
-        int hash;
+        final int hash;
         // int hash = 1;
         // hash = hash * 31 + key.hashCode();
         // hash = hash * 31 + path.hashCode();
@@ -60,11 +60,11 @@ public class ValuePair {
         return (hash);
     }
 
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (!(o instanceof ValuePair)) {
             return false;
         }
-        ValuePair oo = (ValuePair) o;
+        final ValuePair oo = (ValuePair) o;
         return path.equals(oo.getPath()) && key.equals(oo.getKey());
     }
 
