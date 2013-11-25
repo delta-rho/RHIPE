@@ -10,10 +10,18 @@
     <property name="maven.archive.zip" value="${maven.archive.name}-bin.zip"/>
     <property name="maven.tmp.home" value="${maven.tmp.dir}/${maven.archive.name}"/>
 
-    <property name="r.inst" value="R/inst"/>
+    <property name="package" value="package"/>
+    <property name="r.package" value="${package}/R"/>
+    <property name="r.inst" value="${r.package}/inst"/>
     <property name="conf" value="conf"/>
-    <property name="java" value="java"/>
-    <property name="java.build" value="${java}/target"/>
+    <!--<property name="java" value="java"/>-->
+    <property name="java.build" value="target"/>
+
+    <property name="java.src" value="src/main/java"/>
+    <property name="r.src" value="src/main/r"/>
+    <property name="r.test" value="src/test/r"/>
+    <property name="r.assembly" value="src/main/assembly"/>
+    <property name="c.src" value="src/main/c"/>
 
     <path id="maven-ant-tasks.classpath" path="conf/maven/maven-ant-tasks-2.1.3.jar"/>
 
@@ -24,11 +32,26 @@
     <available file="${maven.tmp.dir}/${maven.archive.name}.version" property="maven.available"/>
 
     <target name="init">
-        <mkdir dir="${r.inst}/java"/>
     </target>
 
+    <target name="init-r-dir">
+        <mkdir dir="${r.package}"/>
+        <copy todir="${r.package}">
+            <fileset dir="${r.assembly}"/>
+        </copy>
+        <mkdir dir="${r.package}/R"/>
+        <copy todir="${r.package}/R">
+            <fileset dir="${r.src}"/>
+        </copy>
+        <mkdir dir="${r.package}/src"/>
+        <copy todir="${r.package}/src">
+            <fileset dir="${c.src}"/>
+        </copy>
+        <mkdir dir="${r.inst}/java"/>
+        <mkdir dir="${r.package}/man"/>
+    </target>
 
-    <target name="build" depends="init">
+    <target name="build" depends="init,init-r-dir">
         <antcall target="_mvn-install">
             <param name="profile" value="cdh3"/>
         </antcall>
@@ -56,7 +79,7 @@
         <exec executable="R">
             <arg value="CMD"/>
             <arg value="BUILD"/>
-            <arg value="R"/>
+            <arg value="${r.package}"/>
         </exec>
     </target>
 
@@ -72,22 +95,21 @@
         <exec executable="R"  failonerror="true" failifexecutionfails="true">
             <arg value="CMD"/>
             <arg value="BATCH"/>
-            <arg value="${conf}/RhipeTest.R"/>
+            <arg value="${r.test}/RhipeTest.R"/>
         </exec>
         <echo message="success"/>
     </target>
 
     <target name="clean" description="cleanup build artifacts" depends="maven-clean">
+        <delete dir="${package}"/>
         <delete>
-            <fileset dir="${r.inst}" includes="**/*.jar"/>
-        </delete>
-        <delete>
-            <fileset dir="${basedir}" includes="*.tar.gz"/>
+            <fileset dir="${basedir}" includes="*.tar.gz,*.Rout"/>
+
         </delete>
     </target>
 
-    <target name="_mvn-install" depends="_prepare-maven">
-        <mvn:mvn mavenhome="${maven.tmp.home}" pom="java/pom.xml" fork="true" failonerror="true">
+    <target name="_mvn-install"> <!-- depends="_prepare-maven"> -->
+        <mvn:mvn pom="./pom.xml" fork="true" failonerror="true">
             <arg value="assembly:assembly"/>
             <arg value="-DskipTests=true"/>
             <arg value="-Dcargo.maven.skip=true"/>
@@ -95,14 +117,16 @@
         </mvn:mvn>
     </target>
 
+<!--
     <target name="_prepare-maven" unless="maven.available">
         <delete dir="${maven.tmp.dir}" failonerror="false"/>
         <unzip dest="${maven.tmp.dir}" src="${maven.dl.dir}/${maven.archive.zip}"/>
         <touch file="${maven.tmp.dir}/${maven.archive.name}.version"/>
     </target>
+-->
 
     <target name="maven-clean">
-        <mvn:mvn mavenhome="${maven.tmp.home}" pom="java/pom.xml" fork="true" failonerror="true">
+        <mvn:mvn pom="./pom.xml" fork="true" failonerror="true">
             <arg value="clean"/>
         </mvn:mvn>
     </target>
