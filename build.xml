@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Canopy-Setup" default="build" basedir="." xmlns:mvn="antlib:org.apache.maven.artifact.ant">
+<project name="RHIPE" default="build" basedir="." xmlns:mvn="antlib:org.apache.maven.artifact.ant">
 
     <property name="rhipe.version" value="0.73.1-6"/>
     <property name="guava.version" value="13.0.1"/>
@@ -49,6 +49,7 @@
         </copy>
         <mkdir dir="${r.inst}/java"/>
         <mkdir dir="${r.package}/man"/>
+    	<antcall target="r-doc"/>
     </target>
 
     <target name="build" depends="init,init-r-dir">
@@ -80,6 +81,13 @@
             <arg value="CMD"/>
             <arg value="BUILD"/>
             <arg value="${r.package}"/>
+        </exec>
+    </target>
+
+    <target name="r-doc">  
+        <exec executable="R">
+            <arg value="-e"/>
+            <arg value="library(roxygen2); roxygenize('${r.package}'); q('no')"/>
         </exec>
     </target>
 
