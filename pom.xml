@@ -3,10 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.godhuli.rhipe</groupId>
-    <artifactId>rhipe-java</artifactId>
+    <artifactId>rhipe</artifactId>
     <version>0.73.1-6</version>
     <packaging>jar</packaging>
-    <name>Rhipe-Java</name>
+    <name>Rhipe</name>
     <url>https://github.com/saptarshiguha/RHIPE</url>
 
     <properties>
