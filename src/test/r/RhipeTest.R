@@ -55,5 +55,3 @@ res <- rhwatch(
   input="irisData",
   output="irisMax"
 )
-
-

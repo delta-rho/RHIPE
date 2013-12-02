@@ -212,7 +212,9 @@ public class RHMR implements Tool {
         final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
         final String jname = rhoptions_.get("rhipe_jobname");
         boolean uscomb = false;
-        job_.setUserClassesTakesPrecedence(true);
+//        job_.setUserClassesTakesPrecedence(true);
+        //this will work on non-cloudera versions
+        job_.getConfiguration().setBoolean("mapreduce.task.classpath.user.precedence",true);
         if (jname.equals("")) {
             job_.setJobName(sdf.format(cal.getTime()));
         }
@@ -287,10 +289,8 @@ public class RHMR implements Tool {
         arl[1] = job_.getJobName();
         // System.out.println(job_.getJobID()); // returns null ??
         final String[] split = arl[0].split("=");
-        if(split.length > 1)
-            arl[2] = split[1]; // job_.getJobID().toString();
-        else
-            arl[2] = job_.getJobID().toString();
+//        System.out.println("job id url string:" + arl[0]);
+        arl[2] = split.length > 1 ? split[1] : job_.getJobID().toString();  //this does not work in standalone mode
         arl[3] = RHMR.now();
         final REXP b = RObjects.makeStringVector(arl);
         final RHBytesWritable rb = new RHBytesWritable(b.toByteArray());

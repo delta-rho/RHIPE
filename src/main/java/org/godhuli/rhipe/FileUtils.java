@@ -293,6 +293,22 @@ public class FileUtils {
         }
         final RunningJob rj = jclient.getJob(jj);
         if (rj == null) {
+//            System.out.println("No such job: " + jd + " available, wrong job? or try the History Viewer (see the Web UI) ");
+//            final REXP.Builder theValsMock = REXP.newBuilder();
+//            theValsMock.setRclass(REXP.RClass.LIST);
+//            theValsMock.addRexpValue(RObjects.makeStringVector(new String[]{"SUCCEEDED"}));
+//            theValsMock.addRexpValue(RObjects.buildDoubleVector(new double[]{0.0}));
+//            theValsMock.addRexpValue(RObjects.buildDoubleVector(new double[]{(double) 0.0, (double) 0.0}));
+//            theValsMock.addRexpValue(RObjects.buildIntVector(new int[]{0, 0, 0, 0, 0, 0, 0}));
+//            theValsMock.addRexpValue(RObjects.buildIntVector(new int[]{0, 0, 0, 0, 0, 0, 0}));
+//            theValsMock.addRexpValue(FileUtils.buildListFromOldCounter(new Counters(), 0.0));
+//            final REXP.Builder errcontainer = REXP.newBuilder();
+//            errcontainer.setRclass(REXP.RClass.STRING);
+//            theValsMock.addRexpValue(errcontainer);
+//            theValsMock.addRexpValue(RObjects.makeStringVector("http://localhost:8080"));
+//            theValsMock.addRexpValue(RObjects.makeStringVector(new String[]{"test-mock-job"}));
+//            theValsMock.addRexpValue(RObjects.makeStringVector(new String[]{"mock-job-file"}));
+//            return theValsMock.build();
             throw new IOException("No such job: " + jd + " available, wrong job? or try the History Viewer (see the Web UI) ");
         }
         final String jobfile = rj.getJobFile();

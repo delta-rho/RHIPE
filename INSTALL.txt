@@ -1,0 +1,43 @@
+The following are instructions to get Rhipe up and running on a local machine (as opposed to a cluster) for testing
+and development.
+####### Pre-reqs #######
+Mac/Linux
+Java 1.6+
+Apache Ant
+Apache Maven
+R
+
+####### Install Hadoop #######
+Download Hadoop from Cloudera - you only need hadoop - and follow the instructions for installing Hadoop in
+pseudo-distributed mode located in the tar ball under docs/single_node_setup.html
+
+CDH3
+http://www.cloudera.com/content/cloudera-content/cloudera-docs/CDHTarballs/3.25.2013/CDH3-Downloadable-Tarballs/CDH3-Downloadable-Tarballs.html
+
+####### Install Google protocol buffers 2.4.1 #######
+On Mac use homebrew
+On Linux use package manager
+- Or -
+Download from:
+https://code.google.com/p/protobuf/downloads/list
+Follow the instructions in the protobuf archive - but probably:
+./configure
+make
+make install
+
+####### Environment #######
+
+Set the following environment variables:
+
+HADOOP_HOME=<where you unzipped the hadoop tar ball>
+HADOOP_BIN=<hadoo bin dir>
+HADOOP_CONF_DIR=<hadoop conf dir>
+PKG_CONFIG_PATH=<protobuf pkgconfig dir>
+LD_LIBRARY_PATH=<protobuf lib dir>
+
+Mac/Linux example:
+export HADOOP_HOME=/Users/perk387/Software/hadoop-0.20.2-cdh3u6
+export HADOOP_BIN=$HADOOP_HOME/bin
+export HADOOP_CONF_DIR=$HADOOP_HOME/conf
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/Cellar/protobuf241/2.4.1/lib/pkgconfig
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/Cellar/protobuf241/2.4.1/lib
