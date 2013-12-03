@@ -49,21 +49,36 @@
         </copy>
         <mkdir dir="${r.inst}/java"/>
         <mkdir dir="${r.package}/man"/>
-    	<antcall target="r-doc"/>
+    	<!--<antcall target="r-doc"/>-->
     </target>
 
-    <target name="build" depends="init,init-r-dir">
+    <target name="build-all" depends="clean,build,r-install-test" description="build, install and test Rhipe"/>
+
+    <target name="build" depends="init,init-r-dir,r-doc" description="build Rhipe">
+        <!--Build CDH3 jar-->
         <antcall target="_mvn-install">
             <param name="profile" value="cdh3"/>
         </antcall>
         <copy tofile="${r.inst}/java/Rhipe.jar">
             <file file="${java.build}/${maven.project.name}-${rhipe.version}-jar-with-dependencies.jar"/>
         </copy>
+
+        <!--Build the CDH4 jar-->
+        <delete file="${java.build}/${maven.project.name}-${rhipe.version}-jar-with-dependencies.jar"/>
+
+        <antcall target="_mvn-install">
+            <param name="profile" value="cdh4"/>
+        </antcall>
+        <copy tofile="${r.inst}/java/RhipeCDH4.jar">
+            <file file="${java.build}/${maven.project.name}-${rhipe.version}-jar-with-dependencies.jar"/>
+        </copy>
+
         <antcall target="r-build"/>
     </target>
 
-    <target name="build-cdh3" depends="build"/>
+    <!--<target name="build-cdh3" depends="build"/>-->
 
+<!--
     <target name="build-cdh4" depends="init">
         <antcall target="_mvn-install">
             <param name="profile" value="cdh4"/>
@@ -73,8 +88,9 @@
         </copy>
         <antcall target="r-build"/>
     </target>
+-->
 
-    <target name="r-install-test" depends="r-install,r-test"/>
+    <target name="r-install-test" depends="r-install,r-test" description="Install Rhipe and run a simple test"/>
 
     <target name="r-build">
         <exec executable="R">
@@ -84,7 +100,7 @@
         </exec>
     </target>
 
-    <target name="r-doc">  
+    <target name="r-doc" >
         <exec executable="R">
             <arg value="-e"/>
             <arg value="library(roxygen2); roxygenize('${r.package}'); q('no')"/>

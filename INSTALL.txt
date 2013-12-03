@@ -1,20 +1,42 @@
 The following are instructions to get Rhipe up and running on a local machine (as opposed to a cluster) for testing
-and development.
+and development.  The instructions are specific to a Mac although they can be adapted to Linux
+
 ####### Pre-reqs #######
 Mac/Linux
 Java 1.6+
-Apache Ant
-Apache Maven
-R
+Apache Ant - latest
+Apache Maven - latest
+R - latest
+
+pkg-config - if not installed either
+download from http://macpkg.sourceforge.net/
+build from source: http://cgit.freedesktop.org/pkg-config/
+Use "homebrew" - http://brew.sh/
+-> brew install pkg-config
+
+ssh service running (for Hadoop)
+* On a Mac go to System Preferences -> Sharing and check "Remote Login"
 
 ####### Install Hadoop #######
-Download Hadoop from Cloudera - you only need hadoop - and follow the instructions for installing Hadoop in
-pseudo-distributed mode located in the tar ball under docs/single_node_setup.html
-
 CDH3
 http://www.cloudera.com/content/cloudera-content/cloudera-docs/CDHTarballs/3.25.2013/CDH3-Downloadable-Tarballs/CDH3-Downloadable-Tarballs.html
 
+Download Hadoop from Cloudera - you only need Hadoop - and follow the instructions for installing Hadoop in
+pseudo-distributed mode located in the tar ball under docs/single_node_setup.html
+
+In addition:
+Edit conf/core-site.xml
+Set the storage directory to something meaningful (where you want hadoop data stored on the local directory)
+
+   <property>
+          <name>hadoop.tmp.dir</name>
+          <value>[path on local machine]</value>
+   </property>
+
+If you have already formatted the namenode then change the tmp dir you will need to reformat the namenode.
+
 ####### Install Google protocol buffers 2.4.1 #######
+
 On Mac use homebrew
 On Linux use package manager
 - Or -
@@ -41,3 +63,20 @@ export HADOOP_BIN=$HADOOP_HOME/bin
 export HADOOP_CONF_DIR=$HADOOP_HOME/conf
 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/Cellar/protobuf241/2.4.1/lib/pkgconfig
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/Cellar/protobuf241/2.4.1/lib
+
+####### R Development Environment #######
+
+Start R
+Run:
+install.packages("roxygen2")
+
+####### Rhipe #######
+
+Rhipe is built using Ant and Maven.
+To clean, compile, build, install and test Rhipe on a fully configure system run:
+
+ant build-all
+
+For other main Ant targets run
+ant -p
+

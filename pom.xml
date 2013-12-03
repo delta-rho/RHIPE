@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.godhuli.rhipe</groupId>
-    <artifactId>rhipe</artifactId>
+    <artifactId>rhipe-java</artifactId>
     <version>0.73.1-6</version>
     <packaging>jar</packaging>
     <name>Rhipe</name>
@@ -86,7 +86,7 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client</artifactId>
             <version>${hadoop.version}</version>
-            <!--<scope>provided</scope>-->
+            <scope>provided</scope>
         </dependency>
 
 
