@@ -15,10 +15,11 @@
 #'   \code{\link{rhread}}, \code{\link{rhwrite}}, \code{\link{rhsave}}
 #' @keywords put HDFS file
 #' @export
-rhput <- function(src, dest,deletedest=TRUE){
-  dest = rhabsolute.hdfs.path(dest)
-  y <- as.logical(deletedest)
-  Y <- if(is.na(y) || y==FALSE) FALSE else TRUE
-  rhoptions()$server$rhput(path.expand(src),dest,y)
+rhput <- function(src, dest, deletedest = TRUE) {
+   dest <- rhabsolute.hdfs.path(dest)
+   y <- as.logical(deletedest)
+   Y <- if (is.na(y) || y == FALSE) 
+      FALSE else TRUE
+   rhoptions()$server$rhput(path.expand(src), dest, y)
 }
-
+ 

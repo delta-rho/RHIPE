@@ -5,6 +5,6 @@
 #' @author Jeremiah Rounds
 #' @seealso \code{\link{hdfs.getwd}}
 #' @export
-hdfs.getwd = function(){
-	return(rhoptions()$hdfs.working.dir)
-}
+hdfs.getwd <- function() {
+   return(rhoptions()$hdfs.working.dir)
+} 

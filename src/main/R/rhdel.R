@@ -13,13 +13,13 @@
 #'   \code{\link{rhsave}}, \code{\link{rhget}}
 #' @keywords delete HDFS directory
 #' @export
-rhdel <- function(folder){
-  folder = rhabsolute.hdfs.path(folder)
-  rhoptions()$server$rhdel(folder)
+rhdel <- function(folder) {
+   folder <- rhabsolute.hdfs.path(folder)
+   rhoptions()$server$rhdel(folder)
 }
 
 
 # rhdel <- function(fold,ignore.stderr=T,verbose=F){
-#    doCMD(rhoptions()$cmd['del'],fold=fold,needout=F,ignore.stderr=ignore.stderr,verbose=verbose)
+# doCMD(rhoptions()$cmd['del'],fold=fold,needout=F,ignore.stderr=ignore.stderr,verbose=verbose)
 # }
-
+ 

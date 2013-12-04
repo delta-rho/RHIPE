@@ -17,7 +17,7 @@
 #'   \code{\link{rhsave}}
 #' @keywords get HDFS directory
 #' @export
-rhget <- function(src, dest){
-  src = rhabsolute.hdfs.path(src)
-  rhoptions()$server$rhget(src,path.expand(dest))
-}
+rhget <- function(src, dest) {
+   src <- rhabsolute.hdfs.path(src)
+   rhoptions()$server$rhget(src, path.expand(dest))
+} 

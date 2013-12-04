@@ -26,44 +26,43 @@
 #' @seealso \code{\link{rhinit}}, \code{\link{rhmr}}
 #' @examples
 #' 
-#' 	#RUNNABLE BUT LIKELY DOES NOT APPLY TO MOST USERS:
-#' 	#sets the runner to be a shell script in the HOME directory.
-#' 	#NOT RUN
-#' 	#rhoptions(runner=paste(Sys.getenv("HOME"),"rhipe.runner.sh", sep="/"))
-#' 	#list all the options
-#' 	#rhoptions()
-#' 	
-#' 	#END NOT RUN
+#' \t#RUNNABLE BUT LIKELY DOES NOT APPLY TO MOST USERS:
+#' \t#sets the runner to be a shell script in the HOME directory.
+#' \t#NOT RUN
+#' \t#rhoptions(runner=paste(Sys.getenv('HOME'),'rhipe.runner.sh', sep='/'))
+#' \t#list all the options
+#' \t#rhoptions()
+#' \t
+#' \t#END NOT RUN
 #' 
 #' @export
-rhoptions <- function(li=NULL,...){
-  if(missing(li) && length(list(...))==0){
-    get("rhipeOptions",envir=.rhipeEnv)
-  }else{
-    N <- if(is.null(li)) list(...) else li
-    v <- rhoptions()
-    for(x in names(N))
-      v[[x]] <- N[[x]]
-    assign("rhipeOptions",v,envir=.rhipeEnv)
-  }
+rhoptions <- function(li = NULL, ...) {
+   if (missing(li) && length(list(...)) == 0) {
+      get("rhipeOptions", envir = .rhipeEnv)
+   } else {
+      N <- if (is.null(li)) 
+         list(...) else li
+      v <- rhoptions()
+      for (x in names(N)) v[[x]] <- N[[x]]
+      assign("rhipeOptions", v, envir = .rhipeEnv)
+   }
 }
 
-rhsetoptions <- function(li=NULL,...){
-  warning(sprintf("Use rhoptions instead\n"))
-  rhoptions(li,...)
+rhsetoptions <- function(li = NULL, ...) {
+   warning(sprintf("Use rhoptions instead\n"))
+   rhoptions(li, ...)
 }
 
-optmerge <- function(la,lb){
-  ##merges lists la and lb
-  ##lb overrides la
-
-  x <- la
-  for(n in names(lb)){
-    x[[n]] <- lb[[n]]
-  }
-  x
+optmerge <- function(la, lb) {
+   ## merges lists la and lb lb overrides la
+   
+   x <- la
+   for (n in names(lb)) {
+      x[[n]] <- lb[[n]]
+   }
+   x
 }
 
-rhmropts <- function(){
-  rhuz(rhoptions()$server$rhmropts())
-}
+rhmropts <- function() {
+   rhuz(rhoptions()$server$rhmropts())
+} 

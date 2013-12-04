@@ -27,9 +27,9 @@
 #'   setup/cleanup expressions.
 #' @param input Specifies the type of input. If a character vector then Sequence file input.
 #' If a numeric(N), the lapply input e.g the key will be from 1 to N. If a pair of numbers, then the key ranges from 1 ..N[1]
-#' and mapred.map.tasks is set to N[2] (thus each split processes approximately N[1]/N[2] key values). See \code{rhfmt} for more examples and \code{rhoptions()$ioformats}. To get text input, specify \code{rhfmt(path, "text")}.
+#' and mapred.map.tasks is set to N[2] (thus each split processes approximately N[1]/N[2] key values). See \code{rhfmt} for more examples and \code{rhoptions()$ioformats}. To get text input, specify \code{rhfmt(path, 'text')}.
 #' @param output Similar to \code{input}.  To get a map output format (after
-#' after which the user can call \code{rhmapfile} to query using \code{rhgetkey}), specify \code{rhfmt(path, "map")}.
+#' after which the user can call \code{rhmapfile} to query using \code{rhgetkey}), specify \code{rhfmt(path, 'map')}.
 #' @param setup An expression of R code to be run before map and reduce.
 #'   Alternatively an expression with elements map and reduce e.g
 #'   \code{setup=expression(map=,reduce=)} and each of those is, ran respectively,
@@ -133,12 +133,12 @@
 #' directory of the R process.}
 #' \item{inout:}{File Types}
 #' \itemize{
-#' \item{"sequence"}{
+#' \item{'sequence'}{
 #' The keys and values can be arbitrary R objects. All the information of the
 #' object will be preserved. To extract a single key,value pair from a sequence
 #' file, either the user has to read the entire file or compose a MapReduce job
 #' to subset that key,value pair.}
-#' \item{"text"}{
+#' \item{'text'}{
 #' The keys, and values are stored as lines of text. If the input is of text
 #' format, the keys will be byte offsets from beginning of the file and the
 #' value is a line of text without the trailing newline. R objects written to a
@@ -148,7 +148,7 @@
 #' \code{mapred} argument by setting \code{mapred.textoutputformat.separator}
 #' (default is tab). To not output the key, set
 #' \code{mapred.textoutputformat.usekey} to FALSE.}
-#' \item{"map"}{
+#' \item{'map'}{
 #' A map file is actually a folder consisting of sequence file and an index
 #' file. A small percentage of the keys in the sequence file are stored in the
 #' index file. Using the index file, Hadoop can very quickly return a value
@@ -228,7 +228,7 @@
 #'    
 #'    }
 #' })
-#' z=rhwatch(map=map,reduce=0,input=5000,output="/tmp/sort",mapred=mapred,read=FALSE)
+#' z=rhwatch(map=map,reduce=0,input=5000,output='/tmp/sort',mapred=mapred,read=FALSE)
 #' 
 #' 
 #' 
@@ -272,182 +272,190 @@
 #' 
 #' #To turn on the partitioning and ordering of keys,
 #' z <- rhwatch(map=map,reduce=reduce, 
-#'       input="/tmp/sort",output="/tmp/sort2", part=list(lims=1,type="integer"),
-#'       orderby="integer",cleanup=list(reduce=reduce.cleanup),
+#'       input='/tmp/sort',output='/tmp/sort2', part=list(lims=1,type='integer'),
+#'       orderby='integer',cleanup=list(reduce=reduce.cleanup),
 #'       setup=list(reduce=reduce.setup),read=FALSE)
 #' }
 #' @export
-rhwatch <- function(map         = NULL,
-                    reduce      = NULL,
-                    combiner    = FALSE,
-                    setup       = NULL,
-                    cleanup     = NULL,
-                    input       = NULL,
-                    output      = NULL,
-                    orderby     = 'bytes',
-                    mapred      = NULL,
-                    shared      = c(),
-                    jarfiles    = c(),
-                    zips        = c(),
-                    partitioner = NULL,
-                    copyFiles   = FALSE,
-                    jobname     = "",
-                    parameters  = NULL,
-                    job         = NULL,
-                    mon.sec     = 5,
-                    readback    = rhoptions()$readback,
-                    debug       = NULL,
-                    noeval      = FALSE,...){
-  ## ##############################
-  ## Handle ...
-  ## ##############################
-  envir = sys.frame(-1)
-  if(is.null(job))
-    job <- Rhipe:::.rhmr(map=map, reduce=reduce, combiner=combiner,setup=setup, cleanup=cleanup
-                   ,input=input, output=output, orderby=orderby, mapred=mapred, shared=shared,jarfiles=jarfiles
-                   ,zips=zips, partitioner=partitioner, copyFiles=copyFiles, jobname=jobname, parameters=parameters,envir=envir)
-  else if(is.character(job))
-    return(Rhipe:::rhwatch.runner(job=job, mon.sec=mon.sec,readback=readback,...))
-  if(!is.null(job$lines$mapred.job.tracker) && job$lines$mapred.job.tracker == TRUE){
-    z <- Rhipe:::rhwatch.runner(job=job, mon.sec=mon.sec,readback=readback,...)
-    if(readback==FALSE){
-      class(z) <- append(class(z),"rhwatch")
-    }
-    return(z)
-  }
-  if(!is.null(debug)){
-    m <- unserialize(charToRaw(job[[1]]$rhipe_map))
-    if(!(is(m,"rhmr-map") || is(m, "rhmr-map2")))
-      stop("RHIPE: for debugging purposes, must use a map expression returned  by ewrap")
-     
-    ##Replace the map expression
-    if(is(m, "rhmr-map")){
-      j=m[[1]][[3]] ##the mapply
-      jj <- j[[3]][[2]] ## the function passed to mapply
-      l <- list()
-      l$replace <-  jj[[3]][[2]] ## body of jj when rhmap is fixed it's body(jj)
-      l$before=m[[1]][[2]]
-      l$after=m[[1]][[4]]
-      FIX <- function(x) if(is.null(x)) NULL else x
-      newm <- as.expression(bquote({
-        .(BEFORE)
-        result <- mapply(function(.index,k,r) {
-          tryCatch(.(REPLACE),error=function(e) {rhipe.trap(e,k,r);NULL}  )  },seq_along(map.values),map.keys,map.values,SIMPLIFY=FALSE)
-        .(AFTER)
-      },list(BEFORE=FIX(l$before),AFTER=FIX(l$after),REPLACE=FIX(l$replace))))
-      environment(newm) <- .BaseNamespaceEnv
-      job[[1]]$rhipe_map <- rawToChar(serialize(newm,NULL,ascii=TRUE))
-    }else if(is(m, "rhmr-map2")){
-      jj <- m[[1]][[2]][[3]][[2]] ## the function passed to mapply
-      newm <- expression({
-        result <- mapply(function(k,r) {
-          tryCatch(rhipe_inner_runner(k,r),error=function(e) {rhipe.trap(e,k,r);NULL}  )  },map.keys,map.values,SIMPLIFY=FALSE)
-      })
-      environment(newm) <- .BaseNamespaceEnv
-      job[[1]]$rhipe_map <- rawToChar(serialize(newm,NULL,ascii=TRUE))
-    }
-  
-    ## Has the user given one?
-    if(is.list(debug) && is.null(debug$map))
-      stop("debug should be list with a sublist named 'map'")
-    if(is.list(debug) && !is.null(debug$map)){
-      if(!is.null(debug$map$setup))   setup   <- debug$map$setup
-      if(!is.null(debug$map$cleanup)) cleanup <- debug$map$cleanup
-      if(!is.null(debug$map$handler)) handler <- debug$map$handler
-    }else if(is.character(debug)){
-      handler <- rhoptions()$debug$map[[debug]]$handler
-      setup   <- rhoptions()$debug$map[[debug]]$setup
-      cleanup   <- rhoptions()$debug$map[[debug]]$cleanup
-      if(is.null(handler)) stop("Rhipe(rhwatch): invalid debug character string provided")
-    }
-    if(is.null(job$paramaters)){
-      environment(handler) <- .BaseNamespaceEnv
-      job$paramaters <- Rhipe:::makeParamTempFile(file="rhipe-temp-params",paramaters=list(rhipe.trap=handler))
-
-      ## need the code to load temporary files!
-      x <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
-      y <- job$paramaters$setup; environment(y) <- .BaseNamespacEenv
-      job[[1]]$rhipe_setup_map <- rawToChar(serialize( c(y,x),NULL,ascii=TRUE))
-
-      x <- unserialize(charToRaw(job[[1]]$rhipe_setup_reduce))
-      job[[1]]$rhipe_setup_reduce <- rawToChar(serialize( c(y,x),NULL,ascii=TRUE))
-      ## This is becoming quite the HACK
-      ## Of all lines magic and thiss hit should be in rhex ...
-      job[[1]]$rhipe_shared <- sprintf("%s,%s#%s",job[[1]]$rhipe_shared,job$paramaters$file,basename(job$paramaters$file))
-    }else {
-      environment(handler) <- .BaseNamespaceEnv
-      job$paramaters$envir$rhipe.trap <- handler
-    }
-    if(is.expression(setup)){
-      environment(setup) <- .BaseNamespaceEnv
-      x <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
-      job[[1]]$rhipe_setup_map<- rawToChar(serialize(c(x,setup),NULL,ascii=TRUE))
-    }
-    if(is.expression(cleanup)){
-      environment(cleanup) <- .BaseNamespaceEnv
-      cleanupmap <- unserialize(charToRaw(job[[1]]$rhipe_cleanup_map))
-      job[[1]]$rhipe_cleanup_map<- rawToChar(serialize(c(cleanupmap,cleanup),NULL,ascii=TRUE))
-    }
-    environment(handler) <- .BaseNamespaceEnv
-    job[[1]]$rhipe_copy_file <- 'TRUE' ##logic for local runner is wrong here
-    job[[1]]$rhipe_copy_excludes <- rhoptions()$rhipe_copy_excludes
-    job[[1]]$rhipe_copyfile_folder <- rhoptions()$rhipe_copyfile_folder
-  }
-  if(noeval) return(job)
-  z <- Rhipe:::rhwatch.runner(job=job, mon.sec=mon.sec,readback=readback,...)
-  if(readback==FALSE){
-    class(z) <- append(class(z),"rhwatch")
-  }
-  z
-}
-
-rhwatch.runner <- function(job,mon.sec=5,readback=TRUE,debug=NULL,...){
-  if(class(job)=="rhmr"){
-    results <- if(is(job,"rhmr"))
-      rhstatus(rhex(job,async=TRUE),mon.sec=mon.sec,...)
-    else
-      rhstatus(job,mon.sec=mon.sec,...)
-    ofolder <- job$lines$rhipe_output_folder
-    
-    # if rhoption write.job.info is TRUE, then write it to _rh_meta
-    if(results$state=="SUCCEEDED" && rhoptions()$write.job.info) {
-      # get job id
-      x <- gregexpr("jobid=",results$tracking)
-      st <- x[[1]]+attr(x[[1]],"match.length")
-      id <- substring(results$tracking, st,1e6L)
-      
-      jobData <- list(results=results, jobConf=job, jobInfo=rhJobInfo(id))
-      rhsave(jobData, file=paste(ofolder, "/_rh_meta/jobData.Rdata", sep=""))
-    }
-    
-    if(readback==TRUE && results$state == "SUCCEEDED" && sum(rhls(ofolder)$size)/(1024^2) < rhoptions()$max.read.in.size){
-      W <- 'Reduce output records'
-      if(!is.null(job$lines$mapred.reduce.tasks) && as.numeric(job$lines$mapred.reduce.tasks)==0) W <- 'Map output records'
-      num.records <- as.numeric(results$counters$'Map-Reduce Framework'[W,])
-      if (num.records > rhoptions()$reduce.output.records.warn)
-        warning(sprintf("Number of output records is %s which is greater than rhoptions()$reduce.output.records.warn\n. Consider running a mapreduce to make this smaller, since reading so many key-value pairs is slow in R", num.records))
-      oclass <- job$lines$rhipe_outputformat_class
-      textual <- FALSE; type="sequence"
-      if(grepl("RHSequenceAsTextOutputFormat",oclass)) { textual <- TRUE}
-      if(grepl("RXTextOutputFormat",oclass)) { type = 'text'}
-      
-      if(!is.na(rhoptions()$rhmr.max.records.to.read.in))
-        return( rhread(ofolder,max=rhoptions()$rhmr.max.records.to.read.in,type=type, textual=textual) )
-      else
-        return( rhread(ofolder,type=type, textual=textual) )
-    }
-    if(grepl("(FAILED|KILLED)",results$state))
-      {
-        if(is.null(debug) || (!is.null(debug) && debug!='collect')){
-          warning(sprintf("Job failure, deleting output: %s:", ofolder))
-          rhdel(ofolder)
-        } else warning("debug is 'collect', so not deleting output folder")
+rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL, cleanup = NULL, 
+   input = NULL, output = NULL, orderby = "bytes", mapred = NULL, shared = c(), 
+   jarfiles = c(), zips = c(), partitioner = NULL, copyFiles = FALSE, jobname = "", 
+   parameters = NULL, job = NULL, mon.sec = 5, readback = rhoptions()$readback, 
+   debug = NULL, noeval = FALSE, ...) {
+   ## ############################## 
+   ## Handle ...  
+   ## ##############################
+   envir <- sys.frame(-1)
+   if (is.null(job))
+      job <- Rhipe:::.rhmr(map = map, reduce = reduce, combiner = combiner, setup = setup, 
+         cleanup = cleanup, input = input, output = output, orderby = orderby, 
+         mapred = mapred, shared = shared, jarfiles = jarfiles, zips = zips, partitioner = partitioner, 
+         copyFiles = copyFiles, jobname = jobname, parameters = parameters, envir = envir) 
+   else if (is.character(job)) 
+      return(Rhipe:::rhwatch.runner(job = job, mon.sec = mon.sec, readback = readback, ...))
+   if (!is.null(job$lines$mapred.job.tracker) && job$lines$mapred.job.tracker == TRUE) {
+      z <- Rhipe:::rhwatch.runner(job = job, mon.sec = mon.sec, readback = readback, ...)
+      if (readback == FALSE) {
+         class(z) <- append(class(z), "rhwatch")
       }
-    return(list(results,job))
-  }
-  else
-    ## Ideally even with a job.id i can still get the all the job info
-    ## by looking somewhere in the output folder.
-    ## job is now a job_identifier string
-    rhstatus(job,mon.sec=mon.sec,...) 
+      return(z)
+   }
+   if (!is.null(debug)) {
+      m <- unserialize(charToRaw(job[[1]]$rhipe_map))
+      if (!(is(m, "rhmr-map") || is(m, "rhmr-map2"))) 
+         stop("RHIPE: for debugging purposes, must use a map expression returned  by ewrap")
+      
+      ## Replace the map expression
+      if (is(m, "rhmr-map")) {
+         j <- m[[1]][[3]]  ##the mapply
+         jj <- j[[3]][[2]]  ## the function passed to mapply
+         l <- list()
+         l$replace <- jj[[3]][[2]]  ## body of jj when rhmap is fixed it's body(jj)
+         l$before <- m[[1]][[2]]
+         l$after <- m[[1]][[4]]
+         FIX <- function(x) if (is.null(x)) 
+            NULL else x
+         newm <- as.expression(bquote({
+            .(BEFORE)
+            result <- mapply(function(.index, k, r) {
+              tryCatch(.(REPLACE), error = function(e) {
+               rhipe.trap(e, k, r)
+               NULL
+              })
+            }, seq_along(map.values), map.keys, map.values, SIMPLIFY = FALSE)
+            .(AFTER)
+         }, list(BEFORE = FIX(l$before), AFTER = FIX(l$after), REPLACE = FIX(l$replace))))
+         environment(newm) <- .BaseNamespaceEnv
+         job[[1]]$rhipe_map <- rawToChar(serialize(newm, NULL, ascii = TRUE))
+      } else if (is(m, "rhmr-map2")) {
+         jj <- m[[1]][[2]][[3]][[2]]  ## the function passed to mapply
+         newm <- expression({
+            result <- mapply(function(k, r) {
+              tryCatch(rhipe_inner_runner(k, r), error = function(e) {
+               rhipe.trap(e, k, r)
+               NULL
+              })
+            }, map.keys, map.values, SIMPLIFY = FALSE)
+         })
+         environment(newm) <- .BaseNamespaceEnv
+         job[[1]]$rhipe_map <- rawToChar(serialize(newm, NULL, ascii = TRUE))
+      }
+      
+      ## Has the user given one?
+      if (is.list(debug) && is.null(debug$map)) 
+         stop("debug should be list with a sublist named 'map'")
+      if (is.list(debug) && !is.null(debug$map)) {
+         if (!is.null(debug$map$setup)) 
+            setup <- debug$map$setup
+         if (!is.null(debug$map$cleanup)) 
+            cleanup <- debug$map$cleanup
+         if (!is.null(debug$map$handler)) 
+            handler <- debug$map$handler
+      } else if (is.character(debug)) {
+         handler <- rhoptions()$debug$map[[debug]]$handler
+         setup <- rhoptions()$debug$map[[debug]]$setup
+         cleanup <- rhoptions()$debug$map[[debug]]$cleanup
+         if (is.null(handler)) 
+            stop("Rhipe(rhwatch): invalid debug character string provided")
+      }
+      if (is.null(job$paramaters)) {
+         environment(handler) <- .BaseNamespaceEnv
+         job$paramaters <- Rhipe:::makeParamTempFile(file = "rhipe-temp-params", 
+            paramaters = list(rhipe.trap = handler))
+         
+         ## need the code to load temporary files!
+         x <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
+         y <- job$paramaters$setup
+         environment(y) <- .BaseNamespacEenv
+         job[[1]]$rhipe_setup_map <- rawToChar(serialize(c(y, x), NULL, ascii = TRUE))
+         
+         x <- unserialize(charToRaw(job[[1]]$rhipe_setup_reduce))
+         job[[1]]$rhipe_setup_reduce <- rawToChar(serialize(c(y, x), NULL, ascii = TRUE))
+         ## This is becoming quite the HACK Of all lines magic and thiss hit should be in
+         ## rhex ...
+         job[[1]]$rhipe_shared <- sprintf("%s,%s#%s", job[[1]]$rhipe_shared, job$paramaters$file, 
+            basename(job$paramaters$file))
+      } else {
+         environment(handler) <- .BaseNamespaceEnv
+         job$paramaters$envir$rhipe.trap <- handler
+      }
+      if (is.expression(setup)) {
+         environment(setup) <- .BaseNamespaceEnv
+         x <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
+         job[[1]]$rhipe_setup_map <- rawToChar(serialize(c(x, setup), NULL, ascii = TRUE))
+      }
+      if (is.expression(cleanup)) {
+         environment(cleanup) <- .BaseNamespaceEnv
+         cleanupmap <- unserialize(charToRaw(job[[1]]$rhipe_cleanup_map))
+         job[[1]]$rhipe_cleanup_map <- rawToChar(serialize(c(cleanupmap, cleanup), 
+            NULL, ascii = TRUE))
+      }
+      environment(handler) <- .BaseNamespaceEnv
+      job[[1]]$rhipe_copy_file <- "TRUE"  ##logic for local runner is wrong here
+      job[[1]]$rhipe_copy_excludes <- rhoptions()$rhipe_copy_excludes
+      job[[1]]$rhipe_copyfile_folder <- rhoptions()$rhipe_copyfile_folder
+   }
+   if (noeval) 
+      return(job)
+   z <- Rhipe:::rhwatch.runner(job = job, mon.sec = mon.sec, readback = readback, 
+      ...)
+   if (readback == FALSE) {
+      class(z) <- append(class(z), "rhwatch")
+   }
+   z
 }
+
+rhwatch.runner <- function(job, mon.sec = 5, readback = TRUE, debug = NULL, ...) {
+   if (class(job) == "rhmr") {
+      results <- if (is(job, "rhmr")) 
+         rhstatus(rhex(job, async = TRUE), mon.sec = mon.sec, ...) else rhstatus(job, mon.sec = mon.sec, ...)
+      ofolder <- job$lines$rhipe_output_folder
+      
+      # if rhoption write.job.info is TRUE, then write it to _rh_meta
+      if (results$state == "SUCCEEDED" && rhoptions()$write.job.info) {
+         # get job id
+         x <- gregexpr("jobid=", results$tracking)
+         st <- x[[1]] + attr(x[[1]], "match.length")
+         id <- substring(results$tracking, st, 1000000L)
+         
+         jobData <- list(results = results, jobConf = job, jobInfo = rhJobInfo(id))
+         rhsave(jobData, file = paste(ofolder, "/_rh_meta/jobData.Rdata", sep = ""))
+      }
+      
+      if (readback == TRUE && results$state == "SUCCEEDED" && sum(rhls(ofolder)$size)/(1024^2) < 
+         rhoptions()$max.read.in.size) {
+         W <- "Reduce output records"
+         if (!is.null(job$lines$mapred.reduce.tasks) && as.numeric(job$lines$mapred.reduce.tasks) == 
+            0) 
+            W <- "Map output records"
+         num.records <- as.numeric(results$counters$"Map-Reduce Framework"[W, 
+            ])
+         if (num.records > rhoptions()$reduce.output.records.warn) 
+            warning(sprintf("Number of output records is %s which is greater than rhoptions()$reduce.output.records.warn\n. Consider running a mapreduce to make this smaller, since reading so many key-value pairs is slow in R", 
+              num.records))
+         oclass <- job$lines$rhipe_outputformat_class
+         textual <- FALSE
+         type <- "sequence"
+         if (grepl("RHSequenceAsTextOutputFormat", oclass)) {
+            textual <- TRUE
+         }
+         if (grepl("RXTextOutputFormat", oclass)) {
+            type <- "text"
+         }
+         
+         if (!is.na(rhoptions()$rhmr.max.records.to.read.in)) 
+            return(rhread(ofolder, max = rhoptions()$rhmr.max.records.to.read.in, 
+              type = type, textual = textual)) else return(rhread(ofolder, type = type, textual = textual))
+      }
+      if (grepl("(FAILED|KILLED)", results$state)) {
+         if (is.null(debug) || (!is.null(debug) && debug != "collect")) {
+            warning(sprintf("Job failure, deleting output: %s:", ofolder))
+            rhdel(ofolder)
+         } else warning("debug is 'collect', so not deleting output folder")
+      }
+      return(list(results, job))
+   } else 
+      ## Ideally even with a job.id i can still get the all the job info by looking
+      ## somewhere in the output folder.  job is now a job_identifier string
+      rhstatus(job, mon.sec = mon.sec, ...)
+} 

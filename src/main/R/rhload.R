@@ -17,18 +17,17 @@
 #'     on.exit({
 #'         unlink(x)
 #'     })
-#'     x <- tempfile(pattern = "rhipe.load")
+#'     x <- tempfile(pattern = 'rhipe.load')
 #'     rhget(file, x)
 #'     load(x, envir)
 #' }
 #' }
 #' @export
-rhload <- function (file, envir=parent.frame()) 
-{
-    on.exit({
-        unlink(x)
-    })
-    x <- tempfile(pattern = "rhipe.load")
-    rhget(file, x)
-    load(x,envir )
-}
+rhload <- function(file, envir = parent.frame()) {
+   on.exit({
+      unlink(x)
+   })
+   x <- tempfile(pattern = "rhipe.load")
+   rhget(file, x)
+   load(x, envir)
+} 

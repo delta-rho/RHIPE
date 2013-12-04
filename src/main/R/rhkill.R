@@ -14,10 +14,12 @@
 #'   \code{\link{rhex}}
 #' @export
 rhkill <- function(job) {
-  if(class(job)!="jobtoken" && class(job)!="character" ) stop("Must give a jobtoken object(as obtained from rhex)")
-  if(class(job)=="character") id <- job else {
-    job <- job[[1]]
-    id <- job[['job.id']]
-  }
-  result <- rhoptions()$server$rhkill(id)
-}
+   if (class(job) != "jobtoken" && class(job) != "character") 
+      stop("Must give a jobtoken object(as obtained from rhex)")
+   if (class(job) == "character") 
+      id <- job else {
+      job <- job[[1]]
+      id <- job[["job.id"]]
+   }
+   result <- rhoptions()$server$rhkill(id)
+} 

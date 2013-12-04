@@ -43,7 +43,7 @@
 #' @param r an object to serialize or unserialize
 #' @return a serialized or unserialized object
 #' @export
-rhsz <- function(r) .Call("serializeUsingPB",r,PACKAGE="Rhipe")
+rhsz <- function(r) .Call("serializeUsingPB", r, PACKAGE = "Rhipe")
 
 #' Serialize and Unserialize
 #' See Details.
@@ -90,5 +90,5 @@ rhsz <- function(r) .Call("serializeUsingPB",r,PACKAGE="Rhipe")
 #' @param r an object to serialize or unserialize
 #' @return a serialized or unserialized object
 #' @export
-rhuz <- function(r) .Call("unserializeUsingPB",r,PACKAGE="Rhipe")
-
+rhuz <- function(r) .Call("unserializeUsingPB", r, PACKAGE = "Rhipe")
+ 

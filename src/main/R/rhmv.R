@@ -13,5 +13,5 @@
 #' @keywords copy HDFS file
 #' @export
 rhmv <- function(ifile, ofile) {
-  rhcp(ifile, ofile,delete=TRUE)
-}
+   rhcp(ifile, ofile, delete = TRUE)
+} 

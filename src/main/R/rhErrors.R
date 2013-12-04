@@ -6,12 +6,12 @@
 #' @param num.file is the number of debug files to read
 #' @author Saptarshi Guha
 #' @export
-rherrors <- function(job,prefix="rhipe_debug",num.file=1){
-  files <- rhls(sprintf("%s/%s/",rhofolder(job),rhoptions()$rhipe_copyfile_folder))$file
-  files <- files[grepl(prefix,files)][1:num.file]
-  y <- new.env()
-  unlist(lapply(files, function(r){
-    rhload(r,envir=y)
-    y$rhipe.errors
-  }),recursive=FALSE)
-}
+rherrors <- function(job, prefix = "rhipe_debug", num.file = 1) {
+   files <- rhls(sprintf("%s/%s/", rhofolder(job), rhoptions()$rhipe_copyfile_folder))$file
+   files <- files[grepl(prefix, files)][1:num.file]
+   y <- new.env()
+   unlist(lapply(files, function(r) {
+      rhload(r, envir = y)
+      y$rhipe.errors
+   }), recursive = FALSE)
+} 

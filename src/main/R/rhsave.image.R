@@ -11,10 +11,12 @@
 #' @return NULL
 #' @seealso \code{\link{rhsave}} , \code{\link{rhload}}
 #' @export
-rhsave.image <- function(...,file){
-	file=rhabsolute.hdfs.path(file)
-  on.exit({unlink(x)})
-  x <- tempfile(pattern='rhipe.save')
-  save.image(file=x,...)
-  rhput(src=x,dest=file)
-}
+rhsave.image <- function(..., file) {
+   file <- rhabsolute.hdfs.path(file)
+   on.exit({
+      unlink(x)
+   })
+   x <- tempfile(pattern = "rhipe.save")
+   save.image(file = x, ...)
+   rhput(src = x, dest = file)
+} 

@@ -1,13 +1,13 @@
 #' Set HDFS Working Directory
 #'
 #' Sets a working directory for all Rhipe commands that use the HDFS.
-#' By default hdfs.working.dir is set to "/".  All input directories to
-#' all Rhipe commands may omit a leading "/" and indicate they are off of
+#' By default hdfs.working.dir is set to '/'.  All input directories to
+#' all Rhipe commands may omit a leading '/' and indicate they are off of
 #' the current hdfs.working.dir. 
 #' 
 #' This is anagolous to how file operations
 #' in R work off the current working directory.
-#
+# 
 #'  
 #' Using working directories with relative paths for input and output
 #' helps users make more portable scripts.
@@ -24,26 +24,27 @@
 #' 
 #' \dontrun{
 #' #DOES NOT RUN.  JUST ILLUSTRATING CONCEPTS.
-#' hdfs.setwd("/tmp")
+#' hdfs.setwd('/tmp')
 #' #this would output to /tmp/test/something.out
-#' rhmr(map=map, N=10, input=c("lapply","text"), ofolder="test/something.out") 
-#' rhread("test/something.out",type="sequence")  #reads a sequence file in /tmp/test/something.out
+#' rhmr(map=map, N=10, input=c('lapply','text'), ofolder='test/something.out') 
+#' rhread('test/something.out',type='sequence')  #reads a sequence file in /tmp/test/something.out
 #' this is NOT relative thus it reads from /test/something.out
-#' rhread("/test/something.out",type="sequence") 
+#' rhread('/test/something.out',type='sequence') 
 #' }
 #' @export
 
-hdfs.setwd = function(path, check.valid.hdfs = TRUE){
-	path = rhabsolute.hdfs.path(path)
-	if(check.valid.hdfs){
-		#safety first.  See if the directory exist reusing a list.  
-		#Is there a better command that doesn't have the overhead of returning files?
-		x = NULL
-		try({
-                  x =  rhoptions()$clz$filesystem$exists(.jnew("org/apache/hadoop/fs/Path",path))
-		},silent = TRUE)
-		if(!x) 
-                  stop("Invalid HDFS path.")
-              }
-	rhoptions(hdfs.working.dir = path)
-      }
+hdfs.setwd <- function(path, check.valid.hdfs = TRUE) {
+   path <- rhabsolute.hdfs.path(path)
+   if (check.valid.hdfs) {
+      # safety first.  See if the directory exist reusing a list.  Is there a better
+      # command that doesn't have the overhead of returning files?
+      x <- NULL
+      try({
+         x <- rhoptions()$clz$filesystem$exists(.jnew("org/apache/hadoop/fs/Path", 
+            path))
+      }, silent = TRUE)
+      if (!x) 
+         stop("Invalid HDFS path.")
+   }
+   rhoptions(hdfs.working.dir = path)
+} 
