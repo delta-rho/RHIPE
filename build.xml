@@ -64,7 +64,7 @@
         </copy>
 
         <!--Build the CDH4 jar-->
-        <delete file="${java.build}/${maven.project.name}-${rhipe.version}-jar-with-dependencies.jar"/>
+        <antcall target="maven-clean"/>
 
         <antcall target="_mvn-install">
             <param name="profile" value="cdh4"/>
