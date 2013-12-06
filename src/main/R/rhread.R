@@ -10,10 +10,11 @@
 #' @param mc Set to lapply by default. User can change this to \code{mclapply} for parallel lapply.
 #' @param textual if the keys and values are hadoop Text objects
 #' @param skip Files to skip while reading the hdfs.  Various installs of Hadoop add additional log
-#'\t\t\tinfo to HDFS output from MapReduce.  Attempting to read these files is not what we want to do 
-#'\t        in rhread.  To get around this we specify pieces of filenames to grep and remove from the read.
+#' info to HDFS output from MapReduce.  Attempting to read these files is not what we want to do 
+#' in rhread.  To get around this we specify pieces of filenames to grep and remove from the read.
 #'          skip is a vector argument just to have sensible defaults for a number of different systems.
 #'          You can learn which if any files need to be skipped by using rhls on target directory.
+#' @param verbose logical - print messages about what is being done
 #' @return For map and sequence files, a list of key, pairs of up to length
 #'   MAX.  For text files, a matrix of lines, each row a line from the text
 #'   files.
@@ -38,8 +39,15 @@
 #'   \code{\link{rhdel}}, \code{\link{rhwrite}}, \code{\link{rhsave}}
 #' @keywords read HDFS file
 #' @export
-rhread <- function(files, type = c("sequence"), max = -1L, skip = rhoptions()$file.types.remove.regex, 
-   mc = lapply, textual = FALSE, ...) {
+rhread <- function(files, 
+   type = c("sequence"), 
+   max = -1L, 
+   skip = rhoptions()$file.types.remove.regex, 
+   mc = lapply, 
+   textual = FALSE, 
+   verbose = TRUE,
+   ...
+) {
    if (is(files, "rhwatch")) 
       files <- rhofolder(files)
    files <- rhabsolute.hdfs.path(files)
@@ -50,9 +58,11 @@ rhread <- function(files, type = c("sequence"), max = -1L, skip = rhoptions()$fi
    }, text = {
       rhread.text(files, max = max)
    }, map = {
-      rhread.sequence(files, max = max, mc = mc, textual = textual)
+      rhread.sequence(files, max = max, mc = mc, textual = textual, 
+         verbose = verbose)
    }, sequence = {
-      rhread.sequence(files, max = max, mc = mc, textual = textual)
+      rhread.sequence(files, max = max, mc = mc, textual = textual, 
+         verbose = verbose)
    })
 }
 
@@ -71,7 +81,7 @@ rhread.text <- function(files, max) {
    return(x)
 }
 
-rhread.sequence <- function(files, max, mc, textual = FALSE) {
+rhread.sequence <- function(files, max, mc, textual = FALSE, verbose = FALSE) {
    a1 <- proc.time()["elapsed"]
    handle <- .jnew("org/godhuli/rhipe/SequenceFileIterator")
    j <- list()
@@ -85,7 +95,8 @@ rhread.sequence <- function(files, max, mc, textual = FALSE) {
    }
    v <- unlist(j, rec = FALSE)
    a2 <- proc.time()["elapsed"]
-   message(makeMessage(bread, length(v), a2 - a1))
+   if(verbose)
+      message(makeMessage(bread, length(v), a2 - a1))
    v
 }
 
@@ -119,8 +130,8 @@ makeMessage <- function(b, l, d) {
 #' @param chunksize Number of records or bytes to read. Depends on 'chunk'
 #' @param type Is it 'sequence' or 'map'. Ideally should be auto-determined.
 #' @param skip Files to skip while reading the hdfs.  Various installs of Hadoop add additional log
-#'\t\t\tinfo to HDFS output from MapReduce.  Attempting to read these files is not what we want to do.
-#'\t       To get around this we specify pieces of filenames to grep and remove from the read.
+#' info to HDFS output from MapReduce.  Attempting to read these files is not what we want to do.
+#' To get around this we specify pieces of filenames to grep and remove from the read.
 #'          skip is a vector argument just to have sensible defaults for a number of different systems.
 #'          You can learn which if any files need to be skipped by using rhls on the target directory.
 #' @param type Either 'records' or 'bytes'

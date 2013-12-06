@@ -7,7 +7,7 @@ bin=`dirname "$0"`
 RHIPE_BIN=`cd "$bin"; pwd`
 
 
-#ASSUME THIS IS RAN FROM AN ARCHIVE CREATED BY bashRhipeArchive()
+# ASSUME THIS IS RUN FROM AN ARCHIVE CREATED BY bashRhipeArchive()
 export R_HOME=$RHIPE_BIN/../../..
 export R_HOME_DIR=$R_HOME
 export R_SHARE_DIR=$R_HOME/library

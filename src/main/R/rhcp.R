@@ -26,3 +26,4 @@ rhcp <- function(ifile, ofile, delete = FALSE) {
    ## if(delete) rhdel(ifile) v <-
    ## Rhipe:::send.cmd(rhoptions()$child$handle,list('rhcp',ifile, ofile))
 } 
+

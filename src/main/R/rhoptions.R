@@ -26,14 +26,13 @@
 #' @seealso \code{\link{rhinit}}, \code{\link{rhmr}}
 #' @examples
 #' 
-#' \t#RUNNABLE BUT LIKELY DOES NOT APPLY TO MOST USERS:
-#' \t#sets the runner to be a shell script in the HOME directory.
-#' \t#NOT RUN
-#' \t#rhoptions(runner=paste(Sys.getenv('HOME'),'rhipe.runner.sh', sep='/'))
-#' \t#list all the options
-#' \t#rhoptions()
-#' \t
-#' \t#END NOT RUN
+#' # RUNNABLE BUT LIKELY DOES NOT APPLY TO MOST USERS:
+#' # sets the runner to be a shell script in the HOME directory.
+#' # NOT RUN
+#' # rhoptions(runner=paste(Sys.getenv('HOME'), 'rhipe.runner.sh', sep='/'))
+#' # list all the options
+#' # rhoptions()
+#' # END NOT RUN
 #' 
 #' @export
 rhoptions <- function(li = NULL, ...) {

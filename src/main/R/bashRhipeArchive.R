@@ -16,12 +16,11 @@
 #' @examples
 #' 
 #' \dontrun{
-#' library('Rhipe')
+#' library("Rhipe")
 #' rhinit()
-#' setwd('~')    \t\t# MUST SET THIS
-#' hdfs.setwd('/tmp') \t# MUST SET THIS
-#' system('rm -Rf RhipeLib_0.67')
-#' createBashRhipeLibArchive('RhipeLib_0.67')
+#' setwd("~/") # MUST SET THIS
+#' hdfs.setwd("/tmp") # MUST SET THIS
+#' createBashRhipeLibArchive("RhipeLib")
 #'}
 #' @author Jeremiah Rounds 
 #' @export

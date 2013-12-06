@@ -3,15 +3,19 @@ Type: Package
 Title: R and Hadoop Integrated Programming Environment
 Version: 0.73.1-6
 Date: 2013-10-23
-Author: Saptarshi Guha <saptarshi.guha@gmail.com>
-Maintainer: Jeremiah Rounds  <roundsjeremiah@gmail.com>
+Authors@R: c(person("Saptarshi", "Guha", role = c("aut", "cre"), email = "saptarshi.guha@gmail.com"),
+    person("Ryan", "Hafen", role = "ctb"),
+    person("Ralph", "Perko", role = "ctb"),
+    person("Jeremiah", "Rounds", role = "ctb"),
+    person("Ralph", "Perko", role = "ctb"),
+    person("Amanda", "White", role = "ctb"))
 Description: Run MapReduce scripts using R code.
-URL: http://www.rhipe.org
+URL: http://www.datadr.org
 License: Apache License (== 2.0)
 OS_type: unix
 Depends:
     methods
-Packaged: Fri Mar  6 17:02:01 2012; jrounds
+BugReports: https://github.com/saptarshiguha/RHIPE/issues
 Collate:
     'rhcp.R'
     'rhdel.R'

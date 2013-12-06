@@ -205,19 +205,19 @@
 #' @examples
 #' 
 #' \dontrun{
-#'    #RUNNABLE BUT ARTIFICIAL EXAMPLE
-#'    #We will create a data set with three columns: 
-#'    #the level of a categorical variable A, a time variable B and a value C. 
-#'    #For each level of A, we want the sum of differences of C ordered by B within A.
-#'    #Creating the Data set The column A is the key, but this is not important. 
-#'    #There are 5000 levels of A, each level has 10,000 observations. 
-#'    #By design the values of B are randomly written (sample), 
-#'    #also for simplicity C is equal to B, though this need not be.
+#' # RUNNABLE BUT ARTIFICIAL EXAMPLE
+#' # We will create a data set with three columns: 
+#' # the level of a categorical variable A, a time variable B and a value C. 
+#' # For each level of A, we want the sum of differences of C ordered by B within A.
+#' # Creating the Data set The column A is the key, but this is not important. 
+#' # There are 5000 levels of A, each level has 10,000 observations. 
+#' # By design the values of B are randomly written (sample), 
+#' # also for simplicity C is equal to B, though this need not be.
 #' 
 #' library(Rhipe)
 #' rhinit()
 #' 
-#' #might need a call here to rhoptions for runner option depending on user
+#' # might need a call here to rhoptions for runner option depending on user
 #' 
 #' map <- expression({
 #'    N <- 10000
@@ -228,16 +228,14 @@
 #'    
 #'    }
 #' })
-#' z=rhwatch(map=map,reduce=0,input=5000,output='/tmp/sort',mapred=mapred,read=FALSE)
-#' 
-#' 
+#' z <- rhwatch(map=map, reduce=0, input=5000, output="/tmp/sort", mapred=mapred, read=FALSE)
 #' 
 #' #Sum of Differences The key is the value of A and B, the value is C.
 #' 
 #' map <- expression({
 #'    for(r in seq_along(map.values)){
 #'       f <- map.values[[r]]
-#'       rhcollect(as.integer(c(map.keys[[r]],f[1])),f[2])
+#'       rhcollect(as.integer(c(map.keys[[r]], f[1])), f[2])
 #'    }
 #' })
 #' 
@@ -267,7 +265,7 @@
 #'    }
 #' )
 #' reduce.cleanup <- expression({
-#'    if(newp>-Inf) rhcollect(newp,diffsum) #for the last key
+#'    if(newp > -Inf) rhcollect(newp, diffsum) #for the last key
 #' })
 #' 
 #' #To turn on the partitioning and ordering of keys,
