@@ -15,6 +15,7 @@
 #'          skip is a vector argument just to have sensible defaults for a number of different systems.
 #'          You can learn which if any files need to be skipped by using rhls on target directory.
 #' @param verbose logical - print messages about what is being done
+#' @param ... arguments passed to the function
 #' @return For map and sequence files, a list of key, pairs of up to length
 #'   MAX.  For text files, a matrix of lines, each row a line from the text
 #'   files.
@@ -93,7 +94,7 @@ rhread.sequence <- function(files, max, mc, textual = FALSE, verbose = FALSE) {
       j[[length(j) + 1]] <- mc(rhuz(v), function(r) list(rhuz(r[[1]]), rhuz(r[[2]])))
       bread <- bread + length(v)
    }
-   v <- unlist(j, rec = FALSE)
+   v <- unlist(j, recursive = FALSE)
    a2 <- proc.time()["elapsed"]
    if(verbose)
       message(makeMessage(bread, length(v), a2 - a1))
@@ -127,24 +128,22 @@ makeMessage <- function(b, l, d) {
 #' Can be used to iterate through the records of a Sequence File(or collection thereof)
 #' 
 #' @param files Path to file or directory containing  sequence files.  This can also be the output from rhwatch(provided read=FALSE) or rhmr.
-#' @param chunksize Number of records or bytes to read. Depends on 'chunk'
 #' @param type Is it 'sequence' or 'map'. Ideally should be auto-determined.
+#' @param chunksize Number of records or bytes to read. Depends on 'chunk'
+#' @param chunk either "records" or "bytes"
 #' @param skip Files to skip while reading the hdfs.  Various installs of Hadoop add additional log
 #' info to HDFS output from MapReduce.  Attempting to read these files is not what we want to do.
-#' To get around this we specify pieces of filenames to grep and remove from the read.
-#'          skip is a vector argument just to have sensible defaults for a number of different systems.
-#'          You can learn which if any files need to be skipped by using rhls on the target directory.
-#' @param type Either 'records' or 'bytes'
+#' To get around this we specify pieces of filenames to grep and remove from the read.  \code{skip} is a vector argument just to have sensible defaults for a number of different systems.  You can learn which if any files need to be skipped by using rhls on the target directory.
+#' @param mc Set to lapply by default. User can change this to \code{mclapply} for parallel lapply
 #' @param textual if the keys and values are hadoop Text objects
 #' @examples
-#'
+#' 
 #' \dontrun{
-#'    j <- rhwatch(map=rhmap(rhcollect(r,k)),reduce=0, input=c(36,3),read=FALSE)
-#'    a <- rhIterator(j,chunk=11)
-#'    while( length(b<-a())>0) doSomethingWith(b)
+#'    j <- rhwatch(map = rhmap(rhcollect(r,k)), reduce=0, input=c(36,3), read=FALSE)
+#'    a <- rhIterator(j, chunksize=11)
+#'    while (length(b <- a()) > 0) doSomethingWith(b)
 #' }
 #' @export
-
 rhIterator <- function(files, type = "sequence", chunksize = 1000, chunk = "records", 
    skip = rhoptions()$file.types.remove.regex, mc = lapply, textual = FALSE) {
    if (is(files, "rhwatch")) 

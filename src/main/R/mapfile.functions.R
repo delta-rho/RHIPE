@@ -25,7 +25,7 @@ rh.init.cache <- function(mbsize = 1024 * 1024 * 100, openhandles = 100) {
 
 
 #' Creates a Handle to a Mapfile
-#' @param Absolute path to map file on HDFS or the output from \code{rhwatch}.
+#' @param paths Absolute path to map file on HDFS or the output from \code{\link{rhwatch}}.
 #' @export
 rhmapfile <- function(paths) {
    if (is(paths, "rhwatch") || is(paths, "rhmr")) 
@@ -45,9 +45,12 @@ rhmapfile <- function(paths) {
 }
 
 #' Prints A MapFile Object
+#' @method print mapfile
+#' @param x mapfile object
+#' @param ... further arguments passed to or from other methods
 #' @export
-print.mapfile <- function(a, ...) {
-   cat(sprintf("%s is a MapFile with %s index files\n", a$filename, length(a$paths)))
+print.mapfile <- function(x, ...) {
+   cat(sprintf("%s is a MapFile with %s index files\n", x$filename, length(x$paths)))
 }
 
 getkey <- function(v, keys, mc = lapply) {
@@ -55,28 +58,24 @@ getkey <- function(v, keys, mc = lapply) {
    mc(a, rhuz)
 }
 
-#' Single Index into MapFile Object(calls \code{rhgetkey}
-#' @export
+#' @S3method [[ mapfile
 "[[.mapfile" <- function(a, i, ...) {
    getkey(a, i, ...)[[1]]
    ## if(length(a)>=1) a[[1]] else NULL
 }
 
-#' Array Indexing
-#' @export
+#' @S3method [ mapfile
 "[.mapfile" <- function(a, i, ...) {
    getkey(a, i, ...)
 }
 
-#' Cannot Assign to Object
-#' @export
-"[[<-.mapfile" <- function(a, i, ...) {
+#' @S3method [[<- mapfile
+"[[<-.mapfile" <- function(x, value, i, ...) {
    stop("Assignment to MapFile keys is not supported")
 }
 
-#' Cannot Assign to Object
-#' @export
-"[<-.mapfile" <- function(a, i, ...) {
+#' @S3method [<- mapfile
+"[<-.mapfile" <- function(x, value, i, ...) {
    stop("Assignment to MapFile keys is not supported")
 }
 

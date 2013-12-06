@@ -49,10 +49,10 @@ getypes <- function(files, type, skip) {
    }, sequence = {
       unclass(rhls(files)["file"])$file
    }, map = {
-      uu <- unclass(rhls(files, rec = TRUE)["file"])$file
+      uu <- unclass(rhls(files, recurse = TRUE)["file"])$file
       uu[grep("data$", uu)]
    }, index = {
-      uu <- unclass(rhls(files, rec = TRUE)["file"])$file
+      uu <- unclass(rhls(files, recurse = TRUE)["file"])$file
       uu[grep("data$", uu)]
    })
    for (s in skip) {

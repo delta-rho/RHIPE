@@ -1,4 +1,5 @@
 #' Defunct funciton to prepare mapreduce jobs. See \code{rhwatch}
+#' @param ... arguments passed to the function
 #' @export
 rhmr <- function(...) {
    stop("STOP! Do not call rhmr, call rhwatch with the same arguments you would have done with rhmr")
@@ -89,9 +90,9 @@ rhmr <- function(...) {
    lines$rhipe_cleanup_reduce <- cleanup$reduce
    
    
-   paramaters <- parameters
-   aparamaters <- list()
-   ## ########################### HANDLE paramaters ############################
+   parameters <- parameters
+   aparameters <- list()
+   ## ########################### HANDLE parameters ############################
    if (rhoptions()$copyObjects$auto) {
       sampbody <- function() {
       }
@@ -151,7 +152,7 @@ rhmr <- function(...) {
       })))
       ## dx <- mux[!mux %in% rhoptions()$copyObjects$exclude ]
       for (x in mux) {
-         aparamaters[[x]] <- tryCatch(get(x, envir = calling.frame), error = function(e) {
+         aparameters[[x]] <- tryCatch(get(x, envir = calling.frame), error = function(e) {
             ## if(!x %in% ls(seen.vars)) warning(sprintf('RHIPE: [param=auto], During symbol
             ## auto detect phase, object %s not found', x))
             assign(x, TRUE, seen.vars)
@@ -163,31 +164,31 @@ rhmr <- function(...) {
             paste(ls(seen.vars, all.names = TRUE), collapse = ",")), immediate. = TRUE)
    }
    
-   if (is.null(paramaters) && rhoptions()$copyObjects$auto) {
-      paramaters <- aparamaters
+   if (is.null(parameters) && rhoptions()$copyObjects$auto) {
+      parameters <- aparameters
    }
-   if (!is.null(paramaters)) {
+   if (!is.null(parameters)) {
       
-      if (is.list(paramaters)) {
-         ## get any parameters in 'aparamaters' that aren't already defined in 'paramaters'
-         autoPar <- setdiff(names(aparamaters), names(paramaters))
-         ## append these to 'paramaters'
+      if (is.list(parameters)) {
+         ## get any parameters in 'aparameters' that aren't already defined in 'parameters'
+         autoPar <- setdiff(names(aparameters), names(parameters))
+         ## append these to 'parameters'
          if (length(autoPar) > 0) 
-            paramaters <- c(paramaters, aparamaters[autoPar])
+            parameters <- c(parameters, aparameters[autoPar])
       }
       
-      if (!is.null(paramaters) && is(paramaters, "character") && tolower(paramaters) == 
+      if (!is.null(parameters) && is(parameters, "character") && tolower(parameters) == 
          "all") 
-         paramaters <- getObjects()
-      if (!is.null(paramaters) && is(paramaters, "character") && tolower(paramaters) == 
+         parameters <- getObjects()
+      if (!is.null(parameters) && is(parameters, "character") && tolower(parameters) == 
          "auto") {
          stop("Defunct,set the auto field of rhoptions('copyObjects') to TRUE")
       }
       
-      if (!is.list(paramaters)) 
+      if (!is.list(parameters)) 
          stop("parameters must be a named list or the string 'all' or 'auto'")
       lines$param.temp.file <- Rhipe:::makeParamTempFile(file = "rhipe-temp-params", 
-         paramaters = paramaters, aframe = sys.frame(-1))
+         parameters = parameters, aframe = sys.frame(-1))
    } else {
       lines$param.temp.file <- NULL
    }
@@ -276,8 +277,6 @@ rhmr <- function(...) {
    lines$rhipe_map_input_type <- "default"
    lines$mapred.job.reuse.jvm.num.tasks <- -1
    lines$mapreduce.job.counters.groups.max <- "200"
-   
-   
    ################################################################################################ HANDLE MAPRED EXTRA from RHOPTIONS
    filterOut <- function(alln, rem = c("mapred.reduce.tasks")) alln[sapply(alln, 
       function(x) if (x %in% rem && x %in% names(lines)) 
@@ -290,8 +289,9 @@ rhmr <- function(...) {
       lines$rhipe_reduce_justcollect <- "TRUE"
    }
    
-   ## ########################################################## Handle Input Output
-   ## Formats ##########################################################
+   ## #################################################################
+   ## Handle Input Output Formats
+   ## #################################################################
    
    if (is(input, "numeric") || is(input, "integer")) {
       input <- rhoptions()$ioformats[["N"]](input)
@@ -320,14 +320,15 @@ rhmr <- function(...) {
    }
    lines <- output(lines, "output", match.call())
    
-   ## ########################################################## Handle Shared Files
-   ## ##########################################################
+   ## #################################################################
+   ## Handle Shared Files
+   ## #################################################################
    if (length(shared) > 0) 
       shared <- rhabsolute.hdfs.path(shared)
    if (!is.null(lines$param.temp.file)) {
       vnames <- ls(lines$param.temp.file$envir)
       vwhere <- lines$param.temp.file$envir
-      paramaters <- list(envir = vwhere, file = lines$param.temp.file$file)
+      parameters <- list(envir = vwhere, file = lines$param.temp.file$file)
       shared <- c(shared, if (is.null(lines$param.temp.file)) NULL else lines$param.temp.file$file)
       ## Note also the setup has to be re-written ...
       lines$rhipe_setup_map <- c(lines$param.temp.file$setup, lines$rhipe_setup_map)
@@ -352,23 +353,22 @@ rhmr <- function(...) {
    lines$rhipe_cleanup_reduce <- rawToChar(serialize(lines$rhipe_cleanup_reduce, 
       NULL, ascii = TRUE))
    
-   ## #############################################################################################
+   ## #################################################################
    ## HANDLE MAPRED EXTRA PARAMS
-   ## #############################################################################################
+   ## #################################################################
    if (copyFiles == TRUE) {
       lines$rhipe_copy_excludes <- rhoptions()$rhipe_copy_excludes
       lines$rhipe_copyfile_folder <- rhoptions()$rhipe_copyfile_folder
    }
    for (n in names(mapred)) lines[[n]] <- mapred[[n]]
    
-   
    lines$rhipe_combiner <- paste(as.integer(combiner))
    if (lines$rhipe_combiner == "1") 
       lines$rhipe_reduce_justcollect <- "FALSE"
    
-   ## #############################################################################################
+   ## #################################################################
    ## HANDLE JARFILES
-   ## #############################################################################################
+   ## #################################################################
    if (!is.null(lines$jarfiles)) {
       jarfiles <- c(jarfiles, lines$jarfiles)
       lines$jarfiles <- NULL
@@ -384,9 +384,9 @@ rhmr <- function(...) {
       lines$rhipe_classpaths <- ""
    }
    
-   ## ##############################################################################################
+   ## #################################################################
    ## HANDLE ZIPS
-   ## ##############################################################################################
+   ## #################################################################
    
    if (!is.null(lines$zipfiles)) {
       zips <- c(zips, lines$zipfiles)
@@ -406,7 +406,8 @@ rhmr <- function(...) {
          })
       })), collapse = ",") else lines$rhipe_zips <- ""
    
-   ## #################################### Fixup Output Path
+   ## #################################### 
+   ## Fixup Output Path
    ## ####################################
    if (is.null(lines$rhipe.fixup.output) || (lines$rhipe.fixup.output == TRUE)) {
       lines$rhipe_output_folder <- rhabsolute.hdfs.path(lines$rhipe_output_folder)
@@ -417,7 +418,7 @@ rhmr <- function(...) {
    conf <- tempfile(pattern = "rhipe")
    
    
-   h <- list(lines = lines, temp = conf, paramaters = paramaters)
+   h <- list(lines = lines, temp = conf, parameters = parameters)
    if (!is.null(mapred$class)) 
       class(h) <- mapred$class else class(h) <- "rhmr"
    h
@@ -485,27 +486,27 @@ mkdHDFSTempFolder <- function(dirprefix = rhabsolute.hdfs.path(rhoptions()$HADOO
       PACKAGE = "Rhipe"))
 }
 
-makeParamTempFile <- function(file, paramaters, aframe) {
-   oldparam <- paramaters
+makeParamTempFile <- function(file, parameters, aframe) {
+   oldparam <- parameters
    # need to use lapply (setting parameters[[i]] <- NULL removes the element)
-   paramaters <- lapply(seq_along(oldparam), function(i) {
+   parameters <- lapply(seq_along(oldparam), function(i) {
       if (is.name(oldparam[[i]])) 
          get(as.character(oldparam[[i]]), envir = aframe) else oldparam[[i]]
    })
    ## where firstchocie == '', use second choice ssd
    firstchoice <- names(oldparam)
    if (length(firstchoice) == 0) 
-      firstchoice <- character(length(paramaters))
+      firstchoice <- character(length(parameters))
    for (i in seq_along(firstchoice)) {
       if (is.null(firstchoice[i]) || firstchoice[i] == "") {
          if (!is.name(oldparam[[i]])) 
-            stop(sprintf("paramaters argument is improper at position %s", i)) else firstchoice[i] <- as.character(oldparam[i])
+            stop(sprintf("parameters argument is improper at position %s", i)) else firstchoice[i] <- as.character(oldparam[i])
       }
    }
-   names(paramaters) <- firstchoice
+   names(parameters) <- firstchoice
    
    tfile <- Rhipe:::mkdHDFSTempFolder(file = "rhipe-temp-params")
-   list(file = tfile, envir = as.environment(paramaters), setup = as.expression(bquote({
+   list(file = tfile, envir = as.environment(parameters), setup = as.expression(bquote({
       load(.(paramfile))
    }, list(paramfile = basename(tfile)))))
 }

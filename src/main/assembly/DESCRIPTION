@@ -14,7 +14,10 @@ URL: http://www.datadr.org
 License: Apache License (== 2.0)
 OS_type: unix
 Depends:
-    methods
+    methods,
+    codetools,
+    rJava,
+    testthat
 BugReports: https://github.com/saptarshiguha/RHIPE/issues
 Collate:
     'rhcp.R'

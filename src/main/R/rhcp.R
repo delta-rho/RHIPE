@@ -5,7 +5,7 @@
 #' 
 #' @param ifile Absolute path to be copied on the HDFS or the output from rhwatch(.., read=FALSE).
 #' @param ofile Absolute path to place the copies on the HDFS.
-# ; @param delete should we delete ifile when done?
+#' @param delete should we delete \code{ifile} when done?
 #' @author Saptarshi Guha
 #' @return NULL
 #' @seealso \code{\link{rhget}}, \code{\link{rhput}},

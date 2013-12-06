@@ -6,7 +6,7 @@
 #' @param object An object whose elements are written
 #' @param file where to write(it is overwritten)
 #' @param numfiles number of files to write to
-#' @param chunks an integer specificed to chunk data frames into rows or lists into sublists
+#' @param chunk an integer specificed to chunk data frames into rows or lists into sublists
 #' @param passByte buffer size for writing (see details)
 #' @param kvpairs if \code{TRUE}, \code{object} should be a list of key-value pairs - otherwise, it should be a data frame or matrix (in which case \code{NULL} keys will be written with arbitrary chunking of the data)
 #' @param verbose logical - print messages about what is being done

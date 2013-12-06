@@ -31,7 +31,7 @@ test_that("run simple mr job", {
       by(r, r$Species, function(x) {
          rhcollect(
             as.character(x$Species[1]),
-            max(x$Sepal.Length)
+            range(x$Sepal.Length)
          )
       })
    })
@@ -60,19 +60,16 @@ test_that("run simple mr job", {
    ))
    
    expect_true(!inherits(res, "try-error"),
-      label = "mr job errored out")
+      label = "mr job ran successfully")
    
    res <- do.call(rbind, lapply(res, function(x) {
-      data.frame(species=x[[1]], min=x[[2]][1], max=x[[2]][2])
+      data.frame(species=x[[1]], min=x[[2]][1], max=x[[2]][2], stringsAsFactors=FALSE)
    }))
    res <- res[order(res$species),]
    
-   resTest <- structure(list(species = structure(1:3, .Label = c("setosa", 
-   "virginica", "versicolor"), class = "factor"), min = c(5.3, 7.7, 
-   6.7), max = c(5.8, 7.9, 7)), .Names = c("species", "min", "max"
-   ), row.names = c(NA, 3L), class = "data.frame")
+   resTest <- as.numeric(by(iris, iris$Species, function(x) max(x$Sepal.Length)))
    
-   expect_equivalent(res, resTest, "result of mr job is correct")
+   expect_equivalent(res$max, resTest, "result of mr job is correct")
 })
 
 # several parameters of rhwatch to test (readback, mapred, combiner, different input/output formats)

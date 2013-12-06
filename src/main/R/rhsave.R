@@ -6,7 +6,7 @@
 #' 
 #' @param \ldots additional parameters for \code{rhsave}
 #' @param file Absolute path to file on HDFS.  Creates the file or overwrites
-#' @param environment to search for objects to be saved
+#' @param envir environment to search for objects to be saved
 #'   it.
 #' @author Saptarshi Guha
 #' @return NULL

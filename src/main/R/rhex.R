@@ -32,7 +32,7 @@ rhex <- function(conf, async = TRUE, mapred, ...) {
    if (class(conf) == "rhmr") {
       zonf <- conf$temp
       lines <- conf[[1]]
-      paramaters <- conf$paramaters
+      parameters <- conf$parameters
    } else stop("Wrong class of list given")
    on.exit({
       if (!is.null(lines$rhipe_cp_tempdir)) {
@@ -55,8 +55,8 @@ rhex <- function(conf, async = TRUE, mapred, ...) {
       writeBin(charToRaw(as.character(lines[[x]])), conffile, endian = "big")
    }
    close(conffile)
-   if (!is.null(paramaters)) {
-      lines <- Rhipe:::saveParams(paramaters, lines = lines)
+   if (!is.null(parameters)) {
+      lines <- Rhipe:::saveParams(parameters, lines = lines)
    }
    ## cmd <- sprintf('%s/hadoop jar %s org.godhuli.rhipe.RHMR %s
    ## ',Sys.getenv('HADOOP_BIN'),rhoptions()$jarloc,zonf) x. <- paste('Running: ',
@@ -103,14 +103,14 @@ rhex <- function(conf, async = TRUE, mapred, ...) {
 
 
 
-saveParams <- function(paramaters, lines) {
-   if (length(ls(paramaters$envir)) > 0) 
-      message(sprintf("Saving %s paramater%s to %s (use rhclean to delete all temp files)", 
-         length(ls(paramaters$envir)), if (length(ls(paramaters$envir)) > 1) 
-            "s" else "", paramaters$file))
-   vlist <- ls(paramaters$envir)
-   vwhere <- paramaters$envir
+saveParams <- function(parameters, lines) {
+   if (length(ls(parameters$envir)) > 0) 
+      message(sprintf("Saving %s parameter%s to %s (use rhclean to delete all temp files)", 
+         length(ls(parameters$envir)), if (length(ls(parameters$envir)) > 1) 
+            "s" else "", parameters$file))
+   vlist <- ls(parameters$envir)
+   vwhere <- parameters$envir
    lines$rhipe.has.params <- TRUE
-   rhsave(list = vlist, envir = vwhere, file = paramaters$file)
+   rhsave(list = vlist, envir = vwhere, file = parameters$file)
    return(lines)
 } 

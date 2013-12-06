@@ -8,21 +8,10 @@
 #' @seealso \code{\link{rhmr}}
 #' @keywords MapReduce Map
 #' @export
-## rhmap <- function(co1=NULL,before=NULL,after=NULL,.fnformals=NULL){ ##
-## if(!is.null(.fnformals)) co <- co1 else co <- substitute(co1);
-## before=substitute(before);after=substitute(after) mu <-function(.index, k,r){}
-## body(mu) <- co if(!is.null(.fnformals)){ ## browser() xx <- formals(mu)
-## names(xx) <- append(names(xx)[1], names(.fnformals)) formals(mu) <- xx
-## environment(mu) <- .BaseNamespaceEnv } j <- as.expression(bquote({ .(BE) result
-## <- mapply(.(F),seq_along(map.values),map.keys,map.values,SIMPLIFY=FALSE) .(AF)
-## },list(F=mu,BE=before,AF=after))) environment(j) <- .BaseNamespaceEnv class(j)
-## <- c(class(j),'rhmr-map') j }
-
-
-rhmap <- function(co1 = NULL, before = NULL, after = NULL) {
+rhmap <- function(expr = NULL, before = NULL, after = NULL) {
    ## repl <- function(code){ ..r <- substitute(code) r <- if (is(..r, 'name'))
    ## get(as.character(..r)) else ..r }
-   co <- substitute(co1)
+   co <- substitute(expr)
    before <- substitute(before)
    after <- substitute(after)
    j <- as.expression(bquote({
@@ -36,6 +25,17 @@ rhmap <- function(co1 = NULL, before = NULL, after = NULL) {
    class(j) <- c(class(j), "rhmr-map")
    j
 }
+
+
+## rhmap <- function(co1=NULL,before=NULL,after=NULL,.fnformals=NULL){ ##
+## if(!is.null(.fnformals)) co <- co1 else co <- substitute(co1);
+## before=substitute(before);after=substitute(after) mu <-function(.index, k,r){}
+## body(mu) <- co if(!is.null(.fnformals)){ ## browser() xx <- formals(mu)
+## names(xx) <- append(names(xx)[1], names(.fnformals)) formals(mu) <- xx
+## environment(mu) <- .BaseNamespaceEnv } j <- as.expression(bquote({ .(BE) result
+## <- mapply(.(F),seq_along(map.values),map.keys,map.values,SIMPLIFY=FALSE) .(AF)
+## },list(F=mu,BE=before,AF=after))) environment(j) <- .BaseNamespaceEnv class(j)
+## <- c(class(j),'rhmr-map') j }
 
 
  

@@ -1,9 +1,8 @@
 #' A function that returns a function to specify input/output formats
 #'
 #' Returns a function to spec out the input output formats
-#' @param ... arguments passed to the function
 #' @param type the name of the function handler
-#' @param envir the environment that calls your function
+#' @param ... arguments passed to the function
 #' @details the function returned must take 3 arguments 'lines',direction(input or output), call signature
 #' see \code{rhoptions()$ioformats} for examples on how to write your own.
 #' @export
@@ -73,7 +72,7 @@ mapio <- function(folders, interval = 1, compression = "BLOCK") {
    function(lines, direction, callers) {
       if (direction == "input") {
          folders <- Rhipe:::folder.handler(folders)
-         uu <- unclass(rhls(folders, rec = TRUE)["file"])$file
+         uu <- unclass(rhls(folders, recurse = TRUE)["file"])$file
          folders <- uu[grep("data$", uu)]
          remr <- c(grep(rhoptions()$file.types.remove.regex, folders))
          interval <- eval(interval)
@@ -110,7 +109,7 @@ sequenceio <- function(folders, recordsAsText = FALSE) {
    function(lines, direction, callers) {
       if (direction == "input") {
          folders <- Rhipe:::folder.handler(folders)
-         folders <- rhls(folders, rec = TRUE)$file
+         folders <- rhls(folders, recurse = TRUE)$file
          remr <- c(grep(rhoptions()$file.types.remove.regex, folders))
          if (length(remr) > 0) 
             folders <- folders[-remr]
@@ -149,7 +148,7 @@ textio <- function(folders, nline = NULL, writeKey = TRUE, field.sep = " ", kv.s
    function(lines, direction, caller) {
       if (direction == "input") {
          folders <- Rhipe:::folder.handler(folders)
-         folders <- rhls(folders, rec = TRUE)$file
+         folders <- rhls(folders, recurse = TRUE)$file
          remr <- c(grep(rhoptions()$file.types.remove.regex, folders))
          if (length(remr) > 0) 
             folders <- folders[-remr]
@@ -209,7 +208,7 @@ hbase <- function(table, colspec = NULL, rows = NULL, caching = 3L, cacheBlocks 
    caching <- eval(caching)
    zooinfo <- eval(zooinfo)
    hbaseJars <- list.files(Sys.getenv("HBASE_HOME"), pattern = "jar$", full.names = TRUE, 
-      rec = TRUE)
+      recursive = TRUE)
    hbaseConf <- Sys.getenv("HBASE_CONF_DIR")
    if (is.null(classpaths)) 
       .jaddClassPath(c(hbaseConf, hbaseJars)) else .jaddClassPath(classpaths)

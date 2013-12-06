@@ -1,5 +1,5 @@
 #' Prepares,Submits and Monitors  MapReduce Jobs
-#'
+#' 
 #' Creates the R object that contains all the information required by RHIPE to
 #' run a MapReduce job via a call to \code{\link{rhex}} (see details).
 #' 
@@ -56,13 +56,12 @@
 #'   \href{http://hadoop.apache.org/common/docs/r0.20.1/mapred_tutorial.html\#DistributedCache}{Distributed Cache}.
 #' @param partitioner A list of two names elements: \code{lims} and
 #'   \code{type}.  See details.
-#' @param parameter A named list  with parameters to be passed to a mapreduce job.It can also be the string 'all', and all variables (whose size <= rhoptions()$copyObjects$maxsize (bytes) and the name of the variable not in rhoptions()$copyObjects$exclude) will be automatically copied. If rhoptions()$copyObjects$auto is TRUE (default)', RHIPE will make an attempt (via codetools) to determine the called variables/functions and copy them automatically. 
+#' @param parameters A named list  with parameters to be passed to a mapreduce job.It can also be the string 'all', and all variables (whose size <= rhoptions()$copyObjects$maxsize (bytes) and the name of the variable not in rhoptions()$copyObjects$exclude) will be automatically copied. If rhoptions()$copyObjects$auto is TRUE (default)', RHIPE will make an attempt (via codetools) to determine the called variables/functions and copy them automatically. 
 #' @param copyFiles Will the files created in the R code e.g. PDF output, be
 #'   copied to the destination folder, \code{ofolder}?
 #' @param jobname The name of the job, which is visible on the Jobtracker
 #'   website. If not provided, Hadoop MapReduce uses the default name
 #'   \emph{job_date_time_number} e.g. \code{job_201007281701_0274}.
-#' @param parameters A list argument.  Each element of the list must have a name.  Each element of the list will be placed in the global environment in MapReduce.  For example \code{parameters = list(arg1 = 1, arg2 = 2)} will place in the global environment for maps and reduces arg1 and arg2 with integer values 1 and 2 respectively. 
 #' @param job The parameter \code{job} can either be a string with the format
 #'   \emph{job_datetime_id} (e.g. \emph{job_201007281701_0274})
 #' @param mon.sec If \code{mon.sec} is greater than 0, a small data frame
@@ -275,14 +274,12 @@
 #'       setup=list(reduce=reduce.setup),read=FALSE)
 #' }
 #' @export
-rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL, cleanup = NULL, 
-   input = NULL, output = NULL, orderby = "bytes", mapred = NULL, shared = c(), 
-   jarfiles = c(), zips = c(), partitioner = NULL, copyFiles = FALSE, jobname = "", 
-   parameters = NULL, job = NULL, mon.sec = 5, readback = rhoptions()$readback, 
-   debug = NULL, noeval = FALSE, ...) {
+rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL, cleanup = NULL, input = NULL, output = NULL, orderby = "bytes", mapred = NULL, shared = c(), jarfiles = c(), zips = c(), partitioner = NULL, copyFiles = FALSE, jobname = "", parameters = NULL, job = NULL, mon.sec = 5, readback = rhoptions()$readback, debug = NULL, noeval = FALSE, ...) {
+
    ## ############################## 
-   ## Handle ...  
+   ## Handle "..."
    ## ##############################
+
    envir <- sys.frame(-1)
    if (is.null(job))
       job <- Rhipe:::.rhmr(map = map, reduce = reduce, combiner = combiner, setup = setup, 
@@ -356,14 +353,14 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL, c
          if (is.null(handler)) 
             stop("Rhipe(rhwatch): invalid debug character string provided")
       }
-      if (is.null(job$paramaters)) {
+      if (is.null(job$parameters)) {
          environment(handler) <- .BaseNamespaceEnv
-         job$paramaters <- Rhipe:::makeParamTempFile(file = "rhipe-temp-params", 
-            paramaters = list(rhipe.trap = handler))
+         job$parameters <- Rhipe:::makeParamTempFile(file = "rhipe-temp-params", 
+            parameters = list(rhipe.trap = handler))
          
          ## need the code to load temporary files!
          x <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
-         y <- job$paramaters$setup
+         y <- job$parameters$setup
          environment(y) <- .BaseNamespacEenv
          job[[1]]$rhipe_setup_map <- rawToChar(serialize(c(y, x), NULL, ascii = TRUE))
          
@@ -371,11 +368,11 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL, c
          job[[1]]$rhipe_setup_reduce <- rawToChar(serialize(c(y, x), NULL, ascii = TRUE))
          ## This is becoming quite the HACK Of all lines magic and thiss hit should be in
          ## rhex ...
-         job[[1]]$rhipe_shared <- sprintf("%s,%s#%s", job[[1]]$rhipe_shared, job$paramaters$file, 
-            basename(job$paramaters$file))
+         job[[1]]$rhipe_shared <- sprintf("%s,%s#%s", job[[1]]$rhipe_shared, job$parameters$file, 
+            basename(job$parameters$file))
       } else {
          environment(handler) <- .BaseNamespaceEnv
-         job$paramaters$envir$rhipe.trap <- handler
+         job$parameters$envir$rhipe.trap <- handler
       }
       if (is.expression(setup)) {
          environment(setup) <- .BaseNamespaceEnv

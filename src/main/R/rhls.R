@@ -1,8 +1,8 @@
-#' @export
-as.character.ls.nice <- function(a) {
+#' @S3method as.character ls.nice
+as.character.ls.nice <- function(x, ...) {
    ml <- c(b = 1, k = 1024, m = 1024^2, g = 1024^3)
-   nice <- attr(a, "nice")
-   sapply(a, function(b) {
+   nice <- attr(x, "nice")
+   sapply(x, function(b) {
       if (b == 0) 
          return("0")
       if (nice %in% c("b", "k", "m", "g")) 
@@ -14,12 +14,14 @@ as.character.ls.nice <- function(a) {
       }
    })
 }
-#' @export
-format.ls.nice <- function(a, ...) {
-   as.character.ls.nice(a)
+
+#' @S3method format ls.nice
+format.ls.nice <- function(x, ...) {
+   as.character.ls.nice(x)
 }
-#' @export
-print.ls.nice <- function(a) cat(sprintf("%s\n", as.character(a)))
+
+#' @S3method print ls.nice
+print.ls.nice <- function(x, ...) cat(sprintf("%s\n", as.character(x)))
 
 #' List Files On HDFS
 #'
