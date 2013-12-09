@@ -93,22 +93,22 @@
     <target name="r-install-test" depends="r-install,r-test" description="Install Rhipe and run a simple test"/>
 
     <target name="r-build">
-        <exec executable="R">
+        <exec executable="R" failonerror="true" failifexecutionfails="true">
             <arg value="CMD"/>
             <arg value="BUILD"/>
             <arg value="${r.package}"/>
         </exec>
     </target>
 
-    <target name="r-doc" >
-        <exec executable="R">
+    <target name="r-doc">
+        <exec executable="R" failonerror="true" failifexecutionfails="true">
             <arg value="-e"/>
             <arg value="library(roxygen2); roxygenize('${r.package}'); q('no')"/>
         </exec>
     </target>
 
     <target name="r-install">
-        <exec executable="R">
+        <exec executable="R" failonerror="true" failifexecutionfails="true">
             <arg value="CMD"/>
             <arg value="INSTALL"/>
             <arg value="Rhipe_${rhipe.version}.tar.gz"/>
@@ -116,7 +116,7 @@
     </target>
 
     <target name="r-test">
-        <exec executable="R"  failonerror="true" failifexecutionfails="true">
+        <exec executable="R" failonerror="true" failifexecutionfails="true">
             <arg value="CMD"/>
             <arg value="BATCH"/>
             <arg value="${r.test}/RhipeTest.R"/>
