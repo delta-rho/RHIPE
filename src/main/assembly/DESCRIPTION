@@ -1,8 +1,8 @@
 Package: Rhipe
 Type: Package
 Title: R and Hadoop Integrated Programming Environment
-Version: 0.73.1-6
-Date: 2013-10-23
+Version: @VERSION@
+Date: @DATE@
 Authors@R: c(person("Saptarshi", "Guha", role = c("aut", "cre"), email = "saptarshi.guha@gmail.com"),
     person("Ryan", "Hafen", role = "ctb"),
     person("Ralph", "Perko", role = "ctb"),
