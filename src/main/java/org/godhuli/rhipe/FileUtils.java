@@ -16,6 +16,8 @@
 
 package org.godhuli.rhipe;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -53,6 +55,7 @@ import java.util.Map;
 
 public class FileUtils {
 
+    private static final Log log = LogFactory.getLog(FileUtils.class);
     private static final String COPY_TO_LOCAL = "_copyToLocal_";
     private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     private static final String fsep = "\t";
@@ -237,11 +240,11 @@ public class FileUtils {
         }
         final Trash trashTmp = new Trash(srcFs, getConf());
         if (trashTmp.moveToTrash(src)) {
-            System.out.println("Moved to trash: " + src);
+            log.info("Moved to trash: " + src);
             return;
         }
         if (srcFs.delete(src, true)) {
-            System.out.println("Deleted " + src);
+            log.info("Deleted " + src);
         }
         else {
             if (!srcFs.exists(src)) {
@@ -293,7 +296,7 @@ public class FileUtils {
         }
         final RunningJob rj = jclient.getJob(jj);
         if (rj == null) {
-//            System.out.println("No such job: " + jd + " available, wrong job? or try the History Viewer (see the Web UI) ");
+//            log.info("No such job: " + jd + " available, wrong job? or try the History Viewer (see the Web UI) ");
 //            final REXP.Builder theValsMock = REXP.newBuilder();
 //            theValsMock.setRclass(REXP.RClass.LIST);
 //            theValsMock.addRexpValue(RObjects.makeStringVector(new String[]{"SUCCEEDED"}));

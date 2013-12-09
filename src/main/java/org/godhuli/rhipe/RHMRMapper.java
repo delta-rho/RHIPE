@@ -35,7 +35,7 @@ public class RHMRMapper extends Mapper<WritableComparable, RHBytesWritable, Writ
         if (str == null) {
             str = cfg.get("rhipe_command");
             if (str == null) {
-                System.err.println("No rhipe_command");
+               LOG.warn("No rhipe_command");
             }
         }
         return (str);
@@ -82,7 +82,7 @@ public class RHMRMapper extends Mapper<WritableComparable, RHBytesWritable, Writ
             //ignore
         }
         cfg.set("RHIPEWHAT", "0");
-        System.out.println("mapred.input.file == " + cfg.get("mapred.input.file"));
+        LOG.debug("mapred.input.file == " + cfg.get("mapred.input.file"));
         helper.setup(cfg, getPipeCommand(cfg), getDoPipe());
         copyFile = cfg.get("rhipe_copy_file").equals("TRUE");
         whichMapper = cfg.getInt("rhipe_send_keys_to_map", 1);

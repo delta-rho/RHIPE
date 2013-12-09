@@ -17,10 +17,14 @@
 package org.godhuli.rhipe;
 
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.godhuli.rhipe.REXPProtos.REXP;
 
 public class RHPartitionerInteger extends Partitioner<RHBytesWritable, RHBytesWritable> {
+    protected static final Log LOG = LogFactory.getLog(RHPartitionerInteger.class);
 
     public int getPartition(final RHBytesWritable key, final RHBytesWritable value, final int numReduceTasks) {
         int hashcode = 0;
@@ -32,8 +36,8 @@ public class RHPartitionerInteger extends Partitioner<RHBytesWritable, RHBytesWr
             }
 
         }
-        catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            System.err.println(e);
+        catch (InvalidProtocolBufferException e) {
+            LOG.error(e);
         }
         final int a = (hashcode & Integer.MAX_VALUE) % numReduceTasks;
         return (a);

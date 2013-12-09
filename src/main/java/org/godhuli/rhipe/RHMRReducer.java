@@ -43,7 +43,7 @@ public class RHMRReducer extends Reducer<WritableComparable, RHBytesWritable, Wr
         if (str == null) {
             str = cfg.get("rhipe_command");
             if (str == null) {
-                System.err.println("No rhipe_command");
+                LOG.warn("No rhipe_command");
             }
         }
         return (str);

@@ -461,7 +461,7 @@ public class RHMRHelper {
                                         if (line == null) {
                                             break;
                                         }
-                                        System.err.println("RHIPE Runner Output[" + l + "]: " + line);
+                                        LOG.debug("RHIPE Runner Output[" + l + "]: " + line);
                                         l++;
                                     }
                                 }

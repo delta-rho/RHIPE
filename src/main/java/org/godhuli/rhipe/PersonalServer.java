@@ -39,6 +39,14 @@ public class PersonalServer {
     public PersonalServer() {
     }
 
+    public void logTest(final String someMessage) {
+        LOG.trace(someMessage);
+        LOG.debug(someMessage);
+        LOG.info(someMessage);
+        LOG.warn(someMessage);
+        LOG.error(someMessage);
+        LOG.fatal(someMessage);
+    }
     public void setUserInfo(final int bugl) throws IOException {
         mapfilehash = new Hashtable<String, String[]>();
         fu = new FileUtils(_configuration);
@@ -86,7 +94,7 @@ public class PersonalServer {
     }
 
     public void rhget(final String src, final String dest) throws Exception {
-        System.err.println("Copying " + src + " to " + dest);
+        LOG.debug("Copying " + src + " to " + dest);
         fu.copyMain(src, dest);
     }
 

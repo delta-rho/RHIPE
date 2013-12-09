@@ -51,6 +51,9 @@ import java.util.List;
 import java.util.Vector;
 
 public class RHMR implements Tool {
+
+    private static final Log log = LogFactory.getLog(RHMR.class);
+
     protected URLClassLoader urlloader;
     protected Environment env_;
     protected String[] argv_;
@@ -200,7 +203,7 @@ public class RHMR implements Tool {
                     throw new IOException(e);
                 }
             }
-            System.err.println("Adding " + us.length + " JAR(s)");
+            LOG.debug("Adding " + us.length + " JAR(s)");
             config_.setClassLoader(new URLClassLoader(us, config_.getClassLoader()));
             Thread.currentThread().setContextClassLoader(new URLClassLoader(us, Thread.currentThread().getContextClassLoader()));
         }
@@ -243,7 +246,7 @@ public class RHMR implements Tool {
         }
         final String[] output_folder = rhoptions_.get("rhipe_output_folder").split(",");
         for (int i = 0; i < output_folder.length; i++) {
-            System.out.println(output_folder[i]);
+            log.debug(output_folder[i]);
         }
         // System.exit(0);
         if (!rhoptions_.get("rhipe_partitioner_class").equals("none")) {
@@ -405,7 +408,7 @@ public class RHMR implements Tool {
             while (keys.hasMoreElements()) {
                 final String key0 = (String) keys.nextElement();
                 final String value0 = rhoptions_.get(key0);
-                System.out.println(key0 + "=" + value0);
+                log.debug(key0 + "=" + value0);
             }
         }
     }
