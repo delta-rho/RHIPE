@@ -26,9 +26,8 @@ rhreadBin <- function(file, maxnum = -1, readbuf = 0, mc = lapply, verb = FALSE)
 print.rhversion <- function(x, ...) {
    al <- paste(sapply(seq_along(attr(x, "notes")), function(y) sprintf("%s. %s", 
       y, attr(x, "notes")[y])), collapse = "\n")
-   y <- sprintf("RHIPE: major is %s , minor is %s\nDate: %s\nNotes:\n%s\n", x, attr(x, 
-      "minor"), attr(x, "date"), al)
-   y <- sprintf("%sEnjoy a cookie\n--------------\n%s\n", y, attr(x, "fortune"))
+   y <- sprintf("RHIPE: version %s\nDate: %s\nNotes:\n%s\n", x, attr(x, "date"), al)
+#   y <- sprintf("%sEnjoy a cookie\n--------------\n%s\n", y, attr(x, "fortune"))
    attr(y, "class") <- NULL
    ## NextMethod('print', x, quote = FALSE, right = TRUE, ...)
    cat(y)

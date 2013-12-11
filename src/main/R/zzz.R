@@ -1,7 +1,7 @@
 .rhipeEnv <- new.env()
-vvvv <- "0.73"
-attr(vvvv, "minor") <- "0"
-attr(vvvv, "date") <- "Sunday 20th January"
+vvvv <- installed.packages()["Rhipe","Version"]
+#attr(vvvv, "minor") <- "0"
+attr(vvvv, "date") <- installed.packages(fields="Date")["Rhipe","Date"]
 
 class(vvvv) <- "rhversion"
 
