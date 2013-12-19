@@ -25,8 +25,8 @@
     <property name="java.build" value="target"/>
 
     <property name="java.src" value="src/main/java"/>
-    <property name="r.src" value="src/main/r"/>
-    <property name="r.test" value="src/test/r"/>
+    <property name="r.src" value="src/main/R"/>
+    <property name="r.test" value="src/test/R"/>
     <property name="r.assembly" value="src/main/assembly"/>
     <property name="c.src" value="src/main/c"/>
 
@@ -70,9 +70,13 @@
         </copy>
         <mkdir dir="${r.inst}/java"/>
         <mkdir dir="${r.package}/man"/>
+    	<mkdir dir="${r.package}/inst/tests"/>
+    	<copy todir="${r.package}/inst/tests">
+    		<fileset dir="${r.test}"/>
+    	</copy>
     </target>
 
-    <target name="build-all" depends="clean,build,r-install-test" description="build, install and test Rhipe"/>
+    <target name="build-all" depends="clean,build,r-check,r-install-test" description="build, install and test Rhipe"/>
 
     <target name="build" depends="init,init-r-dir,r-doc" description="build Rhipe">
         <antcall target="_build-hadoop-1"/>
@@ -132,6 +136,17 @@
     </target>
 
     <!--
+    Run R CMD check on the package before installing
+    -->
+    <target name="r-check">
+        <exec executable="R" failonerror="true" failifexecutionfails="true">
+            <arg value="CMD"/>
+            <arg value="check"/>
+            <arg value="${r.package}"/>
+        </exec>
+    </target>
+
+	<!--
     Run R CMD INSTALL on the new built tar ball
     -->
     <target name="r-install">
