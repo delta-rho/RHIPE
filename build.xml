@@ -159,8 +159,9 @@
     -->
     <target name="clean" description="cleanup build artifacts" depends="maven-clean">
         <delete dir="${package}"/>
+        <delete dir="Rhipe.Rcheck"/>
         <delete>
-            <fileset dir="${basedir}" includes="*.tar.gz,*.Rout"/>
+            <fileset dir="${basedir}" includes="*.tar.gz,*.Rout,*.versionsBackup,*.log"/>
         </delete>
     </target>
 
