@@ -276,9 +276,9 @@
 #' @export
 rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL, cleanup = NULL, input = NULL, output = NULL, orderby = "bytes", mapred = NULL, shared = c(), jarfiles = c(), zips = c(), partitioner = NULL, copyFiles = FALSE, jobname = "", parameters = NULL, job = NULL, mon.sec = 5, readback = rhoptions()$readback, debug = NULL, noeval = FALSE, ...) {
 
-   ## ############################## 
-   ## Handle "..."
-   ## ##############################
+   ## ########################################################### 
+   ## handle "..."
+   ## ########################################################### 
 
    envir <- sys.frame(-1)
    if (is.null(job))
@@ -295,10 +295,11 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL, c
       }
       return(z)
    }
+   
    if (!is.null(debug)) {
       m <- unserialize(charToRaw(job[[1]]$rhipe_map))
       if (!(is(m, "rhmr-map") || is(m, "rhmr-map2"))) 
-         stop("RHIPE: for debugging purposes, must use a map expression returned  by ewrap")
+         stop("RHIPE: for debugging purposes, must use a map expression returned by ewrap")
       
       ## Replace the map expression
       if (is(m, "rhmr-map")) {
@@ -366,8 +367,7 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL, c
          
          x <- unserialize(charToRaw(job[[1]]$rhipe_setup_reduce))
          job[[1]]$rhipe_setup_reduce <- rawToChar(serialize(c(y, x), NULL, ascii = TRUE))
-         ## This is becoming quite the HACK Of all lines magic and thiss hit should be in
-         ## rhex ...
+         ## this is becoming quite the HACK of all lines magic and this hit should be in rhex ...
          job[[1]]$rhipe_shared <- sprintf("%s,%s#%s", job[[1]]$rhipe_shared, job$parameters$file, 
             basename(job$parameters$file))
       } else {
@@ -431,6 +431,7 @@ rhwatch.runner <- function(job, mon.sec = 5, readback = TRUE, debug = NULL, ...)
          oclass <- job$lines$rhipe_outputformat_class
          textual <- FALSE
          type <- "sequence"
+         # should have logic to make type="map" if it really is
          if (grepl("RHSequenceAsTextOutputFormat", oclass)) {
             textual <- TRUE
          }

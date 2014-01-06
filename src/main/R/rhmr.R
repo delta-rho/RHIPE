@@ -1,19 +1,15 @@
-#' Defunct funciton to prepare mapreduce jobs. See \code{rhwatch}
+#' Defunct function to prepare mapreduce jobs. See \code{rhwatch}
 #' @param ... arguments passed to the function
 #' @export
 rhmr <- function(...) {
    stop("STOP! Do not call rhmr, call rhwatch with the same arguments you would have done with rhmr")
 }
 
+## .rhmr sets up the job info
 .rhmr <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL, cleanup = NULL, 
    input = NULL, output = NULL, orderby = "bytes", mapred = NULL, shared = c(), 
    jarfiles = c(), zips = c(), partitioner = NULL, copyFiles = FALSE, jobname = "", 
    parameters = NULL, envir = NULL) {
-   
-   
-   ## ##############################################################################################
-   ## Now continue into the sea of code known as 'lines'
-   ## #############################################################################################
    
    lines <- list()
    is.Expression <- function(r) is.expression(r) || class(r) == "{"
@@ -41,7 +37,6 @@ rhmr <- function(...) {
    
    lines$rhipe_jobname <- jobname
    
-   
    ## setup can either be an expression or NULL also, if an expression it can either
    ## have no components or two (map/reduce)
    if (is.null(setup)) {
@@ -56,7 +51,6 @@ rhmr <- function(...) {
          setup <- bquote(expression(map = .(setup), reduce = .(setup)), list(setup = setup[[1]]))
       }
    }
-   
    
    if (is.null(cleanup)) {
       cleanup$map <- expression()
@@ -89,10 +83,12 @@ rhmr <- function(...) {
    lines$rhipe_cleanup_map <- cleanup$map
    lines$rhipe_cleanup_reduce <- cleanup$reduce
    
+   ## ########################################################### 
+   ## handle parameters 
+   ## ########################################################### 
    
    parameters <- parameters
    aparameters <- list()
-   ## ########################### HANDLE parameters ############################
    if (rhoptions()$copyObjects$auto) {
       sampbody <- function() {
       }
@@ -193,13 +189,13 @@ rhmr <- function(...) {
       lines$param.temp.file <- NULL
    }
    
-   
    lines$rhipe_map_output_keyclass <- "org.godhuli.rhipe.RHBytesWritable"
    lines$rhipe_map_output_valueclass <- "org.godhuli.rhipe.RHBytesWritable"
    
+   ## ########################################################### 
+   ## handle custom comparators
+   ## ########################################################### 
    
-   ## ################################################# Handle Custom Comparators
-   ## #################################################
    ordert <- c("bytes", "integer", "numeric", "character")
    orderp <- switch(pmatch(orderby, ordert), `1` = {
       "org.godhuli.rhipe.RHBytesWritable"
@@ -223,8 +219,10 @@ rhmr <- function(...) {
    lines$rhipe_send_keys_to_map <- 1L
    lines$rhipe_map_output_valueclass <- "org.godhuli.rhipe.RHBytesWritable"
    
-   ## ####################################################### Partitioners
-   ## #######################################################
+   ## ########################################################### 
+   ## partitioners
+   ## ########################################################### 
+   
    lines$rhipe_partitioner_class <- "none"
    if (!is.null(partitioner) && is.list(partitioner)) {
       if (is.null(partitioner$lims) || is.null(partitioner$type)) 
@@ -261,23 +259,29 @@ rhmr <- function(...) {
    lines$mapred.output.compress <- "true"
    lines$mapred.compress.map.output <- "true"
    
+   ## ########################################################### 
+   ## handle copy files
+   ## ########################################################### 
    
-   
-   ## ########################################################### Handle Copy Files
-   ## ###########################################################
    lines$rhipe_copy_file <- paste(copyFiles)
    if (!is.null(mapred$mapred.job.tracker) && mapred$mapred.job.tracker == "local") 
       lines$rhipe_copy_file <- "FALSE"
    
-   ## ########################################################### MISC
-   ## ###########################################################
+   ## ########################################################### 
+   ## misc
+   ## ########################################################### 
+
    lines$RHIPE_DEBUG <- 0
    lines$rhipe_input_folder <- ""
    lines$rhipe_output_folder <- ""
    lines$rhipe_map_input_type <- "default"
    lines$mapred.job.reuse.jvm.num.tasks <- -1
    lines$mapreduce.job.counters.groups.max <- "200"
-   ################################################################################################ HANDLE MAPRED EXTRA from RHOPTIONS
+
+   ## ########################################################### 
+   ## handle mapred extra from rhoptions
+   ## ########################################################### 
+
    filterOut <- function(alln, rem = c("mapred.reduce.tasks")) alln[sapply(alln, 
       function(x) if (x %in% rem && x %in% names(lines)) 
          FALSE else TRUE)]
@@ -289,9 +293,9 @@ rhmr <- function(...) {
       lines$rhipe_reduce_justcollect <- "TRUE"
    }
    
-   ## #################################################################
-   ## Handle Input Output Formats
-   ## #################################################################
+   ## ########################################################### 
+   ## handle input/output formats
+   ## ########################################################### 
    
    if (is(input, "numeric") || is(input, "integer")) {
       input <- rhoptions()$ioformats[["N"]](input)
@@ -320,9 +324,10 @@ rhmr <- function(...) {
    }
    lines <- output(lines, "output", match.call())
    
-   ## #################################################################
-   ## Handle Shared Files
-   ## #################################################################
+   ## ########################################################### 
+   ## handle shared files
+   ## ########################################################### 
+   
    if (length(shared) > 0) 
       shared <- rhabsolute.hdfs.path(shared)
    if (!is.null(lines$param.temp.file)) {
@@ -353,9 +358,10 @@ rhmr <- function(...) {
    lines$rhipe_cleanup_reduce <- rawToChar(serialize(lines$rhipe_cleanup_reduce, 
       NULL, ascii = TRUE))
    
-   ## #################################################################
-   ## HANDLE MAPRED EXTRA PARAMS
-   ## #################################################################
+   ## ########################################################### 
+   ## handle mapred extra params
+   ## ########################################################### 
+   
    if (copyFiles == TRUE) {
       lines$rhipe_copy_excludes <- rhoptions()$rhipe_copy_excludes
       lines$rhipe_copyfile_folder <- rhoptions()$rhipe_copyfile_folder
@@ -366,9 +372,10 @@ rhmr <- function(...) {
    if (lines$rhipe_combiner == "1") 
       lines$rhipe_reduce_justcollect <- "FALSE"
    
-   ## #################################################################
-   ## HANDLE JARFILES
-   ## #################################################################
+   ## ########################################################### 
+   ## handle jarfiles
+   ## ########################################################### 
+
    if (!is.null(lines$jarfiles)) {
       jarfiles <- c(jarfiles, lines$jarfiles)
       lines$jarfiles <- NULL
@@ -384,9 +391,9 @@ rhmr <- function(...) {
       lines$rhipe_classpaths <- ""
    }
    
-   ## #################################################################
-   ## HANDLE ZIPS
-   ## #################################################################
+   ## ########################################################### 
+   ## handle zips
+   ## ########################################################### 
    
    if (!is.null(lines$zipfiles)) {
       zips <- c(zips, lines$zipfiles)
@@ -406,9 +413,10 @@ rhmr <- function(...) {
          })
       })), collapse = ",") else lines$rhipe_zips <- ""
    
-   ## #################################### 
-   ## Fixup Output Path
-   ## ####################################
+   ## ########################################################### 
+   ## fixup output path
+   ## ########################################################### 
+   
    if (is.null(lines$rhipe.fixup.output) || (lines$rhipe.fixup.output == TRUE)) {
       lines$rhipe_output_folder <- rhabsolute.hdfs.path(lines$rhipe_output_folder)
    }
@@ -454,7 +462,7 @@ optmerge <- function(la, lb) {
 }
 
 
-## Contributed by Jeremiah Rounds
+## contributed by Jeremiah Rounds
 linesToTable <- function(lines, skip.regex = NULL, ...) {
    if (length(lines) == 0) 
       return(NULL)

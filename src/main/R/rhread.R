@@ -52,6 +52,7 @@ rhread <- function(files,
    if (is(files, "rhwatch")) 
       files <- rhofolder(files)
    files <- rhabsolute.hdfs.path(files)
+   # if type is map, weed out index files in the part-r- directories
    files <- getypes(files, type, skip)
    max <- as.integer(max)
    switch(type, gzip = {

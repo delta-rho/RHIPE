@@ -63,7 +63,6 @@ rhex <- function(conf, async = TRUE, mapred, ...) {
    ## cmd) y. <- paste(rep('-',min(nchar(x.),40)))
    ## message(y.);message(x.);message(y.)
    {
-      
       result <- tryCatch(rhoptions()$server$rhex(zonf, rhoptions()$server$getConf()), 
          error = function(e) {
             e$printStackTrace()
@@ -113,4 +112,7 @@ saveParams <- function(parameters, lines) {
    lines$rhipe.has.params <- TRUE
    rhsave(list = vlist, envir = vwhere, file = parameters$file)
    return(lines)
-} 
+}
+
+
+

@@ -19,5 +19,9 @@
 #' @export
 rhget <- function(src, dest) {
    src <- rhabsolute.hdfs.path(src)
+   
+   if(!rhexists(src))
+      stop("src file ", src, " does not exist")
+   
    rhoptions()$server$rhget(src, path.expand(dest))
-} 
+}
