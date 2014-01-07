@@ -1,7 +1,7 @@
 .rhipeEnv <- new.env()
-vvvv <- installed.packages()["Rhipe","Version"]
+vvvv <- tryCatch(installed.packages()["Rhipe","Version"], error=function(e) "unknown")
 #attr(vvvv, "minor") <- "0"
-attr(vvvv, "date") <- installed.packages(fields="Date")["Rhipe","Date"]
+attr(vvvv, "date") <- tryCatch(installed.packages(fields="Date")["Rhipe","Date"], error=function(e) "unknown")
 
 class(vvvv) <- "rhversion"
 
@@ -252,5 +252,10 @@ rhinit <- function() {
    rhoptions(mropts = Rhipe:::rhmropts(), hadoop.env = hadoop)
    packageStartupMessage("Initializing mapfile caches")
    rh.init.cache()
+   
+   ## check to see if rhoptions()$HADOOP.TMP.FOLDER exists and if not create it
+   if (!rhexists(rhoptions()$HADOOP.TMP.FOLDER)) {
+      rhmkdir(rhoptions()$HADOOP.TMP.FOLDER)
+   }
 }
 
