@@ -122,6 +122,7 @@ public class RHMR implements Tool {
             debug_ = false;
             rhoptions_ = new Hashtable<String, String>();
             readParametersFromR(argv_[0]);
+//            overrideParams();
             env_ = new Environment();
             // config_ = new Configuration();
             setConf();
@@ -134,6 +135,34 @@ public class RHMR implements Tool {
             io.printStackTrace();
             throw new RuntimeException(io);
         }
+    }
+
+    private void overrideParams() {
+//        rhoptions_.put("rhipe_input_folder","/Users/perk387/Projects/RHIPE/src/test/resources/hdfs/tmp/rhipeTest/irisData");
+//        rhoptions_.put("rhipe_output_folder","/Users/perk387/out");
+//        if(rhoptions_.containsKey("mapred.job.tracker"))
+            rhoptions_.remove("mapred.job.tracker");
+//        
+//        if(rhoptions_.containsKey("fs.default.name"))
+            rhoptions_.remove("fs.default.name");
+//        
+//        rhoptions_.put("rhipe_shared",""); //temp file
+        rhoptions_.put("rhipe_job_async","FALSE");
+
+//        String tmp = rhoptions_.put("rhipe_shared","");
+//        try {
+//            System.out.println("copying rhipe_shared file " + tmp);
+//            File srcFile = new File(tmp);
+//            if(srcFile.exists())
+//                org.apache.commons.io.FileUtils.copyFile(srcFile,new File("temp_rhipe_shared"));
+//            else {
+//                rhoptions_.remove("fs.default.name");
+//                log.warn("file " + tmp + " does note exist - ignoring");
+//            }
+//        }
+//        catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public Configuration getConf() {
@@ -161,6 +190,7 @@ public class RHMR implements Tool {
         if (shared != null) {
             for (final String p : shared) {
                 if (p.length() > 1) {
+                    log.info("Adding to cache file:" + p);
                     DistributedCache.addCacheFile(new URI(p), config_);
                 }
             }
@@ -171,6 +201,7 @@ public class RHMR implements Tool {
             for (final String p : jarfiles) {
                 // System.err.println("Adding "+ p +" to classpath");
                 if (p.length() > 1) {
+                    log.info("Adding to archive classpath:" + p);
                     DistributedCache.addArchiveToClassPath(new Path(p), config_); //FileSystem.get(config_));
                 }
             }
@@ -180,6 +211,7 @@ public class RHMR implements Tool {
             for (final String p : zips) {
                 // System.err.println("Adding zip "+ p +" to cache");
                 if (p.length() > 1) {
+                    log.info("Adding to cache archive:" + p);
                     DistributedCache.addCacheArchive(new URI(p), config_);
                 }
             }
@@ -197,6 +229,7 @@ public class RHMR implements Tool {
             final URL[] us = new URL[cps.length];
             for (int i = 0; i < cps.length; i++) {
                 try {
+                    log.info("Adding to classpath: " + cps[i]);
                     us[i] = (new File(cps[i])).toURI().toURL();
                 }
                 catch (java.net.MalformedURLException e) {
@@ -284,6 +317,7 @@ public class RHMR implements Tool {
     }
 
     public int runasync(final String configfile) throws Exception {
+        //this method overwrites the zonf file, not sure what it really does
         final FileOutputStream out = new FileOutputStream(configfile);
         final DataOutputStream fout = new DataOutputStream(out);
         final String[] arl = new String[4];
@@ -310,6 +344,7 @@ public class RHMR implements Tool {
     public int submitAndMonitorJob(final String configfile) throws Exception {
         int k = 0;
         // LOG.info("submitting job");
+//        job_.waitForCompletion(true);
         job_.submit();
         if (rhoptions_.get("rhipe_job_async").equals("TRUE")) {
             return (runasync(configfile));
@@ -377,8 +412,8 @@ public class RHMR implements Tool {
         return (RObjects.makeList(groupdispname, cn));
     }
 
-    public void readParametersFromR(final String configfile) throws IOException {
-        final FileInputStream in = new FileInputStream(configfile);
+    public void readParametersFromR(final String configFile) throws IOException {
+        final FileInputStream in = new FileInputStream(configFile);
         final DataInputStream fin = new DataInputStream(in);
         byte[] d;
         String key, value;

@@ -27,13 +27,13 @@ pseudo-distributed mode located in the tar ball under docs/single_node_setup.htm
 
 * In addition:
 Edit conf/core-site.xml
-Set the storage directory to something meaningful (where you want hadoop data stored on the local directory)
-
-    <property>
-        <name>hadoop.tmp.dir</name>
-        <value>[path on local machine]</value>
-    </property>
-
+Set the storage directory to something meaningful (where you want hadoop data stored on the local directory)  
+```xml
+    <property>  
+        <name>hadoop.tmp.dir</name>  
+        <value>[path on local machine]</value>  
+    </property>  
+```  
 If you have already formatted the namenode then change the tmp dir you will need to reformat the namenode.
 
 ## Install Google protocol buffers 2.4.1 ##
@@ -50,20 +50,20 @@ Follow the instructions in the protobuf archive - but probably:
 
 ## Environment ##
 
-Set the following environment variables:
-
-`HADOOP_HOME=<where you unzipped the hadoop tar ball>`  
-`HADOOP_BIN=<hadoo bin dir>`  
-`HADOOP_CONF_DIR=<hadoop conf dir>`  
-`PKG_CONFIG_PATH=<protobuf pkgconfig dir>`  
-`LD_LIBRARY_PATH=<protobuf lib dir>`  
-
+**Set the following environment variables:**
+```
+HADOOP_HOME=<where you unzipped the hadoop tar ball>  
+HADOOP_BIN=<hadoo bin dir>  
+HADOOP_CONF_DIR=<hadoop conf dir>  
+PKG_CONFIG_PATH=<protobuf pkgconfig dir>  
+LD_LIBRARY_PATH=<protobuf lib dir>  
+```
 **Mac/Linux example:**  
-    export HADOOP_HOME=/Users/perk387/Software/hadoop-0.20.2-cdh3u6  
-    export HADOOP_BIN=$HADOOP_HOME/bin  
-    export HADOOP_CONF_DIR=$HADOOP_HOME/conf  
-    export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/Cellar/protobuf241/2.4.1/lib/pkgconfig  
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/Cellar/protobuf241/2.4.1/lib  
+    `export HADOOP_HOME=/Users/perk387/Software/hadoop-0.20.2-cdh3u6`    
+    `export HADOOP_BIN=$HADOOP_HOME/bin`    
+    `export HADOOP_CONF_DIR=$HADOOP_HOME/conf`    
+    `export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/Cellar/protobuf241/2.4.1/lib/pkgconfig`    
+    `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/Cellar/protobuf241/2.4.1/lib`    
 
 ### R Development Environment ###
 

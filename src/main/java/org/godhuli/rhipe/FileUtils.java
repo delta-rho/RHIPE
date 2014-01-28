@@ -296,7 +296,7 @@ public class FileUtils {
         }
         final RunningJob rj = jclient.getJob(jj);
         if (rj == null) {
-//            log.info("No such job: " + jd + " available, wrong job? or try the History Viewer (see the Web UI) ");
+            log.info("No such job: " + jd + " available, wrong job? or try the History Viewer (see the Web UI) ");
 //            final REXP.Builder theValsMock = REXP.newBuilder();
 //            theValsMock.setRclass(REXP.RClass.LIST);
 //            theValsMock.addRexpValue(RObjects.makeStringVector(new String[]{"SUCCEEDED"}));

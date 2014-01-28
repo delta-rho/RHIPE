@@ -32,6 +32,23 @@ SEXP comb_pre_red,comb_do_red,comb_post_red;
 long int collect_buffer_total ,collect_total ,time_in_reval ,collect_spill_total,time_in_reduce_reval;
 #endif
 
+// from mapper.cc
+#ifdef FILEREADER
+/* fixed types*/
+char* MAPRUNNERS =
+  "expression({"
+  "print(length(map.keys)); print(map.values);"
+  "  v <- lapply(seq_along(map.keys),function(r) {"
+  "      rhcollect(map.keys[[r]],map.values[[r]])"
+  "})})";
+char* MAPSETUPS = "expression()";
+char* MAPCLEANS = "expression()";
+static int _counter_=0;
+#else
+const char* MAPSETUPS = "unserialize(charToRaw(Sys.getenv('rhipe_setup_map')))";
+const char* MAPRUNNERS = "unserialize(charToRaw(Sys.getenv('rhipe_map')))";
+const char* MAPCLEANS = "unserialize(charToRaw(Sys.getenv('rhipe_cleanup_map')))";
+#endif
 
 void CaptureLog(LogLevel level, const char* filename, int line,
                 const string& message) {
@@ -347,9 +364,27 @@ void execReducer(FILE* fin){
 
 }
 
+// from mapper.cc
+const int mapper_setup(void){
+  int32_t type = 0;
+  SEXP setupm;
+  int Rerr;
+  type = readVInt64FromFileDescriptor(CMMNC->BSTDIN);
 
+  if(type==EVAL_SETUP_MAP){
+    Rf_defineVar(Rf_install(".rhipe.current.state"),Rf_ScalarString(Rf_mkChar("map.setup")),R_GlobalEnv);
+    PROTECT(setupm=rexpress(MAPSETUPS));
+    WRAP_R_EVAL(Rf_lang2(Rf_install("eval"),setupm),NULL,&Rerr);
+    UNPROTECT(1);
+    if(Rerr) return(7);
+  }
+  else {
+    merror("RHIPE ERROR: What command is this for setup: %d ?\n",type);
+    return(8);
+  }
 
-
+  return(0);
+}
 
 extern "C" {
 

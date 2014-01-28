@@ -18,19 +18,21 @@ import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 import org.godhuli.rhipe.REXPProtos.REXP;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PersonalServer {
     protected static final Log LOG = LogFactory.getLog(PersonalServer.class.getName());
-    private final Hashtable<String, ArrayList<ValuePair>> mapToValueCacheKeys = new Hashtable<String, ArrayList<ValuePair>>();
-    private final Hashtable<String, ArrayList<String>> mapToValueCacheHandles = new Hashtable<String, ArrayList<String>>();
+    private final Map<String, ArrayList<ValuePair>> mapToValueCacheKeys = new HashMap<String, ArrayList<ValuePair>>();
+    private final Map<String, ArrayList<String>> mapToValueCacheHandles = new HashMap<String, ArrayList<String>>();
     private Configuration _configuration;
     private FileSystem _filesystem;
     private HashPartitioner<RHBytesWritable, RHBytesWritable> _hp;
-    private Hashtable<String, String[]> mapfilehash;
+    private Map<String, String[]> mapfilehash;
     private Cache<ValuePair, RHBytesWritable> valueCache;
     private Cache<String, MapFile.Reader> mapfileReaderCache;
     private FileUtils fu;
@@ -48,7 +50,7 @@ public class PersonalServer {
         LOG.fatal(someMessage);
     }
     public void setUserInfo(final int bugl) throws IOException {
-        mapfilehash = new Hashtable<String, String[]>();
+        mapfilehash = new HashMap<String, String[]>();
         fu = new FileUtils(_configuration);
     }
 
@@ -125,6 +127,12 @@ public class PersonalServer {
     }
 
     public int rhex(final String zonf, final Configuration c) throws Exception {
+        //System.out.println("backing up configuration");
+//        DataOutput dataOutput = new ObjectOutputStream(new FileOutputStream("configuration-backup.bin"));
+//        c.write(dataOutput);
+//        c.writeXml(new FileOutputStream("configuration-backup.xml"));
+        //org.apache.commons.io.FileUtils.copyFile(new File(zonf),new File("zonf"));
+        //System.out.println("done");
         return RHMR.fmain(new String[]{zonf}, c);
     }
 

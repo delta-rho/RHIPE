@@ -5,7 +5,6 @@ Version: @VERSION@
 Date: @DATE@
 Authors@R: c(person("Saptarshi", "Guha", role = c("aut", "cre"), email = "saptarshi.guha@gmail.com"),
     person("Ryan", "Hafen", role = "ctb"),
-    person("Ralph", "Perko", role = "ctb"),
     person("Jeremiah", "Rounds", role = "ctb"),
     person("Ralph", "Perko", role = "ctb"),
     person("Amanda", "White", role = "ctb"))
