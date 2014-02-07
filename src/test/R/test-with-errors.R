@@ -3,8 +3,6 @@ options(error=dump.frames)
 library(Rhipe)
 rhinit()
 
-
-
 hdfs.setwd("/tmp")
 
 # create a dummy set of data
@@ -16,7 +14,7 @@ irisSplit <- lapply(seq_along(splits), function(x) {
 
 # if it is already on HDFS, delete it
 if(rhexists("iris"))
-    del("iris")
+    rhdel("iris")
     
 rhwrite(irisSplit, file="iris")
 
