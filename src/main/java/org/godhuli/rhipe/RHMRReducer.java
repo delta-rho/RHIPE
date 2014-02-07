@@ -57,7 +57,7 @@ public class RHMRReducer extends Reducer<WritableComparable, RHBytesWritable, Wr
     }
 
     public void run(final Context context) throws IOException, InterruptedException {
-        helper = new RHMRHelper("Reduce");
+        helper = new RHMRHelper("Reduce",context.getJobID().toString(), context.getTaskAttemptID().getTaskID().toString());
         justCollect = context.getConfiguration().get("rhipe_reduce_justcollect").equals("TRUE");
 
         if (!justCollect) {

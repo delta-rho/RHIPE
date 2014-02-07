@@ -47,7 +47,7 @@ public class RHMRMapper extends Mapper<WritableComparable, RHBytesWritable, Writ
 
     public void run(final Context context) throws IOException, InterruptedException {
         final long t1 = System.currentTimeMillis();
-        helper = new RHMRHelper("Mapper");
+        helper = new RHMRHelper("Mapper", context.getJobID().toString(),context.getTaskAttemptID().getTaskID().toString());
         setup(context);
         if (whichMapper == 1) {
             while (context.nextKeyValue()) {

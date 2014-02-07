@@ -54,15 +54,25 @@ public class RHMRHelper {
     private final RHMRMapper mapper;
     protected static int PARTITION_START = 0, PARTITION_END = 0;
     protected static REXP.RClass PARTITION_TYPE = REXP.RClass.REAL;
+    private final String taskId;
+    private final String jobId;
+    private final String errorOutputPath;
 
-    public RHMRHelper(final String fromWHo, final RHMRMapper m) {
-        callID = fromWHo;
-        mapper = m;
-    }
+    //    public RHMRHelper(final String fromWHo, final RHMRMapper m) {
+//        callID = fromWHo;
+//        mapper = m;
+//    }
 
-    public RHMRHelper(final String fromWHo) {
+//    public RHMRHelper(final String fromWHo) {
+//        this(fromWHo,"none");
+//    }
+
+    public RHMRHelper(String fromWHo, String jobId, String taskId) {
         callID = fromWHo;
         mapper = null;
+        this.jobId = jobId;
+        this.taskId = taskId;
+        errorOutputPath = "/tmp/map-reduce-error/";
     }
 
     void addEnvironment(final Properties env, final String nameVals) {
@@ -257,7 +267,39 @@ public class RHMRHelper {
 
     public void checkOuterrThreadsThrowable() throws IOException {
         if (outerrThreadsThrowable != null) {
-            throw new IOException("MROutput/MRErrThread failed:" + StringUtils.stringifyException(outerrThreadsThrowable));
+            String rdaDumpPath = null;
+            try {
+                //save the rda file if there is one
+                //create the path on hdfs to save it
+                Path destPath = new Path(errorOutputPath + jobId, taskId);
+                if(!thisfs.exists(destPath)){
+                    thisfs.mkdirs(destPath);
+                }
+                //find the local rda file
+                final String workingDir = System.getProperty("user.dir");
+                //            LOG.error("current working directory:" + workingDir);
+                final File file = new File(workingDir,"last.dump.rda");
+                //if it exists copy it to hdfs
+                if(file.exists()){
+                    LOG.info("moving last.dump.rda");
+                    Path rdaFile = new Path(workingDir,"last.dump.rda");
+                    thisfs.copyFromLocalFile(false,rdaFile,destPath);
+                    rdaDumpPath = destPath.toString();
+                }
+                else{
+                    LOG.warn("No last.dump.rda file found");
+                }
+            }
+            catch (Exception e) {
+                LOG.error("There was an error while processing an R error (ironic) but it will be ignored. For reference:",e);
+            }
+            
+            String rError = StringUtils.stringifyException(outerrThreadsThrowable);
+            
+            if(rdaDumpPath != null) {
+                rError = "\nrda dump file path:" + rdaDumpPath + "\n" + rError;
+            }
+            throw new IOException("MROutput/MRErrThread failed:" + rError);
         }
     }
 
