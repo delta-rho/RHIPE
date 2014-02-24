@@ -23,5 +23,5 @@ rhget <- function(src, dest) {
    if(!rhexists(src))
       stop("src file ", src, " does not exist")
    
-   rhoptions()$server$rhget(src, path.expand(dest))
+   rhoptions()$server$rhGet(src, path.expand(dest))
 }

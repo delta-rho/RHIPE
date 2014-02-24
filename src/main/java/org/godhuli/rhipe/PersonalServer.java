@@ -62,6 +62,10 @@ public class PersonalServer {
         return _filesystem;
     }
 
+    public void setFS(final FileSystem _filesystem) {
+        this._filesystem = _filesystem;
+    }
+
     public Configuration getConf() {
         return _configuration;
     }
@@ -98,6 +102,13 @@ public class PersonalServer {
     public void rhget(final String src, final String dest) throws Exception {
         LOG.debug("Copying " + src + " to " + dest);
         fu.copyMain(src, dest);
+    }
+
+    public void rhGet(final String src, final String dest) throws Exception {
+        LOG.debug("Copying " + src + " to " + dest);
+        Path srcPath = new Path(src);
+        Path destPath = new Path(dest);
+        _filesystem.copyToLocalFile(false,srcPath,destPath);
     }
 
     public void rhput(final String local, final String dest2, final boolean overwrite) throws Exception {

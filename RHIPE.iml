@@ -14,19 +14,19 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.8.2" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.hadoop:hadoop-client:0.20.2-cdh3u6" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.hadoop:hadoop-core:0.20.2-cdh3u6" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: xmlenc:xmlenc:0.52" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.hadoop.thirdparty.guava:guava:r09-jarjar" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: commons-codec:commons-codec:1.4" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: commons-net:commons-net:1.4.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: oro:oro:2.0.8" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.codehaus.jackson:jackson-core-asl:1.5.2" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.codehaus.jackson:jackson-mapper-asl:1.5.2" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: commons-el:commons-el:1.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: commons-logging:commons-logging:1.0.3" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: hsqldb:hsqldb:1.8.0.7" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: log4j:log4j:1.2.15" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.hadoop:hadoop-client:0.20.2-cdh3u6" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.hadoop:hadoop-core:0.20.2-cdh3u6" level="project" />
+    <orderEntry type="library" name="Maven: xmlenc:xmlenc:0.52" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.hadoop.thirdparty.guava:guava:r09-jarjar" level="project" />
+    <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.4" level="project" />
+    <orderEntry type="library" name="Maven: commons-net:commons-net:1.4.1" level="project" />
+    <orderEntry type="library" name="Maven: oro:oro:2.0.8" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-core-asl:1.5.2" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-mapper-asl:1.5.2" level="project" />
+    <orderEntry type="library" name="Maven: commons-el:commons-el:1.0" level="project" />
+    <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.0.3" level="project" />
+    <orderEntry type="library" name="Maven: hsqldb:hsqldb:1.8.0.7" level="project" />
+    <orderEntry type="library" name="Maven: log4j:log4j:1.2.15" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:13.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:2.4.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: commons-io:commons-io:2.4" level="project" />

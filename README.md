@@ -8,12 +8,11 @@ and development.  The instructions are specific to a Mac although they can be ad
 * Apache Ant - latest
 * Apache Maven - latest
 * R - latest
-* pkg-config - if not installed either
+* pkg-config - if not installed either:
     * download from http://macpkg.sourceforge.net/
     * build from source: http://cgit.freedesktop.org/pkg-config/
     * Use "homebrew" - http://brew.sh/
         * -> brew install pkg-config
-
 * ssh service running (for Hadoop)
     * On a Mac go to System Preferences -> Sharing and check "Remote Login"
 
@@ -74,10 +73,33 @@ LD_LIBRARY_PATH=<protobuf lib dir>
 ## Rhipe ##
 
 Rhipe is built using Ant and Maven.
-To clean, compile, build, install and test Rhipe on a fully configure system run:
+To clean, compile, build, install and test Rhipe on a fully configured system run:
 
 `ant build-all`
+
+or to skip the R tests run:
+
+`ant clean build r-install`
 
 For other main Ant targets run  
 `ant -p`  
 
+## Hadoop Distros ##
+* Rhipe has been successfully built and run on plain Hadoop 1.x from Apache and Cloudera CDH3/CDH4.  However Rhipe must 
+be built against the distro dependencies that will be used.
+
+* Rhipe is setup to build against CDH3 & CDH4-mr1 by default.  There are maven profiles setup in the POM that build 
+against Apache Hadoop 1.x and 2.x however these have not been integrated with the main Ant build and would need to be 
+enabled by the user.  
+To do this, edit the ant build file, build.xml, copy the ant target _build-hadoop-1, and customize it for the alternate 
+maven profiles.
+
+* YARN - Rhipe successfully builds against YARN but has not been tested
+
+## Debug Options ##
+### Experimental ###
+An option has been added to Java to save any "last.dump.rda" files created by R if an error occurs in the MR job to 
+HDFS at /tmp/map-reduce-error.  
+To enable this option in R, add 
+`options(error=dump.frames)` 
+to any R code that will be evaluated by Hadoop (mapper, reducer, etc)

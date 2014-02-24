@@ -1,3 +1,5 @@
+package org.godhuli.rhipe;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -19,14 +21,11 @@ import java.util.Arrays;
  * User: perk387
  * Date: 1/7/14
  */
-public class PersonalServerTest {
-    
-    private String localDataDir = "/Users/perk387/Projects/RHIPE/src/test/resources";
+public class PersonalServerMapReduceTest extends PersonalServerBase {
+
     private String configurationBinaryFile = "configuration-backup.bin";
     private String configurationXmlFile = "configuration-backup.xml";
-    private String zonfFile = "zonf";
-    private Configuration conf;
-    
+
     @Before
     public void setup() throws Exception{
 //        stageHdfsData();
@@ -36,6 +35,7 @@ public class PersonalServerTest {
     public void testSetup() throws Exception {
         System.out.println("done");
     }
+    
     @Test
     public void testRhex() throws Exception {
         PersonalServer personalServer = new PersonalServer();
@@ -46,19 +46,8 @@ public class PersonalServerTest {
     public void testRHMRMain() throws Exception {
         RHMR.fmain(new String[]{getZonfFile()});
     }
-    private Configuration getHadoopConfiguration() throws Exception{
-        if(conf == null){
-            conf = new Configuration();
-//            conf.addResource(new FileInputStream(localDataDir + "/" + configurationXmlFile));
-//            conf.readFields(new DataInputStream(new FileInputStream(localDataDir + "/" + configurationBinaryFile)));
-        }
-        return conf;
-    }
-    
-    private String getZonfFile() throws Exception {
-        return localDataDir + "/" + zonfFile;
-    }
-    
+
+
     private void stageHdfsData() throws Exception{
         
         FileSystem fs = FileSystem.get(getHadoopConfiguration());
