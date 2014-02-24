@@ -293,19 +293,18 @@ public class RHMRHelper {
         if (outerrThreadsThrowable != null) {
             String rdaDumpPath = null;
             try {
-                //save the rda file if there is one
-                //create the path on hdfs to save it
-                Path destPath = new Path(errorOutputPath + jobId, taskId);
-                if(!fileSystem.exists(destPath)){
-                    fileSystem.mkdirs(destPath);
-                }
                 //find the local rda file
                 final String workingDir = System.getProperty("user.dir");
-                //            LOG.error("current working directory:" + workingDir);
                 final File file = new File(workingDir,"last.dump.rda");
                 //if it exists copy it to hdfs
                 if(file.exists()){
                     LOG.info("moving last.dump.rda");
+                    //save the rda file if there is one
+                    //create the path on hdfs to save it
+                    Path destPath = new Path(errorOutputPath + jobId, taskId);
+                    if(!fileSystem.exists(destPath)){
+                        fileSystem.mkdirs(destPath);
+                    }
                     Path rdaFile = new Path(workingDir,"last.dump.rda");
                     fileSystem.copyFromLocalFile(false, rdaFile, destPath);
                     rdaDumpPath = destPath.toString();
@@ -315,7 +314,7 @@ public class RHMRHelper {
                 }
             }
             catch (Exception e) {
-                LOG.error("There was an error while processing an R error (ironic) but it will be ignored. For reference:",e);
+                LOG.error("There was an error while processing an R error (ironic) but it will be ignored.\nFor reference:",e);
             }
             
             String rError = StringUtils.stringifyException(outerrThreadsThrowable);
