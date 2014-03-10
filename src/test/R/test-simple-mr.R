@@ -8,6 +8,7 @@ test_that("clean /tmp/rhipeTest and set working directory", {
    if(rhexists("/tmp/rhipeTest"))
       rhdel("/tmp/rhipeTest")
 
+   # TODO: add test to see if rhmkdir honors working directory
    rhmkdir("/tmp/rhipeTest")
    hdfs.setwd("/tmp/rhipeTest")
 })
@@ -19,13 +20,15 @@ test_that("simple mr job setup", {
    irisSplit <- lapply(seq_along(splits), function(x) {
      list(x, iris[splits[[x]],])
    })
-
+   
    if(rhexists("irisData"))
       rhdel("irisData")
    rhwrite(irisSplit, file="irisData")
 })
 
 test_that("run simple mr job", {
+   # rhoptions(runner = "/share/apps/R/3.0.2/bin/R CMD /share/apps/R/3.0.2/lib64/R/library/Rhipe/bin/RhipeMapReduce --slave --silent --vanilla")
+   
    # map code for computing range
    rangeMap <- rhmap({
       by(r, r$Species, function(x) {

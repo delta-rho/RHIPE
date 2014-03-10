@@ -1,11 +1,16 @@
 #include "ream.h"
 #include <iostream>
 
-const char* REDUCESETUP = "unserialize(charToRaw(Sys.getenv('rhipe_setup_reduce')))";
-const char* REDUCEPREKEY = "unserialize(charToRaw(Sys.getenv('rhipe_reduce_prekey')))";
-const char* REDUCE = "unserialize(charToRaw(Sys.getenv('rhipe_reduce')))";
-const char* REDUCEPOSTKEY = "unserialize(charToRaw(Sys.getenv('rhipe_reduce_postkey')))";
-const char* REDUCECLEANUP = "unserialize(charToRaw(Sys.getenv('rhipe_cleanup_reduce')))";
+// const char* REDUCESETUP = "unserialize(charToRaw(Sys.getenv('rhipe_setup_reduce')))";
+// const char* REDUCEPREKEY = "unserialize(charToRaw(Sys.getenv('rhipe_reduce_prekey')))";
+// const char* REDUCE = "unserialize(charToRaw(Sys.getenv('rhipe_reduce')))";
+// const char* REDUCEPOSTKEY = "unserialize(charToRaw(Sys.getenv('rhipe_reduce_postkey')))";
+// const char* REDUCECLEANUP = "unserialize(charToRaw(Sys.getenv('rhipe_cleanup_reduce')))";
+const char* REDUCESETUP = "{ff <- Sys.getenv('rhipe_setup_reduce'); tmpf <- readChar(ff, file.info(ff)$size); unserialize(charToRaw(tmpf))}";
+const char* REDUCEPREKEY = "{ff <- Sys.getenv('rhipe_reduce_prekey'); tmpf <- readChar(ff, file.info(ff)$size); unserialize(charToRaw(tmpf))}";
+const char* REDUCE = "{ff <- Sys.getenv('rhipe_reduce'); tmpf <- readChar(ff, file.info(ff)$size); unserialize(charToRaw(tmpf))}";
+const char* REDUCEPOSTKEY = "{ff <- Sys.getenv('rhipe_reduce_postkey'); tmpf <- readChar(ff, file.info(ff)$size); unserialize(charToRaw(tmpf))}";
+const char* REDUCECLEANUP = "{ff <- Sys.getenv('rhipe_cleanup_reduce'); tmpf <- readChar(ff, file.info(ff)$size); unserialize(charToRaw(tmpf))}";
 
 const int reducer_run(void){
 
