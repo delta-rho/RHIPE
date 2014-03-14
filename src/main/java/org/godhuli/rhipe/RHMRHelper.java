@@ -144,7 +144,7 @@ public class RHMRHelper {
             if(rhipeKeys.contains(name)){
                 try {
                     File file = new File(name);
-                    org.apache.commons.io.FileUtils.writeStringToFile(file,value);
+                    org.apache.commons.io.FileUtils.writeStringToFile(file,value,"UTF-8");
                     env.put(name, file.getAbsolutePath());
                     LOG.info(name + "::writing to file:" + file.getAbsolutePath());
                 } catch (IOException e) {
