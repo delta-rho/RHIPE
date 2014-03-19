@@ -221,14 +221,14 @@ rhinit <- function() {
    if (hadoop["HADOOP_HOME"] != "") {
       ## print(any(c(grepl('(yes|true)',tolower(Sys.getenv('RHIPE_USE_CDH4'))),grepl('cdh4',
       ## c(list.files(hadoop['HADOOP_HOME'])))) ,na.rm=TRUE))
-      if (any(c(grepl("(yes|true)", tolower(Sys.getenv("RHIPE_USE_CDH4"))), grepl("cdh4", 
-         c(list.files(hadoop["HADOOP_HOME"])))), na.rm = TRUE)) {
-         packageStartupMessage("Rhipe: Using RhipeCDH4.jar")
-         opts$jarloc <- list.files(file.path(system.file(package = "Rhipe"), "java"), 
-            pattern = "RhipeCDH4.jar$", full.names = TRUE)
-      } else {
+#      if (any(c(grepl("(yes|true)", tolower(Sys.getenv("RHIPE_USE_CDH4"))), grepl("cdh4",
+#         c(list.files(hadoop["HADOOP_HOME"])))), na.rm = TRUE)) {
+#         packageStartupMessage("Rhipe: Using RhipeCDH4.jar")
+#         opts$jarloc <- list.files(file.path(system.file(package = "Rhipe"), "java"),
+#            pattern = "RhipeCDH4.jar$", full.names = TRUE)
+#      } else {
          packageStartupMessage("Rhipe: Using Rhipe.jar file")
-      }
+#      }
    }
    library(rJava)
    c1 <- list.files(hadoop["HADOOP_HOME"], pattern = "jar$", full.names = TRUE, recursive = TRUE)

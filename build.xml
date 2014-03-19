@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="RHIPE" default="build" basedir="." xmlns:mvn="antlib:org.apache.maven.artifact.ant">
+<project name="Rhipe" default="help" basedir="." xmlns:mvn="antlib:org.apache.maven.artifact.ant">
 
     <!--
 
@@ -28,7 +28,7 @@
     <property name="r.src" value="src/main/R"/>
     <property name="r.test" value="src/test/R"/>
     <property name="r.assembly" value="src/main/assembly"/>
-    <property name="c.src" value="src/main/c"/>
+    <property name="c.src" value="src/main/C"/>
 
     <tstamp>
         <format property="TODAY" pattern="yyyy-MM-dd"/>
@@ -42,8 +42,21 @@
 
     <available file="${maven.tmp.dir}/${maven.archive.name}.version" property="maven.available"/>
 
-    <target name="init" depends="maven-version-update">
+    <target name="help" description="how to use this script">
 
+        <echo>
+            Options:
+            clean
+                - delete all build artifacts
+            build
+                - builds Rhipe for cdh3 and cdh4
+            build-distro -Dhadoop.version=version
+                - build Rhipe for the specified Hadoop version (MR1):hadoop-1, hadoop-2,cdh3,cdh4,cdh5,hdp-1,hdp-2
+            build-all-distros
+                - create an installable tar.gz archive for each Hadoop distro (MR1)
+        </echo>
+    </target>
+    <target name="init" depends="maven-version-update">
     </target>
 
     <target name="init-r-dir">
@@ -76,33 +89,98 @@
     	</copy>
     </target>
 
-    <target name="build-all" depends="clean,build,r-check,r-install-test" description="build, install and test Rhipe"/>
+    <!--<target name="build-all" depends="maven-clean,build,r-check,r-install-test" description="build, install and test Rhipe"/>-->
 
-    <target name="build" depends="init,init-r-dir,r-doc" description="build Rhipe">
-        <antcall target="_build-hadoop-1"/>
+    <target name="build-all-distros" description="Build Rhipe for all available distros">
 
-        <!--Build the CDH4 jar-->
-        <antcall target="maven-clean"/>
+        <antcall target="build-distro">
+            <param name="hadoop.version" value="cdh3"/>
+        </antcall>
+        <antcall target="build-distro">
+            <param name="hadoop.version" value="cdh4"/>
+        </antcall>
+        <antcall target="build-distro">
+            <param name="hadoop.version" value="cdh5"/>
+        </antcall>
+        <antcall target="build-distro">
+            <param name="hadoop.version" value="hadoop-1"/>
+        </antcall>
+        <antcall target="build-distro">
+            <param name="hadoop.version" value="hadoop-2"/>
+        </antcall>
+        <antcall target="build-distro">
+            <param name="hadoop.version" value="hdp-1"/>
+        </antcall>
+        <antcall target="build-distro">
+            <param name="hadoop.version" value="hdp-2"/>
+        </antcall>
+        <antcall target="build-distro">
+            <param name="hadoop.version" value="hdp-2.2"/>
+        </antcall>
+    </target>
 
-        <antcall target="_build-hadoop-2"/>
-
+    <target name="build-distro" depends="maven-clean,init-r-dir,r-doc" description="build Rhipe">
+        <echo>
+            Building Rhipe for Hadoop ${hadoop.version}
+        </echo>
+        <antcall target="_build-rhipe-jar">
+            <param name="hadoop.version" value="${hadoop.version}"/>
+        </antcall>
         <antcall target="r-build"/>
     </target>
 
-    <target name="_build-hadoop-2">
-        <!--Build the CDH4 jar-->
-        <antcall target="mvn-assembly">
-            <param name="profile" value="cdh4"/>
+    <target name="build" description="build Rhipe">
+        <antcall target="build-distro">
+            <param name="hadoop.version" value="cdh3"/>
         </antcall>
-        <copy tofile="${r.inst}/java/RhipeCDH4.jar">
-            <file file="${java.build}/${maven.project.name}-${rhipe.version}-jar-with-dependencies.jar"/>
-        </copy>
+        <antcall target="build-distro">
+            <param name="hadoop.version" value="cdh4"/>
+        </antcall>
     </target>
 
-   <target name="_build-hadoop-1">
-        <!--Build CDH3 jar-->
+<!--
+    <target name="_build-cdh3">
+        &lt;!&ndash;Build CDH3 jar&ndash;&gt;
+        <antcall target="_build-rhipe-jar">
+            <param name="hadoop.version" value="cdh3"/>
+        </antcall>
+    </target>
+    <target name="_build-cdh4">
+        &lt;!&ndash;Build the CDH4 jar&ndash;&gt;
+        <antcall target="_build-rhipe-jar">
+            <param name="hadoop.version" value="cdh4"/>
+        </antcall>
+    </target>
+
+
+    <target name="_build-hadoop-1">
+        <antcall target="_build-rhipe-jar">
+            <param name="hadoop.version" value="hadoop-1"/>
+        </antcall>
+    </target>
+
+    <target name="_build-hadoop-2">
+        <antcall target="_build-rhipe-jar">
+            <param name="hadoop.version" value="hadoop-2"/>
+        </antcall>
+    </target>
+    <target name="_build-hdp-1">
+        <antcall target="_build-rhipe-jar">
+            <param name="hadoop.version" value="hdp-1"/>
+        </antcall>
+    </target>
+
+    <target name="_build-hdp-2">
+        <antcall target="_build-rhipe-jar">
+            <param name="hadoop.version" value="hdp-2"/>
+        </antcall>
+    </target>
+-->
+
+    <target name="_build-rhipe-jar">
+        <!--call maven build -->
         <antcall target="mvn-assembly">
-            <param name="profile" value="cdh3"/>
+            <param name="profile" value="${hadoop.version}"/>
         </antcall>
         <copy tofile="${r.inst}/java/Rhipe.jar">
             <file file="${java.build}/${maven.project.name}-${rhipe.version}-jar-with-dependencies.jar"/>
@@ -123,6 +201,11 @@
             <arg value="BUILD"/>
             <arg value="${r.package}"/>
         </exec>
+
+        <move tofile="${ant.project.name}_${rhipe.version}_${hadoop.version}.tar.gz">
+            <file file="${ant.project.name}_${rhipe.version}.tar.gz"/>
+        </move>
+
     </target>
 
     <!--

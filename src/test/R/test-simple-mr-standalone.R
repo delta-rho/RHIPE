@@ -44,7 +44,10 @@ rangeReduce <- expression(
          rhcollect(reduce.key, rng)
       }
    )
-   
+
+# Use on bigdatann
+# rhoptions(runner = "sh /pic/projects/R/BigData/Rhipe/rhRunner.sh")
+
    # execute the job
 res <- try(rhwatch(
       map = rangeMap, 
