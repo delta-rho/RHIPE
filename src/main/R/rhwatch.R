@@ -274,7 +274,11 @@
 #'       setup=list(reduce=reduce.setup),read=FALSE)
 #' }
 #' @export
-rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL, cleanup = NULL, input = NULL, output = NULL, orderby = "bytes", mapred = NULL, shared = c(), jarfiles = c(), zips = c(), partitioner = NULL, copyFiles = FALSE, jobname = "", parameters = NULL, job = NULL, mon.sec = 5, readback = rhoptions()$readback, debug = NULL, noeval = FALSE, ...) {
+rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL, 
+   cleanup = NULL, input = NULL, output = NULL, orderby = "bytes", 
+   mapred = NULL, shared = c(), jarfiles = c(), zips = c(), partitioner = NULL, 
+   copyFiles = FALSE, jobname = "", parameters = NULL, job = NULL, mon.sec = 5, 
+   readback = rhoptions()$readback, debug = NULL, noeval = FALSE, ...) {
 
    ## ########################################################### 
    ## handle "..."
@@ -288,6 +292,7 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL, c
          copyFiles = copyFiles, jobname = jobname, parameters = parameters, envir = envir) 
    else if (is.character(job)) 
       return(Rhipe:::rhwatch.runner(job = job, mon.sec = mon.sec, readback = readback, ...))
+   
    if (!is.null(job$lines$mapred.job.tracker) && job$lines$mapred.job.tracker == TRUE) {
       z <- Rhipe:::rhwatch.runner(job = job, mon.sec = mon.sec, readback = readback, ...)
       if (readback == FALSE) {
@@ -338,7 +343,7 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL, c
       }
       
       ## Has the user given one?
-      if (is.list(debug) && is.null(debug$map)) 
+      if (!is.list(debug) || (is.list(debug) && is.null(debug$map)) )
          stop("debug should be list with a sublist named 'map'")
       if (is.list(debug) && !is.null(debug$map)) {
          if (!is.null(debug$map$setup)) 
