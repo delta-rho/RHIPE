@@ -2,6 +2,8 @@ library(Rhipe)
 
 rhinit()
 
+test.dir <- file.path(rhoptions()$HADOOP.TMP.FOLDER, "rhipeTest")
+
 ########################################################################
 ### test HDFS operations
 ########################################################################
@@ -21,14 +23,14 @@ rhexists("/tmp")
 # TRUE (if you have /tmp set up on your HDFS - I'm assuming you do)
 
 ## create a directory (first delete it if it's there)
-rhdel("/tmp/rhipeTest")
+rhdel(test.dir)
 # should be a simple message that it doesn't exist (unless it does of course)
 
 # make the directory
-rhmkdir("/tmp/rhipeTest")
+rhmkdir(test.dir)
 
 # what if I do it again?
-rhmkdir("/tmp/rhipeTest")
+rhmkdir(test.dir)
 
 # what about nested directories?
 rhmkdir("/tmp/tmp/tmp")
@@ -42,20 +44,20 @@ rhls("/tmp/rhipeTest/permissionTest")
 # system("hadoop fs -chown bob:bob /tmp/rhipeTest/permissionTest")
 
 ## change permissions
-rhchmod("/tmp/rhipeTest", "711")
+rhchmod(test.dir, "711")
 # did it work?
 ff <- rhls("/tmp")
-ff$permission[ff$file == "/tmp/rhipeTest"] == "drwx--x--x"
+ff$permission[ff$file == test.dir] == "drwx--x--x"
 
 # give it a garbage permission:
-rhchmod("/tmp/rhipeTest", "asdf")
+rhchmod(test.dir, "asdf")
 # java error
 
 # change permissions of file that doesn't exist
 rhchmod("/directoryThatDoesntExist", "777")
 
 # rhexists
-rhexists("/tmp/rhipeTest")
+rhexists(test.dir)
 rhexists("/directoryThatDoesntExist")
 
 ## test writing some data using "classic"
@@ -106,7 +108,7 @@ rhload("/tmp/rhipeTest/rn.Rdata")
 identical(rn, rn2)
 
 test_that("test hdfs.setwd", {
-   hdfs.setwd("/tmp/rhipeTest")
+   hdfs.setwd(test.dir)
    ff <- rhls()$file
    expect_true("/tmp/rhipeTest/rn.Rdata" %in% ff)
    # TODO: test all other places rhabsolute.hdfs.path is used

@@ -1,15 +1,20 @@
+## This file contains tests that perform a simple map-reduce job to
+## test Rhipe functions. 
+
 context("Simple mr job")
 
 test_that("test rhinit", {
    rhinit()
 })
 
-test_that("clean /tmp/rhipeTest and set working directory", {
-   if(rhexists("/tmp/rhipeTest"))
-      rhdel("/tmp/rhipeTest")
+test.dir <- file.path(rhoptions()$HADOOP.TMP.FOLDER, "rhipeTest")
 
-   rhmkdir("/tmp/rhipeTest")
-   hdfs.setwd("/tmp/rhipeTest")
+test_that("clean rhoptions()$HADOOP.TMP.FOLDER/rhipeTest and set working directory", {
+   if(rhexists(test.dir))
+      rhdel(test.dir)
+
+   rhmkdir(test.dir)
+   hdfs.setwd(test.dir)
 })
 
 test_that("simple mr job setup", {
@@ -26,15 +31,16 @@ test_that("simple mr job setup", {
 })
 
 test_that("run simple mr job", {
-   # map code for computing range
-   rangeMap <- rhmap({
-      by(r, r$Species, function(x) {
-         rhcollect(
-            as.character(x$Species[1]),
-            range(x$Sepal.Length)
-         )
-      })
-   })
+    # map code for computing range
+    rangeMap <- rhmap({
+       by(r, r$Species, function(x) {
+          rhcollect(
+             as.character(x$Species[1]),
+             range(x$Sepal.Length)
+          )
+       })
+    })
+    expect_true("rhmr-map" %in% class(rangeMap))
    
    # reduce code for computing max
    rangeReduce <- expression(
