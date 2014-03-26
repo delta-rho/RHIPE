@@ -72,7 +72,8 @@ assign("rhipeOptions", list(version = vvvv), envir = .rhipeEnv)
    opts$rhmr.max.records.to.read.in <- NA
    opts$rhipe_copy_excludes <- "(.*/Rtmp.*)"
    opts$rhipe_copyfile_folder <- "_outputs"
-   opts$HADOOP.TMP.FOLDER <- "/tmp"
+   opts$HADOOP.TMP.FOLDER <- Sys.getenv("RHIPE_HADOOP_TMP_FOLDER")
+   if (opts$HADOOP.TMP.FOLDER == "") { opts$HADOOP.TMP.FOLDER <- "/tmp" }
    opts$readback <- TRUE
    opts$zips <- c()
    opts$hdfs.working.dir <- "/"
@@ -252,10 +253,5 @@ rhinit <- function() {
    rhoptions(mropts = Rhipe:::rhmropts(), hadoop.env = hadoop)
    packageStartupMessage("Initializing mapfile caches")
    rh.init.cache()
-   
-   ## check to see if rhoptions()$HADOOP.TMP.FOLDER exists and if not create it
-   if (!rhexists(rhoptions()$HADOOP.TMP.FOLDER)) {
-      rhmkdir(rhoptions()$HADOOP.TMP.FOLDER)
-   }
 }
 
