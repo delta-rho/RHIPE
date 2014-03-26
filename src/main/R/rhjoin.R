@@ -17,28 +17,19 @@
 #'   \code{\link{rhex}}
 #' @export
 rhjoin <- function(job) {
-   verbose <- TRUE  ## DEPRECIATED ARGUMENT NOT EVEN USED IN JAVA ANYMORE
-   if (class(job) != "jobtoken" && class(job) != "character") 
-      stop("Must give a jobtoken object(as obtained from rhex)")
-   if (class(job) == "character") 
-      id <- job else {
-      job <- job[[1]]
-      id <- job[["job.id"]]
-   }
-   result <- Rhipe:::send.cmd(rhoptions()$child$handle, list("rhjoin", list(id, 
-      needoutput = as.character(TRUE), joinwordy = as.character(as.logical(verbose)))))[[1]]
-   if (length(job) == 2) {
-      ## from rhlapply
-      return(job[[2]]())
-   }
-   return(list(result = result[[1]], counters = result[[2]]))
+    verbose <- TRUE  ## DEPRECIATED ARGUMENT NOT EVEN USED IN JAVA ANYMORE
+    if (class(job) != "jobtoken" && class(job) != "character") 
+       stop("Must give a jobtoken object(as obtained from rhex)")
+    if (class(job) == "character") {
+       id <- job 
+    } else {
+       job <- job[[1]]
+       id <- job[["job.id"]]
+    }
+    result <- rhoptions()$server$rhjoin(id, verbose)
+    result <- rhuz(result)
+    
+    result[["jobInfo"]] <- rhJobInfo(id)
+    result
 }
 
-# rhjoin <- function(x,verbose=TRUE,ignore.stderr=TRUE){ if(class(x)!='jobtoken'
-# && class(x)!='character') stop('Must give a jobtoken object(as obtained from
-# rhex) or the Job id') if(class(x) == 'jobtoken') job.id <- x[[1]]['job.id']
-# else job.id = x result <- Rhipe:::doCMD(rhoptions()$cmd['join'], jobid
-# =job.id,needoutput=TRUE, joinwordy = as.character(as.logical(verbose))
-# ,ignore.stderr=ignore.stderr) if(class(x) == 'jobtoken' && length(x)==2){ ##
-# from rhlapply return(x[[2]]()) } return( list(result=result[[1]],
-# counters=result[[2]])) } 
