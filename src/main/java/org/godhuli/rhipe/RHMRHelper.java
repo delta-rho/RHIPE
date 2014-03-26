@@ -58,7 +58,7 @@ public class RHMRHelper {
     private final String callID;
     private final String taskId;
     private final String jobId;
-    private final String errorOutputPath;
+    private String errorOutputPath;
     private long numRecWritten_ = 0;
     private long joinDelay_;
     private boolean doPipe_;
@@ -135,6 +135,9 @@ public class RHMRHelper {
                 continue;
             }
             String value = null;
+            if(name.equals("HADOOP.TMP.FOLDER")){
+                errorOutputPath = conf.get(name);
+            }
             if (!(name.equals("LD_LIBRARY_PATH") || name.equals("PATH"))) {
                 value = conf.get(name); // does variable expansion
             }
