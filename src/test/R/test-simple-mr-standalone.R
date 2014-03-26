@@ -1,12 +1,13 @@
 library(Rhipe)
 rhinit()
 
-if(rhexists("/tmp/rhipeTest"))
-    rhdel("/tmp/rhipeTest")
+test.dir <- file.path(rhoptions()$HADOOP.TMP.FOLDER, "rhipeTest")
 
-rhmkdir("/tmp/rhipeTest")
-hdfs.setwd("/tmp/rhipeTest")
+if(rhexists(test.dir))
+  rhdel(test.dir)
 
+rhmkdir(test.dir)
+hdfs.setwd(test.dir)
 
 
    # dummy set of data
