@@ -214,7 +214,7 @@ rhmr <- function(...) {
       stop("If using ordered keys, provide a reduce even e.g. rhoptions()$templates$identity")
    }
    
-   lines$rhipe_string_quote <- "\r\n"
+   lines$rhipe_string_quote <- "\r\n" # Should be lines$rhipe.eol.sequence? (AMW)
    lines$rhipe_string_quote <- ""
    lines$rhipe_send_keys_to_map <- 1L
    lines$rhipe_map_output_valueclass <- "org.godhuli.rhipe.RHBytesWritable"
@@ -322,6 +322,7 @@ rhmr <- function(...) {
    if (is.character(output)) {
       output <- rhoptions()$ioformats[["seq"]](output)
    }
+
    lines <- output(lines, "output", match.call())
    
    ## ########################################################### 
@@ -494,6 +495,8 @@ mkdHDFSTempFolder <- function(dirprefix = rhabsolute.hdfs.path(rhoptions()$HADOO
       PACKAGE = "Rhipe"))
 }
 
+## This defines a temp file in HDFS space but doesn't create it or
+## write the data to that file
 makeParamTempFile <- function(file, parameters, aframe) {
    oldparam <- parameters
    # need to use lapply (setting parameters[[i]] <- NULL removes the element)
