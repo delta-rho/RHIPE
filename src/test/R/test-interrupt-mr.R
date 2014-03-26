@@ -88,8 +88,8 @@ test_that("start simple mr job asynchronously, then kill it", {
    
    # check for output from the killed job 
    # (if irisMax exists, it should only contain logs)
-   expect_true(!is.element("/tmp/rhipeTest/irisMax", rhls()$file) | 
-       all(regexpr("_logs$", rhls("/tmp/rhipeTest/irisMax")$file)>=0), 
+   expect_true(!is.element(file.path(test.dir, "irisMax"), rhls()$file) | 
+       all(regexpr("_logs$", rhls(file.path(test.dir, "irisMax"))$file)>=0), 
        label="there is no output from killed job")
    
 })
