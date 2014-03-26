@@ -26,7 +26,7 @@
 
     <property name="java.src" value="src/main/java"/>
     <property name="r.src" value="src/main/R"/>
-    <property name="r.test" value="src/test/R"/>
+    <property name="r.test" value="src/test/R/install-test"/>
     <property name="r.assembly" value="src/main/assembly"/>
     <property name="c.src" value="src/main/C"/>
 
@@ -243,6 +243,7 @@
     <!--
     Run R tests
     -->
+<!--
     <target name="r-test">
         <exec executable="R" failonerror="true" failifexecutionfails="true">
             <arg value="CMD"/>
@@ -251,6 +252,7 @@
         </exec>
         <echo message="success"/>
     </target>
+-->
 
     <!--
     Clean/delete generated artifacts
