@@ -13,8 +13,14 @@ test_that("clean rhoptions()$HADOOP.TMP.FOLDER/rhipeTest and set working directo
    if(rhexists(test.dir))
       rhdel(test.dir)
 
+<<<<<<< HEAD
    rhmkdir(test.dir)
    hdfs.setwd(test.dir)
+=======
+   # TODO: add test to see if rhmkdir honors working directory
+   rhmkdir("/tmp/rhipeTest")
+   hdfs.setwd("/tmp/rhipeTest")
+>>>>>>> 5a0baebfbc19fae8e12422123722f504032d2cd5
 })
 
 test_that("simple mr job setup", {
@@ -24,13 +30,14 @@ test_that("simple mr job setup", {
    irisSplit <- lapply(seq_along(splits), function(x) {
      list(x, iris[splits[[x]],])
    })
-
+   
    if(rhexists("irisData"))
       rhdel("irisData")
    rhwrite(irisSplit, file="irisData")
 })
 
 test_that("run simple mr job", {
+<<<<<<< HEAD
     # map code for computing range
     rangeMap <- rhmap({
        by(r, r$Species, function(x) {
@@ -41,6 +48,19 @@ test_that("run simple mr job", {
        })
     })
     expect_true("rhmr-map" %in% class(rangeMap))
+=======
+   # rhoptions(runner = "/share/apps/R/3.0.2/bin/R CMD /share/apps/R/3.0.2/lib64/R/library/Rhipe/bin/RhipeMapReduce --slave --silent --vanilla")
+   
+   # map code for computing range
+   rangeMap <- rhmap({
+      by(r, r$Species, function(x) {
+         rhcollect(
+            as.character(x$Species[1]),
+            range(x$Sepal.Length)
+         )
+      })
+   })
+>>>>>>> 5a0baebfbc19fae8e12422123722f504032d2cd5
    
    # reduce code for computing max
    rangeReduce <- expression(

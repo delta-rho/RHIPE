@@ -28,6 +28,8 @@ import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 import org.apache.hadoop.util.StringUtils;
 import org.godhuli.rhipe.REXPProtos.REXP;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -123,6 +125,8 @@ public class RHMRHelper {
         return exitVal;
     }
 
+    private final static ImmutableSet<String> rhipeKeys = ImmutableSet.of("rhipe_setup_map", "rhipe_map", "rhipe_cleanup_map", "rhipe_setup_reduce", "rhipe_reduce_prekey", "rhipe_reduce", "rhipe_reduce_postkey", "rhipe_cleanup_reduce");
+
     private void addJobConfToEnvironment(final Configuration conf, final Properties env) {
         for (final Object aConf : conf) {
             final Map.Entry en = (Map.Entry) aConf;
@@ -137,7 +141,19 @@ public class RHMRHelper {
             else {
                 value = conf.getRaw(name);
             }
-            env.put(name, value);
+            if(rhipeKeys.contains(name)){
+                try {
+                    File file = new File(name);
+                    org.apache.commons.io.FileUtils.writeStringToFile(file,value,"UTF-8");
+                    env.put(name, file.getAbsolutePath());
+                    LOG.info(name + "::writing to file:" + file.getAbsolutePath());
+                } catch (IOException e) {
+                    LOG.error("error writing R code to file - this job may fail",e);
+                }
+            }
+            else {
+                env.put(name, value);
+            }
         }
     }
 
@@ -207,6 +223,16 @@ public class RHMRHelper {
             addJobConfToEnvironment(cfg, childEnv);
             childEnv.put("TMPDIR", System.getProperty("java.io.tmpdir"));
             // Start the process
+
+            long totalLength = 0;
+            System.out.println("arg count: " + argvSplit.length);
+            for (String s : argvSplit) {
+              //get byte count - only works this way with UTF-8
+              totalLength += s.length();
+              System.out.println(s);
+            }
+            System.out.println("total bytes of args:" + Long.toString(totalLength));
+            
             final ProcessBuilder builder = new ProcessBuilder(argvSplit);
             builder.environment().putAll(childEnv.toMap());
             sim = builder.start();

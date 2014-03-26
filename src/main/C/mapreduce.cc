@@ -45,10 +45,14 @@ char* MAPSETUPS = "expression()";
 char* MAPCLEANS = "expression()";
 static int _counter_=0;
 #else
-const char* MAPSETUPS = "unserialize(charToRaw(Sys.getenv('rhipe_setup_map')))";
-const char* MAPRUNNERS = "unserialize(charToRaw(Sys.getenv('rhipe_map')))";
-const char* MAPCLEANS = "unserialize(charToRaw(Sys.getenv('rhipe_cleanup_map')))";
+// const char* MAPSETUPS = "unserialize(charToRaw(Sys.getenv('rhipe_setup_map')))";
+// const char* MAPRUNNERS = "unserialize(charToRaw(Sys.getenv('rhipe_map')))";
+// const char* MAPCLEANS = "unserialize(charToRaw(Sys.getenv('rhipe_cleanup_map')))";
+const char* MAPSETUPS = "{ff <- Sys.getenv('rhipe_setup_map'); tmpf <- readChar(ff, file.info(ff)$size); unserialize(charToRaw(tmpf))}";
+const char* MAPRUNNERS = "{ff <- Sys.getenv('rhipe_map'); tmpf <- readChar(ff, file.info(ff)$size); unserialize(charToRaw(tmpf))}";
+const char* MAPCLEANS = "{ff <- Sys.getenv('rhipe_cleanup_map'); tmpf <- readChar(ff, file.info(ff)$size); unserialize(charToRaw(tmpf))}";
 #endif
+
 
 void CaptureLog(LogLevel level, const char* filename, int line,
                 const string& message) {

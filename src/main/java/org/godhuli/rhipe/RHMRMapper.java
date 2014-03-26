@@ -24,6 +24,9 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Arrays;
 
 public class RHMRMapper extends Mapper<WritableComparable, RHBytesWritable, WritableComparable, RHBytesWritable> {
     protected static final Log LOG = LogFactory.getLog(RHMRMapper.class.getName());
@@ -46,6 +49,7 @@ public class RHMRMapper extends Mapper<WritableComparable, RHBytesWritable, Writ
     }
 
     public void run(final Context context) throws IOException, InterruptedException {
+        dumpClasspath(this.getClass().getClassLoader());
         final long t1 = System.currentTimeMillis();
         helper = new RHMRHelper("Mapper", context.getJobID().toString(),context.getTaskAttemptID().getTaskID().toString());
         setup(context);
@@ -68,6 +72,21 @@ public class RHMRMapper extends Mapper<WritableComparable, RHBytesWritable, Writ
         context.getCounter("rhipe_timing", "overall_mapper_ms").increment(System.currentTimeMillis() - t1);
     }
 
+    public void dumpClasspath(ClassLoader loader) {
+        System.out.println("Classloader " + loader + ":");
+
+        if (loader instanceof URLClassLoader) {
+            URLClassLoader ucl = (URLClassLoader) loader;
+            URL[] urLs = ucl.getURLs();
+            for (URL urL : urLs) {
+                System.out.println(urL);
+            }
+        } else
+            System.out.println("\t(cannot display components as not a URLClassLoader)");
+
+        if (loader.getParent() != null)
+            dumpClasspath(loader.getParent());
+    }
 
     public void setup(final Context context) {
         final Configuration cfg = context.getConfiguration();
