@@ -277,6 +277,7 @@ rhmr <- function(...) {
    lines$rhipe_map_input_type <- "default"
    lines$mapred.job.reuse.jvm.num.tasks <- -1
    lines$mapreduce.job.counters.groups.max <- "200"
+   lines$HADOOP.TMP.FOLDER <- rhoptions()$HADOOP.TMP.FOLDER
 
    ## ########################################################### 
    ## handle mapred extra from rhoptions
