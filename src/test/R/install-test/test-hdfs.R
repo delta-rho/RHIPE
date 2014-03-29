@@ -174,11 +174,11 @@ test_that("change permissions of a file that doesn't exist", {
 ## TEST: hdfs.absolute.path
 
 test_that("test rhabsolute.hdfs.path on relative path", {
-    expect_equal(rhabsolute.hdfs.path("rn.Rdata"), paste(hdfs.getwd(), "rn.Rdata", sep="/"))
+    expect_equal(rhabsolute.hdfs.path("rn2.Rdata"), paste(hdfs.getwd(), "rn2.Rdata", sep="/"))
 })
 
 test_that("test rhabsolute.hdfs.path on absolute path", {
-    expect_equal(rhabsolute.hdfs.path(file.path(test.dir, "rn.Rdata")), file.path(test.dir, "rn.Rdata"))
+    expect_equal(rhabsolute.hdfs.path(file.path(test.dir, "rn2.Rdata")), file.path(test.dir, "rn2.Rdata"))
 })
 
 ## TEST: rhsave.image
@@ -224,11 +224,33 @@ test_that("test rhget", {
     file.lines <- readLines("test_from_hdfs.txt")
     expect_true(length(file.lines) == 4)
     expect_true(file.lines[1] == "test file #2")
+    file.remove("test_from_hdfs.txt")
 })
 
 test_that("test rhget on non-existent file", {
     expect_error(rhget(file.path(test.dir, "thisdoesnotexist"), file.path(getwd(), "tmp.txt")),
         regex="does not exist")
+})
+
+## TEST: rhoptions()$HADOOP.TMP.FOLDER
+
+test_that("test if rhoptions()$HADOOP.TMP.FOLDER exists and is writable", {
+    expect_true(rhexists(rhoptions()$HADOOP.TMP.FOLDER), 
+        label="rhoptions()$HADOOP.TMP.FOLDER does not exist in HDFS space")
+    expect_true(rhcp(file.path(test.dir, "rn2.Rdata"), 
+        paste(rhoptions()$HADOOP.TMP.FOLDER, "rn.Rdata", sep="/")),
+        label="rhoptions()$HADOOP.TMP.FOLDER in HDFS space is not writable")
+    expect_true(paste(rhoptions()$HADOOP.TMP.FOLDER, "rn.Rdata", sep="/") 
+        %in% rhls(rhoptions()$HADOOP.TMP.FOLDER)$file)
+    rhdel(paste(rhoptions()$HADOOP.TMP.FOLDER, "rn.Rdata", sep="/"))
+})
+
+## TEST: rhclean
+
+test_that("test rhclean", {
+    expect_true(rhcp(file.path(test.dir, "rn2.Rdata"), paste(rhoptions()$HADOOP.TMP.FOLDER, "rhipe-temp-jdflajg.Rdata", sep="/")))
+    rhclean()
+    expect_false(paste(rhoptions()$HADOOP.TMP.FOLDER, "rhipe-temp-jdflajg.Rdata", sep="/") %in% rhls(rhoptions()$HADOOP.TMP.FOLDER)$file)
 })
 
 ## TEST: rhdel
@@ -241,29 +263,4 @@ test_that("rhdel hdfs.test.save.Rdata", {
 test_that("remove rhoptions()$HADOOP.TMP.FOLDER/rhipeTest", {
    if(rhexists(test.dir))
       rhdel(test.dir)
-})
-
-## TEST: rhoptions()$HADOOP.TMP.FOLDER
-
-test_that("test if rhoptions()$HADOOP.TMP.FOLDER exists and is writable", {
-    expect_true(rhexists(rhoptions()$HADOOP.TMP.FOLDER), 
-        label="rhoptions()$HADOOP.TMP.FOLDER does not exist in HDFS space")
-    expect_true(rhcp(file.path(test.dir, "rn.Rdata"), 
-        paste(rhoptions()$HADOOP.TMP.FOLDER, "rn.Rdata", sep="/")),
-        label="rhoptions()$HADOOP.TMP.FOLDER in HDFS space is not writable")
-    expect_true(paste(rhoptions()$HADOOP.TMP.FOLDER, "rn.Rdata", sep="/") 
-        %in% rhls(rhoptions()$HADOOP.TMP.FOLDER)$file)
-    rhdel(paste(rhoptions()$HADOOP.TMP.FOLDER, "rn.Rdata", sep="/"))
-})
-## NOTE: if rhoptions()$HADOOP.TMP.FOLDER does not exist in HDFS space or is not 
-## writable, the user should change the directory (after calling rhinit() and 
-## before any map-reduce jobs) using 
-## rhoptions(HADOOP.TMP.FOLDER="someDirectoryThatExists")
-
-## TEST: rhclean
-
-test_that("test rhclean", {
-    expect_true(rhcp(file.path(test.dir, "rn.Rdata"), paste(rhoptions()$HADOOP.TMP.FOLDER, "rhipe-temp-jdflajg.Rdata", sep="/")))
-    rhclean()
-    expect_false(paste(rhoptions()$HADOOP.TMP.FOLDER, "rhipe-temp-jdflajg.Rdata", sep="/") %in% rhls(rhoptions()$HADOOP.TMP.FOLDER)$file)
 })

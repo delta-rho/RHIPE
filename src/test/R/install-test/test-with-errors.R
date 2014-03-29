@@ -1,7 +1,7 @@
 ## This file contains tests that perform a map-reduce job with
 ## an error to test Rhipe's error handling functionality.
 
-context("MR job that throws an error in the map step")
+context("MR job that throws an error in the map step\n")
 
 test_that("test rhinit", {
    rhinit()
@@ -30,16 +30,19 @@ test_that("mr job setup", {
    rhwrite(irisSplit, file="irisData")
 })
 
-test_that("run mr job with error in the map step", {
-    custom.err.handler <- function() {
-        dump.frames(to.file=TRUE)
-        stop(paste(geterrmessage(), " (working directory=", getwd(), ")", sep=""))
-    }
+custom.err.handler <- function() {
+    dump.frames(to.file=TRUE)
+    stop(paste(geterrmessage(), " (working directory=", getwd(), ")", sep=""))
+}
 
+test_that("run mr job with error in the map step", {
     # map code for computing range 
     # The error is in the by() statement, which uses Speces instead of Species
     rangeMap <- rhmap({
-       options(error=custom.err.handler)
+       options(error=function() {
+                dump.frames(to.file=TRUE)
+                stop(paste(geterrmessage(), " (working directory=", getwd(), ")", sep=""))
+            })
        by(r, r$Speces, function(x) {
           rhcollect(
              as.character(x$Species[1]),
