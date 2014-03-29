@@ -243,16 +243,18 @@
     <!--
     Run R tests
     -->
-<!--
+
     <target name="r-test">
+<!--
         <exec executable="R" failonerror="true" failifexecutionfails="true">
             <arg value="CMD"/>
             <arg value="BATCH"/>
             <arg value="${r.test}/RhipeTest.R"/>
         </exec>
         <echo message="success"/>
-    </target>
 -->
+    </target>
+
 
     <!--
     Clean/delete generated artifacts
