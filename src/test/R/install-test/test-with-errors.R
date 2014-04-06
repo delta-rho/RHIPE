@@ -68,20 +68,23 @@ test_that("run mr job with error in the map step", {
    )
    
    # execute the job
-   expect_error(res <- rhwatch(
+   expect_warning(
+       res <- rhwatch(
       map = rangeMap, 
       reduce = rangeReduce,
       input = "irisData",
       output = "irisMax"
    ))
    
+   expect_equal("FAILED", res[[1]]$state)
+
    # check to see there are any error dump files
    err.files <- rhls(paste(rhoptions()$HADOOP.TMP.FOLDER, "map-reduce-error", sep="/"), recurse=TRUE)
    expect_true(nrow(err.files) > 0)
    
    # check to see if an error file has been modified in the last minute
    err.file.dates <- strptime(err.files$modtime, format="%Y-%m-%d %H:%M")
-   expect_true(any(difftime(Sys.time(), err.file.dates, units="minutes") < 1))
+   expect_true(any(difftime(Sys.time(), err.file.dates, units="mins") < 1))
    
    # get the most recent error file (NOTE: this could get problematic
    # in a system where multiple people are running hadoop jobs from R at
@@ -93,6 +96,7 @@ test_that("run mr job with error in the map step", {
    rhget(err.file.name, "last.dump.Rda")
    load("last.dump.Rda")
    expect_true(exists("last.dump"))
+   file.remove("last.dump.Rda")
    
    # here a user would run debugger() to step into the stack trace
    # of the error to find the problem

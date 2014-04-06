@@ -1,7 +1,7 @@
 ## This file contains tests that perform a simple map-reduce job 
 ## asynchronously and then joins it.
 
-context("Interrupting a simple mr job")
+context("Joining a simple mr job run asynchronously")
 
 test_that("test rhinit", {
    rhinit()
@@ -29,12 +29,6 @@ test_that("simple mr job setup", {
       rhdel("irisData")
    rhwrite(irisSplit, file="irisData")
 })
-
-## Function to loop for x seconds 
-pause <- function(x) {
-    s <- Sys.time()
-    while (Sys.time() - s < x) {}
-}
 
 test_that("start simple mr job asynchronously, then join it", {
     # map code for computing range
@@ -82,7 +76,7 @@ test_that("start simple mr job asynchronously, then join it", {
    res <- rhjoin(jobtoken)
    
    # test rhofolder() function
-   expect_true(file.path(hdfs.getwd(), "irisMax"), rhofolder(job), "rhofolder returns correct value")
+   expect_equal(file.path(hdfs.getwd(), "irisMax"), rhofolder(job), "rhofolder returns correct value")
    
    # get output and test for correctness
    irisMax <- rhread("irisMax")

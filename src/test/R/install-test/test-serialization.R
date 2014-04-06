@@ -32,7 +32,7 @@ test_that("serialization and de-serialization in R memory", {
    expect_equivalent(all.data, unserialized)
 })
    
-test_that("deserialize data serialized in java"), {
+test_that("deserialize data serialized in java", {
    #de-serialize something serialized in Java
    java.opts <- rhuz(rhoptions()$server$rhmropts())
    expect_true(data.class(java.opts) == "list")
@@ -49,11 +49,5 @@ test_that("use rhwrite/rhread which use serialization", {
    rhwrite(irisSplit, "serializationTest")
    new.data <- rhread("serializationTest")
    
-   # dummy set of data
-   permute <- sample(1:150, 150)
-   splits <- split(permute, rep(1:3, 50))
-   irisSplit <- lapply(seq_along(splits), function(x) {
-     list(x, iris[splits[[x]],])
-   })
    expect_equivalent(irisSplit, new.data)
 })

@@ -1,7 +1,7 @@
 ## This file contains tests that perform a simple map-reduce job 
 ## and interrupts it to make sure it is killed successfully.
 
-context("Simple mr job")
+context("Kill a simple mr job run asynchronously")
 
 test_that("test rhinit", {
    rhinit()
@@ -31,6 +31,12 @@ test_that("simple mr job setup", {
 })
 
 test_that("start simple mr job asynchronously, then kill it", {
+    ## Function to loop for x seconds 
+    pause <- function(x) {
+        s <- Sys.time()
+        while (Sys.time() - s < x) {}
+    }
+
     # map code for computing range
     rangeMap <- rhmap({
        by(r, r$Species, function(x) {
@@ -76,7 +82,8 @@ test_that("start simple mr job asynchronously, then kill it", {
    jobinfo1 <- rhJobInfo(jobtoken)
    expect_equal(length(jobinfo1), 9)
    
-   # TODO: pause 2 sec
+   # pause 2 sec
+   pause(2)
    
    # kill the job
    rhkill(jobtoken)
