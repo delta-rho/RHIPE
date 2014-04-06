@@ -83,8 +83,8 @@
         </copy>
         <mkdir dir="${r.inst}/java"/>
         <mkdir dir="${r.package}/man"/>
-    	<mkdir dir="${r.package}/inst/tests"/>
-    	<copy todir="${r.package}/inst/tests">
+    	<mkdir dir="${r.package}/inst/tests/testthat"/>
+    	<copy todir="${r.package}/inst/tests/testthat">
     		<fileset dir="${r.test}"/>
     	</copy>
     </target>
