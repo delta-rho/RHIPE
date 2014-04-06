@@ -1,7 +1,5 @@
 # using "testthat" for tests
-# tests are located in inst/tests
+# tests are located in inst/tests/testthat
 
 library(testthat)
-library(Rhipe)
-
-test_package("Rhipe")
+test_check("Rhipe")
