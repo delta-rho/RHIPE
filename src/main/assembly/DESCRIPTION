@@ -15,7 +15,8 @@ OS_type: unix
 Depends:
     methods,
     codetools,
-    rJava,
+    rJava
+Suggests:
     testthat
 BugReports: https://github.com/saptarshiguha/RHIPE/issues
 Collate:
