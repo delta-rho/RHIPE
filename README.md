@@ -56,6 +56,7 @@ HADOOP_BIN=<hadoo bin dir>
 HADOOP_CONF_DIR=<hadoop conf dir>  
 PKG_CONFIG_PATH=<protobuf pkgconfig dir>  
 LD_LIBRARY_PATH=<protobuf lib dir>  
+RHIPE_HADOOP_TMP_FOLDER=<location in HDFS space for Rhipe to write temporary files, defaults to /tmp if not specified>
 ```
 **Mac/Linux example:**  
     `export HADOOP_HOME=/Users/perk387/Software/hadoop-0.20.2-cdh3u6`    
@@ -63,6 +64,7 @@ LD_LIBRARY_PATH=<protobuf lib dir>
     `export HADOOP_CONF_DIR=$HADOOP_HOME/conf`    
     `export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/Cellar/protobuf241/2.4.1/lib/pkgconfig`    
     `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/Cellar/protobuf241/2.4.1/lib`    
+    `export RHIPE_HADOOP_TMP_FOLDER=/tmp`
 
 ### R Development Environment ###
 
@@ -102,4 +104,6 @@ An option has been added to Java to save any "last.dump.rda" files created by R 
 HDFS at /tmp/map-reduce-error.  
 To enable this option in R, add 
 `options(error=dump.frames)` 
-to any R code that will be evaluated by Hadoop (mapper, reducer, etc)
+to the beginning of any R code that will be evaluated by Hadoop (mapper, reducer, etc)
+The last.dump.rda file will be stored according to job ID under the $RHIPE_HADOOP_TMP_FOLDER/map-reduce-error directory.
+For a usage example see the `test-with-errors.R` script in the `inst/tests` directory of the package.
