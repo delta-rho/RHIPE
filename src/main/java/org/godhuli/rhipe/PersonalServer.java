@@ -18,7 +18,7 @@ import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 import org.godhuli.rhipe.REXPProtos.REXP;
 
 import java.io.BufferedReader;
-import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -302,6 +302,17 @@ public class PersonalServer {
         return (0);
     }
 
+    public void dumpConf(){
+        dumpConf(_configuration);
+    }
+
+    public static void dumpConf(Configuration conf){
+        try {
+            Configuration.dumpConfiguration(conf,new FileWriter("conf-dump-" + System.currentTimeMillis() + ".txt"));
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+    }
     public abstract class DelayedExceptionThrowing {
         abstract void process(Path p, FileSystem srcFs) throws IOException;
 
