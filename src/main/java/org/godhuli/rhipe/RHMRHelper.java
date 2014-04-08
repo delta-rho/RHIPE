@@ -49,10 +49,9 @@ public class RHMRHelper {
     private static int BUFFER_SIZE = 10 * 1024;
     private static final long REPORTER_OUT_DELAY = 10 * 1000L;
     private static final long REPORTER_ERR_DELAY = 10 * 1000L;
-    
-    //todo these should be just variables.  they aren't constants
-    protected static int PARTITION_START = 0, PARTITION_END = 0;
+    private static final String ERROR_OUTPUT_DIR = "map-reduce-error";
 
+    protected static int PARTITION_START = 0, PARTITION_END = 0;
     private boolean copyFile;
     private Environment env_;
     private final String callID;
@@ -76,43 +75,14 @@ public class RHMRHelper {
     private boolean writeErr;
     private volatile Throwable outerrThreadsThrowable;
 
-    //    private static final String R_MAP_ERROR = "R MAP ERROR";
-    //    private static final String R_REDUCE_ERROR = "R REDUCE ERROR";
-    //    private String hostname;
-    //    private final RHMRMapper mapper;
-    //    protected static REXP.RClass PARTITION_TYPE = REXP.RClass.REAL;
-    //    long startTime_;
-    //    boolean copyFile_;
-
-    //    public RHMRHelper(final String fromWHo, final RHMRMapper m) {
-//        callID = fromWHo;
-//        mapper = m;
-//    }
-
-//    public RHMRHelper(final String fromWHo) {
-//        this(fromWHo,"none");
-//    }
+    private final static ImmutableSet<String> rhipeKeys = ImmutableSet.of("rhipe_setup_map", "rhipe_map", "rhipe_cleanup_map", "rhipe_setup_reduce", "rhipe_reduce_prekey", "rhipe_reduce", "rhipe_reduce_postkey", "rhipe_cleanup_reduce");
 
     public RHMRHelper(String fromWHo, String jobId, String taskId) {
         this.callID = fromWHo;
         this.jobId = jobId;
         this.taskId = taskId;
-        this.errorOutputPath = "/tmp/map-reduce-error/";
-        //           mapper = null;
+        this.errorOutputPath = "/tmp/" + ERROR_OUTPUT_DIR;
     }
-
-//    void addEnvironment(final Properties env, final String nameVals) {
-//        if (nameVals == null) {
-//            return;
-//        }
-//        final String[] nv = nameVals.split(" ");
-//        for (int i = 0; i < nv.length; i++) {
-//            final String[] pair = nv[i].split("=", 2);
-//            if (pair.length == 2) {
-//                env.put(pair[0], pair[1]);
-//            }
-//        }
-//    }
 
     public int exitval() {
         int exitVal = 0;
@@ -125,8 +95,6 @@ public class RHMRHelper {
         return exitVal;
     }
 
-    private final static ImmutableSet<String> rhipeKeys = ImmutableSet.of("rhipe_setup_map", "rhipe_map", "rhipe_cleanup_map", "rhipe_setup_reduce", "rhipe_reduce_prekey", "rhipe_reduce", "rhipe_reduce_postkey", "rhipe_cleanup_reduce");
-
     private void addJobConfToEnvironment(final Configuration conf, final Properties env) {
         for (final Object aConf : conf) {
             final Map.Entry en = (Map.Entry) aConf;
@@ -134,9 +102,11 @@ public class RHMRHelper {
             if (name.equals("mapred.input.dir") || name.equals("rhipe_input_folder")) {
                 continue;
             }
-            String value = null;
+            String value;
             if(name.equals("HADOOP.TMP.FOLDER")){
-                errorOutputPath = conf.get(name);
+                String t = conf.get(name);
+                if(t != null && t.length() > 0)
+                    errorOutputPath = t + (t.endsWith("/") ? "" : "/") + ERROR_OUTPUT_DIR;
             }
             if (!(name.equals("LD_LIBRARY_PATH") || name.equals("PATH"))) {
                 value = conf.get(name); // does variable expansion
@@ -292,10 +262,6 @@ public class RHMRHelper {
 
     private void waitOutputThreads(final TaskInputOutputContext<WritableComparable, RHBytesWritable, WritableComparable, RHBytesWritable> ctx) {
         try {
-            // I commented this out, if uncommented, then uncomment the bit for DummyContext
-            // if (outThread_ == null) {
-            // 	startOutputThreads(new DummyContext(ctx)); //will fail
-            // }
             final int exitVal = sim.waitFor();
             if (exitVal != 0) {
                 if (nonZeroExitIsFailure_) {
@@ -367,32 +333,8 @@ public class RHMRHelper {
         return (extraInfo);
     }
 
-    // class DummyContext extends TaskInputOutputContext<WritableComparable,RHBytesWritable,
-    // 			       WritableComparable,RHBytesWritable> {
-    // 	DummyContext(TaskInputOutputContext<WritableComparable,RHBytesWritable,
-    // 		     WritableComparable,RHBytesWritable>ctx){
-    // 	    super(null, null, null, null, null); //wont work
-    // 	}
-    // 	public RHBytesWritable getCurrentKey() throws IOException, InterruptedException {
-    // 	    return null;
-    // 	}
-
-    // 	public RHBytesWritable getCurrentValue() throws IOException, InterruptedException {
-    // 	    return null;
-    // 	}
-    // 	public boolean nextKeyValue() throws IOException, InterruptedException {
-    // 	    return false;
-    // 	}
-    // 	public void write(RHBytesWritable key, RHBytesWritable value
-    // 			  ) throws IOException, InterruptedException {
-    // 	}
-    // 	public void setStatus(String status){}
-    // 	public void progress(){}
-    // }
-
     public void writeCMD(final int s) throws IOException {
         WritableUtils.writeVInt(clientOut_, s);
-        // clientOut_.writeInt(s);
     }
 
     public void write(final RHBytesWritable c) throws IOException {
@@ -429,8 +371,6 @@ public class RHMRHelper {
         }
 
         public void run() {
-            // Writable key
-            // RHBytesWritable key = new RHBytesWritable();
             final RHBytesWritable value = new RHBytesWritable();
             WritableComparable key = null;
             try {
@@ -445,10 +385,6 @@ public class RHMRHelper {
 
             try {
                 while (readRecord(key, value)) {
-                    // LOG.info("KEY="+value.toString());
-                    // LOG.info("Value="+value.toDebugString());
-                    // System.out.println(value.getClass().getName());
-
                     ctx.write(key, value);
                     numRecWritten_++;
                     final long now = System.currentTimeMillis();
@@ -509,7 +445,6 @@ public class RHMRHelper {
                                 k = new byte[ln];
                                 clientErr_.readFully(k, 0, ln);
                                 final String errmsg = new String(k);
-                                // mapper.setreadcomplete(true);
                                 ctx.getCounter("R_ERRORS", errmsg).increment(1);
                                 final int y = errmsg.length();
                                 throw new RuntimeException(errmsg);
@@ -527,15 +462,6 @@ public class RHMRHelper {
                                 final String status = new String(k);
                                 ctx.setStatus(status);
                                 break;
-                            // case RHTypes.SET_COUNTER:
-                            //     ln = clientErr_.readInt();
-                            //     k = new byte[ln];
-                            //     clientErr_.readFully(k,0,ln);
-                            //     String grcnt = new String(k);
-                            //     String[] columns = grcnt.split(",");
-                            //     ctx.getCounter(columns[0], columns[1])
-                            // 	.increment(Long.parseLong(columns[2]));
-                            //     break;
                             case RHTypes.SET_COUNTER:
                                 ln = RHBytesWritable.readVInt(clientErr_);
                                 k = new byte[ln];
@@ -608,24 +534,6 @@ public class RHMRHelper {
         return env_;
     }
 
-//    static String asHex(final byte[] v, final int max) {
-//        final StringBuilder sb = new StringBuilder(3 * v.length);
-//        for (int idx = 0; idx < Math.min(max, v.length); idx++) {
-//            if (idx != 0) {
-//                sb.append(' ');
-//            }
-//            final String num = Integer.toHexString(v[idx]);
-//            if (num.length() < 2) {
-//                sb.append('0');
-//            }
-//            sb.append(num);
-//        }
-//        if (max < v.length) {
-//            sb.append(" ... ");
-//        }
-//        return sb.toString();
-//    }
-
     private void _walk(final String path, final ArrayList<Path> a, final String ex) {
         final File root = new File(path);
         final File[] list = root.listFiles();
@@ -636,8 +544,6 @@ public class RHMRHelper {
                 }
                 if (f.isDirectory() && f.listFiles().length > 0) {
                     _walk(f.getAbsolutePath(), a, ex);
-                    // // for(File x: f.listFiles())
-                    // a.add(new Path(f.toString()));
                 }
                 else {
                     if (f.length() > 0) {
@@ -657,18 +563,4 @@ public class RHMRHelper {
             }
         }
     }
-
-//    public static void invoke(final String aClass, final String aMethod, final Class[] params, final Object[] args) {
-//        try {
-//            final Class c = Class.forName(aClass);
-//            final Method m = c.getDeclaredMethod(aMethod, params);
-//            final Object i = c.newInstance();
-//            final Object r = m.invoke(i, args);
-//        }
-//        catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
-
 }
