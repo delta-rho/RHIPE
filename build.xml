@@ -45,7 +45,7 @@
             build
                 - builds Rhipe for cdh3 and cdh4
             build-distro -Dhadoop.version=version
-                - build Rhipe for the specified Hadoop version (MR1):hadoop-1, hadoop-2,cdh3,cdh4,cdh5,hdp-1,hdp-2
+                - build Rhipe for the specified Hadoop version:hadoop-1,hadoop-2,cdh3,cdh4,cdh4mr1,cdh5,hdp-1,hdp-2
             build-all-distros
                 - create an installable tar.gz archive for each Hadoop distro (MR1)
         </echo>
@@ -93,6 +93,9 @@
         </antcall>
         <antcall target="build-distro">
             <param name="hadoop.version" value="cdh4"/>
+        </antcall>
+        <antcall target="build-distro">
+            <param name="hadoop.version" value="cdh4mr1"/>
         </antcall>
         <antcall target="build-distro">
             <param name="hadoop.version" value="cdh5"/>
