@@ -34,7 +34,7 @@
              uri="antlib:org.apache.maven.artifact.ant"
              classpathref="maven-ant-tasks.classpath"/>
 
-    <available file="${maven.tmp.dir}/${maven.archive.name}.version" property="maven.available"/>
+    <!--<available file="${maven.tmp.dir}/${maven.archive.name}.version" property="maven.available"/>-->
 
     <target name="help" description="how to use this script">
 
@@ -50,6 +50,7 @@
                 - create an installable tar.gz archive for each Hadoop distro (MR1)
         </echo>
     </target>
+
     <target name="init" depends="maven-version-update">
     </target>
 
