@@ -133,7 +133,7 @@
         <profile>
             <id>cdh4mr1</id>
             <properties>
-                <projectVersion>cdh4</projectVersion>
+                <projectVersion>cdh4mr1</projectVersion>
                 <hadoop.version>2.0.0-mr1-cdh4.6.0</hadoop.version>
                 <hadoop.artifactId>hadoop-client</hadoop.artifactId>
             </properties>
