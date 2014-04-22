@@ -10,12 +10,12 @@
     <url>https://github.com/saptarshiguha/RHIPE</url>
 
     <properties>
-        <hadoop.version>0.20.2-cdh3u6</hadoop.version>
+        <hadoop.version>2.3.0-cdh5.0.0</hadoop.version>
         <hadoop.artifactId>hadoop-client</hadoop.artifactId>
         <protobuf.version>2.5.0</protobuf.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <projectVersion>cdh3</projectVersion>
+        <projectVersion>cdh5</projectVersion>
     </properties>
 
     <build>
@@ -125,24 +125,32 @@
         <profile>
             <id>cdh3</id>
             <properties>
-                <projectVersion>chd3</projectVersion>
+                <projectVersion>cdh3</projectVersion>
                 <hadoop.version>0.20.2-cdh3u6</hadoop.version>
+                <hadoop.artifactId>hadoop-client</hadoop.artifactId>
+            </properties>
+        </profile>
+        <profile>
+            <id>cdh4mr1</id>
+            <properties>
+                <projectVersion>cdh4mr1</projectVersion>
+                <hadoop.version>2.0.0-mr1-cdh4.6.0</hadoop.version>
                 <hadoop.artifactId>hadoop-client</hadoop.artifactId>
             </properties>
         </profile>
         <profile>
             <id>cdh4</id>
             <properties>
-                <projectVersion>chd4</projectVersion>
-                <hadoop.version>2.0.0-mr1-cdh4.5.0</hadoop.version>
+                <projectVersion>cdh4</projectVersion>
+                <hadoop.version>2.0.0-cdh4.6.0</hadoop.version>
                 <hadoop.artifactId>hadoop-client</hadoop.artifactId>
             </properties>
         </profile>
         <profile>
             <id>cdh5</id>
             <properties>
-                <projectVersion>chd5</projectVersion>
-                <hadoop.version>2.2.0-mr1-cdh5.0.0-beta-2</hadoop.version>
+                <projectVersion>cdh5</projectVersion>
+                <hadoop.version>2.3.0-cdh5.0.0</hadoop.version>
                 <hadoop.artifactId>hadoop-client</hadoop.artifactId>
             </properties>
         </profile>
