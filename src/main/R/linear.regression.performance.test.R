@@ -130,7 +130,7 @@ linear.reg.generate.data <- function(REP.vec=3, BLK.vec=27, m.vec=8, p.vec=2^4 -
        dm$jobname = dm$output
        dm$mapred = list( 
            mapred.task.timeout=0
-           , mapreduce.map.tasks=MAP.TASKS 
+           , mapred.map.tasks=MAP.TASKS 
            , mapreduce.reduce.tasks=0 
            , dfs.replication=REP
            , dfs.block.size=2^BLK

@@ -480,70 +480,78 @@ public class FileUtils {
     }
 
     public byte[] getDetailedInfoForJob(final String jd) throws Exception {
-        final JobID jj = JobID.forName(jd);
-        if (jj == null) {
-            throw new IOException("Jobtracker could not find jobID: " + jd);
-        }
-        final RunningJob rj = jclient.getJob(jj);
-        if (rj == null) {
-            throw new IOException("No such job: " + jd + " available, wrong job? or try the History Viewer (see the Web UI) ");
-        }
-        final String jobFile = rj.getJobFile();
-        final String jobName = rj.getJobName();
-        final Counters cc = rj.getCounters();
-        final long startSec = getStart(jclient, jj);
-        final REXP allCounters = FileUtils.buildListFromOldCounter(cc, 0);
-        final int jobs = rj.getJobState();
-        String jobStatus = null;
-        if (jobs == JobStatus.FAILED) {
-            jobStatus = "FAILED";
-        }
-        else if (jobs == JobStatus.KILLED) {
-            jobStatus = "KILLED";
-        }
-        else if (jobs == JobStatus.PREP) {
-            jobStatus = "PREP";
-        }
-        else if (jobs == JobStatus.RUNNING) {
-            jobStatus = "RUNNING";
-        }
-        else if (jobs == JobStatus.SUCCEEDED) {
-            jobStatus = "SUCCEEDED";
-        }
+        try {
+            final JobID jj = JobID.forName(jd);
 
-        final float mapProg = rj.mapProgress();
-        final float reduceProg = rj.reduceProgress();
+            if (jj == null) {
+                throw new IOException("Jobtracker could not find jobID: " + jd);
+            }
+            final RunningJob rj = jclient.getJob(jj);
+            if (rj == null) {
+                throw new IOException("No such job: " + jd + " available, wrong job? or try the History Viewer (see the Web UI) ");
+            }
+            final String jobFile = rj.getJobFile();
+            final String jobName = rj.getJobName();
+            final Counters cc = rj.getCounters();
+            final long startSec = getStart(jclient, jj);
+            final REXP allCounters = FileUtils.buildListFromOldCounter(cc, 0);
+            final int jobs = rj.getJobState();
+            String jobStatus = null;
+            if (jobs == JobStatus.FAILED) {
+                jobStatus = "FAILED";
+            }
+            else if (jobs == JobStatus.KILLED) {
+                jobStatus = "KILLED";
+            }
+            else if (jobs == JobStatus.PREP) {
+                jobStatus = "PREP";
+            }
+            else if (jobs == JobStatus.RUNNING) {
+                jobStatus = "RUNNING";
+            }
+            else if (jobs == JobStatus.SUCCEEDED) {
+                jobStatus = "SUCCEEDED";
+            }
 
-        final REXP.Builder theVals = REXP.newBuilder();
+            final float mapProg = rj.mapProgress();
+            final float reduceProg = rj.reduceProgress();
 
-        theVals.setRclass(REXP.RClass.LIST);
-        theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobStatus}));
-        theVals.addRexpValue(RObjects.buildDoubleVector(new double[]{startSec}));
-        theVals.addRexpValue(RObjects.buildDoubleVector(new double[]{(double) mapProg, (double) reduceProg}));
-        theVals.addRexpValue(allCounters);
-        theVals.addRexpValue(RObjects.makeStringVector(rj.getTrackingURL()));
-        theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobName}));
-        theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobFile}));
+            final REXP.Builder theVals = REXP.newBuilder();
 
-        final TaskReport[] mapTaskReports = jclient.getMapTaskReports(jj);
-        final REXP.Builder theValsA = REXP.newBuilder();
-        theValsA.setRclass(REXP.RClass.LIST);
-        for (final TaskReport t : mapTaskReports) {
-            theValsA.addRexpValue(TaskReportToRexp(t));
+            theVals.setRclass(REXP.RClass.LIST);
+            theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobStatus}));
+            theVals.addRexpValue(RObjects.buildDoubleVector(new double[]{startSec}));
+            theVals.addRexpValue(RObjects.buildDoubleVector(new double[]{(double) mapProg, (double) reduceProg}));
+            theVals.addRexpValue(allCounters);
+            theVals.addRexpValue(RObjects.makeStringVector(rj.getTrackingURL()));
+            theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobName}));
+            theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobFile}));
+
+            final TaskReport[] mapTaskReports = jclient.getMapTaskReports(jj);
+            final REXP.Builder theValsA = REXP.newBuilder();
+            theValsA.setRclass(REXP.RClass.LIST);
+            for (final TaskReport t : mapTaskReports) {
+                theValsA.addRexpValue(TaskReportToRexp(t));
+            }
+            theVals.addRexpValue(theValsA.build());
+
+
+            final TaskReport[] redtr = jclient.getReduceTaskReports(jj);
+            final REXP.Builder theValsB = REXP.newBuilder();
+            theValsB.setRclass(REXP.RClass.LIST);
+            for (final TaskReport t : redtr) {
+                theValsB.addRexpValue(TaskReportToRexp(t));
+            }
+
+            theVals.addRexpValue(theValsB.build());
+
+            return theVals.build().toByteArray();
+        } catch (Throwable e) {
+            e.printStackTrace();
+            log.fatal("error:", e);
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw new Exception(e);
         }
-        theVals.addRexpValue(theValsA.build());
-
-
-        final TaskReport[] redtr = jclient.getReduceTaskReports(jj);
-        final REXP.Builder theValsB = REXP.newBuilder();
-        theValsB.setRclass(REXP.RClass.LIST);
-        for (final TaskReport t : redtr) {
-            theValsB.addRexpValue(TaskReportToRexp(t));
-        }
-
-        theVals.addRexpValue(theValsB.build());
-
-        return theVals.build().toByteArray();
     }
 
     private String convertTIP(final TIPStatus tipStatus) {
@@ -557,7 +565,22 @@ public class FileUtils {
         theVals.addRexpValue(RObjects.makeStringVector(convertTIP(taskReport.getCurrentStatus())));
         theVals.addRexpValue(RObjects.buildDoubleVector(new double[]{taskReport.getProgress(), taskReport.getStartTime(), taskReport.getFinishTime()}));
         theVals.addRexpValue(RObjects.makeStringVector(taskReport.getTaskID().toString()));
-        theVals.addRexpValue(RObjects.makeStringVector(taskReport.getSuccessfulTaskAttempt().toString()));
+        //work-around for cdh5 which throws a NPE on this call due to some enumerated type not existing deep in the toString() operation
+        String successfulTaskAttemptId;
+        try {
+//            not compatible with cdh3
+//            if(taskReport.getSuccessfulTaskAttempt().getTaskID().getTaskType() != null)
+                successfulTaskAttemptId = taskReport.getSuccessfulTaskAttempt().toString();
+//            else
+//                successfulTaskAttemptId = "not available";
+//
+            log.debug("successfulTaskAttemptId = " + successfulTaskAttemptId);
+
+        } catch (Throwable e) {
+            log.debug("Exception Ignored",e);
+            successfulTaskAttemptId = "not available";
+        }
+        theVals.addRexpValue(RObjects.makeStringVector(successfulTaskAttemptId));
 
         return theVals.build();
     }
