@@ -155,6 +155,14 @@
             </properties>
         </profile>
         <profile>
+            <id>cdh5mr1</id>
+            <properties>
+                <projectVersion>cdh5</projectVersion>
+                <hadoop.version>2.3.0-mr1-cdh5.0.0</hadoop.version>
+                <hadoop.artifactId>hadoop-client</hadoop.artifactId>
+            </properties>
+        </profile>
+        <profile>
             <id>hadoop-1</id>
             <properties>
                 <projectVersion>hadoop-1</projectVersion>
