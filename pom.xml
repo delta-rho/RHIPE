@@ -202,8 +202,21 @@
                 <hadoop.artifactId>hadoop-client</hadoop.artifactId>
             </properties>
         </profile>
+        <profile>
+            <id>piv-2.0</id>
+            <properties>
+                <projectVersion>piv-2.0</projectVersion>
+                <hadoop.version>2.2.0-gphd-3.0.1.0</hadoop.version>
+                <hadoop.artifactId>hadoop-client</hadoop.artifactId>
+            </properties>
+        </profile>
     </profiles>
     <repositories>
+        <repository>
+          <id>spring-releases</id>
+          <name>Spring Release Repository</name>
+          <url>http://repo.spring.io/libs-release</url>
+        </repository>
         <repository>
             <id>cloudera</id>
             <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
