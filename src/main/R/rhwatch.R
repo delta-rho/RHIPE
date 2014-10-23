@@ -325,7 +325,8 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL,
               })
             }, seq_along(map.values), map.keys, map.values, SIMPLIFY = FALSE)
             .(AFTER)
-         }, list(BEFORE = FIX(l$before), AFTER = FIX(l$after), REPLACE = FIX(l$replace))))
+             }, list(BEFORE = FIX(l$before), AFTER = FIX(l$after), REPLACE = FIX(l$replace))))
+         
          environment(newm) <- .BaseNamespaceEnv
          job[[1]]$rhipe_map <- rawToChar(serialize(newm, NULL, ascii = TRUE))
       } else if (is(m, "rhmr-map2")) {
@@ -338,13 +339,11 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL,
               })
             }, map.keys, map.values, SIMPLIFY = FALSE)
          })
+         
          environment(newm) <- .BaseNamespaceEnv
          job[[1]]$rhipe_map <- rawToChar(serialize(newm, NULL, ascii = TRUE))
       }
-      
       ## Has the user given one?
-      if (!is.list(debug) || (is.list(debug) && is.null(debug$map)) )
-         stop("debug should be list with a sublist named 'map'")
       if (is.list(debug) && !is.null(debug$map)) {
          if (!is.null(debug$map$setup)) 
             setup <- debug$map$setup
@@ -414,10 +413,8 @@ rhwatch.runner <- function(job, mon.sec = 5, readback = TRUE, debug = NULL, ...)
       # if rhoption write.job.info is TRUE, then write it to _rh_meta
       if (results$state == "SUCCEEDED" && rhoptions()$write.job.info) {
          # get job id
-         x <- gregexpr("jobid=", results$tracking)
-         st <- x[[1]] + attr(x[[1]], "match.length")
-         id <- substring(results$tracking, st, 1000000L)
-         
+	 id = parseJobIDFromTracking(results)
+	          
          jobData <- list(results = results, jobConf = job, jobInfo = rhJobInfo(id))
          rhsave(jobData, file = paste(ofolder, "/_rh_meta/jobData.Rdata", sep = ""))
       }
