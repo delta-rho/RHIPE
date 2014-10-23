@@ -198,7 +198,7 @@
     <target name="r-build">
         <exec executable="R" failonerror="true" failifexecutionfails="true">
             <arg value="CMD"/>
-            <arg value="BUILD"/>
+            <arg value="build"/>
             <arg value="${r.package}"/>
         </exec>
 
