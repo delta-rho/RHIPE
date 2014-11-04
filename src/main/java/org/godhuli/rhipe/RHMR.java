@@ -127,7 +127,8 @@ public class RHMR implements Tool {
             // config_ = new Configuration();
             setConf();
 
-            job_ = new Job(config_);
+            job_ = Job.getInstance(config_);
+//            job_ = new Job(config_);
             setJob();
 
         }

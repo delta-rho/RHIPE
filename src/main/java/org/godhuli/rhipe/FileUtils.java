@@ -128,7 +128,7 @@ public class FileUtils {
     }
 
     public void copyToLocal(final FileSystem srcFS, final Path src, final File dst) throws IOException {
-        if (!srcFS.getFileStatus(src).isDir()) {
+        if (!srcFS.getFileStatus(src).isDirectory()) {
             final File tmp = FileUtil.createLocalTempFile(dst.getAbsoluteFile(), COPY_TO_LOCAL, true);
             if (!FileUtil.copy(srcFS, src, tmp, false, srcFS.getConf())) {
                 throw new IOException("Failed to copy " + src + " to " + dst);
@@ -187,13 +187,13 @@ public class FileUtils {
             throw new FileNotFoundException("Cannot access " + path +
                     ": No such file or directory.");
         }
-        if (srcs.length == 1 && srcs[0].isDir()) {
+        if (srcs.length == 1 && srcs[0].isDirectory()) {
             srcs = srcFS.listStatus(srcs[0].getPath());
         }
 
         for (final FileStatus status : srcs) {
             final StringBuilder sb = new StringBuilder();
-            final boolean idir = status.isDir();
+            final boolean idir = status.isDirectory();
             final String x = idir ? "d" : "-";
             if (dorecurse && idir) {
                 ls__(status.getPath().toUri().getPath(), lsco, dorecurse);
@@ -235,7 +235,7 @@ public class FileUtils {
     /* delete a file */
     private void delete(final Path src, final FileSystem srcFs, final boolean recursive) throws IOException {
 
-        if (srcFs.getFileStatus(src).isDir() && !recursive) {
+        if (srcFs.getFileStatus(src).isDirectory() && !recursive) {
             throw new IOException("Cannot remove directory \"" + src + "\", use -rmr instead");
         }
         final Trash trashTmp = new Trash(srcFs, getConf());

@@ -4,13 +4,14 @@
 
     <groupId>org.godhuli.rhipe</groupId>
     <artifactId>rhipe-java</artifactId>
-    <version>0.75.0</version>
+    <version>0.75.1</version>
     <packaging>jar</packaging>
     <name>Rhipe</name>
     <url>https://github.com/saptarshiguha/RHIPE</url>
 
     <properties>
-        <hadoop.version>2.3.0-cdh5.0.0</hadoop.version>
+        <!--<hadoop.version>2.3.0-cdh5.0.0</hadoop.version>-->
+        <hadoop.version>2.5.1</hadoop.version>
         <hadoop.artifactId>hadoop-client</hadoop.artifactId>
         <protobuf.version>2.5.0</protobuf.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -174,6 +175,14 @@
             <id>hadoop-2</id>
             <properties>
                 <projectVersion>hadoop-2</projectVersion>
+                <hadoop.version>2.5.1</hadoop.version>
+                <hadoop.artifactId>hadoop-client</hadoop.artifactId>
+            </properties>
+        </profile>
+        <profile>
+            <id>hadoop-2.2</id>
+            <properties>
+                <projectVersion>hadoop-2.2</projectVersion>
                 <hadoop.version>2.2.0</hadoop.version>
                 <hadoop.artifactId>hadoop-client</hadoop.artifactId>
             </properties>
