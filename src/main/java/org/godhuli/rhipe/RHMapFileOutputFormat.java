@@ -58,7 +58,9 @@ public class RHMapFileOutputFormat extends FileOutputFormat<RHBytesWritable, RHB
             codec = ReflectionUtils.newInstance(codecClass, conf);
         }
         // ignore the progress parameter, since MapFile is local
-        final MapFile.Writer out = new MapFile.Writer(conf, fs, file.toString(), RHBytesWritable.class, RHBytesWritable.class, compressionType, codec, context);
+//        final MapFile.Writer out = new MapFile.Writer(conf, fs, file.toString(), RHBytesWritable.class, RHBytesWritable.class, compressionType, codec, context);
+        final MapFile.Writer out = new MapFile.Writer(conf, file, MapFile.Writer.keyClass(RHBytesWritable.class), MapFile.Writer.valueClass(RHBytesWritable.class),
+                              MapFile.Writer.compression(compressionType, codec), MapFile.Writer.progressable(context));
         return new RecordWriter<RHBytesWritable, RHBytesWritable>() {
             public void write(final RHBytesWritable key, final RHBytesWritable value) throws IOException {
                 out.append(key, value);
