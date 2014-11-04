@@ -95,7 +95,8 @@ public class RHMapFileOutputFormat extends FileOutputFormat<RHBytesWritable, RHB
 
         final MapFile.Reader[] parts = new MapFile.Reader[names.length];
         for (int i = 0; i < names.length; i++) {
-            parts[i] = new MapFile.Reader(fs, names[i].toString(), conf);
+            parts[i] = new MapFile.Reader(names[i], conf);
+//            parts[i] = new MapFile.Reader(fs, names[i].toString(), conf);
         }
         return parts;
     }
@@ -112,7 +113,8 @@ public class RHMapFileOutputFormat extends FileOutputFormat<RHBytesWritable, RHB
 
         final MapFile.Reader[] parts = new MapFile.Reader[names.length];
         for (int i = 0; i < names.length; i++) {
-            parts[i] = new MapFile.Reader(fs, names[i].toString(), conf);
+            parts[i] = new MapFile.Reader(names[i], conf);
+//            parts[i] = new MapFile.Reader(fs, names[i].toString(), conf);
         }
         return parts;
     }

@@ -231,7 +231,8 @@ public class PersonalServer {
                 final int which = _hp.getPartition(k, a, pathsForMap.length);
                 MapFile.Reader f = mapfileReaderCache.getIfPresent(pathsForMap[which]);
                 if (f == null) {
-                    f = new MapFile.Reader(_filesystem, pathsForMap[which], _configuration);
+                    f = new MapFile.Reader(new Path(pathsForMap[which]), _configuration);
+//                    f = new MapFile.Reader(_filesystem, pathsForMap[which], _configuration);
                     mapfileReaderCache.put(pathsForMap[which], f);
                     mapToValueCacheHandles.get(key).add(pathsForMap[which]);
                 }
