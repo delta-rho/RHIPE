@@ -1,4 +1,4 @@
-image: tessera/cdh5mr2
+image: rocker/r-base
 script:
   - R --version
 notify:
