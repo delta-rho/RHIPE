@@ -1,4 +1,4 @@
-image: rocker/r-base
+image: tessera/r-test
 script:
   - R --version
 notify:
