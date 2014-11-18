@@ -1,3 +1,7 @@
 image: tessera/cdh5mr2
 script:
   - R --version
+notify:
+  email:
+    recipients:
+      - rhafen@gmail.com
