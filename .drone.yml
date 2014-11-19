@@ -1,5 +1,6 @@
 image: tessera/cdh5mr2
 script:
+  - sudo su - tessera
   - whoami
 notify:
   email:
