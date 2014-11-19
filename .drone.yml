@@ -1,6 +1,6 @@
 image: tessera/cdh5mr2
 script:
-  - R --version
+  - whoami
 notify:
   email:
     recipients:
