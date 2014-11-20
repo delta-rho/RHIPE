@@ -1,7 +1,11 @@
 image: tessera/cdh5mr2
 script:
   - for x in `cd /etc/init.d ; ls hadoop-hdfs-*` ; do service $x start ; done
+  - service hadoop-yarn-resourcemanager start
+  - service hadoop-yarn-nodemanager start
+  - service hadoop-mapreduce-historyserver start
   - hadoop fs -ls /
+  - sudo -u tessera R -e "library(testthat); test_package('Rhipe')"
 notify:
   email:
     recipients:
