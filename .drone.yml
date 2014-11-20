@@ -1,5 +1,6 @@
 image: tessera/cdh5mr2
 script:
+  - for x in `cd /etc/init.d ; ls hadoop-hdfs-*` ; do service $x start ; done
   - hadoop fs -ls
 notify:
   email:
