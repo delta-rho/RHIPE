@@ -5,7 +5,7 @@ script:
   - service hadoop-yarn-nodemanager start
   - service hadoop-mapreduce-historyserver start
   - hadoop fs -ls /
-  - sudo -i -u tessera R -e "Sys.getenv()"
+  - sudo -i -u tessera R -e "library(testthat); test_package('Rhipe')"
 notify:
   email:
     recipients:
