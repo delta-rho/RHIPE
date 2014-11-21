@@ -1,7 +1,6 @@
 image: tessera/cdh5mr2
 script:
-  - pwd
-  - sudo -i -u tessera pwd
+  - sudo -i -u tessera cd `pwd`; ant build-distro -Dhadoop.version=cdh5
 notify:
   email:
     recipients:
