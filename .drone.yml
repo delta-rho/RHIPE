@@ -5,7 +5,7 @@ script:
   - service hadoop-yarn-nodemanager start
   - service hadoop-mapreduce-historyserver start
   - hadoop fs -ls /user
-  - sudo -i -u tessera R -e "library(testthat); for(ff in list.files(file.path(system.file(package = 'Rhipe'), 'tests/testthat'), full.names = TRUE, pattern = '*.R')) source(ff)"
+  - sudo -i -u tessera R -e "library(testthat); library(Rhipe); for(ff in list.files(file.path(system.file(package = 'Rhipe'), 'tests/testthat'), full.names = TRUE, pattern = '*.R')) source(ff)"
 notify:
   email:
     recipients:
