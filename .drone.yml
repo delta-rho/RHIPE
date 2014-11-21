@@ -2,7 +2,7 @@ image: tessera/cdh5mr2
 script:
   - sudo -i -u tessera echo $JAVA_HOME
   - rm -rf /usr/local/lib/R/site-library/Rhipe
-  - sudo -i -u tessera export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64; cd `pwd`; ant build-distro -Dhadoop.version=cdh5; R CMD INSTALL Rhipe*.tar.gz
+  - sudo -i -u tessera cd `pwd`; ant build-distro -Dhadoop.version=cdh5; R CMD INSTALL Rhipe*.tar.gz
 notify:
   email:
     recipients:
