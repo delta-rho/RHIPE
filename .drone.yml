@@ -5,7 +5,7 @@ script:
   - service hadoop-yarn-nodemanager start
   - service hadoop-mapreduce-historyserver start
   - hadoop fs -ls /
-  - sudo -u tessera . ~/.bashrc && R -e "system('printenv')"
+  - sudo -u tessera R -e "Sys.getenv()"
 notify:
   email:
     recipients:
