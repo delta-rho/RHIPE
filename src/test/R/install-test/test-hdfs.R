@@ -49,8 +49,7 @@ test_that("first rhls test / test rhls on empty directory", {
 
 test_that("try to list a directory that doesn't exist", {
     expect_error(rhls("/directoryThatDoesntExist"), 
-      regex="org.apache.hadoop.security.AccessControlException")
-      # regex="java.io.FileNotFoundException: Cannot access /directoryThatDoesntExist")
+    regex="java.io.FileNotFoundException: Cannot access /directoryThatDoesntExist")
 })
 
 ## TEST: hdfs.setwd
@@ -169,7 +168,8 @@ test_that("test garbage file permission in rhchmod", {
 
 test_that("change permissions of a file that doesn't exist", {
     expect_error(rhchmod("/directoryThatDoesntExist", "777"), 
-        regex="java.io.FileNotFoundException")
+      regex="org.apache.hadoop.security.AccessControlException")
+      # regex="java.io.FileNotFoundException")
 })
 
 ## TEST: hdfs.absolute.path
