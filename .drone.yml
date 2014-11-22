@@ -2,7 +2,7 @@ image: tessera/cdh5mr2
 script:
   - sudo -i -u tessera printenv
   - rm -rf /usr/local/lib/R/site-library/Rhipe
-  - sudo -i -u tessera cd `pwd`; ant build-distro -Dhadoop.version=cdh5; R CMD INSTALL Rhipe*.tar.gz
+  - sudo -i -u tessera -- sh -c "cd `pwd`; ant build-distro -Dhadoop.version=cdh5; R CMD INSTALL Rhipe*.tar.gz"
   - for x in `cd /etc/init.d ; ls hadoop-hdfs-*` ; do service $x start ; done
   - service hadoop-yarn-resourcemanager start
   - service hadoop-yarn-nodemanager start
