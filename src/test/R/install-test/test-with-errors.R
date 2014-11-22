@@ -79,7 +79,10 @@ test_that("run mr job with error in the map step", {
    expect_equal("FAILED", res[[1]]$state)
 
    # check to see there are any error dump files
-   err.files <- rhls(paste(rhoptions()$HADOOP.TMP.FOLDER, "map-reduce-error", sep="/"), recurse=TRUE)
+   # err.files <- rhls(paste(rhoptions()$HADOOP.TMP.FOLDER, "map-reduce-error", sep="/"), recurse=TRUE)
+   err.files <- rhls(rhoptions()$HADOOP.TMP.FOLDER)
+   err.files <- err.files[grepl("/map-reduce-error", err.files$file),]
+
    expect_true(nrow(err.files) > 0)
    
    # check to see if an error file has been modified in the last minute
@@ -94,9 +97,12 @@ test_that("run mr job with error in the map step", {
    last.file.ind <- rev(order(err.files$modtime))[1]
    err.file.name <- err.files$file[last.file.ind]
    rhget(err.file.name, "last.dump.Rda")
-   load("last.dump.Rda")
+   # load("last.dump.Rda")
+   # expect_true(exists("last.dump"))
+   # file.remove("last.dump.Rda")
+   load(list.files("last.dump.Rda", recursive = TRUE, full.names = TRUE))
    expect_true(exists("last.dump"))
-   file.remove("last.dump.Rda")
+   unlink("last.dump.Rda", recursive = TRUE)
    
    # here a user would run debugger() to step into the stack trace
    # of the error to find the problem
