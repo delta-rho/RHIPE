@@ -1,7 +1,7 @@
 image: tessera/cdh5mr2
 script:
   - rm -rf /usr/local/lib/R/site-library/Rhipe
-  - sudo -i -u tessera cd `pwd`; ant build-distro -Dhadoop.version=cdh5; R CMD INSTALL Rhipe*.tar.gz
+  - sudo -i -u tessera cd `pwd`; ant build-distro -Dhadoop.version=cdh5; export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH; R CMD INSTALL Rhipe*.tar.gz
   - sudo -i -u tessera R -e "library(testthat); test_package('Rhipe')"
 notify:
   email:
