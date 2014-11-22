@@ -49,7 +49,8 @@ test_that("first rhls test / test rhls on empty directory", {
 
 test_that("try to list a directory that doesn't exist", {
     expect_error(rhls("/directoryThatDoesntExist"), 
-        regex="java.io.FileNotFoundException: Cannot access /directoryThatDoesntExist")
+      regex="org.apache.hadoop.security.AccessControlException")
+      # regex="java.io.FileNotFoundException: Cannot access /directoryThatDoesntExist")
 })
 
 ## TEST: hdfs.setwd
