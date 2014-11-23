@@ -1,13 +1,6 @@
 image: tessera/cdh5mr2
 script:
-  - if [ -d /etc/drone.d ]; then
-  -   for i in /etc/drone.d/*.sh; do
-  -     if [ -r $i ]; then
-  -       cat $i
-  -     fi
-  -   done
-  -   unset i
-  - fi 
+  - ls /etc/drone.d/
 finotify:
   email:
     recipients:
