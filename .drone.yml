@@ -3,7 +3,7 @@ script:
   - if [ -d /etc/drone.d ]; then
   -   for i in /etc/drone.d/*.sh; do
   -     if [ -r $i ]; then
-  -       . $i
+  -       cat $i
   -     fi
   -   done
   -   unset i
