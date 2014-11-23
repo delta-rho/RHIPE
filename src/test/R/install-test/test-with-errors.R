@@ -103,7 +103,7 @@ test_that("run mr job with error in the map step", {
    ## but last.dump.Rda is a directory, for example:
    ## last.dump.Rda/map-reduce-errorjob_1416592114994_0015/task_1416592114994_0015_m_000000/last.dump.rda
    ## so for now, deal with it like this:
-   load(list.files("last.dump.Rda", recursive = TRUE, full.names = TRUE))
+   load(list.files("last.dump.Rda", recursive = TRUE, full.names = TRUE)[1])
    expect_true(exists("last.dump"))
    unlink("last.dump.Rda", recursive = TRUE)
    
