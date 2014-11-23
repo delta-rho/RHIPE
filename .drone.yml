@@ -1,6 +1,6 @@
 image: tessera/cdh5mr2
 script:
-  - ls /etc/drone.d/
+  - cat /etc/drone.d/proxy.sh
 finotify:
   email:
     recipients:
