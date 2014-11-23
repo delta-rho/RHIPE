@@ -8,7 +8,7 @@ script:
   - service hadoop-yarn-resourcemanager start
   - service hadoop-yarn-nodemanager start
   - service hadoop-mapreduce-historyserver start
-  - sudo -i -u tessera R -e "library(testthat); test_package('Rhipe')"
+  - sudo -i -u tessera R -e "library(testthat); library(Rhipe); source(file.path(system.file(package = 'Rhipe'), 'tests/testthat/test-simple-mr.R'))"
 notify:
   email:
     recipients:
