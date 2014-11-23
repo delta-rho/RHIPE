@@ -1,6 +1,6 @@
 image: tessera/cdh5mr2
 script:
-  - sudo -i -u tessera printenv 
+  - sudo -i -u tessera printenv
   - chown tessera:tessera -R . 
   - rm -rf /usr/local/lib/R/site-library/Rhipe
   - sudo -i -u tessera -- sh -c "cd `pwd`; ant build-distro -Dhadoop.version=cdh5; R CMD INSTALL Rhipe*.tar.gz"
