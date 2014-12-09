@@ -58,23 +58,23 @@ getkey <- function(v, keys, mc = lapply) {
    mc(a, rhuz)
 }
 
-#' @export [[ mapfile
+#' @export
 "[[.mapfile" <- function(a, i, ...) {
    getkey(a, i, ...)[[1]]
    ## if(length(a)>=1) a[[1]] else NULL
 }
 
-#' @export [ mapfile
+#' @export
 "[.mapfile" <- function(a, i, ...) {
    getkey(a, i, ...)
 }
 
-#' @export [[<- mapfile
+#' @export
 "[[<-.mapfile" <- function(x, value, i, ...) {
    stop("Assignment to MapFile keys is not supported")
 }
 
-#' @export [<- mapfile
+#' @export
 "[<-.mapfile" <- function(x, value, i, ...) {
    stop("Assignment to MapFile keys is not supported")
 }
