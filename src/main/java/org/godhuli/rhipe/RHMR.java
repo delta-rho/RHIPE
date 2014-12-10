@@ -124,10 +124,11 @@ public class RHMR implements Tool {
             readParametersFromR(argv_[0]);
 //            overrideParams();
             env_ = new Environment();
-            // config_ = new Configuration();
-            setConf();
+            job_ = Job.getInstance(config_);
+            //get a reference to the job's new config object
+            config_ = job_.getConfiguration();
 
-            job_ = new Job(config_);
+            setConf();
             setJob();
 
         }
@@ -191,7 +192,8 @@ public class RHMR implements Tool {
             for (final String p : shared) {
                 if (p.length() > 1) {
                     log.info("Adding to cache file:" + p);
-                    DistributedCache.addCacheFile(new URI(p), config_);
+//                    DistributedCache.addCacheFile(new URI(p), config_);
+                    job_.addCacheFile(new URI(p));
                 }
             }
         }
@@ -202,7 +204,8 @@ public class RHMR implements Tool {
                 // System.err.println("Adding "+ p +" to classpath");
                 if (p.length() > 1) {
                     log.info("Adding to archive classpath:" + p);
-                    DistributedCache.addArchiveToClassPath(new Path(p), config_); //FileSystem.get(config_));
+//                    DistributedCache.addArchiveToClassPath(new Path(p), config_); //FileSystem.get(config_));
+                    job_.addArchiveToClassPath(new Path(p));
                 }
             }
         }
@@ -212,12 +215,13 @@ public class RHMR implements Tool {
                 // System.err.println("Adding zip "+ p +" to cache");
                 if (p.length() > 1) {
                     log.info("Adding to cache archive:" + p);
-                    DistributedCache.addCacheArchive(new URI(p), config_);
+//                    DistributedCache.addCacheArchive(new URI(p), config_);
+                    job_.addCacheArchive(new URI(p));
                 }
             }
         }
 
-        DistributedCache.createSymlink(config_);
+//        DistributedCache.createSymlink(config_);
         // if (!rhoptions_.get("rhipe_classpaths").equals("")) {
         // 	String[] cps = rhoptions_.get("rhipe_jarfiles").split(",");
         // 	for(String s : cps)
