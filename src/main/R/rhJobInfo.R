@@ -15,9 +15,7 @@ rhJobInfo <- function(job) {
       job <- job[[1]]
       id <- job[["job.id"]]
    } else if (is(job, "rhwatch")) {
-      x <- gregexpr("jobid=", job[[1]]$tracking)
-      st <- x[[1]] + attr(x[[1]], "match.length")
-      id <- substring(job[[1]]$tracking, st, 1000000L)
+	 id = parseJobIDFromTracking(job[[1]])
    }
    a <- fu$getDetailedInfoForJob(id)
    a <- rhuz(a)

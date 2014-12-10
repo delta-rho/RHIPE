@@ -431,16 +431,17 @@ public class FileUtils {
 
         final REXP.Builder theVals = REXP.newBuilder();
         theVals.setRclass(REXP.RClass.LIST);
-        theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobss}));
-        theVals.addRexpValue(RObjects.buildDoubleVector(new double[]{dura}));
-        theVals.addRexpValue(RObjects.buildDoubleVector(new double[]{(double) mapprog, (double) reduprog}));
-        theVals.addRexpValue(RObjects.buildIntVector(new int[]{totalmaps, mappending, maprunning, mapcomp, mapkilled, mapafails, mapakilled}));
-        theVals.addRexpValue(RObjects.buildIntVector(new int[]{totalreds, redpending, redrunning, redcomp, redkilled, reduceafails, reduceakilled}));
-        theVals.addRexpValue(ro);
-        theVals.addRexpValue(errcontainer);
-        theVals.addRexpValue(RObjects.makeStringVector(rj.getTrackingURL()));
-        theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobname}));
-        theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobfile}));
+        theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobss})); //1
+        theVals.addRexpValue(RObjects.buildDoubleVector(new double[]{dura})); //2
+        theVals.addRexpValue(RObjects.buildDoubleVector(new double[]{(double) mapprog, (double) reduprog})); //3
+        theVals.addRexpValue(RObjects.buildIntVector(new int[]{totalmaps, mappending, maprunning, mapcomp, mapkilled, mapafails, mapakilled})); //4
+        theVals.addRexpValue(RObjects.buildIntVector(new int[]{totalreds, redpending, redrunning, redcomp, redkilled, reduceafails, reduceakilled})); //5
+        theVals.addRexpValue(ro); //6
+        theVals.addRexpValue(errcontainer); //7
+        theVals.addRexpValue(RObjects.makeStringVector(rj.getTrackingURL())); //8
+        theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobname})); //9
+        theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobfile})); //10
+	theVals.addRexpValue(RObjects.makeStringVector(rj.getID().toString())); //11
         return (theVals.build());
     }
 
