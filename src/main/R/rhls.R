@@ -1,4 +1,4 @@
-#' @S3method as.character ls.nice
+#' @export
 as.character.ls.nice <- function(x, ...) {
    ml <- c(b = 1, k = 1024, m = 1024^2, g = 1024^3)
    nice <- attr(x, "nice")
@@ -15,12 +15,12 @@ as.character.ls.nice <- function(x, ...) {
    })
 }
 
-#' @S3method format ls.nice
+#' @export
 format.ls.nice <- function(x, ...) {
    as.character.ls.nice(x)
 }
 
-#' @S3method print ls.nice
+#' @export
 print.ls.nice <- function(x, ...) cat(sprintf("%s\n", as.character(x)))
 
 #' List Files On HDFS

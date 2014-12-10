@@ -77,7 +77,12 @@ public class RHSequenceAsTextOutputFormat extends FileOutputFormat<RHBytesWritab
         }
         final Path file = getDefaultWorkFile(context, "");
         final FileSystem fs = file.getFileSystem(conf);
-        final SequenceFile.Writer out = SequenceFile.createWriter(fs, conf, file, org.apache.hadoop.io.Text.class, org.apache.hadoop.io.Text.class, compressionType, codec, context);
+//        final SequenceFile.Writer out = SequenceFile.createWriter(fs, conf, file, org.apache.hadoop.io.Text.class, org.apache.hadoop.io.Text.class, compressionType, codec, context);
+        final SequenceFile.Writer out = SequenceFile.createWriter(conf,SequenceFile.Writer.file(file),
+                                                                     SequenceFile.Writer.keyClass(org.apache.hadoop.io.Text.class),
+                                                                     SequenceFile.Writer.valueClass(org.apache.hadoop.io.Text.class),
+                                                                     SequenceFile.Writer.compression(compressionType, codec),
+                                                                     SequenceFile.Writer.progressable(context));
         return new ElementWriter(out, squote);
     }
 

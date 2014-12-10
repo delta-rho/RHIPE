@@ -4,17 +4,19 @@
 
     <groupId>org.godhuli.rhipe</groupId>
     <artifactId>rhipe-java</artifactId>
-    <version>0.74.0</version>
+    <version>0.75.1</version>
     <packaging>jar</packaging>
     <name>Rhipe</name>
     <url>https://github.com/saptarshiguha/RHIPE</url>
 
     <properties>
-        <hadoop.version>0.20.2-cdh3u6</hadoop.version>
+        <!--<hadoop.version>2.3.0-cdh5.0.0</hadoop.version>-->
+        <hadoop.version>2.5.1</hadoop.version>
         <hadoop.artifactId>hadoop-client</hadoop.artifactId>
+        <protobuf.version>2.5.0</protobuf.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <projectVersion>cdh3</projectVersion>
+        <projectVersion>cdh5</projectVersion>
     </properties>
 
     <build>
@@ -110,7 +112,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>2.4.1</version>
+            <version>${protobuf.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -124,24 +126,40 @@
         <profile>
             <id>cdh3</id>
             <properties>
-                <projectVersion>chd3</projectVersion>
+                <projectVersion>cdh3</projectVersion>
                 <hadoop.version>0.20.2-cdh3u6</hadoop.version>
+                <hadoop.artifactId>hadoop-client</hadoop.artifactId>
+            </properties>
+        </profile>
+        <profile>
+            <id>cdh4mr1</id>
+            <properties>
+                <projectVersion>cdh4mr1</projectVersion>
+                <hadoop.version>2.0.0-mr1-cdh4.6.0</hadoop.version>
                 <hadoop.artifactId>hadoop-client</hadoop.artifactId>
             </properties>
         </profile>
         <profile>
             <id>cdh4</id>
             <properties>
-                <projectVersion>chd4</projectVersion>
-                <hadoop.version>2.0.0-mr1-cdh4.5.0</hadoop.version>
+                <projectVersion>cdh4</projectVersion>
+                <hadoop.version>2.0.0-cdh4.6.0</hadoop.version>
                 <hadoop.artifactId>hadoop-client</hadoop.artifactId>
             </properties>
         </profile>
         <profile>
             <id>cdh5</id>
             <properties>
-                <projectVersion>chd5</projectVersion>
-                <hadoop.version>2.2.0-mr1-cdh5.0.0-beta-2</hadoop.version>
+                <projectVersion>cdh5</projectVersion>
+                <hadoop.version>2.3.0-cdh5.0.0</hadoop.version>
+                <hadoop.artifactId>hadoop-client</hadoop.artifactId>
+            </properties>
+        </profile>
+        <profile>
+            <id>cdh5mr1</id>
+            <properties>
+                <projectVersion>cdh5</projectVersion>
+                <hadoop.version>2.3.0-mr1-cdh5.0.0</hadoop.version>
                 <hadoop.artifactId>hadoop-client</hadoop.artifactId>
             </properties>
         </profile>
@@ -157,6 +175,14 @@
             <id>hadoop-2</id>
             <properties>
                 <projectVersion>hadoop-2</projectVersion>
+                <hadoop.version>2.5.1</hadoop.version>
+                <hadoop.artifactId>hadoop-client</hadoop.artifactId>
+            </properties>
+        </profile>
+        <profile>
+            <id>hadoop-2.2</id>
+            <properties>
+                <projectVersion>hadoop-2.2</projectVersion>
                 <hadoop.version>2.2.0</hadoop.version>
                 <hadoop.artifactId>hadoop-client</hadoop.artifactId>
             </properties>
@@ -185,8 +211,21 @@
                 <hadoop.artifactId>hadoop-client</hadoop.artifactId>
             </properties>
         </profile>
+        <profile>
+            <id>piv-2.0</id>
+            <properties>
+                <projectVersion>piv-2.0</projectVersion>
+                <hadoop.version>2.2.0-gphd-3.0.1.0</hadoop.version>
+                <hadoop.artifactId>hadoop-client</hadoop.artifactId>
+            </properties>
+        </profile>
     </profiles>
     <repositories>
+        <repository>
+          <id>spring-releases</id>
+          <name>Spring Release Repository</name>
+          <url>http://repo.spring.io/libs-release</url>
+        </repository>
         <repository>
             <id>cloudera</id>
             <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
