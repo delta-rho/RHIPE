@@ -25,7 +25,8 @@ public class S2M {
             conf.set("mapred.job.tracker", "local");
         }
         conf.set("mapred.job.reuse.jvm.num.tasks", "-1");
-        final Job job = new Job(conf, "Sequence To Map");
+        final Job job = Job.getInstance(conf, "Sequence To Map");
+//        final Job job = new Job(conf, "Sequence To Map");
         job.setJarByClass(S2B.class);
         job.setMapperClass(IDMapper.class);
         job.setOutputKeyClass(RHBytesWritable.class);

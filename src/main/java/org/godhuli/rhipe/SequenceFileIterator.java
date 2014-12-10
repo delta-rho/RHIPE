@@ -42,7 +42,8 @@ public class SequenceFileIterator {
         cfg = s.getConf();
         notcomplete = true;
         mnum = maxn;
-        sqr = new SequenceFile.Reader(fs, new Path(files[current]), cfg);
+        sqr = new SequenceFile.Reader(cfg, SequenceFile.Reader.file(new Path(files[current])));
+//        sqr = new SequenceFile.Reader(fs, new Path(files[current]), cfg);
         k = new RHBytesWritable();
         v = new RHBytesWritable();
         kt = new Text();
@@ -51,7 +52,9 @@ public class SequenceFileIterator {
     }
 
     public static SequenceFile.Reader openAFile(final FileSystem fs, final String p, final Configuration c) throws IOException {
-        return new SequenceFile.Reader(fs, new Path(p), c);
+//        return new SequenceFile.Reader(fs, new Path(p), c);
+        return new SequenceFile.Reader(c, SequenceFile.Reader.file(new Path(p)));
+
     }
 
     public void setTextual(final boolean a) {
@@ -98,10 +101,8 @@ public class SequenceFileIterator {
                     notcomplete = false;
                     break;
                 }
-                // LOG.info("switching to next file: "+files[current]);
-                // LOG.info(fs);
-                // LOG.info(cfg);
-                sqr = new SequenceFile.Reader(fs, new Path(files[current]), cfg);
+                sqr = new SequenceFile.Reader(cfg, SequenceFile.Reader.file(new Path(files[current])));
+//                sqr = new SequenceFile.Reader(fs, new Path(files[current]), cfg);
                 // LOG.info(sqr);
             }
         }
@@ -149,7 +150,8 @@ public class SequenceFileIterator {
                     break;
                 }
                 // LOG.info("switching to next file: "+files[current]);
-                sqr = new SequenceFile.Reader(fs, new Path(files[current]), cfg);
+                sqr = new SequenceFile.Reader(cfg, SequenceFile.Reader.file(new Path(files[current])));
+//                sqr = new SequenceFile.Reader(fs, new Path(files[current]), cfg);
             }
             if (bread > chunk || numreadtill == mnum) {
                 break;
