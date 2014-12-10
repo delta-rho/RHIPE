@@ -30,6 +30,11 @@ initPRNG <- function(seed = NULL) {
    mi
 }
 
+parseJobIDFromTracking = function(results){
+     results$jobid
+}
+
+
 #' Reads all or some lines from a text file located on the HDFS
 #' @param inp The location of the text file, interolated based on hdfs.getwd
 #' @param l the number of lines to read
