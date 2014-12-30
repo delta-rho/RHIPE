@@ -51,7 +51,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class FileUtils {
 
@@ -169,7 +170,7 @@ public class FileUtils {
         }
     }
 
-    public String[] ls(final String[] r, final int f) throws IOException {
+    public String[] ls(final String[] r, final int f) throws IOException, URISyntaxException {
         final ArrayList<String> lsco = new ArrayList<String>();
         for (final String path : r) {
             ls__(path, lsco, f > 0);
@@ -177,11 +178,15 @@ public class FileUtils {
         return (lsco.toArray(new String[lsco.size()]));
     }
 
-    private void ls__(final String path, final ArrayList<String> lsco, final boolean dorecurse) throws IOException {
+    private void ls__(final String path, final ArrayList<String> lsco, final boolean dorecurse) throws IOException, URISyntaxException {
 
         final Path spath = new Path(path);
         final FileSystem srcFS = spath.getFileSystem(getConf());
         FileStatus[] srcs;
+
+        final URI fsUri = new URI(cfg.get("fs.default.name"));
+        final String fsUriScheme = fsUri.getScheme();
+
         srcs = srcFS.globStatus(spath);
         if (srcs == null || srcs.length == 0) {
             throw new FileNotFoundException("Cannot access " + path +
@@ -196,7 +201,7 @@ public class FileUtils {
             final boolean idir = status.isDirectory();
             final String x = idir ? "d" : "-";
             if (dorecurse && idir) {
-                ls__(status.getPath().toUri().getPath(), lsco, dorecurse);
+                ls__(status.getPath().toUri().toString(), lsco, dorecurse);
             }
             else {
                 sb.append(x);
@@ -216,7 +221,12 @@ public class FileUtils {
                 sb.append(formatter.format(d));
                 sb.append(fsep);
 
-                sb.append(status.getPath().toUri().getPath());
+                final String curScheme = status.getPath().toUri().getScheme();
+                if(fsUriScheme.equals(curScheme)) {
+                    sb.append(status.getPath().toUri().getPath());
+                } else {
+                    sb.append(status.getPath().toUri().toString());
+                }
                 lsco.add(sb.toString());
             }
         }
