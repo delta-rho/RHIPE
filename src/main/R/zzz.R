@@ -66,7 +66,7 @@ assign("rhipeOptions", list(version = vvvv), envir = .rhipeEnv)
 
    opts$job.status.overprint <- FALSE
    opts$write.job.info <- FALSE
-   opts$file.types.remove.regex <- "(/_rh_meta|/_outputs|/_SUCCESS|/_LOG|/_log|rhipe_debug|rhipe_merged_index_db)"
+   opts$file.types.remove.regex <- "(/_meta/_rh_meta|/_outputs|/_SUCCESS|/_LOG|/_log|rhipe_debug|rhipe_merged_index_db)"
    opts$max.read.in.size <- 200 * 1024 * 1024  ## 100MB
    opts$reduce.output.records.warn <- 200 * 1000
    opts$rhmr.max.records.to.read.in <- NA

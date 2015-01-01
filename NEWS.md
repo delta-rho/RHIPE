@@ -2,6 +2,8 @@ Version 0.7.5.1
 ----------------------------------------------------------------------
 
 - update all deprecated hadoop api calls
+- update PersonalServer `ls` to handle non-default Hadoop URIs differently
+- add `_meta` to ignored RHIPE files
 
 Version 0.7.5
 ----------------------------------------------------------------------
