@@ -8,6 +8,7 @@ initPRNG <- function(seed = NULL) {
    seed <- eval(seed)
    mi <- function() {
       getUID <- function(id = Sys.getenv("mapred.task.id")) {
+         if (id == "") { id <- Sys.getenv("mapreduce.task.id") }
          a <- strsplit(id, "_")[[1]]
          a <- as.numeric(a[c(2, 3, 5)])
       }
@@ -28,6 +29,11 @@ initPRNG <- function(seed = NULL) {
    environment(mi) <- e1
    mi
 }
+
+parseJobIDFromTracking = function(results){
+     results$jobid
+}
+
 
 #' Reads all or some lines from a text file located on the HDFS
 #' @param inp The location of the text file, interolated based on hdfs.getwd

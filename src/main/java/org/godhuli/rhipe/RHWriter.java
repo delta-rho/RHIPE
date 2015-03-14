@@ -82,7 +82,10 @@ public class RHWriter {
     public void makeNewFile() throws IOException {
         currentfile++;
         // LOG.info("New File for "+currentfile);
-        sqw = new SequenceFile.Writer(f, c, new Path(dest + "/part_" + currentfile), RHBytesWritable.class, RHBytesWritable.class);
+//        sqw = new SequenceFile.Writer(f, c, new Path(dest + "/part_" + currentfile), RHBytesWritable.class, RHBytesWritable.class);
+        sqw = SequenceFile.createWriter(c,SequenceFile.Writer.file(new Path(dest + "/part_" + currentfile)),
+                                           SequenceFile.Writer.keyClass(RHBytesWritable.class),
+                                           SequenceFile.Writer.valueClass(RHBytesWritable.class));
         numwritten = 0;
     }
 
