@@ -42,7 +42,8 @@ public class RXBinaryOutputFormat extends FileOutputFormat<RHBytesWritable, RHBy
             public void write(final RHBytesWritable key, final RHBytesWritable value) throws IOException {
                 key.writeAsInt(out);
                 value.writeAsInt(out);
-                out.sync();
+//                out.sync();
+                out.hflush();
             }
 
             public void close(final TaskAttemptContext context) throws IOException {

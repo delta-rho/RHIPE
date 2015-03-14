@@ -90,15 +90,15 @@ test_that("start simple mr job asynchronously, then kill it", {
    
    # get updated job info and check status for KILLED
    jobinfo2 <- rhJobInfo(jobtoken)
-   expect_true(jobinfo2$MapTasks[[1]]$Status == "KILLED")
-   expect_true(jobinfo2$ReduceTasks[[1]]$Status == "KILLED")
+   expect_true(jobinfo2$State == "KILLED")
+   # expect_true(jobinfo2$ReduceTasks[[1]]$Status == "KILLED")
    
    # check for output from the killed job 
    # (if irisMax exists, it should only contain logs)
-   expect_true(!is.element(file.path(test.dir, "irisMax"), rhls()$file) | 
-       all(regexpr("_logs$", rhls(file.path(test.dir, "irisMax"))$file)>=0), 
+   expect_true(!is.element(file.path(test.dir, "irisMax"), rhls()$file) ||
+       all(regexpr("_logs$", rhls(file.path(test.dir, "irisMax"))$file)>=0),
        label="there is no output from killed job")
-   
+
 })
 
 # several parameters of rhwatch to test (readback, mapred, combiner, different input/output formats)
