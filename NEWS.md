@@ -1,6 +1,7 @@
-Version 0.7.5.1
+Version 0.7.5.2
 ----------------------------------------------------------------------
 
+- update `readTextFile` to be more flexible with file URI
 - update all deprecated hadoop api calls
 - update PersonalServer `ls` to handle non-default Hadoop URIs differently
 - add `_meta` to ignored RHIPE files
