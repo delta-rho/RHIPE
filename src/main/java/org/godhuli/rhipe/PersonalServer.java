@@ -278,7 +278,9 @@ public class PersonalServer {
         if (numlines < 0) {
             numlines = java.lang.Integer.MAX_VALUE;
         }
-        final FSDataInputStream in = _filesystem.open(new Path(inp));
+        final Path thisPath = new Path(inp);
+        final FileSystem thisfs = thisPath.getFileSystem(_configuration);
+        final FSDataInputStream in = thisfs.open(thisPath);
         final BufferedReader inb = new BufferedReader(new InputStreamReader(in));
         final ArrayList<String> arl = new ArrayList<String>();
         int i = 0;
