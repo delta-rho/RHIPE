@@ -40,8 +40,9 @@ hdfs.setwd <- function(path, check.valid.hdfs = TRUE) {
       # command that doesn't have the overhead of returning files?
       x <- NULL
       try({
-         x <- rhoptions()$clz$filesystem$exists(.jnew("org/apache/hadoop/fs/Path", 
-            path))
+        newPath <- .jnew("org/apache/hadoop/fs/Path", path)
+        fs <- newPath$getFileSystem( rhoptions()$clz$config)
+        x <- fs$exists(newPath)
       }, silent = TRUE)
       if (!x) 
          stop("Invalid HDFS path.")

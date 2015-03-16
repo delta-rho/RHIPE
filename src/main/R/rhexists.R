@@ -9,7 +9,7 @@
 rhexists <- function(path) {
    path <- rhabsolute.hdfs.path(path)
    path <- .jnew("org/apache/hadoop/fs/Path", path)
-   fs <- rhoptions()$clz$filesystem
+   fs <- path$getFileSystem(rhoptions()$clz$config)
    fs$exists(path)
 }
  

@@ -11,7 +11,7 @@
 #' @export
 rhmkdir <- function(path, permissions) {
    path <- rhabsolute.hdfs.path(path)
-   fs <- rhoptions()$clz$filesystem
+   fs <- path$getFileSystem(rhoptions()$clz$config)
    path <- .jnew("org/apache/hadoop/fs/Path", path)
    if (missing(permissions)) 
       fs$mkdirs(path) else if (is.integer(permissions) || is.numeric(permissions)) 
