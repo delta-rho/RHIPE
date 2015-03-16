@@ -56,3 +56,4 @@ Collate:
     'rhmkdir.R'
     'rhchmod.R'
     'rhexists.R'
+    'linear.regression.performance.test.R'
