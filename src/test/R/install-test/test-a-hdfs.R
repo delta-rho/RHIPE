@@ -1,5 +1,5 @@
-## This file contains a set of tests of the HDFS (file and directory) 
-## related functions in Rhipe. 
+## This file contains a set of tests of the HDFS (file and directory)
+## related functions in Rhipe.
 
 context("HDFS operations check")
 
@@ -24,11 +24,11 @@ test_that("test rhmkdir", {
    rhmkdirRes <- try(rhmkdir(test.dir))
    expect_true(!inherits(rhmkdirRes, "try-error"),
       label = "rhmkdir ran without error")
-   
-   expect_true(rhmkdirRes, 
+
+   expect_true(rhmkdirRes,
       label = "hdfs directory successfully created")
-   
-   expect_true(rhexists(test.dir), 
+
+   expect_true(rhexists(test.dir),
       label = "directory listing contains directory created by rhmkdir")
 })
 
@@ -38,17 +38,17 @@ test_that("first rhls test / test rhls on empty directory", {
    rhlsRes <- try(rhls(test.dir))
    expect_true(!inherits(rhlsRes, "try-error"),
       label = "rhls ran without error")
-   
+
    expect_equivalent(
-      names(rhlsRes), 
+      names(rhlsRes),
       c("permission", "owner", "group", "size", "modtime", "file"),
       label = "column names for data frame returned by rhls")
-   
+
    expect_equal(nrow(rhlsRes), 0)
 })
 
 test_that("try to list a directory that doesn't exist", {
-    expect_error(rhls("/directoryThatDoesntExist"), 
+    expect_error(rhls("/directoryThatDoesntExist"),
     regex="java.io.FileNotFoundException: Cannot access /directoryThatDoesntExist")
 })
 
@@ -60,7 +60,7 @@ test_that("set HDFS working dir to rhoptions()$HADOOP.TMP.FOLDER/rhipeTest", {
 })
 
 test_that("set HDFS working dir to dir that doesn't exist", {
-    expect_error(hdfs.setwd("/directoryThatDoesntExist"), 
+    expect_error(hdfs.setwd("/directoryThatDoesntExist"),
         regex="Invalid HDFS path")
 })
 
@@ -79,9 +79,9 @@ test_that("test rhwrite classic", {
       rhwrite(kv, file = file.path(test.dir, "kv_classic"), numfiles = 10))
    expect_true(!inherits(rhwriteRes, "try-error"),
       label = "rhwrite classic ran without error")
-   
+
    # TODO: test chunk parameter
-   
+
    expect_equal(nrow(rhls(file.path(test.dir, "kv_classic"))), 4)
 })
 
@@ -91,7 +91,7 @@ test_that("test rhread classic", {
 
 test_that("attempt to write some invalid data (not key-value pairs)", {
     kv2 <- as.list(1:3)
-    expect_error(rhwrite(kv2, file = file.path(test.dir, "kv_classic_bad")), 
+    expect_error(rhwrite(kv2, file = file.path(test.dir, "kv_classic_bad")),
         regex="You requested 'classic' write")
 })
 
@@ -101,7 +101,7 @@ test_that("test rhwrite data frame", {
       rhwrite(iris, file = file.path(test.dir, "kv_df"), chunk = 10, numfiles=3, kvpairs=FALSE))
    expect_true(!inherits(rhwriteRes, "try-error"),
       label = "rhwrite data frame ran without error")
-   
+
    expect_equal(nrow(rhls(file.path(test.dir, "kv_df"))), 3)
 })
 
@@ -127,7 +127,7 @@ test_that("test rhload", {
 })
 
 test_that("attempt to rhload nonexistent file", {
-   expect_error(rhload(file.path(test.dir, "rjfjfk.Rdata")), 
+   expect_error(rhload(file.path(test.dir, "rjfjfk.Rdata")),
        regex="does not exist")
 })
 
@@ -162,13 +162,13 @@ test_that("test rhchmod", {
 })
 
 test_that("test garbage file permission in rhchmod", {
-    expect_error(rhchmod(test.dir, "asdf"), 
+    expect_error(rhchmod(test.dir, "asdf"),
         regex="java.lang.IllegalArgumentException: asdf")
 })
 
 test_that("change permissions of a file that doesn't exist", {
-    expect_error(rhchmod("/directoryThatDoesntExist", "777"), 
-      regex="org.apache.hadoop.security.AccessControlException")
+    expect_error(rhchmod("/directoryThatDoesntExist", "777"),
+      regex="java.io.FileNotFoundException")
       # regex="java.io.FileNotFoundException")
 })
 
@@ -213,7 +213,7 @@ test_that("test hdfsReadLines", {
 })
 
 test_that("test hdfsReadLines on file that doesn't exist", {
-    expect_error(hdfsReadLines(file.path(test.dir, "test2.txt")), 
+    expect_error(hdfsReadLines(file.path(test.dir, "test2.txt")),
         regex="java.io.FileNotFoundException")
 })
 
@@ -236,12 +236,12 @@ test_that("test rhget on non-existent file", {
 ## TEST: rhoptions()$HADOOP.TMP.FOLDER
 
 test_that("test if rhoptions()$HADOOP.TMP.FOLDER exists and is writable", {
-    expect_true(rhexists(rhoptions()$HADOOP.TMP.FOLDER), 
+    expect_true(rhexists(rhoptions()$HADOOP.TMP.FOLDER),
         label="rhoptions()$HADOOP.TMP.FOLDER does not exist in HDFS space")
-    expect_true(rhcp(file.path(test.dir, "rn2.Rdata"), 
+    expect_true(rhcp(file.path(test.dir, "rn2.Rdata"),
         paste(rhoptions()$HADOOP.TMP.FOLDER, "rn.Rdata", sep="/")),
         label="rhoptions()$HADOOP.TMP.FOLDER in HDFS space is not writable")
-    expect_true(paste(rhoptions()$HADOOP.TMP.FOLDER, "rn.Rdata", sep="/") 
+    expect_true(paste(rhoptions()$HADOOP.TMP.FOLDER, "rn.Rdata", sep="/")
         %in% rhls(rhoptions()$HADOOP.TMP.FOLDER)$file)
     rhdel(paste(rhoptions()$HADOOP.TMP.FOLDER, "rn.Rdata", sep="/"))
 })
