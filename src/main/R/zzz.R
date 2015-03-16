@@ -8,8 +8,8 @@ class(vvvv) <- "rhversion"
 assign("rhipeOptions", list(version = vvvv), envir = .rhipeEnv)
 
 .onLoad <- function(libname, pkgname) {
-   library.dynam("Rhipe", pkgname, libname)
-   
+   library.dynam("Rhipe", pkgname, libname,local=FALSE)
+    
    opts <- get("rhipeOptions", envir = .rhipeEnv)
    
    ## #################################################################

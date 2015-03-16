@@ -136,7 +136,8 @@ void mmessage(char *fmt, ...)
 	Re_WriteConsoleEx(errmsg,strlen(errmsg),0);
 }
 
-SEXP counter(SEXP listmoo){
+extern "C" {
+  SEXP counter(SEXP listmoo){
 	REXP *rxp = new REXP();
 	SEXP result;
 	rxp->Clear();
@@ -152,44 +153,48 @@ SEXP counter(SEXP listmoo){
 	UNPROTECT(1);
 	delete rxp;
 	return(R_NilValue);
+  }
 }
 
-SEXP status(SEXP mess){
-	if(TYPEOF(mess)!=STRSXP){
+extern "C" {
+  SEXP status(SEXP mess){
+    if(TYPEOF(mess)!=STRSXP){
 		Rf_error("Must give a string");
 		return(R_NilValue);
-	}
-	char *status = (char*)CHAR(STRING_ELT( mess , 0));
-	fwrite(&SET_STATUS,sizeof(uint8_t),1,CMMNC->BSTDERR);
-	uint32_t stle = strlen(status);
-	uint32_t len_rev =  reverseUInt(stle);
-	fwrite(&len_rev,sizeof(uint32_t),1,CMMNC->BSTDERR);
-	fwrite(status,stle,1,CMMNC->BSTDERR);
-	return(R_NilValue);
-
+    }
+    char *status = (char*)CHAR(STRING_ELT( mess , 0));
+    fwrite(&SET_STATUS,sizeof(uint8_t),1,CMMNC->BSTDERR);
+    uint32_t stle = strlen(status);
+    uint32_t len_rev =  reverseUInt(stle);
+    fwrite(&len_rev,sizeof(uint32_t),1,CMMNC->BSTDERR);
+    fwrite(status,stle,1,CMMNC->BSTDERR);
+    return(R_NilValue);
+  }
 }
 
-SEXP collect(SEXP k,SEXP v){
-	// So not thread safe
+extern "C" {
+  SEXP collect(SEXP k,SEXP v){
+    // So not thread safe
 #ifdef USETIMER
-  struct timeval tms;
-  long int bstart, bend;
-  gettimeofday(&tms,NULL);
-  bstart = tms.tv_sec*1000000 + tms.tv_usec;
+    struct timeval tms;
+    long int bstart, bend;
+    gettimeofday(&tms,NULL);
+    bstart = tms.tv_sec*1000000 + tms.tv_usec;
 #endif
-
+    
 #ifndef FILEREADER
-  sendToHadoop(k);
-  sendToHadoop(v);
+    sendToHadoop(k);
+    sendToHadoop(v);
 #endif
-
+    
 #ifdef USETIMER
-  gettimeofday(&tms,NULL);
-  bend = tms.tv_sec*1000000 + tms.tv_usec;
-  collect_total += (bend - bstart);
+    gettimeofday(&tms,NULL);
+    bend = tms.tv_sec*1000000 + tms.tv_usec;
+    collect_total += (bend - bstart);
 #endif
-
-  return(R_NilValue);
+    
+    return(R_NilValue);
+  }
 }
 
 SEXP collectList(SEXP k, SEXP v){
@@ -286,40 +291,42 @@ void spill_to_reducer(void){
 
 }
 
-SEXP collect_buffer(SEXP k,SEXP v){
-
-  static bool once = false;
-  static std::string *ks;
-  static std::string *vs;
-  static uint32_t combiner_count;
-  uint32_t ksize=0,vsize=0;
-  if(!once){
-    ks = new std::string();
-    vs = new std::string();
-    combiner_count = 0;
-    once = true;
-  }
-  ks->clear();vs->clear();
-  ksize=tobytes(k,ks);
-  vsize=tobytes(v,vs);
-  total_count += ksize+vsize;
-  map_output_buffer[*ks].push_back(*vs);
-  if( total_count >=  spill_size) {
-    mcount("combiner","bytesent",total_count);
-    spill_to_reducer();
-    total_count = 0;
-    map_output_buffer.clear();
-  }// else{
-  //   map_output_buffer[*ks].push_back(*vs);
-  // }
-  // delete(ks);delete(vs);
+extern "C" {
+  SEXP collect_buffer(SEXP k,SEXP v){
+    
+    static bool once = false;
+    static std::string *ks;
+    static std::string *vs;
+    static uint32_t combiner_count;
+    uint32_t ksize=0,vsize=0;
+    if(!once){
+      ks = new std::string();
+      vs = new std::string();
+      combiner_count = 0;
+      once = true;
+    }
+    ks->clear();vs->clear();
+    ksize=tobytes(k,ks);
+    vsize=tobytes(v,vs);
+    total_count += ksize+vsize;
+    map_output_buffer[*ks].push_back(*vs);
+    if( total_count >=  spill_size) {
+      mcount("combiner","bytesent",total_count);
+      spill_to_reducer();
+      total_count = 0;
+      map_output_buffer.clear();
+    }// else{
+    //   map_output_buffer[*ks].push_back(*vs);
+    // }
+    // delete(ks);delete(vs);
 #ifdef USETIMER
-  gettimeofday(&tms,NULL);
-  bend = tms.tv_sec*1000000 + tms.tv_usec;
-  collect_buffer_total += (bend - bstart);
+    gettimeofday(&tms,NULL);
+    bend = tms.tv_sec*1000000 + tms.tv_usec;
+    collect_buffer_total += (bend - bstart);
 #endif
-
-  return(R_NilValue);
+    
+    return(R_NilValue);
+  }
 }
 
 
