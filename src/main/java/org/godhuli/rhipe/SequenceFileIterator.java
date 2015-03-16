@@ -38,8 +38,9 @@ public class SequenceFileIterator {
         files = filenames;
         chunk = chunksize;
         current = 0;
-        fs = s.getFS();
         cfg = s.getConf();
+	if(filenames.length == 0) throw new IOException("RHIPE: files names has zero length");
+	fs = (new Path( filenames[0])).getFileSystem(cfg);
         notcomplete = true;
         mnum = maxn;
         sqr = new SequenceFile.Reader(cfg, SequenceFile.Reader.file(new Path(files[current])));

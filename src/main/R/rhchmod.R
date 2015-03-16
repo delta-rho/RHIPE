@@ -10,8 +10,7 @@
 rhchmod <- function(path, permissions) {
    path <- rhabsolute.hdfs.path(path)
    path <- .jnew("org/apache/hadoop/fs/Path", path)
-   fs <- rhoptions()$clz$filesystem
-   
+   fs <- path$getFileSystem(rhoption()$clz$config)
    a <- .jnew("org/apache/hadoop/fs/permission/FsPermission", as.character(permissions))
    
    fs$setPermission(path, a)

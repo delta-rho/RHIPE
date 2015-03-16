@@ -31,11 +31,6 @@ public class PersonalServerTest extends PersonalServerBase {
     }
 
     @Test
-    public void testGetFS() throws Exception {
-        Assert.assertNotNull(personalServer.getFS());
-    }
-
-    @Test
     public void testGetConf() throws Exception {
         Assert.assertNotNull(personalServer.getConf());
     }
@@ -55,18 +50,16 @@ public class PersonalServerTest extends PersonalServerBase {
     public void testRhdel() throws Exception {
         //todo having issues here with the default file system running in "standalone mode" have to override the file system
         final Path tmpPath = new Path("hdfs://localhost:9000/tmp/junit-test");
-        personalServer.setFS(FileSystem.get(personalServer.getConf()));
-        Assert.assertTrue(personalServer.getFS().mkdirs(tmpPath));
+        Assert.assertTrue(tmpPath.getFileSystem(personalServer.getConf()).mkdirs(tmpPath));
         personalServer.rhdel(tmpPath.toString());
     }
 
     @Test
     public void testRhget() throws Exception {
         final Path tmpPath = new Path("hdfs://localhost:9000/tmp/junit-test2");
-        personalServer.setFS(FileSystem.get(personalServer.getConf()));
-        Assert.assertTrue(personalServer.getFS().mkdirs(tmpPath));
+        Assert.assertTrue(tmpPath.getFileSystem(personalServer.getConf()).mkdirs(tmpPath));
         //todo: why not use this instead of what is in rhget?
-        personalServer.getFS().copyToLocalFile(true,tmpPath, new Path("/tmp/junit-test2"));
+        tmpPath.getFileSystem(personalServer.getConf()).copyToLocalFile(true,tmpPath, new Path("/tmp/junit-test2"));
 //        personalServer.rhget(tmpPath.toString(),"hdfs://localhost:9000/tmp/copy");
 //        personalServer.rhdel(tmpPath.toString());
     }

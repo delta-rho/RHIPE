@@ -8,8 +8,7 @@ class(vvvv) <- "rhversion"
 assign("rhipeOptions", list(version = vvvv), envir = .rhipeEnv)
 
 .onLoad <- function(libname, pkgname) {
-   library.dynam("Rhipe", pkgname, libname)
-   
+   library.dynam("Rhipe", pkgname, libname,local=FALSE)
    opts <- get("rhipeOptions", envir = .rhipeEnv)
    
    ## #################################################################
@@ -252,7 +251,7 @@ rhinit <- function() {
    tryCatch(server$run(if (is.na(dbg)) 
       0L else dbg), Exception = function(e) e$printStackTrace())
    rhoptions(jarloc = opts$jarloc, server = server, clz = list(fileutils = server$getFU(), 
-      filesystem = server$getFS(), config = server$getConf()))
+      config = server$getConf()))
    server$getConf()$setClassLoader(.jclassLoader())
    rhoptions(mropts = Rhipe:::rhmropts(), hadoop.env = hadoop)
    packageStartupMessage("Initializing mapfile caches")

@@ -55,5 +55,5 @@ Collate:
     'rhJobInfo.R'
     'rhmkdir.R'
     'rhchmod.R'
-    'linear.regression.performance.test.R'
     'rhexists.R'
+    'linear.regression.performance.test.R'

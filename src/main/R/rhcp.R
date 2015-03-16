@@ -19,10 +19,12 @@ rhcp <- function(ifile, ofile, delete = FALSE) {
    ## system(command=paste(paste(Sys.getenv('HADOOP_BIN'), 'hadoop',
    ## sep=.Platform$file.sep), 'fs', '-cp', ifile, ofile, sep=' '))
    fu <- .jnew("org/apache/hadoop/fs/FileUtil")
-   fs <- rhoptions()$clz$filesystem
    ipath <- .jnew("org/apache/hadoop/fs/Path", ifile)
    opath <- .jnew("org/apache/hadoop/fs/Path", ofile)
-   fu$copy(fs, ipath, fs, opath, delete, TRUE, rhoptions()$clz$config)
+   cfg <- rhoptions()$clz$config
+   ifs <- ipath$getFileSystem(cfg)
+   ofs <- opath$getFileSystem(cfg)
+   fu$copy(ifs, ipath, ofs, opath, delete, TRUE, rhoptions()$clz$config)
    ## if(delete) rhdel(ifile) v <-
    ## Rhipe:::send.cmd(rhoptions()$child$handle,list('rhcp',ifile, ofile))
 } 
