@@ -42,7 +42,8 @@ public class S2B {
         conf.set("mapred.job.reuse.jvm.num.tasks", "-1");
         conf.setInt("rhipe_maxnum", maxnum);
 
-        final Job job = new Job(conf, "Sequence To Binary");
+        final Job job = Job.getInstance(conf, "Sequence To Binary");
+//        final Job job = new Job(conf, "Sequence To Binary");
         job.setJarByClass(S2B.class);
         job.setMapperClass(IDMapper.class);
         job.setOutputKeyClass(RHBytesWritable.class);

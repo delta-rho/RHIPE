@@ -51,7 +51,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class FileUtils {
 
@@ -128,7 +129,7 @@ public class FileUtils {
     }
 
     public void copyToLocal(final FileSystem srcFS, final Path src, final File dst) throws IOException {
-        if (!srcFS.getFileStatus(src).isDir()) {
+        if (!srcFS.getFileStatus(src).isDirectory()) {
             final File tmp = FileUtil.createLocalTempFile(dst.getAbsoluteFile(), COPY_TO_LOCAL, true);
             if (!FileUtil.copy(srcFS, src, tmp, false, srcFS.getConf())) {
                 throw new IOException("Failed to copy " + src + " to " + dst);
@@ -169,7 +170,7 @@ public class FileUtils {
         }
     }
 
-    public String[] ls(final String[] r, final int f) throws IOException {
+    public String[] ls(final String[] r, final int f) throws IOException, URISyntaxException {
         final ArrayList<String> lsco = new ArrayList<String>();
         for (final String path : r) {
             ls__(path, lsco, f > 0);
@@ -177,26 +178,30 @@ public class FileUtils {
         return (lsco.toArray(new String[lsco.size()]));
     }
 
-    private void ls__(final String path, final ArrayList<String> lsco, final boolean dorecurse) throws IOException {
+    private void ls__(final String path, final ArrayList<String> lsco, final boolean dorecurse) throws IOException, URISyntaxException {
 
         final Path spath = new Path(path);
         final FileSystem srcFS = spath.getFileSystem(getConf());
         FileStatus[] srcs;
+
+        final URI fsUri = new URI(cfg.get("fs.default.name"));
+        final String fsUriScheme = fsUri.getScheme();
+
         srcs = srcFS.globStatus(spath);
         if (srcs == null || srcs.length == 0) {
             throw new FileNotFoundException("Cannot access " + path +
                     ": No such file or directory.");
         }
-        if (srcs.length == 1 && srcs[0].isDir()) {
+        if (srcs.length == 1 && srcs[0].isDirectory()) {
             srcs = srcFS.listStatus(srcs[0].getPath());
         }
 
         for (final FileStatus status : srcs) {
             final StringBuilder sb = new StringBuilder();
-            final boolean idir = status.isDir();
+            final boolean idir = status.isDirectory();
             final String x = idir ? "d" : "-";
             if (dorecurse && idir) {
-                ls__(status.getPath().toUri().getPath(), lsco, dorecurse);
+                ls__(status.getPath().toUri().toString(), lsco, dorecurse);
             }
             else {
                 sb.append(x);
@@ -216,7 +221,12 @@ public class FileUtils {
                 sb.append(formatter.format(d));
                 sb.append(fsep);
 
-                sb.append(status.getPath().toUri().getPath());
+                final String curScheme = status.getPath().toUri().getScheme();
+                if(fsUriScheme.equals(curScheme)) {
+                    sb.append(status.getPath().toUri().getPath());
+                } else {
+                    sb.append(status.getPath().toUri().toString());
+                }
                 lsco.add(sb.toString());
             }
         }
@@ -235,7 +245,7 @@ public class FileUtils {
     /* delete a file */
     private void delete(final Path src, final FileSystem srcFs, final boolean recursive) throws IOException {
 
-        if (srcFs.getFileStatus(src).isDir() && !recursive) {
+        if (srcFs.getFileStatus(src).isDirectory() && !recursive) {
             throw new IOException("Cannot remove directory \"" + src + "\", use -rmr instead");
         }
         final Trash trashTmp = new Trash(srcFs, getConf());
@@ -481,70 +491,78 @@ public class FileUtils {
     }
 
     public byte[] getDetailedInfoForJob(final String jd) throws Exception {
-        final JobID jj = JobID.forName(jd);
-        if (jj == null) {
-            throw new IOException("Jobtracker could not find jobID: " + jd);
-        }
-        final RunningJob rj = jclient.getJob(jj);
-        if (rj == null) {
-            throw new IOException("No such job: " + jd + " available, wrong job? or try the History Viewer (see the Web UI) ");
-        }
-        final String jobFile = rj.getJobFile();
-        final String jobName = rj.getJobName();
-        final Counters cc = rj.getCounters();
-        final long startSec = getStart(jclient, jj);
-        final REXP allCounters = FileUtils.buildListFromOldCounter(cc, 0);
-        final int jobs = rj.getJobState();
-        String jobStatus = null;
-        if (jobs == JobStatus.FAILED) {
-            jobStatus = "FAILED";
-        }
-        else if (jobs == JobStatus.KILLED) {
-            jobStatus = "KILLED";
-        }
-        else if (jobs == JobStatus.PREP) {
-            jobStatus = "PREP";
-        }
-        else if (jobs == JobStatus.RUNNING) {
-            jobStatus = "RUNNING";
-        }
-        else if (jobs == JobStatus.SUCCEEDED) {
-            jobStatus = "SUCCEEDED";
-        }
+        try {
+            final JobID jj = JobID.forName(jd);
 
-        final float mapProg = rj.mapProgress();
-        final float reduceProg = rj.reduceProgress();
+            if (jj == null) {
+                throw new IOException("Jobtracker could not find jobID: " + jd);
+            }
+            final RunningJob rj = jclient.getJob(jj);
+            if (rj == null) {
+                throw new IOException("No such job: " + jd + " available, wrong job? or try the History Viewer (see the Web UI) ");
+            }
+            final String jobFile = rj.getJobFile();
+            final String jobName = rj.getJobName();
+            final Counters cc = rj.getCounters();
+            final long startSec = getStart(jclient, jj);
+            final REXP allCounters = FileUtils.buildListFromOldCounter(cc, 0);
+            final int jobs = rj.getJobState();
+            String jobStatus = null;
+            if (jobs == JobStatus.FAILED) {
+                jobStatus = "FAILED";
+            }
+            else if (jobs == JobStatus.KILLED) {
+                jobStatus = "KILLED";
+            }
+            else if (jobs == JobStatus.PREP) {
+                jobStatus = "PREP";
+            }
+            else if (jobs == JobStatus.RUNNING) {
+                jobStatus = "RUNNING";
+            }
+            else if (jobs == JobStatus.SUCCEEDED) {
+                jobStatus = "SUCCEEDED";
+            }
 
-        final REXP.Builder theVals = REXP.newBuilder();
+            final float mapProg = rj.mapProgress();
+            final float reduceProg = rj.reduceProgress();
 
-        theVals.setRclass(REXP.RClass.LIST);
-        theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobStatus}));
-        theVals.addRexpValue(RObjects.buildDoubleVector(new double[]{startSec}));
-        theVals.addRexpValue(RObjects.buildDoubleVector(new double[]{(double) mapProg, (double) reduceProg}));
-        theVals.addRexpValue(allCounters);
-        theVals.addRexpValue(RObjects.makeStringVector(rj.getTrackingURL()));
-        theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobName}));
-        theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobFile}));
+            final REXP.Builder theVals = REXP.newBuilder();
 
-        final TaskReport[] mapTaskReports = jclient.getMapTaskReports(jj);
-        final REXP.Builder theValsA = REXP.newBuilder();
-        theValsA.setRclass(REXP.RClass.LIST);
-        for (final TaskReport t : mapTaskReports) {
-            theValsA.addRexpValue(TaskReportToRexp(t));
+            theVals.setRclass(REXP.RClass.LIST);
+            theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobStatus}));
+            theVals.addRexpValue(RObjects.buildDoubleVector(new double[]{startSec}));
+            theVals.addRexpValue(RObjects.buildDoubleVector(new double[]{(double) mapProg, (double) reduceProg}));
+            theVals.addRexpValue(allCounters);
+            theVals.addRexpValue(RObjects.makeStringVector(rj.getTrackingURL()));
+            theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobName}));
+            theVals.addRexpValue(RObjects.makeStringVector(new String[]{jobFile}));
+
+            final TaskReport[] mapTaskReports = jclient.getMapTaskReports(jj);
+            final REXP.Builder theValsA = REXP.newBuilder();
+            theValsA.setRclass(REXP.RClass.LIST);
+            for (final TaskReport t : mapTaskReports) {
+                theValsA.addRexpValue(TaskReportToRexp(t));
+            }
+            theVals.addRexpValue(theValsA.build());
+
+
+            final TaskReport[] redtr = jclient.getReduceTaskReports(jj);
+            final REXP.Builder theValsB = REXP.newBuilder();
+            theValsB.setRclass(REXP.RClass.LIST);
+            for (final TaskReport t : redtr) {
+                theValsB.addRexpValue(TaskReportToRexp(t));
+            }
+
+            theVals.addRexpValue(theValsB.build());
+
+            return theVals.build().toByteArray();
+        } catch (Throwable e) {
+            e.printStackTrace();
+            log.fatal("error:", e);
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw new Exception(e);
         }
-        theVals.addRexpValue(theValsA.build());
-
-
-        final TaskReport[] redtr = jclient.getReduceTaskReports(jj);
-        final REXP.Builder theValsB = REXP.newBuilder();
-        theValsB.setRclass(REXP.RClass.LIST);
-        for (final TaskReport t : redtr) {
-            theValsB.addRexpValue(TaskReportToRexp(t));
-        }
-
-        theVals.addRexpValue(theValsB.build());
-
-        return theVals.build().toByteArray();
     }
 
     private String convertTIP(final TIPStatus tipStatus) {
@@ -558,7 +576,22 @@ public class FileUtils {
         theVals.addRexpValue(RObjects.makeStringVector(convertTIP(taskReport.getCurrentStatus())));
         theVals.addRexpValue(RObjects.buildDoubleVector(new double[]{taskReport.getProgress(), taskReport.getStartTime(), taskReport.getFinishTime()}));
         theVals.addRexpValue(RObjects.makeStringVector(taskReport.getTaskID().toString()));
-        theVals.addRexpValue(RObjects.makeStringVector(taskReport.getSuccessfulTaskAttempt().toString()));
+        //work-around for cdh5 which throws a NPE on this call due to some enumerated type not existing deep in the toString() operation
+        String successfulTaskAttemptId;
+        try {
+//            not compatible with cdh3
+//            if(taskReport.getSuccessfulTaskAttempt().getTaskID().getTaskType() != null)
+                successfulTaskAttemptId = taskReport.getSuccessfulTaskAttempt().toString();
+//            else
+//                successfulTaskAttemptId = "not available";
+//
+            log.debug("successfulTaskAttemptId = " + successfulTaskAttemptId);
+
+        } catch (Throwable e) {
+            log.debug("Exception Ignored",e);
+            successfulTaskAttemptId = "not available";
+        }
+        theVals.addRexpValue(RObjects.makeStringVector(successfulTaskAttemptId));
 
         return theVals.build();
     }

@@ -18,7 +18,7 @@ import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 import org.godhuli.rhipe.REXPProtos.REXP;
 
 import java.io.BufferedReader;
-import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -231,7 +231,8 @@ public class PersonalServer {
                 final int which = _hp.getPartition(k, a, pathsForMap.length);
                 MapFile.Reader f = mapfileReaderCache.getIfPresent(pathsForMap[which]);
                 if (f == null) {
-                    f = new MapFile.Reader(_filesystem, pathsForMap[which], _configuration);
+                    f = new MapFile.Reader(new Path(pathsForMap[which]), _configuration);
+//                    f = new MapFile.Reader(_filesystem, pathsForMap[which], _configuration);
                     mapfileReaderCache.put(pathsForMap[which], f);
                     mapToValueCacheHandles.get(key).add(pathsForMap[which]);
                 }
@@ -277,7 +278,9 @@ public class PersonalServer {
         if (numlines < 0) {
             numlines = java.lang.Integer.MAX_VALUE;
         }
-        final FSDataInputStream in = _filesystem.open(new Path(inp));
+        final Path thisPath = new Path(inp);
+        final FileSystem thisfs = thisPath.getFileSystem(_configuration);
+        final FSDataInputStream in = thisfs.open(thisPath);
         final BufferedReader inb = new BufferedReader(new InputStreamReader(in));
         final ArrayList<String> arl = new ArrayList<String>();
         int i = 0;
@@ -302,6 +305,17 @@ public class PersonalServer {
         return (0);
     }
 
+    public void dumpConf(){
+        dumpConf(_configuration);
+    }
+
+    public static void dumpConf(Configuration conf){
+        try {
+            Configuration.dumpConfiguration(conf,new FileWriter("conf-dump-" + System.currentTimeMillis() + ".txt"));
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+    }
     public abstract class DelayedExceptionThrowing {
         abstract void process(Path p, FileSystem srcFs) throws IOException;
 

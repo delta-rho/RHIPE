@@ -58,23 +58,23 @@ getkey <- function(v, keys, mc = lapply) {
    mc(a, rhuz)
 }
 
-#' @S3method [[ mapfile
+#' @export
 "[[.mapfile" <- function(a, i, ...) {
    getkey(a, i, ...)[[1]]
    ## if(length(a)>=1) a[[1]] else NULL
 }
 
-#' @S3method [ mapfile
+#' @export
 "[.mapfile" <- function(a, i, ...) {
    getkey(a, i, ...)
 }
 
-#' @S3method [[<- mapfile
+#' @export
 "[[<-.mapfile" <- function(x, value, i, ...) {
    stop("Assignment to MapFile keys is not supported")
 }
 
-#' @S3method [<- mapfile
+#' @export
 "[<-.mapfile" <- function(x, value, i, ...) {
    stop("Assignment to MapFile keys is not supported")
 }

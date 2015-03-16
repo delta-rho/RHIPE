@@ -8,6 +8,7 @@ initPRNG <- function(seed = NULL) {
    seed <- eval(seed)
    mi <- function() {
       getUID <- function(id = Sys.getenv("mapred.task.id")) {
+         if (id == "") { id <- Sys.getenv("mapreduce.task.id") }
          a <- strsplit(id, "_")[[1]]
          a <- as.numeric(a[c(2, 3, 5)])
       }

@@ -65,7 +65,8 @@ public class WordCount extends Configured implements Tool {
     public int run(String[] args) throws Exception {
         Configuration conf = new Configuration();
 
-        Job job = new Job(conf, "wordcount");
+        Job job = Job.getInstance(conf, "wordcount");
+//        Job job = new Job(conf, "wordcount");
         job.getConfiguration().set("mapred.job.tracker","localhost:9001");
         job.getConfiguration().set("fs.default.name","hdfs://localhost:9000");
 

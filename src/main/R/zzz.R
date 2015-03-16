@@ -66,7 +66,7 @@ assign("rhipeOptions", list(version = vvvv), envir = .rhipeEnv)
 
    opts$job.status.overprint <- FALSE
    opts$write.job.info <- FALSE
-   opts$file.types.remove.regex <- "(/_rh_meta|/_outputs|/_SUCCESS|/_LOG|/_log|rhipe_debug|rhipe_merged_index_db)"
+   opts$file.types.remove.regex <- "(/_meta|/_rh_meta|/_outputs|/_SUCCESS|/_LOG|/_log|rhipe_debug|rhipe_merged_index_db)"
    opts$max.read.in.size <- 200 * 1024 * 1024  ## 100MB
    opts$reduce.output.records.warn <- 200 * 1000
    opts$rhmr.max.records.to.read.in <- NA
@@ -232,16 +232,20 @@ rhinit <- function() {
 #      }
    }
    library(rJava)
-   c1 <- list.files(hadoop["HADOOP_HOME"], pattern = "jar$", full.names = TRUE, recursive = TRUE)
+   c1 <- list.files(hadoop["HADOOP_HOME"], pattern = "jar$", full.names = TRUE, recursive = FALSE)
    c15 <- tryCatch(unlist(sapply(strsplit(hadoop["HADOOP_LIBS"], ":")[[1]], function(r) {
-      list.files(r, pattern = "jar$", full.names = TRUE, recursive = TRUE)
+      list.files(r, pattern = "jar$", full.names = TRUE, recursive = FALSE)
    })), error = function(e) NULL)
    
    c2 <- hadoop["HADOOP_CONF_DIR"]
    .jinit(parameters = c(getOption("java.parameters"), "-Xrs"))
    ## mycp needs to come first as hadoop distros such as cdh4 have an older version
    ## jar for guava
-   .jaddClassPath(c(opts$jarloc, opts$mycp, c2, c15, c1))  #,hbaseJars,hbaseConf))
+   .jaddClassPath(c(opts$jarloc, opts$mycp, c2, c15, c1))
+# work in progress - dynamic cp construction from hadoop
+#hcp <- system("$HADOOP_HOME/bin/hadoop classpath | tr -d '*' | tr ':' '\n'",intern = TRUE)
+#hcpFiles <- list.files(hcp,full=TRUE)
+#.jaddClassPath(c(opts$jarloc, opts$mycp,hcpFiles))
    packageStartupMessage(sprintf("Initializing Rhipe v%s", vvvv))
    server <- .jnew("org/godhuli/rhipe/PersonalServer")
    dbg <- as.integer(Sys.getenv("RHIPE_DEBUG_LEVEL"))
