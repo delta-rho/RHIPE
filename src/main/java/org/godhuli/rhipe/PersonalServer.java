@@ -30,7 +30,6 @@ public class PersonalServer {
     private final Map<String, ArrayList<ValuePair>> mapToValueCacheKeys = new HashMap<String, ArrayList<ValuePair>>();
     private final Map<String, ArrayList<String>> mapToValueCacheHandles = new HashMap<String, ArrayList<String>>();
     private Configuration _configuration;
-    private FileSystem _filesystem;
     private HashPartitioner<RHBytesWritable, RHBytesWritable> _hp;
     private Map<String, String[]> mapfilehash;
     private Cache<ValuePair, RHBytesWritable> valueCache;
@@ -56,14 +55,6 @@ public class PersonalServer {
 
     public FileUtils getFU() {
         return fu;
-    }
-
-    public FileSystem getFS() {
-        return _filesystem;
-    }
-
-    public void setFS(final FileSystem _filesystem) {
-        this._filesystem = _filesystem;
     }
 
     public Configuration getConf() {
@@ -106,9 +97,10 @@ public class PersonalServer {
 
     public void rhGet(final String src, final String dest) throws Exception {
         LOG.debug("Copying " + src + " to " + dest);
-        Path srcPath = new Path(src);
-        Path destPath = new Path(dest);
-        _filesystem.copyToLocalFile(false,srcPath,destPath);
+        Path srcPath = new Path(src); // note, the default fs for a path is HDFS (or whatever your conf file says)
+        Path destPath = new Path(dest); 
+	final FileSystem hdfFS = srcPath.getFileSystem(_configuration);
+        hdfFS.copyToLocalFile(false,srcPath,destPath);
     }
 
     public void rhput(final String local, final String dest2, final boolean overwrite) throws Exception {
@@ -232,7 +224,6 @@ public class PersonalServer {
                 MapFile.Reader f = mapfileReaderCache.getIfPresent(pathsForMap[which]);
                 if (f == null) {
                     f = new MapFile.Reader(new Path(pathsForMap[which]), _configuration);
-//                    f = new MapFile.Reader(_filesystem, pathsForMap[which], _configuration);
                     mapfileReaderCache.put(pathsForMap[which], f);
                     mapToValueCacheHandles.get(key).add(pathsForMap[which]);
                 }
@@ -299,7 +290,6 @@ public class PersonalServer {
 
     public int run(final int buglevel) throws Exception {
         _configuration = new Configuration();
-        _filesystem = FileSystem.get(_configuration);
         _hp = RHMapFileOutputFormat.getHP();
         setUserInfo(buglevel);
         return (0);

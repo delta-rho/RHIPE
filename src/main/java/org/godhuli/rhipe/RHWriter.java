@@ -45,7 +45,7 @@ public class RHWriter {
         currentfile = 0;
         numperfile = numper;
         c = s.getConf();
-        f = s.getFS();
+        f = (new Path(output)).getFileSystem(s.getConf()); // default FS based on conf, is hdfs
         makeNewFile();
     }
 
