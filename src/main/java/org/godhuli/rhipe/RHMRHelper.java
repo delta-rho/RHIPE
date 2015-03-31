@@ -50,7 +50,7 @@ public class RHMRHelper {
     private static final long REPORTER_OUT_DELAY = 10 * 1000L;
     private static final long REPORTER_ERR_DELAY = 10 * 1000L;
     private static final String ERROR_OUTPUT_DIR = "map-reduce-error";
-
+    protected static boolean ENCODE_NULLS_IN_TEXT = false;
     protected static int PARTITION_START = 0, PARTITION_END = 0;
     private boolean copyFile;
     private Environment env_;
@@ -147,6 +147,12 @@ public class RHMRHelper {
                 squote = "";
             }
 
+	    String encodenull =cfg.get("rhipe_textinputformat_encode_null");
+	    if(encodenull == null || encodenull.equals("TRUE")){
+		RHMRHelper.ENCODE_NULLS_IN_TEXT=true;
+	    }else{
+		RHMRHelper.ENCODE_NULLS_IN_TEXT=false;
+	    }
             REXPHelper.setFieldSep(cfg.get("mapred.field.separator", " "));
             REXPHelper.setStringQuote(squote);
 

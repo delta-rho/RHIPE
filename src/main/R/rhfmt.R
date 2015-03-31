@@ -138,13 +138,14 @@ sequenceio <- function(folders, recordsAsText = FALSE) {
 }
 
 textio <- function(folders, nline = NULL, writeKey = TRUE, field.sep = " ", kv.sep = "\t", 
-   eol = "\r\n", stringquote = "") {
+   eol = "\r\n", stringquote = "",encode.null=TRUE) {
    folders <- eval(folders)
    writeKey <- eval(writeKey)
    field.sep <- eval(field.sep)
    kv.sep <- eval(kv.sep)
    eol <- eval(eol)
    stringquote <- eval(stringquote)
+   encode.null <-eval(encode.null)
    function(lines, direction, caller) {
       if (direction == "input") {
          folders <- Rhipe:::folder.handler(folders)
@@ -161,7 +162,7 @@ textio <- function(folders, nline = NULL, writeKey = TRUE, field.sep = " ", kv.s
          }
          lines$rhipe_inputformat_keyclass <- "org.godhuli.rhipe.RHNumeric"
          lines$rhipe_inputformat_valueclass <- "org.godhuli.rhipe.RHText"
-         
+         lines$rhipe_textinputformat_encode_null <- as.character(as.logical(encode.null))
          if (is.null(lines$param.temp.file)) {
             linesToTable <- Rhipe:::linesToTable
             environment(linesToTable) <- .BaseNamespaceEnv

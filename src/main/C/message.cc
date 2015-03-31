@@ -4,6 +4,11 @@
 
 using namespace std;
 
+#if R_VERSION < R_Version(2,7,0)                                                                                                                                                                                                          
+#define mkCharUTF8(X) Rf_mkChar(X)
+#else                                                                                                                                                                                                                                     
+#define mkCharUTF8(X) Rf_mkCharCE(X, CE_UTF8)
+#endif  
 
 SEXP rexpress(const char* cmd)
 {
@@ -82,7 +87,7 @@ SEXP rexpToSexp(const REXP& rexp){
       	if (st.isna())
       	  SET_STRING_ELT(s,i,R_NaString);
       	else{
-	  SEXP y=  Rf_mkChar(st.strval().c_str());
+	  SEXP y=  mkCharUTF8(st.strval().c_str());
       	  SET_STRING_ELT(s,i,y);
 	}
       }
@@ -103,22 +108,6 @@ SEXP rexpToSexp(const REXP& rexp){
     {
       for (int j=0; j<atlength; j++)
   	{
-	  // const char *nameofatt = rexp.attrname(j).c_str();
-	  // if(strcmp(nameofatt,"names")==0 && typ!=VECSXP) continue;
-	  // if(strcmp(nameofatt,"names")==0 && typ==VECSXP){
-	  //   SEXP v ;
-	  //   PROTECT(v= message2rexp(rexp.attrvalue(j)));
-	  //   if(!Rf_isNull(v)) Rf_setAttrib(s,Rf_install(nameofatt), v );
-	  //   UNPROTECT(1);
-	  // }
-//   	  SEXP n=Rf_mkString(nameofatt);
-	  // SEXP v ;
-	  // PROTECT(v= message2rexp(rexp.attrvalue(j)));
-  	  // if(!Rf_isNull(v)) Rf_setAttrib(s,Rf_install(nameofatt), v );
-	  // UNPROTECT(1);
-
-	  // TEST TEST TEST TEST COULD FAILS
-	  // REVERT TO PREVIOUS CODE
 	  Rf_setAttrib(s,
 	  	       Rf_install(rexp.attrname(j).c_str()), 
 	  	       rexpToSexp(rexp.attrvalue(j)));

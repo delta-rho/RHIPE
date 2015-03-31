@@ -37,8 +37,8 @@ public class RHText extends RHBytesWritable {
         textcontainer.set(x);
     }
 
-    public void setAndFinis(final String x) {
-        textcontainer.set(x);
+    public void setAndFinis(final String x) throws IOException{
+	set(x);
         finis();
     }
 
@@ -50,10 +50,39 @@ public class RHText extends RHBytesWritable {
         return textcontainer;
     }
 
-    protected void finis() {
+    protected void finis() throws IOException{
         final REXPProtos.STRING.Builder srb = REXPProtos.STRING.newBuilder();
-        srb.setStrval(textcontainer.toString());
-
+	if(RHMRHelper.ENCODE_NULLS_IN_TEXT == false){
+	    srb.setStrval(textcontainer.toString());
+	}else{
+	    try{
+		// see http://stackoverflow.com/questions/18760041/encoding-string-to-modified-utf-8-for-the-datainput?rq=1
+		String ss = textcontainer.toString();
+		byte[] tb = ss.getBytes("UTF-8");
+		int nulCount = 0;
+		for (int i = 0; i < tb.length; ++i) {
+		    if (tb[i] == 0) {
+			++nulCount;
+		    }
+		}
+		if(nulCount == 0){
+		    srb.setStrval(ss);
+		}else{
+		    byte[] convertedBytes = new byte[tb.length + nulCount];
+		    for (int i = 0, j = 0; i < tb.length; ++i, ++j) {
+			convertedBytes[j] = tb[i];
+			if (tb[i] == 0) {
+			    convertedBytes[j] = (byte)0xC0;
+			    ++j;
+			    convertedBytes[j] = (byte)0x80;
+			}
+		    }
+		    srb.setStrvalBytes(com.google.protobuf.ByteString.copyFrom(convertedBytes));
+		}
+	    }catch( java.io.UnsupportedEncodingException e){
+		throw new IOException(e);
+	    }
+	}
         final REXP.Builder b = REXP.newBuilder(template);
         b.addStringValue(srb.build());
         final REXP rexp0 = b.build();
