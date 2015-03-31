@@ -1,6 +1,7 @@
-Version 0.7.5.2
+Version 0.7.5.3
 ----------------------------------------------------------------------
 
+- update to handle nulls in input text files using modified utf-8
 - update `readTextFile` to  be more flexible with file URI
 - updated RHWrite and RHSequenceFileIterator to be more flexible with file URI
 - as a consequence file reading/writing functions will work with file:// and s3:// URIs
