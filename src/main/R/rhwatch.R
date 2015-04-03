@@ -222,12 +222,23 @@
 #'    N <- 10000
 #'    for( first.col in map.values ){
 #'       w <- sample(N,N,replace=FALSE)
-#'       for( i in w)
+#'       for( i in w){
 #'          rhcollect(first.col,c(i,i))
-#'    
+#'       }
 #'    }
 #' })
-#' z <- rhwatch(map=map, reduce=0, input=5000, output="/tmp/sort", mapred=mapred, read=FALSE)
+#' mapred <- list(
+#'  rhipe_map_buffsize=3000,
+#'  mapred.reduce.tasks = 1
+#' )
+#' z <- rhwatch(
+#'     map      = map, 
+#'     reduce   = NULL, 
+#'     input    = 5000, 
+#'     output   = rhfmt("/tmp/sort", type = "sequence"), 
+#'     mapred   = mapred, 
+#'     readback = FALSE
+#' )
 #' 
 #' #Sum of Differences The key is the value of A and B, the value is C.
 #' 
@@ -264,14 +275,23 @@
 #'    }
 #' )
 #' reduce.cleanup <- expression({
-#'    if(newp > -Inf) rhcollect(newp, diffsum) #for the last key
+#'    if(newp > -Inf){
+#'      rhcollect(newp, diffsum)
+#'    } #for the last key
 #' })
 #' 
 #' #To turn on the partitioning and ordering of keys,
-#' z <- rhwatch(map=map,reduce=reduce, 
-#'       input='/tmp/sort',output='/tmp/sort2', part=list(lims=1,type='integer'),
-#'       orderby='integer',cleanup=list(reduce=reduce.cleanup),
-#'       setup=list(reduce=reduce.setup),read=FALSE)
+#' z <- rhwatch(
+#'     map         = map,
+#'     reduce      = reduce, 
+#'     input       = rhfmt('/tmp/sort', type = "sequence"),
+#'     output      = rhfmt('/tmp/sort2', type = "sequence"),
+#'     partitioner = list(lims = 1, type = 'integer'),
+#'     orderby     = 'integer',
+#'     cleanup     = list(reduce = reduce.cleanup),
+#'     setup       = list(reduce = reduce.setup),
+#'     readback    = FALSE
+#' )
 #' }
 #' @export
 rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL, 
