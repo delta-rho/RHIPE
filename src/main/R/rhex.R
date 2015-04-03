@@ -1,9 +1,9 @@
 #' Execute a MapReduce Job On Hadoop
 #'
-#' Submits a MapReduce job (created using \code{rhmr}) to the Hadoop MapReduce
+#' Submits a MapReduce job (created using \code{rhwatch}) to the Hadoop MapReduce
 #' framework. The argument \code{mapred} serves the same purpose as the
-#' \code{mapred} argument to \code{rhmr}. This will override the settings in
-#' the object returned from \code{rhmr}.  The function returns when the job
+#' \code{mapred} argument to \code{rhwatch}. This will override the settings in
+#' the object returned from \code{rhwatch}.  The function returns when the job
 #' ends (success/failure or because the user terminated (see \code{rhkill})).
 #' When \code{async} is TRUE, the function returns immediately, leaving the job
 #' running in the background on Hadoop.
