@@ -9,11 +9,11 @@
 #include <rexp.pb.h>
 
 #include <stdint.h>
-#include <sys/types.h>	
-#include <sys/time.h>	
-#include <time.h>	
+#include <sys/types.h>
+#include <sys/time.h>
+#include <time.h>
 #include <errno.h>
-#include <fcntl.h>	
+#include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,13 +25,12 @@ using namespace std;
 
 #define R_NO_REMAP
 #define R_INTERFACE_PTRS 1
-#define CSTACK_DEFNS 1 
+#define CSTACK_DEFNS 1
 
 #include <Rversion.h>
 #include <R.h>
 #include <Rdefines.h>
 /* #include <Rinternals.h> */
-#include <Rinterface.h>
 #include <Rembedded.h>
 #include <R_ext/Boolean.h>
 #include <R_ext/Parse.h>
