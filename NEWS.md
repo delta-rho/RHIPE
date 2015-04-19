@@ -1,6 +1,7 @@
-Version 0.7.5.3
+Version 0.7.5.4
 ----------------------------------------------------------------------
 
+- update to be compatible with R 3.2
 - update to handle nulls in input text files using modified utf-8
 - update `readTextFile` to  be more flexible with file URI
 - updated RHWrite and RHSequenceFileIterator to be more flexible with file URI
@@ -11,6 +12,7 @@ Version 0.7.5.3
 - update all deprecated hadoop api calls
 - update PersonalServer `ls` to handle non-default Hadoop URIs differently
 - add `_meta` to ignored RHIPE files
+
 Version 0.7.5
 ----------------------------------------------------------------------
 

@@ -2,13 +2,13 @@
 
 # RHIPE: R and Hadoop Integrated Programming Environment #
 
-RHIPE is an R package that provides a way to use Hadoop from R.  It can be used on its own or as part of the [Tessera](tessera.io) environment.  
+RHIPE is an R package that provides a way to use Hadoop from R.  It can be used on its own or as part of the [Tessera](tessera.io) environment.
 
 ## Installation ##
 
 Installation of RHIPE requires a working Hadoop cluster and several prerequisites.  A comprehensive installation guide, as well as other options to get an environment set up (Vagrant, Amazon Web Services, etc.) are discussed [here](http://tessera.io/#quickstart).
 
-If you are interested in installing and using RHIPE, please see the link just provided.  The remainder of this README will focus on developers who want to build RHIPE from source or contribute to RHIPE development.  
+If you are interested in installing and using RHIPE, please see the link just provided.  The remainder of this README will focus on developers who want to build RHIPE from source or contribute to RHIPE development.
 
 ## Hadoop Support ##
 
@@ -24,7 +24,7 @@ The `v0.74` branch of this repository is for Hadoop 1.
 
 ### Hadoop Distributions ###
 
-There are several Hadoop distributions avaialble.  RHIPE has been successfully built and run for Apache Hadoop 1.x , Cloudera CDH3, CDH4mr1, and CDH5mr2.  There are maven profiles setup in the POM that build against Apache Hadoop 1.x, 2.x,CDH3, CDH4, CDH5, HDP 1,2 & 2.2.   
+There are several Hadoop distributions avaialble.  RHIPE has been successfully built and run for Apache Hadoop 1.x , Cloudera CDH3, CDH4mr1, and CDH5mr2.  There are maven profiles setup in the POM that build against Apache Hadoop 1.x, 2.x,CDH3, CDH4, CDH5, HDP 1,2 & 2.2.
 
 ## Building Rhipe ##
 
@@ -36,7 +36,7 @@ If you set up your own machine, you will need to make sure the following depende
 * Apache Ant - latest
 * Apache Maven - latest
 * R - latest
-* R `rJava` package
+* R `rJava`, `testthat`, and `roxygen2` packages
 * Google protocol buffers (v2.5 for Hadoop 2, else v2.4.1)
 * pkg-config - if not installed either:
     * download from http://macpkg.sourceforge.net/
