@@ -1,6 +1,8 @@
-Version 0.7.5.4
+Version 0.7.5.5
 ----------------------------------------------------------------------
 
+- update so that output to non-standard file URIs like s3 work in `rhwatch()`
+- update build script
 - update to be compatible with R 3.2
 - update to handle nulls in input text files using modified utf-8
 - update `readTextFile` to  be more flexible with file URI
