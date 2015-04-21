@@ -7,7 +7,7 @@
     Targets that begin with an '_' (e.g. _build-hadoop-1) are not designed to run as a standalone target
 
     -->
-    <property name="rhipe.version" value="0.75.1.4"/>
+    <property name="rhipe.version" value="0.75.1.5"/>
 
     <property name="maven.project.name" value="rhipe-java"/>
     <property name="maven.dl.dir" value="conf/maven"/>
@@ -43,11 +43,9 @@
             clean
                 - delete all build artifacts
             build
-                - builds Rhipe for cdh3 and cdh4
+                - builds Rhipe for hadoop-2 and cdh5
             build-distro -Dhadoop.version=version
                 - build Rhipe for the specified Hadoop version:hadoop-1,hadoop-2,cdh3,cdh4,cdh4mr1,cdh5,hdp-1,hdp-2
-            build-all-distros
-                - create an installable tar.gz archive for each Hadoop distro (MR1)
         </echo>
     </target>
 
@@ -86,37 +84,6 @@
 
     <!--<target name="build-all" depends="maven-clean,build,r-check,r-install-test" description="build, install and test Rhipe"/>-->
 
-    <target name="build-all-distros" description="Build Rhipe for all available distros">
-
-        <antcall target="build-distro">
-            <param name="hadoop.version" value="cdh3"/>
-        </antcall>
-        <antcall target="build-distro">
-            <param name="hadoop.version" value="cdh4"/>
-        </antcall>
-        <antcall target="build-distro">
-            <param name="hadoop.version" value="cdh4mr1"/>
-        </antcall>
-        <antcall target="build-distro">
-            <param name="hadoop.version" value="cdh5"/>
-        </antcall>
-        <antcall target="build-distro">
-            <param name="hadoop.version" value="hadoop-1"/>
-        </antcall>
-        <antcall target="build-distro">
-            <param name="hadoop.version" value="hadoop-2"/>
-        </antcall>
-        <antcall target="build-distro">
-            <param name="hadoop.version" value="hdp-1"/>
-        </antcall>
-        <antcall target="build-distro">
-            <param name="hadoop.version" value="hdp-2"/>
-        </antcall>
-        <antcall target="build-distro">
-            <param name="hadoop.version" value="hdp-2.2"/>
-        </antcall>
-    </target>
-
     <target name="build-distro" depends="maven-clean,init-r-dir,r-doc" description="build Rhipe">
         <echo>
             Building Rhipe for Hadoop ${hadoop.version}
@@ -127,12 +94,12 @@
         <antcall target="r-build"/>
     </target>
 
-    <target name="build" description="build Rhipe">
+    <target name="build" depends="maven-clean,init-r-dir,r-doc" description="build Rhipe">
         <antcall target="build-distro">
-            <param name="hadoop.version" value="cdh3"/>
+            <param name="hadoop.version" value="hadoop-2"/>
         </antcall>
         <antcall target="build-distro">
-            <param name="hadoop.version" value="cdh4"/>
+            <param name="hadoop.version" value="cdh5"/>
         </antcall>
     </target>
 

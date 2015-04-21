@@ -149,7 +149,7 @@ public class FileUtils {
 
     public void makeFolderToDelete(final String s) throws IOException {
         final Path p = new Path(s);
-        final FileSystem fs = FileSystem.get(cfg);
+        final FileSystem fs = p.getFileSystem(getConf());
         fs.mkdirs(p);
         fs.deleteOnExit(p);
     }
@@ -157,7 +157,7 @@ public class FileUtils {
     public void copyMain(final String src, final String dest) throws IOException {
         final File dst = new File(dest);
         final Path srcpath = new Path(src);
-        final FileSystem srcFS = FileSystem.get(cfg);
+        final FileSystem srcFS = srcpath.getFileSystem(getConf());
         final FileStatus[] srcs = srcFS.globStatus(srcpath);
         final boolean dstIsDir = dst.isDirectory();
         if (srcs.length > 1 && !dstIsDir) {
@@ -184,7 +184,7 @@ public class FileUtils {
         final FileSystem srcFS = spath.getFileSystem(getConf());
         FileStatus[] srcs;
 
-        final URI fsUri = new URI(cfg.get("fs.default.name"));
+        final URI fsUri = new URI(getConf().get("fs.default.name"));
         final String fsUriScheme = fsUri.getScheme();
 
         srcs = srcFS.globStatus(spath);
@@ -270,7 +270,7 @@ public class FileUtils {
     }
 
     public REXP mapRedOpts() {
-        final Iterator<Map.Entry<String, String>> iter = cfg.iterator();
+        final Iterator<Map.Entry<String, String>> iter = getConf().iterator();
         final List<REXP> ent = new ArrayList<REXP>();
         final List<String> str = new ArrayList<String>();
         while (iter.hasNext()) {
