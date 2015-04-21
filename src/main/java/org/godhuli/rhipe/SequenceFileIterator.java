@@ -44,7 +44,6 @@ public class SequenceFileIterator {
         notcomplete = true;
         mnum = maxn;
         sqr = new SequenceFile.Reader(cfg, SequenceFile.Reader.file(new Path(files[current])));
-//        sqr = new SequenceFile.Reader(fs, new Path(files[current]), cfg);
         k = new RHBytesWritable();
         v = new RHBytesWritable();
         kt = new Text();
