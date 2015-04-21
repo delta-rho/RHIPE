@@ -296,7 +296,7 @@ public class RHMR implements Tool {
 
         if (!output_folder[0].equals("")) {
             final Path ofp = new Path(output_folder[0]);
-            final FileSystem srcFs = path.getFileSystem(job_.getConfiguration());
+            final FileSystem srcFs = ofp.getFileSystem(job_.getConfiguration());
             srcFs.delete(ofp, true);
             if (rhoptions_.get("rhipe_outputformat_class").equals("org.apache.hadoop.mapreduce.lib.output.NullOutputFormat")) {
                 srcFs.mkdirs(ofp);
