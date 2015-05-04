@@ -224,7 +224,7 @@ public class RHMRHelper {
             errThread_ = new MRErrorThread();
             LOG.info(callID + ":" + "Started Error Thread");
             errThread_.start();
-            self._cfg = cfg;
+            this._cfg = cfg;
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -305,7 +305,7 @@ public class RHMRHelper {
                     //save the rda file if there is one
                     //create the path on hdfs to save it
                     Path destPath = new Path(errorOutputPath + jobId, taskId);
-                    FileSystem fs = destPath.getFileSystem(self._cfg);
+                    FileSystem fs = destPath.getFileSystem(this._cfg);
                     if(!fs.exists(destPath)){
                         fs.mkdirs(destPath);
                     }
@@ -567,7 +567,7 @@ public class RHMRHelper {
         if (copyFile) {
             final ArrayList<Path> lop = new ArrayList<Path>();
             _walk(dirfrom, lop, copyExcludeRegex);
-            FileSystem fs = outputFolder.getFileSystem(self._cfg);
+            FileSystem fs = outputFolder.getFileSystem(this._cfg);
             if (lop.size() > 0) {
                 fs.copyFromLocalFile(false, true, lop.toArray(new Path[lop.size()]), outputFolder);
             }
