@@ -56,7 +56,7 @@ SEXP unserializeUsingPB(SEXP robj) {
 	//     rexp_container->Clear();
 	CodedInputStream cds(RAW(robj), LENGTH(robj));
 	// rexp_container->ParseFromArray(RAW(robj),LENGTH(robj));
-	cds.SetTotalBytesLimit(2*1024 * 1024 * 1024-50, 1.5*1024 * 1024 * 1024);
+	cds.SetTotalBytesLimit(512*1024 * 1024, 250*1024 * 1024);
 	rexp_container->ParseFromCodedStream(&cds);
 	PROTECT(ans = rexpToSexp(*rexp_container));
 	UNPROTECT(1);
@@ -416,7 +416,7 @@ void writeKeyValues32(FILE* fout, SEXP vkeyvalues, uint32_t buffer_size){
  */
 SEXP writeBinaryFile(SEXP vkeyvalues, SEXP sfilename, SEXP nbuffer_size) {
 	char *filename = (char*) CHAR(STRING_ELT( sfilename , 0));
-	uint32_t buffer_size = INTEGER(nbuffer_size)[0], m = buffer_size;
+	uint32_t buffer_size = INTEGER(nbuffer_size)[0];
 	FILE *fp = fopen(filename, "w");
 	setvbuf(fp, NULL, _IOFBF, 0);
 	writeKeyValues32(fp,vkeyvalues,buffer_size);

@@ -23,6 +23,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
   REXP_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* REXP_RClass_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* REXP_RBOOLEAN_descriptor_ = NULL;
+const ::google::protobuf::Descriptor* ENV_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  ENV_reflection_ = NULL;
 const ::google::protobuf::Descriptor* STRING_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   STRING_reflection_ = NULL;
@@ -40,7 +43,7 @@ void protobuf_AssignDesc_rexp_2eproto() {
       "rexp.proto");
   GOOGLE_CHECK(file != NULL);
   REXP_descriptor_ = file->message_type(0);
-  static const int REXP_offsets_[10] = {
+  static const int REXP_offsets_[11] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(REXP, rclass_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(REXP, realvalue_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(REXP, intvalue_),
@@ -51,6 +54,7 @@ void protobuf_AssignDesc_rexp_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(REXP, rexpvalue_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(REXP, attrname_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(REXP, attrvalue_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(REXP, envvalue_),
   };
   REXP_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -65,7 +69,23 @@ void protobuf_AssignDesc_rexp_2eproto() {
       sizeof(REXP));
   REXP_RClass_descriptor_ = REXP_descriptor_->enum_type(0);
   REXP_RBOOLEAN_descriptor_ = REXP_descriptor_->enum_type(1);
-  STRING_descriptor_ = file->message_type(1);
+  ENV_descriptor_ = file->message_type(1);
+  static const int ENV_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ENV, key_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ENV, value_),
+  };
+  ENV_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      ENV_descriptor_,
+      ENV::default_instance_,
+      ENV_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ENV, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ENV, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(ENV));
+  STRING_descriptor_ = file->message_type(2);
   static const int STRING_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(STRING, strval_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(STRING, isna_),
@@ -81,7 +101,7 @@ void protobuf_AssignDesc_rexp_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(STRING));
-  CMPLX_descriptor_ = file->message_type(2);
+  CMPLX_descriptor_ = file->message_type(3);
   static const int CMPLX_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CMPLX, real_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CMPLX, imag_),
@@ -112,6 +132,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     REXP_descriptor_, &REXP::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    ENV_descriptor_, &ENV::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     STRING_descriptor_, &STRING::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     CMPLX_descriptor_, &CMPLX::default_instance());
@@ -122,6 +144,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void protobuf_ShutdownFile_rexp_2eproto() {
   delete REXP::default_instance_;
   delete REXP_reflection_;
+  delete ENV::default_instance_;
+  delete ENV_reflection_;
   delete STRING::default_instance_;
   delete STRING_reflection_;
   delete CMPLX::default_instance_;
@@ -135,27 +159,30 @@ void protobuf_AddDesc_rexp_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\nrexp.proto\"\274\003\n\004REXP\022\034\n\006rclass\030\001 \002(\0162\014."
+    "\n\nrexp.proto\"\276\003\n\004REXP\022\034\n\006rclass\030\001 \002(\0162\014."
     "REXP.RClass\022\025\n\trealValue\030\002 \003(\001B\002\020\001\022\024\n\010in"
     "tValue\030\003 \003(\021B\002\020\001\022$\n\014booleanValue\030\004 \003(\0162\016"
     ".REXP.RBOOLEAN\022\034\n\013stringValue\030\005 \003(\0132\007.ST"
     "RING\022\020\n\010rawValue\030\006 \001(\014\022\034\n\014complexValue\030\007"
     " \003(\0132\006.CMPLX\022\030\n\trexpValue\030\010 \003(\0132\005.REXP\022\020"
     "\n\010attrName\030\013 \003(\t\022\030\n\tattrValue\030\014 \003(\0132\005.RE"
-    "XP\"\214\001\n\006RClass\022\n\n\006STRING\020\000\022\007\n\003RAW\020\001\022\010\n\004RE"
-    "AL\020\002\022\013\n\007COMPLEX\020\003\022\013\n\007INTEGER\020\004\022\010\n\004LIST\020\005"
-    "\022\013\n\007LOGICAL\020\006\022\014\n\010NULLTYPE\020\007\022\t\n\005REAL1\020\010\022\014"
-    "\n\010INTEGER1\020\n\022\013\n\007STRING1\020\t\" \n\010RBOOLEAN\022\005\n"
-    "\001F\020\000\022\005\n\001T\020\001\022\006\n\002NA\020\002\"-\n\006STRING\022\016\n\006strval\030"
-    "\001 \001(\t\022\023\n\004isNA\030\002 \001(\010:\005false\"&\n\005CMPLX\022\017\n\004r"
-    "eal\030\001 \001(\001:\0010\022\014\n\004imag\030\002 \002(\001B\037\n\021org.godhul"
-    "i.rhipeB\nREXPProtos", 579);
+    "XP\022\026\n\010envValue\030\r \003(\0132\004.ENV\"w\n\006RClass\022\n\n\006"
+    "STRING\020\000\022\007\n\003RAW\020\001\022\010\n\004REAL\020\002\022\013\n\007COMPLEX\020\003"
+    "\022\013\n\007INTEGER\020\004\022\010\n\004LIST\020\005\022\013\n\007LOGICAL\020\006\022\014\n\010"
+    "NULLTYPE\020\007\022\017\n\013ENVIRONMENT\020\010\" \n\010RBOOLEAN\022"
+    "\005\n\001F\020\000\022\005\n\001T\020\001\022\006\n\002NA\020\002\"(\n\003ENV\022\013\n\003key\030\001 \001("
+    "\t\022\024\n\005value\030\002 \001(\0132\005.REXP\"-\n\006STRING\022\016\n\006str"
+    "val\030\001 \001(\t\022\023\n\004isNA\030\002 \001(\010:\005false\"&\n\005CMPLX\022"
+    "\017\n\004real\030\001 \001(\001:\0010\022\014\n\004imag\030\002 \002(\001B\037\n\021org.go"
+    "dhuli.rhipeB\nREXPProtos", 623);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "rexp.proto", &protobuf_RegisterTypes);
   REXP::default_instance_ = new REXP();
+  ENV::default_instance_ = new ENV();
   STRING::default_instance_ = new STRING();
   CMPLX::default_instance_ = new CMPLX();
   REXP::default_instance_->InitAsDefaultInstance();
+  ENV::default_instance_->InitAsDefaultInstance();
   STRING::default_instance_->InitAsDefaultInstance();
   CMPLX::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_rexp_2eproto);
@@ -185,8 +212,6 @@ bool REXP_RClass_IsValid(int value) {
     case 6:
     case 7:
     case 8:
-    case 9:
-    case 10:
       return true;
     default:
       return false;
@@ -202,9 +227,7 @@ const REXP_RClass REXP::INTEGER;
 const REXP_RClass REXP::LIST;
 const REXP_RClass REXP::LOGICAL;
 const REXP_RClass REXP::NULLTYPE;
-const REXP_RClass REXP::REAL1;
-const REXP_RClass REXP::INTEGER1;
-const REXP_RClass REXP::STRING1;
+const REXP_RClass REXP::ENVIRONMENT;
 const REXP_RClass REXP::RClass_MIN;
 const REXP_RClass REXP::RClass_MAX;
 const int REXP::RClass_ARRAYSIZE;
@@ -243,6 +266,7 @@ const int REXP::kComplexValueFieldNumber;
 const int REXP::kRexpValueFieldNumber;
 const int REXP::kAttrNameFieldNumber;
 const int REXP::kAttrValueFieldNumber;
+const int REXP::kEnvValueFieldNumber;
 #endif  // !_MSC_VER
 
 REXP::REXP()
@@ -316,6 +340,7 @@ void REXP::Clear() {
   rexpvalue_.Clear();
   attrname_.Clear();
   attrvalue_.Clear();
+  envvalue_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -506,6 +531,21 @@ bool REXP::MergePartialFromCodedStream(
           goto handle_uninterpreted;
         }
         if (input->ExpectTag(98)) goto parse_attrValue;
+        if (input->ExpectTag(106)) goto parse_envValue;
+        break;
+      }
+
+      // repeated .ENV envValue = 13;
+      case 13: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_envValue:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_envvalue()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(106)) goto parse_envValue;
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -599,6 +639,12 @@ void REXP::SerializeWithCachedSizes(
       12, this->attrvalue(i), output);
   }
 
+  // repeated .ENV envValue = 13;
+  for (int i = 0; i < this->envvalue_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      13, this->envvalue(i), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -689,6 +735,13 @@ void REXP::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         12, this->attrvalue(i), target);
+  }
+
+  // repeated .ENV envValue = 13;
+  for (int i = 0; i < this->envvalue_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        13, this->envvalue(i), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -796,6 +849,14 @@ int REXP::ByteSize() const {
         this->attrvalue(i));
   }
 
+  // repeated .ENV envValue = 13;
+  total_size += 1 * this->envvalue_size();
+  for (int i = 0; i < this->envvalue_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->envvalue(i));
+  }
+
   if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -829,6 +890,7 @@ void REXP::MergeFrom(const REXP& from) {
   rexpvalue_.MergeFrom(from.rexpvalue_);
   attrname_.MergeFrom(from.attrname_);
   attrvalue_.MergeFrom(from.attrvalue_);
+  envvalue_.MergeFrom(from.envvalue_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_rclass()) {
       set_rclass(from.rclass());
@@ -864,6 +926,9 @@ bool REXP::IsInitialized() const {
   for (int i = 0; i < attrvalue_size(); i++) {
     if (!this->attrvalue(i).IsInitialized()) return false;
   }
+  for (int i = 0; i < envvalue_size(); i++) {
+    if (!this->envvalue(i).IsInitialized()) return false;
+  }
   return true;
 }
 
@@ -879,6 +944,7 @@ void REXP::Swap(REXP* other) {
     rexpvalue_.Swap(&other->rexpvalue_);
     attrname_.Swap(&other->attrname_);
     attrvalue_.Swap(&other->attrvalue_);
+    envvalue_.Swap(&other->envvalue_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -890,6 +956,279 @@ void REXP::Swap(REXP* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = REXP_descriptor_;
   metadata.reflection = REXP_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int ENV::kKeyFieldNumber;
+const int ENV::kValueFieldNumber;
+#endif  // !_MSC_VER
+
+ENV::ENV()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void ENV::InitAsDefaultInstance() {
+  value_ = const_cast< ::REXP*>(&::REXP::default_instance());
+}
+
+ENV::ENV(const ENV& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void ENV::SharedCtor() {
+  _cached_size_ = 0;
+  key_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  value_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+ENV::~ENV() {
+  SharedDtor();
+}
+
+void ENV::SharedDtor() {
+  if (key_ != &::google::protobuf::internal::kEmptyString) {
+    delete key_;
+  }
+  if (this != default_instance_) {
+    delete value_;
+  }
+}
+
+void ENV::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* ENV::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return ENV_descriptor_;
+}
+
+const ENV& ENV::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_rexp_2eproto();
+  return *default_instance_;
+}
+
+ENV* ENV::default_instance_ = NULL;
+
+ENV* ENV::New() const {
+  return new ENV;
+}
+
+void ENV::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (has_key()) {
+      if (key_ != &::google::protobuf::internal::kEmptyString) {
+        key_->clear();
+      }
+    }
+    if (has_value()) {
+      if (value_ != NULL) value_->::REXP::Clear();
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool ENV::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional string key = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_key()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->key().data(), this->key().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_value;
+        break;
+      }
+
+      // optional .REXP value = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_value:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_value()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void ENV::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // optional string key = 1;
+  if (has_key()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->key().data(), this->key().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      1, this->key(), output);
+  }
+
+  // optional .REXP value = 2;
+  if (has_value()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->value(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* ENV::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // optional string key = 1;
+  if (has_key()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->key().data(), this->key().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->key(), target);
+  }
+
+  // optional .REXP value = 2;
+  if (has_value()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->value(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int ENV::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional string key = 1;
+    if (has_key()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->key());
+    }
+
+    // optional .REXP value = 2;
+    if (has_value()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->value());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void ENV::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const ENV* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const ENV*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void ENV::MergeFrom(const ENV& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_key()) {
+      set_key(from.key());
+    }
+    if (from.has_value()) {
+      mutable_value()->::REXP::MergeFrom(from.value());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void ENV::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void ENV::CopyFrom(const ENV& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ENV::IsInitialized() const {
+
+  if (has_value()) {
+    if (!this->value().IsInitialized()) return false;
+  }
+  return true;
+}
+
+void ENV::Swap(ENV* other) {
+  if (other != this) {
+    std::swap(key_, other->key_);
+    std::swap(value_, other->value_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata ENV::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = ENV_descriptor_;
+  metadata.reflection = ENV_reflection_;
   return metadata;
 }
 
