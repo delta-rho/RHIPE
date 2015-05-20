@@ -140,10 +140,7 @@ void writeUInt32(FILE* fout, uint32_t value){
 
 
 // readUInt32
-uint32_t readUInt32(FILE* fin){
-
-
-}
+//uint32_t readUInt32(FILE* fin){}
 
 
 

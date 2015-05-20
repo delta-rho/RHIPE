@@ -29,6 +29,7 @@ const int reducer_run(void){
   }
   if ((redbustr=getenv("rhipe_reduce_bytes_read")))
     REDBUFFER_MAXBYTES= (unsigned int)strtol(redbustr,NULL,10);
+  //gcc warns about the above being possibly not initialized, but R will make it so. Or rather RHIPE will make it so
 
   PROTECT(prekey0=rexpress(REDUCEPREKEY));
   PROTECT(prekey=Rf_lang2(Rf_install("eval"),prekey0));

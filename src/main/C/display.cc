@@ -297,12 +297,10 @@ extern "C" {
     static bool once = false;
     static std::string *ks;
     static std::string *vs;
-    static uint32_t combiner_count;
     uint32_t ksize=0,vsize=0;
     if(!once){
       ks = new std::string();
       vs = new std::string();
-      combiner_count = 0;
       once = true;
     }
     ks->clear();vs->clear();

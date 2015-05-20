@@ -33,6 +33,7 @@ void protobuf_AssignDesc_rexp_2eproto();
 void protobuf_ShutdownFile_rexp_2eproto();
 
 class REXP;
+class ENV;
 class STRING;
 class CMPLX;
 
@@ -45,13 +46,11 @@ enum REXP_RClass {
   REXP_RClass_LIST = 5,
   REXP_RClass_LOGICAL = 6,
   REXP_RClass_NULLTYPE = 7,
-  REXP_RClass_REAL1 = 8,
-  REXP_RClass_INTEGER1 = 10,
-  REXP_RClass_STRING1 = 9
+  REXP_RClass_ENVIRONMENT = 8
 };
 bool REXP_RClass_IsValid(int value);
 const REXP_RClass REXP_RClass_RClass_MIN = REXP_RClass_STRING;
-const REXP_RClass REXP_RClass_RClass_MAX = REXP_RClass_INTEGER1;
+const REXP_RClass REXP_RClass_RClass_MAX = REXP_RClass_ENVIRONMENT;
 const int REXP_RClass_RClass_ARRAYSIZE = REXP_RClass_RClass_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* REXP_RClass_descriptor();
@@ -147,9 +146,7 @@ class REXP : public ::google::protobuf::Message {
   static const RClass LIST = REXP_RClass_LIST;
   static const RClass LOGICAL = REXP_RClass_LOGICAL;
   static const RClass NULLTYPE = REXP_RClass_NULLTYPE;
-  static const RClass REAL1 = REXP_RClass_REAL1;
-  static const RClass INTEGER1 = REXP_RClass_INTEGER1;
-  static const RClass STRING1 = REXP_RClass_STRING1;
+  static const RClass ENVIRONMENT = REXP_RClass_ENVIRONMENT;
   static inline bool RClass_IsValid(int value) {
     return REXP_RClass_IsValid(value);
   }
@@ -315,6 +312,18 @@ class REXP : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::REXP >*
       mutable_attrvalue();
 
+  // repeated .ENV envValue = 13;
+  inline int envvalue_size() const;
+  inline void clear_envvalue();
+  static const int kEnvValueFieldNumber = 13;
+  inline const ::ENV& envvalue(int index) const;
+  inline ::ENV* mutable_envvalue(int index);
+  inline ::ENV* add_envvalue();
+  inline const ::google::protobuf::RepeatedPtrField< ::ENV >&
+      envvalue() const;
+  inline ::google::protobuf::RepeatedPtrField< ::ENV >*
+      mutable_envvalue();
+
   // @@protoc_insertion_point(class_scope:REXP)
  private:
   inline void set_has_rclass();
@@ -335,10 +344,11 @@ class REXP : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::REXP > rexpvalue_;
   ::google::protobuf::RepeatedPtrField< ::std::string> attrname_;
   ::google::protobuf::RepeatedPtrField< ::REXP > attrvalue_;
+  ::google::protobuf::RepeatedPtrField< ::ENV > envvalue_;
   int rclass_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(10 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(11 + 31) / 32];
 
   friend void  protobuf_AddDesc_rexp_2eproto();
   friend void protobuf_AssignDesc_rexp_2eproto();
@@ -346,6 +356,105 @@ class REXP : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static REXP* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class ENV : public ::google::protobuf::Message {
+ public:
+  ENV();
+  virtual ~ENV();
+
+  ENV(const ENV& from);
+
+  inline ENV& operator=(const ENV& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ENV& default_instance();
+
+  void Swap(ENV* other);
+
+  // implements Message ----------------------------------------------
+
+  ENV* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ENV& from);
+  void MergeFrom(const ENV& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string key = 1;
+  inline bool has_key() const;
+  inline void clear_key();
+  static const int kKeyFieldNumber = 1;
+  inline const ::std::string& key() const;
+  inline void set_key(const ::std::string& value);
+  inline void set_key(const char* value);
+  inline void set_key(const char* value, size_t size);
+  inline ::std::string* mutable_key();
+  inline ::std::string* release_key();
+  inline void set_allocated_key(::std::string* key);
+
+  // optional .REXP value = 2;
+  inline bool has_value() const;
+  inline void clear_value();
+  static const int kValueFieldNumber = 2;
+  inline const ::REXP& value() const;
+  inline ::REXP* mutable_value();
+  inline ::REXP* release_value();
+  inline void set_allocated_value(::REXP* value);
+
+  // @@protoc_insertion_point(class_scope:ENV)
+ private:
+  inline void set_has_key();
+  inline void clear_has_key();
+  inline void set_has_value();
+  inline void clear_has_value();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::std::string* key_;
+  ::REXP* value_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+
+  friend void  protobuf_AddDesc_rexp_2eproto();
+  friend void protobuf_AssignDesc_rexp_2eproto();
+  friend void protobuf_ShutdownFile_rexp_2eproto();
+
+  void InitAsDefaultInstance();
+  static ENV* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -855,6 +964,143 @@ REXP::attrvalue() const {
 inline ::google::protobuf::RepeatedPtrField< ::REXP >*
 REXP::mutable_attrvalue() {
   return &attrvalue_;
+}
+
+// repeated .ENV envValue = 13;
+inline int REXP::envvalue_size() const {
+  return envvalue_.size();
+}
+inline void REXP::clear_envvalue() {
+  envvalue_.Clear();
+}
+inline const ::ENV& REXP::envvalue(int index) const {
+  return envvalue_.Get(index);
+}
+inline ::ENV* REXP::mutable_envvalue(int index) {
+  return envvalue_.Mutable(index);
+}
+inline ::ENV* REXP::add_envvalue() {
+  return envvalue_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::ENV >&
+REXP::envvalue() const {
+  return envvalue_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::ENV >*
+REXP::mutable_envvalue() {
+  return &envvalue_;
+}
+
+// -------------------------------------------------------------------
+
+// ENV
+
+// optional string key = 1;
+inline bool ENV::has_key() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void ENV::set_has_key() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void ENV::clear_has_key() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void ENV::clear_key() {
+  if (key_ != &::google::protobuf::internal::kEmptyString) {
+    key_->clear();
+  }
+  clear_has_key();
+}
+inline const ::std::string& ENV::key() const {
+  return *key_;
+}
+inline void ENV::set_key(const ::std::string& value) {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::kEmptyString) {
+    key_ = new ::std::string;
+  }
+  key_->assign(value);
+}
+inline void ENV::set_key(const char* value) {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::kEmptyString) {
+    key_ = new ::std::string;
+  }
+  key_->assign(value);
+}
+inline void ENV::set_key(const char* value, size_t size) {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::kEmptyString) {
+    key_ = new ::std::string;
+  }
+  key_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* ENV::mutable_key() {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::kEmptyString) {
+    key_ = new ::std::string;
+  }
+  return key_;
+}
+inline ::std::string* ENV::release_key() {
+  clear_has_key();
+  if (key_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = key_;
+    key_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void ENV::set_allocated_key(::std::string* key) {
+  if (key_ != &::google::protobuf::internal::kEmptyString) {
+    delete key_;
+  }
+  if (key) {
+    set_has_key();
+    key_ = key;
+  } else {
+    clear_has_key();
+    key_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional .REXP value = 2;
+inline bool ENV::has_value() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void ENV::set_has_value() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void ENV::clear_has_value() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void ENV::clear_value() {
+  if (value_ != NULL) value_->::REXP::Clear();
+  clear_has_value();
+}
+inline const ::REXP& ENV::value() const {
+  return value_ != NULL ? *value_ : *default_instance_->value_;
+}
+inline ::REXP* ENV::mutable_value() {
+  set_has_value();
+  if (value_ == NULL) value_ = new ::REXP;
+  return value_;
+}
+inline ::REXP* ENV::release_value() {
+  clear_has_value();
+  ::REXP* temp = value_;
+  value_ = NULL;
+  return temp;
+}
+inline void ENV::set_allocated_value(::REXP* value) {
+  delete value_;
+  value_ = value;
+  if (value) {
+    set_has_value();
+  } else {
+    clear_has_value();
+  }
 }
 
 // -------------------------------------------------------------------

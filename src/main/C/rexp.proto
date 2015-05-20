@@ -10,10 +10,10 @@ message REXP {
     LIST	= 5;
     LOGICAL	= 6;
     NULLTYPE	= 7;
-    REAL1       = 8;
-    INTEGER1    = 10;
-    STRING1     = 9;
-
+//    REAL1       = 8;
+//    INTEGER1    = 10;
+//    STRING1     = 9;
+    ENVIRONMENT = 8;
   }
   enum RBOOLEAN {
     F	= 0;
@@ -31,9 +31,14 @@ message REXP {
   repeated REXP	    rexpValue		= 8;
   repeated string   attrName		= 11;
   repeated REXP     attrValue		= 12;
-
+  repeated ENV      envValue		= 13;
 }
 
+
+message ENV {
+	optional string key = 1;
+ 	optional REXP  value = 2;
+}
 
 message STRING {
   optional string strval = 1;
