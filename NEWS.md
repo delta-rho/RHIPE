@@ -1,6 +1,7 @@
-Version 0.7.5.5
+Version 0.75.1.6
 ----------------------------------------------------------------------
 
+- provide serialization for simple environments
 - update so that output to non-standard file URIs like s3 work in `rhwatch()`
 - update build script
 - update to be compatible with R 3.2
@@ -15,7 +16,7 @@ Version 0.7.5.5
 - update PersonalServer `ls` to handle non-default Hadoop URIs differently
 - add `_meta` to ignored RHIPE files
 
-Version 0.7.5
+Version 0.75.1
 ----------------------------------------------------------------------
 
 - fix build.xml to be more linux-friendly
