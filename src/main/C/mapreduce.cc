@@ -229,7 +229,7 @@ int mainMapperLoop(FILE* fin){
 
 	  int32_t type=0;
 	  int32_t buffer_size=0;
-	  SEXP runner1,runner2,cleaner,kvector,vvector;
+	  SEXP runner1,runner2,kvector,vvector;
 	  char * mapbustr;
 	  int protect= 0;
 	  int32_t  max_bytes_to_read = 0;
@@ -422,7 +422,7 @@ SEXP execMapReduce() {
 		return(R_NilValue);
 	}
 #endif
-	int uid = geteuid();
+	//int uid = geteuid();
 #ifdef RHIPEDEBUG
 	char fn[1024];
 	char *logfile=NULL;
@@ -466,7 +466,7 @@ SEXP execMapReduce() {
 
 	LOGG(10,"STD{IN,OUT,ERR}  in binary \n");
 
-	int ret = 0;
+	//int ret = 0;
 #ifdef USETIMER
 	struct timeval tms;
 	long int bstart, bend;

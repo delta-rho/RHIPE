@@ -38,6 +38,7 @@ SEXP rexpToSexp(const REXP& rexp){
   int length;
   static int convertLogical[3]={0,1,NA_LOGICAL};
   switch(rexp.rclass()){
+
   case REXP::NULLTYPE:
     return(R_NilValue);
   case REXP::LOGICAL:
@@ -99,6 +100,17 @@ SEXP rexpToSexp(const REXP& rexp){
     for (int i = 0; i< length; i++){
       // SEXP ik;
       SET_VECTOR_ELT(s, i, rexpToSexp(rexp.rexpvalue(i)) );
+    }
+    break;
+  case REXP::ENVIRONMENT:
+    length = rexp.envvalue_size();
+    PROTECT(s = Rf_allocSExp(ENVSXP));
+    ENV e;
+    for(int i=0; i< length;i++){
+      e = rexp.envvalue(i);
+      const char * name = e.key().c_str();
+      SEXP v = rexpToSexp(e.value());
+      Rf_defineVar(Rf_install(name),v ,s);
     }
     break;
   }
@@ -203,6 +215,18 @@ void fill_rexp(REXP* rexp,const SEXP robj){
     rexp->set_rclass(REXP::LIST);
     for (int i = 0; i<LENGTH(robj); i++)
   	fill_rexp(rexp->add_rexpvalue(),VECTOR_ELT(robj,i));
+    break;
+  }
+  case ENVSXP:{
+    if(R_IsPackageEnv(robj) || R_IsNamespaceEnv(robj)) break;
+    rexp->set_rclass(REXP::ENVIRONMENT);
+    SEXP fieldnames = R_lsInternal(robj,TRUE);
+    for(int i = 0; i< LENGTH(fieldnames);i++){
+      ENV* entry = rexp->add_envvalue();
+      const char* name = CHAR(STRING_ELT(fieldnames,i));
+      entry->set_key(name);
+      fill_rexp(entry->mutable_value(), Rf_findVar(Rf_install(name), robj));
+    }
     break;
   }
  default:
