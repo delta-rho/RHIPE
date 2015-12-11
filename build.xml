@@ -7,7 +7,7 @@
     Targets that begin with an '_' (e.g. _build-hadoop-1) are not designed to run as a standalone target
 
     -->
-    <property name="rhipe.version" value="0.74.1"/>
+    <property name="rhipe.version" value="0.74.2"/>
 
     <property name="guava.version" value="13.0.1"/>
     <property name="maven.project.name" value="rhipe-java"/>
@@ -198,7 +198,7 @@
     <target name="r-build">
         <exec executable="R" failonerror="true" failifexecutionfails="true">
             <arg value="CMD"/>
-            <arg value="BUILD"/>
+            <arg value="build"/>
             <arg value="${r.package}"/>
         </exec>
 

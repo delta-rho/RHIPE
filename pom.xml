@@ -4,7 +4,7 @@
 
     <groupId>org.godhuli.rhipe</groupId>
     <artifactId>rhipe-java</artifactId>
-    <version>0.74.1</version>
+    <version>0.74.2</version>
     <packaging>jar</packaging>
     <name>Rhipe</name>
     <url>https://github.com/saptarshiguha/RHIPE</url>

@@ -2,7 +2,13 @@
 #include <rexp.pb.h>
 #include "ream.h"
 
+
 using namespace std;
+#if R_VERSION < R_Version(2,7,0)                                                                                                                                     
+#define mkCharUTF8(X) Rf_mkChar(X)
+#else
+#define mkCharUTF8(X) Rf_mkCharCE(X, CE_UTF8)
+#endif
 
 
 SEXP rexpress(const char* cmd)
@@ -82,7 +88,7 @@ SEXP rexpToSexp(const REXP& rexp){
       	if (st.isna())
       	  SET_STRING_ELT(s,i,R_NaString);
       	else{
-	  SEXP y=  Rf_mkChar(st.strval().c_str());
+	  SEXP y=  mkCharUTF8(st.strval().c_str());
       	  SET_STRING_ELT(s,i,y);
 	}
       }

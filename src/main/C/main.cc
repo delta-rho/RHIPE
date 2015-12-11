@@ -1,11 +1,15 @@
 #include "ream.h"
+#include <Rinterface.h>
 #include <iostream>
 
 
 using namespace std;
 
 
+#if (R_VERSION < R_Version(3,2,0))
 extern int R_running_as_main_program;
+#endif
+
 extern uintptr_t R_CStackLimit; 
 
 
