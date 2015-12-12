@@ -547,9 +547,9 @@ SEXP readSQFromPipe(SEXP jcmd, SEXP buf, SEXP verb) {
   SEXP md5(SEXP aRaw,SEXP len){
     md5_state_t state;
     md5_byte_t digest[16];
-    md5_init(&state);
-    md5_append(&state, (const md5_byte_t *)RAW(aRaw), INTEGER(len)[0]);
-    md5_finish(&state, digest);
+    md5_init_rh(&state);
+    md5_append_rh(&state, (const md5_byte_t *)RAW(aRaw), INTEGER(len)[0]);
+    md5_finish_rh(&state, digest);
     char hex_output[16*2 + 1];
     for (int di = 0; di < 16; ++di)
       sprintf(hex_output + di * 2, "%02x", digest[di]);

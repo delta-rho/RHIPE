@@ -4,10 +4,10 @@
 
     <groupId>org.godhuli.rhipe</groupId>
     <artifactId>rhipe-java</artifactId>
-    <version>0.75.1.7</version>
+    <version>0.75.2</version>
     <packaging>jar</packaging>
     <name>Rhipe</name>
-    <url>https://github.com/saptarshiguha/RHIPE</url>
+    <url>https://github.com/tesseradata/RHIPE</url>
 
     <properties>
         <!--<hadoop.version>2.3.0-cdh5.0.0</hadoop.version>-->
