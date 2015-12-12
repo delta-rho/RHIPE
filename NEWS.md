@@ -1,7 +1,8 @@
-Version 0.75.1.7
+Version 0.75
 ----------------------------------------------------------------------
 
-- workaround for bug having to do with digest not returning unique results
+- fix for internal C methods conflicting with digest md5 (0.75.2)
+- fix reduce issue when incrementally building lists of `reduce.values` (0.75.2)
 - provide serialization for simple environments
 - update so that output to non-standard file URIs like s3 work in `rhwatch()`
 - update build script
@@ -16,10 +17,6 @@ Version 0.75.1.7
 - update all deprecated hadoop api calls
 - update PersonalServer `ls` to handle non-default Hadoop URIs differently
 - add `_meta` to ignored RHIPE files
-
-Version 0.75.1
-----------------------------------------------------------------------
-
 - fix build.xml to be more linux-friendly
 - `rherrors` can read output of `rhwatch(..., read=FALSE)` to read the errors folder using the new dump frames options
 - `rhJobInfo`, `rhstatus` and `rhwatch` correctly get the jobid (uses the Java MapReduce API)
