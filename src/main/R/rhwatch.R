@@ -1,8 +1,8 @@
 #' Prepares,Submits and Monitors  MapReduce Jobs
-#' 
+#'
 #' Creates the R object that contains all the information required by RHIPE to
 #' run a MapReduce job via a call to \code{\link{rhex}} (see details).
-#' 
+#'
 #' @param map \code{map} is an R expression (created using the R command
 #'   \code{expression}) that is evaluated by RHIPE during the map stage. For
 #'   each task, RHIPE will call this expression multiple times (see details).
@@ -14,14 +14,14 @@
 #'   \code{reduce} is optional, and if not specified the map output keys will
 #'   be sorted and shuffled and saved to disk. If it is not specified, then a default identity reduce is performed. Setting  it to 0 or another integer is equivalent to mapred.reduce.tasks=reduce
 #' @param combiner
-#' 
+#'
 #' If set to TRUE, RHIPE will run the \code{reduce} expression on the output of
 #'   the \code{map} expression locally i.e. on the same computer that is
 #'   running the associated map after \emph{io.sort.mb} megabytes of key,value
 #'   pairs.
-#' 
+#'
 #' See details.
-#' 
+#'
 #' WARNING: setup/cleanup may not run when you think when used with a combiner.
 #'   We recommend only advanced users try to use both a combiner and
 #'   setup/cleanup expressions.
@@ -52,11 +52,11 @@
 #'   This is used in the case when a user provides a custom InputFormat.
 #'   Specify the JAR file to handle this InputFormat using this argument and
 #'   specify the name of the InputFormat in the \code{mapred} argument.
-#' @param zips Distributed cache file on the HDFS to unzip and distribute to each MapReduce task.  See 
+#' @param zips Distributed cache file on the HDFS to unzip and distribute to each MapReduce task.  See
 #'   \href{http://hadoop.apache.org/common/docs/r0.20.1/mapred_tutorial.html\#DistributedCache}{Distributed Cache}.
 #' @param partitioner A list of two names elements: \code{lims} and
 #'   \code{type}.  See details.
-#' @param parameters A named list  with parameters to be passed to a mapreduce job.It can also be the string 'all', and all variables (whose size <= rhoptions()$copyObjects$maxsize (bytes) and the name of the variable not in rhoptions()$copyObjects$exclude) will be automatically copied. If rhoptions()$copyObjects$auto is TRUE (default)', RHIPE will make an attempt (via codetools) to determine the called variables/functions and copy them automatically. 
+#' @param parameters A named list  with parameters to be passed to a mapreduce job.It can also be the string 'all', and all variables (whose size <= rhoptions()$copyObjects$maxsize (bytes) and the name of the variable not in rhoptions()$copyObjects$exclude) will be automatically copied. If rhoptions()$copyObjects$auto is TRUE (default)', RHIPE will make an attempt (via codetools) to determine the called variables/functions and copy them automatically.
 #' @param copyFiles Will the files created in the R code e.g. PDF output, be
 #'   copied to the destination folder, \code{ofolder}?
 #' @param jobname The name of the job, which is visible on the Jobtracker
@@ -76,18 +76,18 @@
 #' @param ... Extra parameters passed to \code{rhstatus}.
 #' @return If the state is SUCCEEDED and total output size (in MB) is less than \code{rhoptions()$max.read.in.size} the data is read with a warning if the number of records is more than \code{rhoptions()$reduce.output.records.warn}. If \code{rhoptions()$rhmr.max.records.to.read.in} is not NA, that many records is read. This only works for Sequence output. Otherwise an object of length two. The first element is the data returned from rhstatus and the second is the data returned by the internal \code{rhmr} function.
 #' @author Saptarshi Guha
-#' @details \itemize{ 
+#' @details \itemize{
 #'   \item{Buffer Size:}{
 #' If a task consists of \emph{W} key,value pairs, the expression \code{map}
-#' will be called 
-#' ceil(\emph{W} / \emph{rhipe_map_buffsize}) times. The default
-#' value of \emph{rhipe_map_buffsize} is 10,000 and is user configurable. Each
+#' will be called
+#' ceil(\emph{W} / \emph{rhipe_map_buff_size}) times. The default
+#' value of \emph{rhipe_map_buff_size} is 10,000 and is user configurable. Each
 #' time \code{map} is called, the vectors \code{map.keys} and \code{map.values}
-#' contain \emph{rhipe_map_buffsize} keys and values respectively. If the
+#' contain \emph{rhipe_map_buff_size} keys and values respectively. If the
 #' objects are large it advisable to reduce the size of
-#' \emph{rhipe_map_buffsize}, so that the total amount of memory used by a task
+#' \emph{rhipe_map_buff_size}, so that the total amount of memory used by a task
 #' is well controlled.  For particularly large map.values, the authors have
-#' used rhipe_map_buffsize as low as 10.}
+#' used rhipe_map_buff_size as low as 10.}
 #' \item{Setup:}{
 #' In RHIPE, each task is a sequence of many thousands of key, value pairs.
 #' Before running the \code{map} and \code{reduce} expression (and before any
@@ -181,8 +181,8 @@
 #' default it is 10 minutes) Hadoop will eventually kill a lengthy R process.}
 #' \item{List of Important Options for the mapred argument:}{
 #' These are all set with mapred = list( name=value, name=value,...).}
-#' \itemize{ 
-#'   \item{rhipe_map_buffsize:}{
+#' \itemize{
+#'   \item{rhipe_map_buff_size:}{
 #' Number of elements in the map buffer. (not size in bytes!)  Control the
 #' amount of memory your map task employ using this.}
 #' \item{rhipe_reduce_buffsize:}{
@@ -202,22 +202,22 @@
 #' @seealso \code{\link{rhex}}, \code{\link{rhstatus}}, \code{\link{rhkill}}
 #' @keywords Hadoop MapReduce
 #' @examples
-#' 
+#'
 #' \dontrun{
 #' # RUNNABLE BUT ARTIFICIAL EXAMPLE
-#' # We will create a data set with three columns: 
-#' # the level of a categorical variable A, a time variable B and a value C. 
+#' # We will create a data set with three columns:
+#' # the level of a categorical variable A, a time variable B and a value C.
 #' # For each level of A, we want the sum of differences of C ordered by B within A.
-#' # Creating the Data set The column A is the key, but this is not important. 
-#' # There are 5000 levels of A, each level has 10,000 observations. 
-#' # By design the values of B are randomly written (sample), 
+#' # Creating the Data set The column A is the key, but this is not important.
+#' # There are 5000 levels of A, each level has 10,000 observations.
+#' # By design the values of B are randomly written (sample),
 #' # also for simplicity C is equal to B, though this need not be.
-#' 
+#'
 #' library(Rhipe)
 #' rhinit()
-#' 
+#'
 #' # might need a call here to rhoptions for runner option depending on user
-#' 
+#'
 #' map <- expression({
 #'    N <- 10000
 #'    for( first.col in map.values ){
@@ -228,28 +228,28 @@
 #'    }
 #' })
 #' mapred <- list(
-#'  rhipe_map_buffsize=3000,
+#'  rhipe_map_buff_size=3000,
 #'  mapred.reduce.tasks = 1
 #' )
 #' z <- rhwatch(
-#'     map      = map, 
-#'     reduce   = NULL, 
-#'     input    = 5000, 
-#'     output   = rhfmt("/tmp/sort", type = "sequence"), 
-#'     mapred   = mapred, 
+#'     map      = map,
+#'     reduce   = NULL,
+#'     input    = 5000,
+#'     output   = rhfmt("/tmp/sort", type = "sequence"),
+#'     mapred   = mapred,
 #'     readback = FALSE
 #' )
-#' 
+#'
 #' #Sum of Differences The key is the value of A and B, the value is C.
-#' 
+#'
 #' map <- expression({
 #'    for(r in seq_along(map.values)){
 #'       f <- map.values[[r]]
 #'       rhcollect(as.integer(c(map.keys[[r]], f[1])), f[2])
 #'    }
 #' })
-#' 
-#' 
+#'
+#'
 #' reduce.setup <- expression({
 #'    newp <- -Inf
 #'    diffsum <- NULL
@@ -257,19 +257,19 @@
 #' reduce <- expression(
 #'    pre={
 #'       if(reduce.key[[1]][1] != newp) {
-#'          if(newp>-Inf) 
+#'          if(newp>-Inf)
 #'             rhcollect(newp, diffsum) #prevents -Inf from being collected
 #'          diffsum <- 0
 #'          lastval <- 0
 #'          newp <- reduce.key[[1]][1]
 #'          skip <- TRUE
 #'       }
-#'     }, 
+#'     },
 #'     reduce={
 #'       current <- unlist(reduce.values) #only one value!
-#'       if(!skip) 
-#'          diffsum <- diffsum + (current-lastval) 
-#'       else 
+#'       if(!skip)
+#'          diffsum <- diffsum + (current-lastval)
+#'       else
 #'          skip <- FALSE
 #'       lastval <- current
 #'    }
@@ -279,11 +279,11 @@
 #'      rhcollect(newp, diffsum)
 #'    } #for the last key
 #' })
-#' 
+#'
 #' #To turn on the partitioning and ordering of keys,
 #' z <- rhwatch(
 #'     map         = map,
-#'     reduce      = reduce, 
+#'     reduce      = reduce,
 #'     input       = rhfmt('/tmp/sort', type = "sequence"),
 #'     output      = rhfmt('/tmp/sort2', type = "sequence"),
 #'     partitioner = list(lims = 1, type = 'integer'),
@@ -294,25 +294,25 @@
 #' )
 #' }
 #' @export
-rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL, 
-   cleanup = NULL, input = NULL, output = NULL, orderby = "bytes", 
-   mapred = NULL, shared = c(), jarfiles = c(), zips = c(), partitioner = NULL, 
-   copyFiles = FALSE, jobname = "", parameters = NULL, job = NULL, mon.sec = 5, 
+rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL,
+   cleanup = NULL, input = NULL, output = NULL, orderby = "bytes",
+   mapred = NULL, shared = c(), jarfiles = c(), zips = c(), partitioner = NULL,
+   copyFiles = FALSE, jobname = "", parameters = NULL, job = NULL, mon.sec = 5,
    readback = rhoptions()$readback, debug = NULL, noeval = FALSE, ...) {
 
-   ## ########################################################### 
+   ## ###########################################################
    ## handle "..."
-   ## ########################################################### 
+   ## ###########################################################
 
    envir <- sys.frame(-1)
    if (is.null(job))
-      job <- Rhipe:::.rhmr(map = map, reduce = reduce, combiner = combiner, setup = setup, 
-         cleanup = cleanup, input = input, output = output, orderby = orderby, 
-         mapred = mapred, shared = shared, jarfiles = jarfiles, zips = zips, partitioner = partitioner, 
-         copyFiles = copyFiles, jobname = jobname, parameters = parameters, envir = envir) 
-   else if (is.character(job)) 
+      job <- Rhipe:::.rhmr(map = map, reduce = reduce, combiner = combiner, setup = setup,
+         cleanup = cleanup, input = input, output = output, orderby = orderby,
+         mapred = mapred, shared = shared, jarfiles = jarfiles, zips = zips, partitioner = partitioner,
+         copyFiles = copyFiles, jobname = jobname, parameters = parameters, envir = envir)
+   else if (is.character(job))
       return(Rhipe:::rhwatch.runner(job = job, mon.sec = mon.sec, readback = readback, ...))
-   
+
    if (!is.null(job$lines$mapred.job.tracker) && job$lines$mapred.job.tracker == TRUE) {
       z <- Rhipe:::rhwatch.runner(job = job, mon.sec = mon.sec, readback = readback, ...)
       if (readback == FALSE) {
@@ -320,12 +320,12 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL,
       }
       return(z)
    }
-   
+
    if (!is.null(debug)) {
       m <- unserialize(charToRaw(job[[1]]$rhipe_map))
-      if (!(is(m, "rhmr-map") || is(m, "rhmr-map2"))) 
+      if (!(is(m, "rhmr-map") || is(m, "rhmr-map2")))
          stop("RHIPE: for debugging purposes, must use a map expression returned by ewrap")
-      
+
       ## Replace the map expression
       if (is(m, "rhmr-map")) {
          j <- m[[1]][[3]]  ##the mapply
@@ -334,7 +334,7 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL,
          l$replace <- jj[[3]][[2]]  ## body of jj when rhmap is fixed it's body(jj)
          l$before <- m[[1]][[2]]
          l$after <- m[[1]][[4]]
-         FIX <- function(x) if (is.null(x)) 
+         FIX <- function(x) if (is.null(x))
             NULL else x
          newm <- as.expression(bquote({
             .(BEFORE)
@@ -346,7 +346,7 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL,
             }, seq_along(map.values), map.keys, map.values, SIMPLIFY = FALSE)
             .(AFTER)
              }, list(BEFORE = FIX(l$before), AFTER = FIX(l$after), REPLACE = FIX(l$replace))))
-         
+
          environment(newm) <- .BaseNamespaceEnv
          job[[1]]$rhipe_map <- rawToChar(serialize(newm, NULL, ascii = TRUE))
       } else if (is(m, "rhmr-map2")) {
@@ -359,40 +359,40 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL,
               })
             }, map.keys, map.values, SIMPLIFY = FALSE)
          })
-         
+
          environment(newm) <- .BaseNamespaceEnv
          job[[1]]$rhipe_map <- rawToChar(serialize(newm, NULL, ascii = TRUE))
       }
       ## Has the user given one?
       if (is.list(debug) && !is.null(debug$map)) {
-         if (!is.null(debug$map$setup)) 
+         if (!is.null(debug$map$setup))
             setup <- debug$map$setup
-         if (!is.null(debug$map$cleanup)) 
+         if (!is.null(debug$map$cleanup))
             cleanup <- debug$map$cleanup
-         if (!is.null(debug$map$handler)) 
+         if (!is.null(debug$map$handler))
             handler <- debug$map$handler
       } else if (is.character(debug)) {
          handler <- rhoptions()$debug$map[[debug]]$handler
          setup <- rhoptions()$debug$map[[debug]]$setup
          cleanup <- rhoptions()$debug$map[[debug]]$cleanup
-         if (is.null(handler)) 
+         if (is.null(handler))
             stop("Rhipe(rhwatch): invalid debug character string provided")
       }
       if (is.null(job$parameters)) {
          environment(handler) <- .BaseNamespaceEnv
-         job$parameters <- Rhipe:::makeParamTempFile(file = "rhipe-temp-params", 
+         job$parameters <- Rhipe:::makeParamTempFile(file = "rhipe-temp-params",
             parameters = list(rhipe.trap = handler))
-         
+
          ## need the code to load temporary files!
          x <- unserialize(charToRaw(job[[1]]$rhipe_setup_map))
          y <- job$parameters$setup
          environment(y) <- .BaseNamespacEenv
          job[[1]]$rhipe_setup_map <- rawToChar(serialize(c(y, x), NULL, ascii = TRUE))
-         
+
          x <- unserialize(charToRaw(job[[1]]$rhipe_setup_reduce))
          job[[1]]$rhipe_setup_reduce <- rawToChar(serialize(c(y, x), NULL, ascii = TRUE))
          ## this is becoming quite the HACK of all lines magic and this hit should be in rhex ...
-         job[[1]]$rhipe_shared <- sprintf("%s,%s#%s", job[[1]]$rhipe_shared, job$parameters$file, 
+         job[[1]]$rhipe_shared <- sprintf("%s,%s#%s", job[[1]]$rhipe_shared, job$parameters$file,
             basename(job$parameters$file))
       } else {
          environment(handler) <- .BaseNamespaceEnv
@@ -406,7 +406,7 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL,
       if (is.expression(cleanup)) {
          environment(cleanup) <- .BaseNamespaceEnv
          cleanupmap <- unserialize(charToRaw(job[[1]]$rhipe_cleanup_map))
-         job[[1]]$rhipe_cleanup_map <- rawToChar(serialize(c(cleanupmap, cleanup), 
+         job[[1]]$rhipe_cleanup_map <- rawToChar(serialize(c(cleanupmap, cleanup),
             NULL, ascii = TRUE))
       }
       environment(handler) <- .BaseNamespaceEnv
@@ -414,9 +414,9 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL,
       job[[1]]$rhipe_copy_excludes <- rhoptions()$rhipe_copy_excludes
       job[[1]]$rhipe_copyfile_folder <- rhoptions()$rhipe_copyfile_folder
    }
-   if (noeval) 
+   if (noeval)
       return(job)
-   z <- Rhipe:::rhwatch.runner(job = job, mon.sec = mon.sec, readback = readback, 
+   z <- Rhipe:::rhwatch.runner(job = job, mon.sec = mon.sec, readback = readback,
       ...)
    if (readback == FALSE) {
       class(z) <- append(class(z), "rhwatch")
@@ -426,29 +426,29 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL,
 
 rhwatch.runner <- function(job, mon.sec = 5, readback = TRUE, debug = NULL, ...) {
    if (class(job) == "rhmr") {
-      results <- if (is(job, "rhmr")) 
+      results <- if (is(job, "rhmr"))
          rhstatus(rhex(job, async = TRUE), mon.sec = mon.sec, ...) else rhstatus(job, mon.sec = mon.sec, ...)
       ofolder <- job$lines$rhipe_output_folder
-      
+
       # if rhoption write.job.info is TRUE, then write it to _rh_meta
       if (results$state == "SUCCEEDED" && rhoptions()$write.job.info) {
          # get job id
 	 id = parseJobIDFromTracking(results)
-	          
+
          jobData <- list(results = results, jobConf = job, jobInfo = rhJobInfo(id))
          rhsave(jobData, file = paste(ofolder, "/_rh_meta/jobData.Rdata", sep = ""))
       }
-      
-      if (readback == TRUE && results$state == "SUCCEEDED" && sum(rhls(ofolder)$size)/(1024^2) < 
+
+      if (readback == TRUE && results$state == "SUCCEEDED" && sum(rhls(ofolder)$size)/(1024^2) <
          rhoptions()$max.read.in.size) {
          W <- "Reduce output records"
-         if (!is.null(job$lines$mapred.reduce.tasks) && as.numeric(job$lines$mapred.reduce.tasks) == 
-            0) 
+         if (!is.null(job$lines$mapred.reduce.tasks) && as.numeric(job$lines$mapred.reduce.tasks) ==
+            0)
             W <- "Map output records"
-         num.records <- as.numeric(results$counters$"Map-Reduce Framework"[W, 
+         num.records <- as.numeric(results$counters$"Map-Reduce Framework"[W,
             ])
-         if (num.records > rhoptions()$reduce.output.records.warn) 
-            warning(sprintf("Number of output records is %s which is greater than rhoptions()$reduce.output.records.warn\n. Consider running a mapreduce to make this smaller, since reading so many key-value pairs is slow in R", 
+         if (num.records > rhoptions()$reduce.output.records.warn)
+            warning(sprintf("Number of output records is %s which is greater than rhoptions()$reduce.output.records.warn\n. Consider running a mapreduce to make this smaller, since reading so many key-value pairs is slow in R",
               num.records))
          oclass <- job$lines$rhipe_outputformat_class
          textual <- FALSE
@@ -460,9 +460,9 @@ rhwatch.runner <- function(job, mon.sec = 5, readback = TRUE, debug = NULL, ...)
          if (grepl("RXTextOutputFormat", oclass)) {
             type <- "text"
          }
-         
-         if (!is.na(rhoptions()$rhmr.max.records.to.read.in)) 
-            return(rhread(ofolder, max = rhoptions()$rhmr.max.records.to.read.in, 
+
+         if (!is.na(rhoptions()$rhmr.max.records.to.read.in))
+            return(rhread(ofolder, max = rhoptions()$rhmr.max.records.to.read.in,
               type = type, textual = textual)) else return(rhread(ofolder, type = type, textual = textual))
       }
       if (grepl("(FAILED|KILLED)", results$state)) {
@@ -472,8 +472,8 @@ rhwatch.runner <- function(job, mon.sec = 5, readback = TRUE, debug = NULL, ...)
          } else warning("debug is 'collect', so not deleting output folder")
       }
       return(list(results, job))
-   } else 
+   } else
       ## Ideally even with a job.id i can still get the all the job info by looking
       ## somewhere in the output folder.  job is now a job_identifier string
       rhstatus(job, mon.sec = mon.sec, ...)
-} 
+}
