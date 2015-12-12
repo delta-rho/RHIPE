@@ -120,7 +120,7 @@ const int reducer_run(void){
       if(redbuf_cnt == REDBUFFER){
 	// Case 1. The reduce.values has reached the critical length
 	// for evaluation
-	Rf_setVar(Rf_install("reduce.values"),vvector,R_GlobalEnv);
+	Rf_setVar(Rf_install("reduce.values"),Rf_duplicate(vvector),R_GlobalEnv);
 	WRAP_R_EVAL(reduce,NULL, &Rerr);
 	redbuf_cnt=0;
 	bytes_read = 0;

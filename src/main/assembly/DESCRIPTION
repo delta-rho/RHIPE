@@ -55,3 +55,4 @@ Collate:
     'rhJobInfo.R'
     'rhmkdir.R'
     'rhchmod.R'
+    'rhexists.R'
