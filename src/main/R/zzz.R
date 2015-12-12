@@ -7,44 +7,47 @@ class(vvvv) <- "rhversion"
 
 assign("rhipeOptions", list(version = vvvv), envir = .rhipeEnv)
 
+#' @importFrom digest digest
 .onLoad <- function(libname, pkgname) {
+   digest::digest("a") # to fix digest bug
+
    library.dynam("Rhipe", pkgname, libname,local=FALSE)
    opts <- get("rhipeOptions", envir = .rhipeEnv)
-   
+
    ## #################################################################
    ## JAVA AND HADOOP
    ## #################################################################
 
-   opts$jarloc <- list.files(file.path(system.file(package = "Rhipe"), "java"), 
+   opts$jarloc <- list.files(file.path(system.file(package = "Rhipe"), "java"),
       pattern = "Rhipe.jar$", full.names = TRUE)
-   
-   opts$mycp <- list.files(file.path(system.file(package = "Rhipe"), "java"), pattern = "jar$", 
+
+   opts$mycp <- list.files(file.path(system.file(package = "Rhipe"), "java"), pattern = "jar$",
       full.names = TRUE)
-   
+
    # need to exclude all Rhipe jars as they are already taken care of
-   mycp_exclude <- list.files(file.path(system.file(package = "Rhipe"), "java"), 
+   mycp_exclude <- list.files(file.path(system.file(package = "Rhipe"), "java"),
       pattern = "Rhipe", full.names = TRUE)
    opts$mycp <- setdiff(opts$mycp, mycp_exclude)
-   
-   if (Sys.getenv("HADOOP") == "" && Sys.getenv("HADOOP_HOME") == "" && Sys.getenv("HADOOP_BIN") == 
-      "") 
+
+   if (Sys.getenv("HADOOP") == "" && Sys.getenv("HADOOP_HOME") == "" && Sys.getenv("HADOOP_BIN") ==
+      "")
       packageStartupMessage("Rhipe requires HADOOP_HOME or HADOOP or HADOOP_BIN environment variable to be present\n $HADOOP/bin/hadoop or $HADOOP_BIN/hadoop should exist")
    if (Sys.getenv("HADOOP_BIN") == "") {
       packageStartupMessage("Rhipe: HADOOP_BIN is missing, using $HADOOP/bin")
       Sys.setenv(HADOOP_BIN = sprintf("%s/bin", Sys.getenv("HADOOP")))
    }
-   
-   if (Sys.getenv("HADOOP_HOME") == "") 
+
+   if (Sys.getenv("HADOOP_HOME") == "")
       packageStartupMessage("HADOOP_HOME missing")
-   if (Sys.getenv("HADOOP_CONF_DIR") == "") 
+   if (Sys.getenv("HADOOP_CONF_DIR") == "")
       packageStartupMessage("HADOOP_CONF_DIR missing, you are probably going to have a problem running RHIPE.\nHADOOP_CONF_DIR should be the location of the directory that contains the configuration files")
-      
+
    ## #################################################################
    ## RhipeMapReduce, runner, and checks
    ## #################################################################
 
-   opts$RhipeMapReduce <- list.files(paste(system.file(package = "Rhipe"), 
-      "bin", sep = .Platform$file.sep), pattern = "^RhipeMapReduce$", 
+   opts$RhipeMapReduce <- list.files(paste(system.file(package = "Rhipe"),
+      "bin", sep = .Platform$file.sep), pattern = "^RhipeMapReduce$",
       full.names = TRUE)
    if (is.null(opts$RhipeMapReduce) || length(opts$RhipeMapReduce) != 1) {
       packageStartupMessage("RhipeMapReduce executable not found in package bin folder as expected")
@@ -55,10 +58,10 @@ assign("rhipeOptions", list(version = vvvv), envir = .rhipeEnv)
    if (runner_env != "") {
       opts$runner <- runner_env
    } else {
-      opts$runner <- paste("R", "CMD", opts$RhipeMapReduce, "--slave", "--silent", 
-         "--vanilla")  #,'--max-ppsize=100000','--max-nsize=1G')     
+      opts$runner <- paste("R", "CMD", opts$RhipeMapReduce, "--slave", "--silent",
+         "--vanilla")  #,'--max-ppsize=100000','--max-nsize=1G')
    }
-   
+
    #######################################################################
    ## OTHER DEFAULTS
    #######################################################################
@@ -77,7 +80,7 @@ assign("rhipeOptions", list(version = vvvv), envir = .rhipeEnv)
    opts$zips <- c()
    opts$hdfs.working.dir <- "/"
    ## other defaults
-   opts$copyObjects <- list(auto = TRUE, maxsize = 100 * 1024 * 1024, exclude = c(".Random.seed", 
+   opts$copyObjects <- list(auto = TRUE, maxsize = 100 * 1024 * 1024, exclude = c(".Random.seed",
       "map.values", "map.keys", "reduce.values", "reduce.key", "rhcollect", "rng"))
    opts$templates <- list()
    opts$templates$scalarsummer <- expression(pre = {
@@ -100,14 +103,14 @@ assign("rhipeOptions", list(version = vvvv), envir = .rhipeEnv)
       }
    })
    opts$templates$colsummer <- structure(opts$templates$colsummer, combine = TRUE)
-   
+
    opts$templates$rbinder <- function(r = NULL, combine = FALSE, dfname = "adata") {
       ..r <- substitute(r)
-      r <- if (is(..r, "name")) 
+      r <- if (is(..r, "name"))
          get(as.character(..r)) else ..r
-      def <- if (is.null(r)) 
+      def <- if (is.null(r))
          TRUE else FALSE
-      r <- if (is.null(r)) 
+      r <- if (is.null(r))
          substitute({
             rhcollect(reduce.key, adata)
          }) else r
@@ -119,18 +122,18 @@ assign("rhipeOptions", list(version = vvvv), envir = .rhipeEnv)
          adata <- do.call("rbind", unlist(adata, recursive = FALSE))
          .(P)
       }), list(P = r))
-      y <- if (combine || def) 
+      y <- if (combine || def)
          structure(y, combine = TRUE) else y
       environment(y) <- .BaseNamespaceEnv
       y
    }
    opts$templates$raggregate <- function(r = NULL, combine = FALSE, dfname = "adata") {
       ..r <- substitute(r)
-      ..r <- if (is(..r, "name")) 
+      ..r <- if (is(..r, "name"))
          get(as.character(..r)) else ..r
-      def <- if (is.null(..r)) 
+      def <- if (is.null(..r))
          TRUE else FALSE
-      r <- if (is.null(..r)) 
+      r <- if (is.null(..r))
          substitute({
             adata <- unlist(adata, recursive = FALSE)
             rhcollect(reduce.key, adata)
@@ -142,10 +145,10 @@ assign("rhipeOptions", list(version = vvvv), envir = .rhipeEnv)
       }, post = {
          .(P)
       }), list(P = r))
-      y <- if (combine || def) 
+      y <- if (combine || def)
          structure(y, combine = TRUE) else y
       environment(y) <- .BaseNamespaceEnv  ## Using GlobalEnv screws thing sup ...
-      
+
       y
    }
    opts$templates$identity <- expression(reduce = {
@@ -163,7 +166,7 @@ assign("rhipeOptions", list(version = vvvv), envir = .rhipeEnv)
    opts$debug <- list()
    opts$debug$map <- list()
    opts$debug$map$collect <- list(setup = expression({
-      
+
       rhAccumulateError <- local({
          maxm <- tryCatch(rh.max.errors, error = function(e) 20)
          x <- function(maximum.errors = maxm) {
@@ -191,33 +194,33 @@ assign("rhipeOptions", list(version = vvvv), envir = .rhipeEnv)
       rhcounter("R_UNTRAPPED_ERRORS", as.character(e), 1)
       rhAccumulateError(list(as.character(e), k, r))
    })
-   opts$debug$map$count <- list(setup = NA, cleanup = NA, handler = function(e, 
+   opts$debug$map$count <- list(setup = NA, cleanup = NA, handler = function(e,
       k, r) rhcounter("R_UNTRAPPED_ERRORS", as.character(e), 1))
-   opts$debug$map[["stop"]] <- list(setup = NA, cleanup = NA, handler = function(e, 
+   opts$debug$map[["stop"]] <- list(setup = NA, cleanup = NA, handler = function(e,
       k, r) rhcounter("R_ERRORS", as.character(e), 1))
-   
+
    ## ##################### Handle IO Formats ######################
    opts <- handleIOFormats(opts)
-   
+
    ########################################################################
    ## FINSHING
    ########################################################################
-   
+
    assign("rhipeOptions", opts, envir = .rhipeEnv)
    ## initialize()
    a <- "| Please call rhinit() else RHIPE will not run |"
-   a <- sprintf("%s\n%s\n%s", paste(rep("-", nchar(a)), collapse = ""), a, paste(rep("-", 
+   a <- sprintf("%s\n%s\n%s", paste(rep("-", nchar(a)), collapse = ""), a, paste(rep("-",
       nchar(a)), collapse = ""))
    packageStartupMessage(a)
 }
 
 #' Initializes the RHIPE subsystem
-#' 
-#' @export 
+#'
+#' @export
 rhinit <- function() {
    opts <- rhoptions()
    hadoop <- Sys.getenv(c("HADOOP_HOME", "HADOOP_CONF_DIR", "HADOOP_LIBS"))
-   
+
    if (hadoop["HADOOP_HOME"] != "") {
       ## print(any(c(grepl('(yes|true)',tolower(Sys.getenv('RHIPE_USE_CDH4'))),grepl('cdh4',
       ## c(list.files(hadoop['HADOOP_HOME'])))) ,na.rm=TRUE))
@@ -235,7 +238,7 @@ rhinit <- function() {
    c15 <- tryCatch(unlist(sapply(strsplit(hadoop["HADOOP_LIBS"], ":")[[1]], function(r) {
       list.files(r, pattern = "jar$", full.names = TRUE, recursive = FALSE)
    })), error = function(e) NULL)
-   
+
    c2 <- hadoop["HADOOP_CONF_DIR"]
    .jinit(parameters = c(getOption("java.parameters"), "-Xrs"))
    ## mycp needs to come first as hadoop distros such as cdh4 have an older version
@@ -248,9 +251,9 @@ rhinit <- function() {
    packageStartupMessage(sprintf("Initializing Rhipe v%s", vvvv))
    server <- .jnew("org/godhuli/rhipe/PersonalServer")
    dbg <- as.integer(Sys.getenv("RHIPE_DEBUG_LEVEL"))
-   tryCatch(server$run(if (is.na(dbg)) 
+   tryCatch(server$run(if (is.na(dbg))
       0L else dbg), Exception = function(e) e$printStackTrace())
-   rhoptions(jarloc = opts$jarloc, server = server, clz = list(fileutils = server$getFU(), 
+   rhoptions(jarloc = opts$jarloc, server = server, clz = list(fileutils = server$getFU(),
       config = server$getConf()))
    server$getConf()$setClassLoader(.jclassLoader())
    rhoptions(mropts = Rhipe:::rhmropts(), hadoop.env = hadoop)

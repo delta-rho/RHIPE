@@ -1,6 +1,7 @@
-Version 0.75.1.6
+Version 0.75.1.7
 ----------------------------------------------------------------------
 
+- workaround for bug having to do with digest not returning unique results
 - provide serialization for simple environments
 - update so that output to non-standard file URIs like s3 work in `rhwatch()`
 - update build script
