@@ -7,10 +7,7 @@ class(vvvv) <- "rhversion"
 
 assign("rhipeOptions", list(version = vvvv), envir = .rhipeEnv)
 
-#' @importFrom digest digest
 .onLoad <- function(libname, pkgname) {
-   digest::digest("a") # to fix digest bug
-
    library.dynam("Rhipe", pkgname, libname,local=FALSE)
    opts <- get("rhipeOptions", envir = .rhipeEnv)
 
