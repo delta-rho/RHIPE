@@ -12,7 +12,7 @@ test_that("test rhinit", {
 ## TEST: hdfs.getwd
 
 test_that("test hdfs.getwd", {
-   hdfs.wd <- hdfs.getwd()
+  hdfs.wd <- hdfs.getwd()
 })
 
 ## TEST: rhmkdir
