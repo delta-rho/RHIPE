@@ -343,8 +343,6 @@ rhwatch <- function(map = NULL, reduce = NULL, combiner = FALSE, setup = NULL,
       }
       
       ## Has the user given one?
-      if (!is.list(debug) || (is.list(debug) && is.null(debug$map)) )
-         stop("debug should be list with a sublist named 'map'")
       if (is.list(debug) && !is.null(debug$map)) {
          if (!is.null(debug$map$setup)) 
             setup <- debug$map$setup
