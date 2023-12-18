@@ -224,7 +224,7 @@
         <repository>
           <id>spring-releases</id>
           <name>Spring Release Repository</name>
-          <url>http://repo.spring.io/libs-release</url>
+          <url>https://repo.spring.io/libs-release</url>
         </repository>
         <repository>
             <id>cloudera</id>
@@ -238,7 +238,7 @@
         </repository>
         <repository>
             <id>HDPReleases</id>
-            <url>http://repo.hortonworks.com/content/repositories/releases/</url>
+            <url>https://repo.hortonworks.com/content/repositories/releases/</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>always</updatePolicy>
